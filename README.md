@@ -30,22 +30,30 @@ npm run build [browser]
 ## Combo的一些示例
 
 - 根据选择器获取网页信息 示例
+
+
 获取微博话题下面的文本内容
+```
 {
     "url":"https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%23AGIUI",
     "query":".weibo-main .weibo-text"
 }
+```
 
 获取微博推荐的内容
+```
 {   "url":"https://m.weibo.cn/?ref=mix",
     "query":".weibo-text"
 }
+```
 
 chirper上的shadowai行为解读
+```
 {
     "url":"https://chirper.ai/shadowai/?ref=mix",
     "query":".MuiCardContent-root"
 }
+```
 
 
 ## 相关资料：
