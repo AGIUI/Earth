@@ -9,14 +9,16 @@ AGI-UI的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人�
 
 ## 如何使用？
 
-安装步骤，先打开网址下载：https://github.com/AGIUI/Earth/releases/tag/v0.1
+安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.1.1
 
 Chrome：
+
 1.打开Chrome浏览器，地址栏输入 chrome://extensions/, 勾择开发者模式，点击'加载已解压的扩展程序'
 
 2.选择文件夹，点击确定。扩展程序列表出现你导入的扩展程序即为成功。
 
 Edge：
+
 1.打开Edge浏览器，地址栏输入 edge://extensions/, 勾择开发者模式，点击'加载已解压的扩展程序'
 
 2.选择文件夹，点击确定。扩展程序列表出现你导入的扩展程序即为成功。
