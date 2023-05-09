@@ -72,7 +72,12 @@ class Setup extends React.Component<{
     }
 
     _update() {
-
+	  if(this.state.loading){
+	this.setState({
+            loading: false
+        })	
+return 
+		} 
         let { chatGPTAPI, chatGPTModel, chatGPTToken } = this.state;
         const myConfig = { chatGPTAPI, chatGPTModel, chatGPTToken }
         chromeStorageSet({ myConfig });
