@@ -1,5 +1,5 @@
 import React from 'react'
-import { Space, Divider, Tag, Typography, Input, Button, Select, Popover } from 'antd';
+import { Space, Divider, Tag, Typography, Input, Button, Select, Popover, Spin } from 'antd';
 
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 
@@ -18,7 +18,9 @@ class Setup extends React.Component<{
     chatGPTModels: any,
     chatGPTModel: string,
     status: any,
-    shortcut: string
+    shortcut: string,
+    loading: boolean,
+    checked: boolean
 }> {
     constructor(props: any) {
         super(props)
@@ -32,7 +34,9 @@ class Setup extends React.Component<{
             status: {
                 Bing: '-', ChatGPT: '-'
             },
-            shortcut: ''
+            shortcut: '',
+            loading: false,
+            checked: false
         }
 
         chrome.storage.sync.onChanged.addListener(() => {
@@ -43,12 +47,42 @@ class Setup extends React.Component<{
 
         window.onfocus = (e) => {
             if (document.readyState == 'complete') {
-                chrome.runtime.sendMessage({
-                    cmd: 'chat-bot-init'
-                })
-                this._updateChatBotAvailables()
+
+                if (Object.values(this.state.status).filter(t => t != "OK").length > 0) {
+                    this._check({}, this.state.checked);
+                    this._updateChatBotAvailables()
+                };
+
             }
         }
+
+    }
+
+    _check(data = {}, checked = false) {
+        if (checked === false) {
+            chrome.runtime.sendMessage({
+                cmd: 'chat-bot-init',
+                data
+            })
+
+            this.setState({
+                checked: true
+            })
+        }
+    }
+
+    _update() {
+
+        let { chatGPTAPI, chatGPTModel, chatGPTToken } = this.state;
+        const myConfig = { chatGPTAPI, chatGPTModel, chatGPTToken }
+        chromeStorageSet({ myConfig });
+
+        // bg 初始化chatbot
+        this._check(myConfig, false)
+
+        this.setState({
+            loading: true
+        })
 
     }
 
@@ -67,11 +101,12 @@ class Setup extends React.Component<{
                         status[c.type] = c.available.info || ''
                     }
                 })
+                console.log(status)
                 this.setState({
-                    status
+                    status, loading: false
                 })
             };
-            if(res.myPoints){
+            if (res.myPoints) {
                 // api2d
                 console.log(res.myPoints)
             }
@@ -82,7 +117,7 @@ class Setup extends React.Component<{
 
         chromeStorageGet('myConfig').then((res: any) => {
             let myConfig = res.myConfig;
-            if (myConfig && myConfig.chatGPTAPI && this.state.chatGPTAPIs.includes(myConfig.chatGPTAPI)) {
+            if (myConfig && myConfig.chatGPTAPI && !this.state.chatGPTAPIs.includes(myConfig.chatGPTAPI)) {
                 this.state.chatGPTAPIs.push(myConfig.chatGPTAPI);
             }
             this.setState(myConfig)
@@ -110,163 +145,161 @@ class Setup extends React.Component<{
 
     }
 
+    componentWillUnmount(): void {
+        console.log('componentWillUnmount')
+    }
+
     render(): JSX.Element {
         return (
             <Space direction="vertical" size="small"
                 style={{ width: 500, padding: 20, display: 'flex', backgroundColor: "white" }}>
 
-                <Title level={3}>设置</Title>
-                <Button icon={<CloseOutlined style={{ fontSize: 20 }} />} style={{
-                    position: 'absolute',
-                    top: 10,
-                    right: 20,
-                    border: 0,
-                    boxShadow: 'none'
-                }}
-                    onClick={() => {
-                        if (this.props.callback) this.props.callback({
-                            cmd: 'close-setup'
-                        })
-                    }} />
+                <Spin spinning={this.state.loading}>
 
-                <Title level={4} style={{ marginTop: 0 }}>快捷键设置</Title>
-                <Space direction={"horizontal"} align={"center"}>
-                    <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.shortcut}</Text>
-                    <Button
-                        onClick={() => chrome.runtime.sendMessage({
-                            cmd: 'set-shortcuts'
-                        })}>
-                        修改
-                    </Button>
-                </Space>
 
-                <Divider style={{ marginTop: 10, marginBottom: 10 }} />
-                <Title level={4} style={{ marginTop: 0 }}>Bing Chat设置</Title>
-                {(() => {
-                    if (this.state.status['Bing'] == 'OK') {
-                        return <Tag color="#87d068">当前可用</Tag>
-                    } else if (this.state.status['Bing'] == 'UnauthorizedRequest') {
-                        return (
-                            <Space direction={"vertical"}>
-                                <Space direction={"horizontal"} size={0} style={{ marginBottom: 10 }}>
-                                    <Tag color={"#cd201f"}>Bing未授权</Tag>
+
+
+                    <Title level={3}>设置</Title>
+                    <Button icon={<CloseOutlined style={{ fontSize: 20 }} />} style={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 20,
+                        border: 0,
+                        boxShadow: 'none'
+                    }}
+                        onClick={() => {
+                            if (this.props.callback) this.props.callback({
+                                cmd: 'close-setup'
+                            })
+                        }} />
+
+                    <Title level={4} style={{ marginTop: 0 }}>快捷键设置</Title>
+                    <Space direction={"horizontal"} align={"center"}>
+                        <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.shortcut}</Text>
+                        <Button
+                            onClick={() => chrome.runtime.sendMessage({
+                                cmd: 'set-shortcuts'
+                            })}>
+                            修改
+                        </Button>
+                    </Space>
+
+                    <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                    <Title level={4} style={{ marginTop: 0 }}>Bing Chat设置</Title>
+                    {(() => {
+                        if (this.state.status['Bing'] == 'OK') {
+                            return <Tag color="#87d068">当前可用</Tag>
+                        } else if (this.state.status['Bing'] == 'UnauthorizedRequest') {
+                            return (
+                                <Space direction={"vertical"}>
+                                    <Space direction={"horizontal"} size={0} style={{ marginBottom: 10 }}>
+                                        <Tag color={"#cd201f"}>Bing未授权</Tag>
+                                        <Popover zIndex={1200} content={
+                                            <div>Bing Chat无法使用，请重新登录Bing账号</div>
+                                        } title="相关建议">
+                                            <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
+                                        </Popover>
+                                    </Space>
+                                    <Button
+                                        onClick={() => {
+                                            chrome.runtime.sendMessage({
+                                                cmd: 'open-url', data: { url: "https://www.bing.com" }
+                                            });
+                                            // setTimeout(() => chrome.runtime.sendMessage({
+                                            //     cmd: 'chat-bot-init'
+                                            // }), 2000)
+                                        }}>登录Bing账号</Button>
+                                </Space>
+                            )
+                        } else {
+                            return (
+                                <Space direction={"horizontal"} size={0} style={{ marginBottom: 0 }}>
+                                    <Tag color={"#cd201f"}>环境异常 {this.state.status['Bing']}</Tag>
                                     <Popover zIndex={1200} content={
-                                        <div>Bing Chat无法使用，请重新登录Bing账号</div>
+                                        <div>Bing Chat无法使用，请检查网络配置</div>
                                     } title="相关建议">
                                         <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                     </Popover>
                                 </Space>
-                                <Button
-                                    onClick={() => {
-                                        chrome.runtime.sendMessage({
-                                            cmd: 'open-url', data: { url: "https://www.bing.com" }
-                                        });
-                                        setTimeout(() => chrome.runtime.sendMessage({
-                                            cmd: 'chat-bot-init'
-                                        }), 2000)
-                                    }}>登录Bing账号</Button>
-                            </Space>
-                        )
-                    } else {
-                        return (
-                            <Space direction={"horizontal"} size={0} style={{ marginBottom: 0 }}>
-                                <Tag color={"#cd201f"}>环境异常</Tag>
+                            )
+                        }
+                    })()}
+                    <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                    <Title level={4} style={{ marginTop: 0 }}>ChatGPT设置</Title>
+                    {(() => {
+                        if (this.state.status['ChatGPT'] == 'OK') {
+                            return <Tag color="#87d068">当前可用</Tag>
+                        } else {
+                            return <Space direction={"horizontal"} size={0}>
+                                <Tag color={"#cd201f"}>暂不可用 {this.state.status['ChatGPT']}</Tag>
                                 <Popover zIndex={1200} content={
-                                    <div>Bing Chat无法使用，请检查网络配置</div>
+                                    <div>ChatGPT无法使用，请检查网络或者重新配置API Key</div>
                                 } title="相关建议">
                                     <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                 </Popover>
                             </Space>
-                        )
-                    }
-                })()}
-                <Divider style={{ marginTop: 10, marginBottom: 10 }} />
-                <Title level={4} style={{ marginTop: 0 }}>ChatGPT设置</Title>
-                {(() => {
-                    if (this.state.status['ChatGPT'] == 'OK') {
-                        return <Tag color="#87d068">当前可用</Tag>
-                    } else {
-                        return <Space direction={"horizontal"} size={0}>
-                            <Tag color={"#cd201f"}>暂不可用</Tag>
-                            <Popover zIndex={1200} content={
-                                <div>ChatGPT无法使用，请检查网络或者重新配置API Key</div>
-                            } title="相关建议">
-                                <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
-                            </Popover>
-                        </Space>
-                    }
-                })()}
-                <Space direction="vertical" size={'small'} style={{ display: 'flex' }}>
-                    <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>API Key设置</Title>
-                    <Input.Password placeholder="input token"
-                        value={this.state.chatGPTToken}
-                        onChange={(e: any) => {
-                            this.setState({
-                                chatGPTToken: e.target.value
-                            })
-                        }} />
+                        }
+                    })()}
+                    <Space direction="vertical" size={'small'} style={{ display: 'flex' }}>
+                        <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>API Key设置</Title>
+                        <Input.Password placeholder="input token"
+                            value={this.state.chatGPTToken}
+                            onChange={(e: any) => {
+                                this.setState({
+                                    chatGPTToken: e.target.value
+                                })
+                            }} />
 
-                    <Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Host设置</Title>
-                    <Select
-                        maxTagCount={1}
-                        mode="tags"
-                        style={{ width: '100%' }}
-                        placeholder="https://api.openai.com"
-                        value={this.state.chatGPTAPI}
-                        onChange={(e: any) => {
-                            console.log(e)
-                            this.setState({
-                                chatGPTAPI: e[0]
-                            })
-                        }}
-                        options={Array.from(this.state.chatGPTAPIs, c => {
-                            return {
-                                value: c,
-                                label: c
-                            }
-                        })}
-                    />
-                    <Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Model设置</Title>
-
-                    <Select
-                        maxTagCount={1}
-                        mode="tags"
-                        placeholder={this.state.chatGPTModels[0]}
-                        style={{ width: '100%' }}
-                        value={this.state.chatGPTModel}
-                        onChange={(value: string) => {
-                            // console.log(`selected ${value}`);
-                            this.setState({
-                                chatGPTModel: value
-                            })
-                        }}
-                        options={
-                            Array.from(this.state.chatGPTModels, c => {
+                        <Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Host设置</Title>
+                        <Select
+                            maxTagCount={3}
+                            mode="tags"
+                            optionFilterProp="label"
+                            style={{ width: '100%' }}
+                            placeholder="https://api.openai.com"
+                            value={this.state.chatGPTAPI}
+                            onChange={(e: any) => {
+                                console.log(e)
+                                this.setState({
+                                    chatGPTAPI: e[0]
+                                })
+                            }}
+                            options={Array.from(this.state.chatGPTAPIs, c => {
                                 return {
                                     value: c,
                                     label: c
                                 }
-                            })
-                        }
-                    />
+                            })}
+                        />
+                        <Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Model设置</Title>
 
-                </Space>
+                        <Select
+                            maxTagCount={3}
+                            mode="tags"
+                            optionFilterProp="label"
+                            placeholder={this.state.chatGPTModels[0]}
+                            style={{ width: '100%' }}
+                            value={this.state.chatGPTModel}
+                            onChange={(value: any) => {
+                                console.log(value);
+                                this.setState({
+                                    chatGPTModel: value[0]
+                                })
+                            }}
+                            options={
+                                Array.from(this.state.chatGPTModels, c => {
+                                    return {
+                                        value: c,
+                                        label: c
+                                    }
+                                })
+                            }
+                        />
 
+                    </Space>
+                </Spin>
                 <Space direction={"horizontal"}>
-                    <Button style={{ marginTop: 10 }} onClick={() => {
-                        let { chatGPTAPI, chatGPTModel, chatGPTToken } = this.state;
-                        const myConfig = { chatGPTAPI, chatGPTModel, chatGPTToken }
-                        chromeStorageSet({ myConfig });
-
-                        // bg 初始化chatbot
-                        chrome.runtime.sendMessage({
-                            cmd: 'chat-bot-init',
-                            data: myConfig
-                        });
-                        // if (this.props.callback) this.props.callback({
-                        //     cmd:"close-"
-                        // })
-                    }}>更新状态</Button>
+                    <Button style={{ marginTop: 10 }} onClick={() => this._update()}>{this.state.loading ? '更新中' : '更新状态'}</Button>
 
                 </Space>
             </Space>
