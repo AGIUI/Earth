@@ -1,0 +1,14 @@
+{
+    "chatGPT": {
+        "token": "124",
+        "apis": ["https://oa.api2d.net"],
+        "api": "https://oa.api2d.net",
+        "models": ["ChatGPT-3.5"],
+        "model": "ChatGPT-3.5",
+        "apisFreezed": true,
+        "modelsFreezed": true,
+        "creditUrl": "https://oa.api2d.net",
+        "creditHelpUrl": "https://taobao.com",
+        "helpUrl": "https://www.notion.so/hci-top/MiX-Copilot-dd9c72f835614825910908a0afaf4ae3?pvs=4"
+    }
+}

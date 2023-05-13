@@ -5,7 +5,7 @@ import NewBing from '@components/background/NewBing'
 import ChatGPT from '@components/background/ChatGPT'
 import ChatBot from '@components/background/ChatBot'
 import Agent from "@components/background/Agent";
-import Api2d from "@components/background/Api2d"
+import Credit from "@components/background/Credit"
 import Common from '@components/background/Common'
 
 import { getConfig } from '@components/Utils';
@@ -66,5 +66,5 @@ import { getConfig } from '@components/Utils';
         // 初始化
     chatBot.getAvailables()
 
-    new Common(json, notion, chatBot, Agent, Api2d)
+    new Common(json, notion, chatBot, Agent, Credit)
 })()

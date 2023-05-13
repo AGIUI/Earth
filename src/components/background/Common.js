@@ -5,11 +5,11 @@
 
 
 class Common {
-    constructor(json, notion, chatBot, Agent, Api2d) {
+    constructor(json, notion, chatBot, Agent, Credit) {
         this.appName = json.app;
 
         this.init()
-        this.onMessage(json, notion, chatBot, Agent, Api2d)
+        this.onMessage(json, notion, chatBot, Agent, Credit)
 
     }
 
@@ -66,7 +66,7 @@ class Common {
         })
     }
 
-    onMessage(json, notion, chatBot, Agent, Api2d) {
+    onMessage(json, notion, chatBot, Agent, Credit) {
         // 用于监听发到bg的消息
         chrome.runtime.onMessage.addListener(
             async(request, sender, sendResponse) => {
@@ -117,14 +117,16 @@ class Common {
                         })
                 } else if (cmd == 'chat-bot-init') {
                     // 初始化 chatbot
-                    const { chatGPTAPI, chatGPTModel, chatGPTToken } = data || {}
+                    const { type, api, model, token, team } = data || {}
 
-                    if (chatGPTAPI && chatGPTModel && chatGPTToken) {
+                    if (api && model && token) {
                         await chatBot.init(
-                            'ChatGPT',
-                            chatGPTToken,
-                            chatGPTAPI,
-                            chatGPTModel
+                            type || 'ChatGPT', {
+                                token,
+                                api,
+                                model,
+                                team
+                            }
                         )
                     }
 
@@ -200,9 +202,10 @@ class Common {
                     })
                 } else if (cmd == 'run-agents') {
                     Agent.executeScript(data.url, data.query, data.combo)
-                } else if (cmd == "get-my-points-for-api2d") {
+                } else if (cmd == "get-my-points") {
+                    const apiName = data.apiName;
                     // 获取我的积分
-                    Api2d.getPoints().then(res => {
+                    Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
 
