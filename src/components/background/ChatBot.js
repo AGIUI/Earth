@@ -56,7 +56,7 @@ class ChatBotBackground {
     }
 
     // 初始化
-    async init(type, params) {
+    async init(type, params = {}) {
         const { token, api, model, team } = params;
         // if (this.dev) return this.devInit()
         if (this.items) {
