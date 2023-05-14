@@ -203,7 +203,8 @@ class Common {
                 } else if (cmd == 'run-agents') {
                     Agent.executeScript(data.url, data.query, data.combo)
                 } else if (cmd == "get-my-points") {
-                    const apiName = data.apiName;
+                    const apiName = data.apiName,
+                        token = data.token;
                     // 获取我的积分
                     Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })

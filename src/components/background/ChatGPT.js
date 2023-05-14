@@ -3,6 +3,9 @@ import { v4 } from 'uuid'
 // console.log(v4())
 const roles = ['system', 'assistant', 'user']
 
+import { chromeStorageGet, chromeStorageSet } from '@src/components/Utils';
+
+
 //https://mixcopilot.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview
 //
 
@@ -121,12 +124,11 @@ export default class ChatGPT {
     }
 
     loadFromLocal() {
-        // const myConfig = { bingStyle, chatGPTAPI, chatGPTModel, chatGPTToken }
-        chrome.storage.local.get('myConfig').then(data => {
+        chromeStorageGet('myConfig').then(data => {
             if (data.myConfig) {
-                this.token = data.myConfig.chatGPTToken
-                this.model = data.myConfig.chatGPTModel
-                this.baseUrl = createAPIUrl(data.myConfig.chatGPTAPI)
+                this.token = data.myConfig.token
+                this.model = data.myConfig.model
+                this.baseUrl = createAPIUrl(data.myConfig.api)
             }
         })
     }
@@ -285,12 +287,11 @@ export default class ChatGPT {
                 isDone = true;
             };
 
-
             let data
             try {
                 data = JSON.parse(message)
             } catch (err) {
-                params.onEvent({ type: 'ERROR', data: `message error` })
+                if (!isDone) params.onEvent({ type: 'ERROR', data: `message error` })
                 return
             }
 

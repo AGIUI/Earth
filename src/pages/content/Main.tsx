@@ -543,16 +543,24 @@ class Main extends React.Component<{
                 if (data.chatBotAvailables && data.chatBotAvailables.length > 0) {
                     let chatBotAvailables = data.chatBotAvailables.filter((n: any) => n && n.type == this.state.chatBotType && n.available);
                     let isHas = chatBotAvailables.length > 0;
+
+                    // const availables = data.chatBotAvailables.filter((c: any) => c.available && c.available.success)
+
                     console.log('##聊天服务状态', Array.from(chatBotAvailables, (a: any) => {
                         if (a && a.available) {
                             return `${a.available.success} ${a.type}`
                         }
                     }).join('\n'))
                     if (isHas) {
+                        let type = chatBotAvailables[0].type, available = chatBotAvailables[0].available;
+                        // if (availables.length > 0) {
+                        //     type = availables[0].type;
+                        //     available = availables[0].available;
+                        // }
                         res({
                             // 获取this.state.chatBotType
-                            type: chatBotAvailables[0].type,
-                            available: chatBotAvailables[0].available
+                            type,
+                            available
                         });
                     }
                     ;
@@ -838,8 +846,9 @@ class Main extends React.Component<{
             this.setState({
                 ...data
             });
-            console.log(data)
+            // console.log(data)
             localStorage.setItem('_chatBotSelect', JSON.stringify(data));
+            // chromeStorageSet({'_chatBotSelect':JSON.stringify(data)});
         }
     }
 
