@@ -427,9 +427,12 @@ class Setup extends React.Component<{
                                     }}
                                 >
                                     <p>{this.state.credit}</p>
-                                    <p>充值</p>
-                                    <HelpButton callback={(e: any) => this._openUrl(this.state.chatGPTConfig.creditHelpUrl)}
-                                        disabled={false} />
+
+                                    <Button style={{
+                                        marginLeft: '12px',
+                                        marginTop: 0
+                                    }} onClick={() => this._openUrl(this.state.chatGPTConfig.creditHelpUrl)}>充值</Button>
+
                                 </div> : ''
                             }
 
