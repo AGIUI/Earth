@@ -859,7 +859,7 @@ class Main extends React.Component<{
         // 从ChatBotInput输入里返回的数据
         // cmd: new-talk、stop-talk、left-button-action、send-talk
         //    {cmd:'send-talk' ,data:{prompt,tag}}
-        console.log('_control:', event)
+        // console.log('_control:', event)
         if (event && event.cmd) {
             const { cmd, data } = event;
             // 对话数据
@@ -867,7 +867,7 @@ class Main extends React.Component<{
             // 更新到这里
             let nTalks = [...talks];
 
-
+            console.log('nTalks:', nTalks)
             const sendTalk = () => {
                 let { prompt, tag, newTalk } = data;
                 prompt = JSON.parse(JSON.stringify(prompt))
