@@ -8,7 +8,7 @@ const defaultPrompt={
         query:'',url:'',isQuery:false
     },
     isApi:false,
-    url:''
+    url:'',
 }
 
 /**
@@ -21,7 +21,9 @@ const defaultCombo={
     checked:false,
     isInfinite:false,
     owner: 'official',
-    prompt:defaultPrompt
+    prompt:defaultPrompt,
+    temperature:0.6,
+    model:'ChatGPT'
 }
 
 const comboOptions = [

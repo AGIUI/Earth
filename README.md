@@ -71,6 +71,39 @@ chirper上的shadowai行为解读
 }
 ```
 
+## combo的数据示例
+```
+[{
+    "checked": true,
+    "combo": 3,
+    "id": "1881e7d386e",
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": true,
+        "queryObj": {
+            "isQuery": false,
+            "query": "",
+            "url": ""
+        },
+        "text": "给我一个科幻故事，和植物、机器人、爱情有关",
+        "url": ""
+    },
+    "prompt2": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": false,
+        "text": "总结下"
+    },
+    "prompt3": {
+        "text": "嗯"
+    },
+    "role": "",
+    "tag": "科幻故事"
+}]
+```
 
 ## 相关资料：
 
