@@ -1,29 +1,29 @@
-const PROMPT_MAX_LENGTH=720
+const PROMPT_MAX_LENGTH = 720
 
-const defaultPrompt={
-    text:'',
-    isNextUse:false,
-    bindCurrentPage:false,
-    queryObj:{
-        query:'',url:'',isQuery:false
+const defaultPrompt = {
+    text: '',
+    isNextUse: false,
+    bindCurrentPage: false,
+    queryObj: {
+        query: '', url: '', isQuery: false
     },
-    isApi:false,
-    url:'',
+    isApi: false,
+    url: '',
+    temperature: 0.6,
+    model: 'ChatGPT'
 }
 
 /**
  * 
  */
-const defaultCombo={
-    tag:'',
-    role:'',
-    combo:1,
-    checked:false,
-    isInfinite:false,
+const defaultCombo = {
+    tag: '',
+    role: '',
+    combo: 1,
+    checked: false,
+    isInfinite: false,
     owner: 'official',
-    prompt:defaultPrompt,
-    temperature:0.6,
-    model:'ChatGPT'
+    prompt: defaultPrompt,
 }
 
 const comboOptions = [
@@ -43,8 +43,9 @@ const comboOptions = [
 
 const promptOptions = [
     {
-        label:'根据选择器获取网页信息',
-        value:'isQuery'
+        label: '根据选择器获取网页信息',
+        value: 'isQuery',
+        type: 'checkbox'
     },
     // {
     //     label:'API请求',
@@ -52,15 +53,32 @@ const promptOptions = [
     // },
     {
         label: '绑定当前网页',
-        value: 'bindCurrentPage'
+        value: 'bindCurrentPage',
+        type: 'checkbox'
     },
     {
         label: '作为上下文',
-        value: 'isNextUse'
+        value: 'isNextUse',
+        type: 'checkbox'
+    },
+    {
+        label: '温度',
+        value: 'temperature',
+        type: 'range'
+    },
+    {
+        label: '模型',
+        value: 'model',
+        type: 'select',
+        options:[
+            { value: 'ChatGPT', label: 'ChatGPT' },
+            { value: 'Bing', label: 'Bing' }
+        ]
     }
 ];
 
-const createPrompts=()=>{
+
+const createPrompts = () => {
 
 }
 

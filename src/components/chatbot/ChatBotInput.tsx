@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Card, Button, Input } from 'antd';
+import { Card, Button, Input, Checkbox } from 'antd';
 import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 import { defaultCombo, defaultPrompt } from "../combo/ComboData";
@@ -9,7 +9,7 @@ import { defaultCombo, defaultPrompt } from "../combo/ComboData";
  * <ChatBotInput callback={({data,cmd})=>{console.log(cmd,data)}} isLoading={false} leftButton={label:'My Prompts'}/>
  * 
  */
- 
+
 
 
 
@@ -56,7 +56,7 @@ interface ChatBotInput {
 const buttonStyle = {
     outline: 'none',
     border: 'none',
-},buttonMainStyle = {
+}, buttonMainStyle = {
     outline: 'none',
     border: 'none',
     color: '#fff',
@@ -153,8 +153,12 @@ class ChatBotInput extends React.Component {
         }
     }
 
+    // _bindCurrentPage(b:boolean){
+
+    // }
+
     _userSelectionAdd() {
-        this.setState({
+        if (this.state.placeholder != 'Ask or search anything') this.setState({
             userInput: {
                 prompt: this.state.placeholder,
                 tag: this.state.placeholder
@@ -218,7 +222,7 @@ class ChatBotInput extends React.Component {
                                 }
                             </Button> : ''
                         }
-                        
+
 
                     </div>
                     ,
@@ -259,6 +263,26 @@ class ChatBotInput extends React.Component {
 
                 ]}
             >
+
+                <Button type="text"
+                    onClick={() => this._userSelectionAdd()}
+                >
+                    使用划选内容
+                </Button>
+
+                <Checkbox.Group
+                    style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'baseline'
+                    }}
+                    options={[{
+                        label: '绑定当前网页', value: 'bindCurrentPage'
+                    }]}
+                    onChange={(e) => console.log(e[0])} />
+
+
+
                 <TextArea
                     maxLength={2000}
                     allowClear={true}

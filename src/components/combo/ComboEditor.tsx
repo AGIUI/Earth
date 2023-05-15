@@ -17,7 +17,7 @@ import {
 import { chromeStorageGet, chromeStorageSet, md5 } from "@components/Utils"
 
 
-import { defaultCombo } from '@components/combo/ComboData'
+import { defaultCombo, defaultPrompt } from '@components/combo/ComboData'
 
 import DownloadButton from '@components/buttons/DownloadButton';
 import { FlexRow } from "@components/Style";
@@ -127,8 +127,11 @@ class ComboEditor extends React.Component {
         })
     };
 
+   
+
     _downloadMyCombo() {
         const prompts = this.state.myPrompts.filter((p: any) => p.owner != 'official')
+
         const data = JSON.stringify(prompts)
 
         //通过创建a标签实现
@@ -176,6 +179,7 @@ class ComboEditor extends React.Component {
                                     myPrompts.push(n)
                                 };
                             }
+
                             chromeStorageSet({ 'user': newUser });
 
                             that.setState({ myPrompts })

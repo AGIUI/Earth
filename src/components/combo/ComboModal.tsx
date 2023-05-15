@@ -7,9 +7,9 @@ import {
     Checkbox,
     Form,
     Popconfirm,
-    Divider,
+    Divider, Select, Slider, Radio
 } from 'antd';
-
+const { Option } = Select;
 const { TextArea } = Input;
 
 import { md5 } from '@components/Utils'
@@ -204,6 +204,20 @@ class ComboModal extends React.Component {
     }
 
 
+    _handlePromptModelAndTemperatureSetting(promptIndex: number, value: any, type = 'model') {
+        let json: any = {};
+        const currentPrompt = this.state.currentPrompt;
+
+        const key = promptIndex == 0 ? `prompt` : `prompt${promptIndex + 1}`;
+
+        json[key] = {
+            ...currentPrompt[key]
+        }
+
+        json[key][type] = value
+
+        this._updateCurrentPrompt(json);
+    }
 
     /**
      * 
@@ -262,17 +276,26 @@ class ComboModal extends React.Component {
         }
     }
 
+
+
     _addOptions(prompt: any) {
-        const options = [];
+        const options: any = {
+            options: [],
+            temperature: prompt.temperature || 0.6,
+            model: prompt.model || 'ChatGPT'
+        };
+
         if (prompt.isNextUse) {
-            options.push('isNextUse');
+            options['options'].push('isNextUse');
         }
         if (prompt.bindCurrentPage) {
-            options.push('bindCurrentPage');
+            options['options'].push('bindCurrentPage');
         }
         if (prompt.queryObj && prompt.queryObj.isQuery) {
-            options.push('isQuery');
+            options['options'].push('isQuery');
         }
+
+
         // if (prompt.isApi) {
         //     options.push('isApi');
         // }
@@ -285,11 +308,16 @@ class ComboModal extends React.Component {
         const comboCount = promptValue.combo || 5;
         const hasPrompt = promptValue && Object.keys(promptValue).length > 0;
         // console.log('this.state.currentPrompt---', this.state.currentPrompt)
+
+        const options = this._addOptions(promptValue.prompt)
+
         const formData: any = hasPrompt ? {
             tag: promptValue.tag || '',
             role: promptValue.role || '',
             Prompt1Text: promptValue.prompt.text || '',
-            Prompt1EditOptions: this._addOptions(promptValue.prompt),
+            Prompt1EditOptionsForCheckbox: options['options'],
+            Prompt1EditOptionsForTemperature: options['temperature'],
+            Prompt1EditOptionsForModel: options['model'],
             uniqueId: promptValue.id,
             EditOptions: (() => {
                 const options = [];
@@ -313,7 +341,9 @@ class ComboModal extends React.Component {
                 console.log(index, promptValue, `prompt${index + 1}`)
                 const prompt = promptValue[`prompt${index + 1}`];
                 if (prompt) {
-                    formData[`Prompt${index + 1}Text`] = prompt.text || '';
+                    // formData[`Prompt${index + 1}Text`] = prompt.text || '';
+                    // formData[`Prompt${index + 1}EditOptions`] = this._addOptions(prompt);
+                    formData[`Prompt${index + 1}`] = prompt;
                     formData[`Prompt${index + 1}EditOptions`] = this._addOptions(prompt);
                 }
             }
@@ -362,7 +392,9 @@ class ComboModal extends React.Component {
 
                     </Form.Item> */}
 
-                    <Form.Item name="Prompt1Text" label={this.state.isCombo ? ('Prompt Combo 1') : ('Prompt')}
+                    <Form.Item
+                        name="Prompt1Text"
+                        label={this.state.isCombo ? ('Prompt Combo 1') : ('Prompt')}
                         rules={[
                             {
                                 required: true,
@@ -370,6 +402,7 @@ class ComboModal extends React.Component {
                             },
                         ]}>
                         <TextArea
+
                             placeholder={this.state.isCombo ? ('必填，Prompt Combo 1') : ('必填，请填写Prompt')}
                             showCount
                             maxLength={PROMPT_MAX_LENGTH}
@@ -379,17 +412,51 @@ class ComboModal extends React.Component {
                             })}
                         />
                     </Form.Item>
-
-                    <Form.Item name="Prompt1EditOptions">
+                    <Form.Item name="Prompt1EditOptionsForCheckbox">
                         <Checkbox.Group
                             style={{
                                 flexDirection: 'column',
                                 justifyContent: 'center',
                                 alignItems: 'baseline'
                             }}
-                            options={this.state.promptOptions} onChange={(e) => this._handlePromptSetting(0, e)} />
+                            options={this.state.promptOptions.filter((p: any) => p.type == 'checkbox')}
+                            onChange={(e) => this._handlePromptSetting(0, e)} />
                     </Form.Item>
 
+                    <Form.Item
+                        name="Prompt1EditOptionsForModel"
+                        label="模型"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please pick an item!',
+                            },
+                        ]}
+                    >
+                        <Radio.Group
+                            onChange={(e) => this._handlePromptModelAndTemperatureSetting(0, e.target.value, 'model')}
+                        >
+                            {Array.from(this.state.promptOptions.filter((ps: any) => ps.value == 'model')[0].options,
+                                (p: any) => {
+                                    return <Radio.Button
+                                        value={p.value}
+                                    // defaultChecked={p.value=='ChatGPT'}
+                                    >{p.label}</Radio.Button>
+                                })}
+                        </Radio.Group>
+                    </Form.Item>
+
+
+                    <Form.Item name="Prompt1EditOptionsForTemperature">
+                        <Slider
+                            style={{ width: '120px' }}
+                            range
+                            max={1}
+                            min={0}
+                            step={0.01}
+                            onChange={(e) => this._handlePromptModelAndTemperatureSetting(0, e[0], 'temperature')}
+                        />
+                    </Form.Item>
                     {(this.state.isCombo || hasCombo) && comboCount > 1 ? (
                         <>
                             {Array.from(new Array(comboCount - 1), (_, index: number) => {
@@ -399,8 +466,8 @@ class ComboModal extends React.Component {
                                         maxLength={PROMPT_MAX_LENGTH}
                                         onChange={(e: any) => {
                                             const data: any = {};
-
                                             data[`prompt${index + 2}`] = {
+                                                ...defaultPrompt,
                                                 ...this.state.currentPrompt[`prompt${index + 2}`],
                                                 text: e.currentTarget.value.trim()
                                             }
@@ -417,7 +484,9 @@ class ComboModal extends React.Component {
                                                 justifyContent: 'center',
                                                 alignItems: 'baseline'
                                             }}
-                                            options={this.state.promptOptions} onChange={(e) => this._handlePromptSetting(index + 1, e)} />
+                                            options={this.state.promptOptions}
+                                            onChange={(e) => this._handlePromptSetting(index + 1, e)}
+                                        />
                                     </Form.Item>
                                 </>
                             })}
