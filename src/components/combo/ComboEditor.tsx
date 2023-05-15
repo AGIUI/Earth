@@ -204,8 +204,8 @@ class ComboEditor extends React.Component {
                         <List>
                             {[...Array.from(this.state.myPrompts.filter((p: any) => p.owner === 'official'), (p: any, i) => {
                                 return (
-                                    <a key={i}>
                                         <List.Item
+                                            key={i}
                                             style={{
                                                 border: 1,
                                                 borderColor: '#d9d9d9',
@@ -231,7 +231,7 @@ class ComboEditor extends React.Component {
                                                 }
 
                                             </Text></List.Item>
-                                    </a>
+
                                 )
                             })]}
                         </List>
@@ -249,25 +249,26 @@ class ComboEditor extends React.Component {
                         {/* <OpenFileButton
                             disabled={false}
                             callback={() => this._importMyCombo()} /> */}
-                        
+
                     </FlexRow>
 
                     {this.state.myPrompts.filter((p: any) => p.owner !== 'official').length > 0 ? (
                         <List>
                             {this.state.myPrompts.filter((p: any) => p.owner !== 'official').map((p: any, i: number) => {
                                 return (
-                                    <a
-                                        key={i}
-                                    >
                                         <List.Item
+                                            key={i}
                                             style={{
                                                 border: 1,
                                                 borderColor: '#d9d9d9',
                                                 borderStyle: 'solid',
                                                 borderRadius: 5,
-                                                padding: 10,
+                                                paddingTop: 15,
+                                                paddingBottom: 15,
+                                                paddingLeft: 10,
+                                                paddingRight: 10,
                                                 marginTop: 10,
-                                                marginBottom: 10,
+                                                marginBottom: 10
                                             }}
                                             actions={[
                                                 <Button
@@ -289,7 +290,6 @@ class ComboEditor extends React.Component {
                                                 }
                                             </Text>
                                         </List.Item>
-                                    </a>
                                 )
                             })}
                         </List>

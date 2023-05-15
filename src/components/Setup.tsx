@@ -1,13 +1,13 @@
 /**
  * 配置文件json
- * { team, token,apis,api,models,model,apisFreezed,modelsFreezed,helpUrl,creditUrl,creditHelpUrl }
+ * { team, token,apis,api,models,model,apisFreezed,modelsFreezed,helpUrl,creditUrl,creditHelpUrl，canImport }
  */
 
 
 
 import React from 'react'
 import { Space, Divider, Tag, Typography, Input, Button, Select, Popover, Spin } from 'antd';
-import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, CloseOutlined, FileTextOutlined } from '@ant-design/icons';
 const { Title, Text } = Typography;
 import { chromeStorageGet, chromeStorageSet } from '@src/components/Utils';
 import { getConfig } from '@components/Utils';
@@ -168,7 +168,7 @@ class Setup extends React.Component<{
 
     _save(config = null) {
 
-        let { team, api, apis, model, models, token, helpUrl, modelsFreezed, apisFreezed, creditUrl, creditHelpUrl } = config || this.state.chatGPTConfig;
+        let { team, api, apis, model, models, token, helpUrl, modelsFreezed, apisFreezed, creditUrl, creditHelpUrl, canImport } = config || this.state.chatGPTConfig;
 
         let myConfig: any = { api, model, token }
 
@@ -180,6 +180,7 @@ class Setup extends React.Component<{
         if (creditHelpUrl) myConfig['creditHelpUrl'] = creditHelpUrl;
         if (modelsFreezed) myConfig['modelsFreezed'] = modelsFreezed;
         if (apisFreezed) myConfig['apisFreezed'] = apisFreezed;
+        if (canImport) myConfig['canImport'] = canImport;
 
         chromeStorageSet({ myConfig });
         return myConfig
@@ -197,6 +198,11 @@ class Setup extends React.Component<{
 
         // bg 初始化chatbot
         this._check(myConfig, false)
+
+
+        if (myConfig.creditUrl) {
+            setTimeout(()=>this._getCredit(myConfig.creditUrl, myConfig.token),1000)
+        }
 
         this.setState({
             loading: true
@@ -226,7 +232,7 @@ class Setup extends React.Component<{
             };
             if (res.myPoints) {
                 // api2d
-                // console.log(res.myPoints)
+                console.log(res.myPoints)
                 if (res.myPoints.points) this.setState({
                     credit: `剩余点数：${res.myPoints.points}P`
                 })
@@ -318,7 +324,7 @@ class Setup extends React.Component<{
 
                     <Spin spinning={this.state.loading}>
 
-                        <Title level={3}>设置 <p style={{ fontSize: '12px' }}>{this.state.name}</p></Title>
+                        <Title level={3}>设置 <p style={{ fontSize: '14px' }}>{this.state.name}</p></Title>
                         <Button icon={<CloseOutlined style={{ fontSize: 20 }} />} style={{
                             position: 'absolute',
                             top: 10,
@@ -343,7 +349,7 @@ class Setup extends React.Component<{
                             </Button>
                         </Space>
 
-                        <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                        <Divider style={{ marginTop: 16, marginBottom: 16 }} />
                         <Title level={4} style={{ marginTop: 0 }}>Bing Chat设置</Title>
                         {(() => {
                             if (this.state.status['Bing'] == 'OK') {
@@ -383,10 +389,12 @@ class Setup extends React.Component<{
                                 )
                             }
                         })()}
-                        <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+                        <Divider style={{ marginTop: 16, marginBottom: 16 }} />
                         <Title level={4} style={{ marginTop: 0 }}>ChatGPT设置
-                            <OpenFileButton
+                            {this.state.chatGPTConfig.canImport ? <OpenFileButton
                                 callback={(e: any) => this._importConfig()}
+                                disabled={false} /> : ''}
+                            <FileTextOutlined alt={'使用教程'} style={{ marginLeft: 4 }} onClick={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}
                                 disabled={false} />
                         </Title>
                         {(() => {
@@ -403,7 +411,6 @@ class Setup extends React.Component<{
                                 </Space>
                             }
                         })()}
-                        <Divider style={{ marginTop: 10, marginBottom: 10 }} />
                         <Space direction="vertical" size={'small'} style={{ display: 'flex' }}>
 
                             {
@@ -413,9 +420,6 @@ class Setup extends React.Component<{
                                         alignItems: 'center'
                                     }}
                                 >
-                                    <p>使用帮助</p>
-                                    <HelpButton callback={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}
-                                        disabled={false} />
                                 </div> : ''
                             }
 
@@ -426,12 +430,12 @@ class Setup extends React.Component<{
                                         alignItems: 'center'
                                     }}
                                 >
-                                    <p>{this.state.credit}</p>
-
+                                    {
+                                        this.state.credit != "" ? <p style={{ marginRight: '12px' }}>{this.state.credit}</p> : ''
+                                    }
                                     <Button style={{
-                                        marginLeft: '12px',
                                         marginTop: 0
-                                    }} onClick={() => this._openUrl(this.state.chatGPTConfig.creditHelpUrl)}>充值</Button>
+                                    }} onClick={() => this._openUrl(this.state.chatGPTConfig.creditHelpUrl)}>购买Key</Button>
 
                                 </div> : ''
                             }
@@ -445,7 +449,8 @@ class Setup extends React.Component<{
                                             let chatGPTConfig = this.state.chatGPTConfig;
                                             chatGPTConfig.team = e.target.value
                                             this.setState({
-                                                chatGPTConfig
+                                                chatGPTConfig,
+                                                credit: ''
                                             })
                                         }} />
                                 </> : ''
@@ -460,7 +465,8 @@ class Setup extends React.Component<{
                                     let chatGPTConfig = this.state.chatGPTConfig;
                                     chatGPTConfig.token = e.target.value
                                     this.setState({
-                                        chatGPTConfig
+                                        chatGPTConfig,
+                                        credit: ''
                                     })
                                 }} />
 
@@ -478,7 +484,8 @@ class Setup extends React.Component<{
                                             let chatGPTConfig = this.state.chatGPTConfig;
                                             chatGPTConfig.api = e[0];
                                             this.setState({
-                                                chatGPTConfig
+                                                chatGPTConfig,
+                                                credit: ''
                                             })
                                         }}
                                         options={Array.from(this.state.chatGPTConfig.apis, c => {
@@ -505,7 +512,8 @@ class Setup extends React.Component<{
                                             let chatGPTConfig = this.state.chatGPTConfig;
                                             chatGPTConfig.model = value[0];
                                             this.setState({
-                                                chatGPTConfig
+                                                chatGPTConfig,
+                                                credit: ''
                                             })
                                         }}
                                         options={
@@ -524,7 +532,6 @@ class Setup extends React.Component<{
                     </Spin>
                     <Space direction={"horizontal"}>
                         <Button style={{ marginTop: 10 }} onClick={() => this._update()}>{this.state.loading ? '更新中' : '更新状态'}</Button>
-
                     </Space>
                 </Space></Content>
         )
