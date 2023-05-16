@@ -852,6 +852,12 @@ class Main extends React.Component<{
         }
     }
 
+    _temperature2BingStyle(temperature = 0.6) {
+        let style = 'Balanced';
+        if (temperature < 0.3) style = 'Creative'
+        if (temperature > 0.7) style = 'Precise'
+    }
+
     /*
    
     */
@@ -867,13 +873,13 @@ class Main extends React.Component<{
             // 更新到这里
             let nTalks = [...talks];
 
-            console.log('nTalks:', nTalks)
+            console.log('_control:', nTalks, data)
             const sendTalk = () => {
                 let { prompt, tag, newTalk } = data;
                 prompt = JSON.parse(JSON.stringify(prompt))
 
                 // 清空type thinking && suggest 的状态
-                nTalks = nTalks.filter(n => (n.type == 'talk' || n.type == 'markdown'))
+                nTalks = nTalks.filter(n => (n.type == 'talk' || n.type == 'markdown' || n.type == 'done'))
                 this.updateChatBotStatus(true)
 
                 if (tag) nTalks.push(ChatBotConfig.createTalkData('tag', { html: tag }));
@@ -913,12 +919,26 @@ class Main extends React.Component<{
                     sendMessageToBackground['run-agents'](agentsJson)
 
                 } else {
+                    const { temperature, model } = prompt;
+
+                    let type = this.state.chatBotType,
+                        style: any = 0;
+
+                    if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
+
+                    if (temperature > -1) style = temperature;
+                    if (model) type = model;
+
+                    // 增加一个Bing的转化
+                    if (model == "Bing" && temperature > -1) style = this._temperature2BingStyle(temperature);
+                    console.log(`sendMessageToBackground['chat-bot-talk']`, temperature, model, prompt.text)
                     sendMessageToBackground['chat-bot-talk']({
                         prompt: prompt.text,
-                        type: this.state.chatBotType,
-                        style: this.state.chatBotStyle.value,
+                        type,
+                        style,
                         newTalk: !!newTalk
                     })
+
                 }
 
             }
