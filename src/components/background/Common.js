@@ -101,6 +101,7 @@ class Common {
                     if (type == 'news') databaseId = json.databaseId
                     if (type == 'copilots') databaseId = json.databaseId2
                     if (type == 'prompts') databaseId = json.databaseId3
+                    if (type == 'other') databaseId = data.dataBase
 
                     // 查询database
                     if (databaseId)

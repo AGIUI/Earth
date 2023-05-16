@@ -6,6 +6,8 @@ import {
     Tag,
     List,
     Switch, Divider, Empty,
+    Modal, Input, Form,
+    message
 } from 'antd';
 
 const { Text } = Typography;
@@ -22,7 +24,8 @@ import { defaultCombo, defaultPrompt } from '@components/combo/ComboData'
 import DownloadButton from '@components/buttons/DownloadButton';
 import { FlexRow } from "@components/Style";
 import OpenFileButton from "@components/buttons/OpenFileButton";
-
+import ImportButton from "@components/buttons/ImportOfficialCombo";
+import {parsePromptsData} from "@components/combo/ImportComboData";
 
 type PropType = {
     myPrompts: any;
@@ -34,7 +37,8 @@ type StateType = {
     name: string;
     title: string;
     secondTitle: string;
-    myPrompts: any
+    myPrompts: any,
+    showImportModal: boolean;
 }
 
 interface ComboEditor {
@@ -49,8 +53,33 @@ class ComboEditor extends React.Component {
             name: 'comboEditor',
             title: '官方Prompts',
             secondTitle: '我的Prompts',
-            myPrompts: this.props.myPrompts
+            myPrompts: this.props.myPrompts,
+            showImportModal: false,
         }
+        chrome.runtime.onMessage.addListener(async (
+            request,
+            sender,
+            sendResponse
+        ) => {
+            if (request.cmd == 'get-data-from-notion-result') {
+                const {results, type} = request.data;
+                if (type) {
+                    if (request.success && results && results.length > 0) {
+                        const newCombo = await parsePromptsData(results);
+                        console.log('newCombo', newCombo);
+                        this.setState({
+                            myPrompts: newCombo,
+                            showImportModal: false
+                        });
+                    } else {
+                        message.open({
+                            type: 'error',
+                            content: '导入失败，请稍后重试',
+                        });
+                    }
+                }
+            }
+        })
     }
 
     componentDidMount() {
@@ -127,7 +156,26 @@ class ComboEditor extends React.Component {
         })
     };
 
-   
+    _importOfficialCombo(value: any) {
+        chrome.runtime.sendMessage({
+                cmd: 'get-data-from-notion',
+                data: {
+                    type: 'other',
+                    expirationTime: 0,
+                    dataBase: value.key
+                }
+            },
+            response => {
+                console.log("Received response", response);
+            }
+        )
+        chrome.runtime.onMessage.addListener(
+            (request, sender, sendResponse) => {
+                const {cmd, data} = request;
+            }
+        )
+
+    }
 
     _downloadMyCombo() {
         const prompts = this.state.myPrompts.filter((p: any) => p.owner != 'official')
@@ -242,11 +290,49 @@ class ComboEditor extends React.Component {
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
-                    <Text style={{
-                        fontSize: 20,
-                        fontWeight: "bold"
-                    }}>{this.state.title}</Text>
-
+                    <FlexRow display="flex">
+                        <Text style={{
+                            fontSize: 20,
+                            fontWeight: "bold"
+                        }}>{this.state.title}</Text>
+                        <div>
+                            <ImportButton
+                                disabled={false}
+                                callback={() => this.setState({
+                                    showImportModal: true
+                                })}/>
+                        </div>
+                    </FlexRow>
+                    <Modal centered={true} footer={false} title="填写信息" open={this.state.showImportModal}
+                           onOk={() => this.setState({
+                               showImportModal: false
+                           })}
+                           onCancel={() => this.setState({
+                               showImportModal: false
+                           })}
+                           maskClosable={false}>
+                        <Form onFinish={(e) => this._importOfficialCombo(e)}>
+                            <Form.Item
+                                style={{marginTop: 16, marginBottom: 0}}
+                                name={'key'}
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                    {
+                                        type: 'string',
+                                        len: 32,
+                                    },
+                                ]}
+                            >
+                                <Input placeholder="填写32位字符"/>
+                            </Form.Item>
+                            <Form.Item
+                                style={{display: "flex", justifyContent: "flex-end", marginTop: 16, marginBottom: 0}}>
+                                <Button type="primary" htmlType="submit">导入</Button>
+                            </Form.Item>
+                        </Form>
+                    </Modal>
                     {this.state.myPrompts.filter((p: any) => p.owner === 'official').length > 0 ? (
                         <List>
                             {[...Array.from(this.state.myPrompts.filter((p: any) => p.owner === 'official'), (p: any, i) => {
