@@ -66,7 +66,7 @@ class ComboEditor extends React.Component {
                 if (type) {
                     if (request.success && results && results.length > 0) {
                         const newCombo = await parsePromptsData(results);
-                        console.log('newCombo', newCombo);
+                        // console.log('newCombo', newCombo);
                         this.setState({
                             myPrompts: newCombo,
                             showImportModal: false
@@ -142,17 +142,18 @@ class ComboEditor extends React.Component {
 
 
     _showModal(event: React.MouseEvent<HTMLButtonElement>, prompt: any) {
-
+        const data={
+            prompt: {
+                ...defaultCombo,
+                ...prompt
+            },
+            from: 'combo-editor'
+        }
+        console.log('_showModal',data)
         event.stopPropagation();
         event.preventDefault();
         if (this.props.callback) this.props.callback({
-            cmd: 'show-combo-modal', data: {
-                prompt: {
-                    ...defaultCombo,
-                    ...prompt
-                },
-                from: 'combo-editor'
-            }
+            cmd: 'show-combo-modal', data
         })
     };
 

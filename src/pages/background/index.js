@@ -43,7 +43,7 @@ import { getConfig } from '@components/Utils';
       )}`
         )
         if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-            chrome.runtime.setUninstallURL('https://discord.gg/DtAYT2Pt')
+            chrome.runtime.setUninstallURL(json.discord)
         }
         return true
     })

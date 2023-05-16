@@ -70,6 +70,7 @@ class ComboModal extends React.Component {
             options: comboOptions,
             promptOptions
         }
+        console.log('currentPrompt', this.props.currentPrompt)
     }
 
     componentDidMount() {
@@ -293,7 +294,9 @@ class ComboModal extends React.Component {
         const options: any = {
             options: [],
             temperature: prompt.temperature || 0.6,
-            model: prompt.model || 'ChatGPT'
+            model: prompt.model || 'ChatGPT',
+            url: prompt.queryObj.url,
+            query: prompt.queryObj.query
         };
 
         if (prompt.isNextUse) {
@@ -306,40 +309,94 @@ class ComboModal extends React.Component {
             options['options'].push('isQuery');
         }
 
-
         // if (prompt.isApi) {
         //     options.push('isApi');
         // }
         return options;
     }
 
-    _createOptionUI(index = 1) {
+    _createOptionUI(index = 1, isQuery = false) {
+        console.log('_createOptionUI', index, isQuery)
         return <>
-            <Form.Item
-                name={`Prompt${index}Text`}
-                label={`Prompt Combo ${index}`}
-                rules={[
-                    {
-                        required: index == 1,
-                        message: '请填写Prompt',
-                    },
-                ]}>
-                <TextArea
-                    placeholder={index == 1 ? `必填，Prompt Combo ${index}` : ''}
-                    showCount
-                    maxLength={PROMPT_MAX_LENGTH}
-                    onChange={(e: any) => {
-                        const data: any = {};
-                        const i = index > 1 ? index : '';
-                        data[`prompt${i}`] = {
-                            ...defaultPrompt,
-                            ...this.state.currentPrompt[`prompt${i}`],
-                            text: e.currentTarget.value.trim()
-                        }
-                        this._updateCurrentPrompt(data)
-                    }}
-                />
-            </Form.Item>
+            {
+                isQuery ? <><Form.Item
+                    name={`Prompt${index}Url`}
+                    label={`url`}
+                    rules={[
+                        {
+                            required: true,
+                            message: '请填写url',
+                        },
+                    ]}>
+                    <TextArea
+                        placeholder={`请填写url`}
+                        maxLength={PROMPT_MAX_LENGTH}
+                        onChange={(e: any) => {
+                            const data: any = {};
+                            const i = index > 1 ? index : '';
+                            data[`prompt${i}`] = {
+                                ...defaultPrompt,
+                                ...this.state.currentPrompt[`prompt${i}`]
+                            }
+                            data[`prompt${i}`].queryObj.url = e.currentTarget.value.trim();
+                            data[`prompt${i}`].queryObj.isQuery = data[`prompt${i}`].queryObj.url && data[`prompt${i}`].queryObj.query;
+                            this._updateCurrentPrompt(data)
+                        }}
+                    />
+                </Form.Item>
+                    <Form.Item
+                        name={`Prompt${index}Query`}
+                        label={`Query`}
+                        rules={[
+                            {
+                                required: true,
+                                message: '请填写Query',
+                            },
+                        ]}>
+                        <TextArea
+                            placeholder={`请填写Query`}
+                            maxLength={PROMPT_MAX_LENGTH}
+                            onChange={(e: any) => {
+                                const data: any = {};
+                                const i = index > 1 ? index : '';
+                                data[`prompt${i}`] = {
+                                    ...defaultPrompt,
+                                    ...this.state.currentPrompt[`prompt${i}`]
+                                }
+                                data[`prompt${i}`].queryObj.query = e.currentTarget.value.trim();
+                                data[`prompt${i}`].queryObj.isQuery = data[`prompt${i}`].queryObj.url && data[`prompt${i}`].queryObj.query;
+                                this._updateCurrentPrompt(data)
+                            }}
+                        />
+                    </Form.Item>
+                </> : <Form.Item
+                    name={`Prompt${index}Text`}
+                    label={`Prompt Combo ${index}`}
+                    rules={[
+                        {
+                            required: index == 1,
+                            message: '请填写Prompt',
+                        },
+                    ]}>
+                    <TextArea
+                        placeholder={index == 1 ? `必填，Prompt Combo ${index}` : ''}
+                        showCount
+                        maxLength={PROMPT_MAX_LENGTH}
+                        onChange={(e: any) => {
+                            const data: any = {};
+                            const i = index > 1 ? index : '';
+                            data[`prompt${i}`] = {
+                                ...defaultPrompt,
+                                ...this.state.currentPrompt[`prompt${i}`],
+                                text: e.currentTarget.value.trim()
+                            }
+                            this._updateCurrentPrompt(data)
+                        }}
+                    />
+                </Form.Item>
+            }
+
+
             <Form.Item name={`Prompt${index}EditOptionsForCheckbox`} >
                 <Checkbox.Group
                     style={{
@@ -412,22 +469,26 @@ class ComboModal extends React.Component {
             })(),
         };
 
+        console.log('promptValue---', promptValue)
 
         // 添加 prompt
         for (let index = 0; index < comboCount; index++) {
             let prompt = promptValue[`prompt${index == 0 ? '' : index + 1}`];
-            if (!prompt) prompt = { ...defaultPrompt }
+            if (!prompt) prompt = { ...defaultPrompt };
+            if (!prompt.queryObj) prompt.queryObj = { ...defaultPrompt.queryObj }
             const options = this._addOptions(prompt);
             // console.log(index, promptValue, `prompt${index + 1}`, options)
             formData[`Prompt${index + 1}Text`] = prompt.text || '';
             formData[`Prompt${index + 1}EditOptionsForCheckbox`] = options['options'];
             formData[`Prompt${index + 1}EditOptionsForTemperature`] = options['temperature'];
             formData[`Prompt${index + 1}EditOptionsForModel`] = options['model'];
+            formData[`Prompt${index + 1}Url`] = options['url'];
+            formData[`Prompt${index + 1}Query`] = options['query'];
 
         }
 
+        console.log('formData---', formData, promptValue)
 
-        // console.log('formData---', formData, promptValue)
         return (<>
 
             <Modal
@@ -474,10 +535,14 @@ class ComboModal extends React.Component {
 
                     </Form.Item> */}
 
-                    {this._createOptionUI(1)}
+                    {this._createOptionUI(1, formData.Prompt1EditOptionsForCheckbox.includes('isQuery'))}
 
                     {(this.state.isCombo || hasCombo) && comboCount > 1 ?
-                        Array.from(new Array(comboCount - 1), (_, index: number) => this._createOptionUI(index + 2)) : null}
+                        Array.from(new Array(comboCount - 1),
+                            (_, index: number) => this._createOptionUI(index + 2,
+                                formData[`Prompt${index + 2}EditOptionsForCheckbox`].includes('isQuery')))
+
+                        : null}
 
                     <Divider />
                     <Form.Item name="EditOptions">
