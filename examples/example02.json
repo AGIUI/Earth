@@ -1,0 +1,51 @@
+﻿[{
+    "checked": false,
+    "combo": 3,
+    "id": "1882847a340",
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": true,
+        "model": "ChatGPT",
+        "queryObj": {
+            "isQuery": true,
+            "query": ".weibo-text",
+            "url": "m.weibo.cn"
+        },
+        "temperature": 0.23,
+        "text": "7",
+        "url": ""
+    },
+    "prompt2": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": true,
+        "model": "ChatGPT",
+        "queryObj": {
+            "isQuery": false,
+            "query": "",
+            "url": ""
+        },
+        "temperature": 0.13,
+        "text": "提取人物、关键事件，虚构一个故事，你现在是记者，请编写中文访谈提纲",
+        "url": ""
+    },
+    "prompt3": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": false,
+        "model": "ChatGPT",
+        "queryObj": {
+            "isQuery": false,
+            "query": "",
+            "url": ""
+        },
+        "temperature": 0.14,
+        "text": "你现在是技术专家，为这个访谈提纲增加科技的话题，可以包括人工智能、元宇宙等，用中文写一个访谈的概要和提纲",
+        "url": ""
+    },
+    "role": "",
+    "tag": "获取微博最新消息，写一个访谈提纲"
+}]

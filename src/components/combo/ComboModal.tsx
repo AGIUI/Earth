@@ -103,14 +103,16 @@ class ComboModal extends React.Component {
      * 结果
      */
     _onFinish() {
-        let data: any = {};
+        let data: any = {}, prompts: any = {};
+        const promptKeys = Array.from([1, 2, 3, 4, 5, 6, 7], i => `prompt${i != 1 ? i : ''}`);
+        console.log('this.state.currentPrompt', JSON.stringify(this.state.currentPrompt, null, 2))
         for (const key in this.state.currentPrompt) {
             if (this.state.currentPrompt[key] !== undefined || this.state.currentPrompt[key] !== "") {
                 if (key.match('prompt')) {
-                    if (this.state.currentPrompt[key].text) data[key] = this.state.currentPrompt[key];
+                    if (promptKeys.includes(key) && this.state.currentPrompt[key].text && this.state.currentPrompt[key].text != "") prompts[key] = this.state.currentPrompt[key];
                 } else {
                     data[key] = this.state.currentPrompt[key];
-                }  
+                }
             }
         }
         // console.log('_onFinish', data, this.state.currentPrompt)
@@ -118,13 +120,11 @@ class ComboModal extends React.Component {
         const uniqueId = timestamp.toString(16);
         if (data && !data.id) data.id = uniqueId;
 
-        let combo = 0,
-            datas: any = {};
-        for (const key in data) {
-            if (key.match('prompt')) {
-                let index = parseInt(key.replace('prompt', '') || '0')
-                datas[`prompt${index > 0 ? (combo + 1) : ''}`] = data[key];
+        let combo = 0, newPrompts: any = {};
+        for (const key in prompts) {
+            if (promptKeys.includes(key)) {
                 combo++;
+                newPrompts[`prompt${combo == 1 ? '' : combo}`] = prompts[key]
             }
         }
 
@@ -132,8 +132,8 @@ class ComboModal extends React.Component {
             prompt: {
                 ...defaultCombo,
                 ...data,
-                combo,
-                ...datas
+                ...newPrompts,
+                combo
             },
             from: 'combo-editor'
         }
@@ -201,7 +201,7 @@ class ComboModal extends React.Component {
             isApi
         }
 
-        console.log('_handlePromptSetting:', key, JSON.stringify(json, null, 2))
+        // console.log('_handlePromptSetting:', key, JSON.stringify(json, null, 2))
 
         this._updateCurrentPrompt(json);
 
@@ -277,7 +277,7 @@ class ComboModal extends React.Component {
             const prompt = {
                 ...this.state.currentPrompt, ...newData
             }
-
+            console.log('_updateCurrentPrompt', JSON.stringify(prompt, null, 2))
             // for (const key in prompt) {
             //     if (key.match('prompt') && prompt[key].queryObj && prompt[key].queryObj.isQuery) {
             //         const q = this._parseQuery(prompt[key].text, prompt[key].queryObj.isQuery);
@@ -396,6 +396,7 @@ class ComboModal extends React.Component {
                                 ...this.state.currentPrompt[`prompt${i}`],
                                 text: e.currentTarget.value.trim()
                             }
+                            console.log('TextArea', JSON.stringify(data[`prompt${i}`], null, 2))
                             this._updateCurrentPrompt(data)
                         }}
                     />
@@ -453,7 +454,7 @@ class ComboModal extends React.Component {
         const hasCombo = promptValue && promptValue.combo > 1;
         const comboCount = promptValue.combo || 5;
 
-        // console.log('this.state.currentPrompt---', this.state.currentPrompt)
+        console.log('this.state.currentPrompt---', JSON.stringify(this.state.currentPrompt, null, 2))
 
 
         const formData: any = {
@@ -475,7 +476,7 @@ class ComboModal extends React.Component {
             })(),
         };
 
-        console.log('promptValue---', JSON.stringify(promptValue, null, 2))
+        // console.log('promptValue---', JSON.stringify(promptValue, null, 2))
 
         // 添加 prompt
         for (let index = 0; index < comboCount; index++) {
@@ -492,7 +493,7 @@ class ComboModal extends React.Component {
             formData[`Prompt${index + 1}Query`] = options['query'];
         }
 
-        console.log('formData---', JSON.stringify(formData, null, 2))
+        // console.log('formData---', JSON.stringify(formData, null, 2))
 
         return (<>
 

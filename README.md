@@ -46,16 +46,11 @@ npm run build [browser]
 
 ## Combo的一些示例
 
-[示例1：获取微博信息-创作科幻故事.json](/examples/示例1：获取微博信息-创作科幻故事.json)
+[示例1：获取微博信息-创作科幻故事.json](/examples/example01.json)
+
+[示例2：获取微博最新消息，写一个访谈提纲](/examples/example02.json)
 
 
-获取微博推荐的内容
-```
-url:m.weibo.cn
-
-query:.weibo-text
-
-```
 
 chirper上的shadowai行为解读
 ```
