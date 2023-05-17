@@ -734,7 +734,7 @@ class Main extends React.Component<{
 
                         if (isNextUse) {
                             let laskTalk = Talks.getLaskTalk([...nTalks])
-                            prompt.text = `${laskTalk ? '```背景信息：' + laskTalk + '```,' : ''}${prompt.text}`
+                            prompt.text = `${laskTalk ? '```背景信息：' + laskTalk.trim() + '```,' : ''}${prompt.text.trim()}`
                         }
                         // console.log('prompt', prompt,PromptIndex);
                         // 下一个prompt
@@ -900,14 +900,18 @@ class Main extends React.Component<{
                 if (prompt.bindCurrentPage) {
                     prompt.text = this._promptBindCurrentSite(prompt.text)
                 }
-                if (prompt.queryObj && prompt.queryObj.isQuery && !this.props.agents) {
+                if (prompt.queryObj && prompt.queryObj.isQuery && prompt.queryObj.url && !this.props.agents) {
 
                     // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
                     // 
                     this.updateChatBotStatus(false);
 
+                    // 对url进行处理
+                    let url = prompt.queryObj.url
+                    if (url && !url.match('https')) url = `https://${url}${url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')}`
+
                     const agentsJson = JSON.parse(JSON.stringify({
-                        url: prompt.queryObj.url,
+                        url,
                         query: prompt.queryObj.query,
                         combo: { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex } //用来传递combo数据
                     }));

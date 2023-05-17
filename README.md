@@ -43,32 +43,27 @@ npm run build [browser]
 
 - config.json 里配置你的notion数据源
 
+
 ## Combo的一些示例
 
-- 根据选择器获取网页信息 示例
+[示例1：获取微博信息-创作科幻故事.json](/examples/示例1：获取微博信息-创作科幻故事.json)
 
-
-获取微博话题下面的文本内容
-```
-{
-    "url":"https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%23AGIUI",
-    "query":".weibo-main .weibo-text"
-}
-```
 
 获取微博推荐的内容
 ```
-{   "url":"https://m.weibo.cn/?ref=mix",
-    "query":".weibo-text"
-}
+url:m.weibo.cn
+
+query:.weibo-text
+
 ```
 
 chirper上的shadowai行为解读
 ```
-{
-    "url":"https://chirper.ai/shadowai/?ref=mix",
-    "query":".MuiCardContent-root"
-}
+url:chirper.ai/shadowai/
+
+query:.MuiCardContent-root
+
+
 ```
 
 ## combo的数据示例
