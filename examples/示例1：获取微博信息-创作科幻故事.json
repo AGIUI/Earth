@@ -1,1 +1,51 @@
-﻿[{"checked":false,"combo":3,"id":"18822914d15","isInfinite":false,"owner":"user","prompt":{"bindCurrentPage":false,"isApi":false,"isNextUse":true,"model":"ChatGPT","queryObj":{"isQuery":true,"query":".weibo-main .weibo-text","url":"m.weibo.cn/search?containerid=100103type%3D1%26q%3D%23AGIUI"},"temperature":0.14,"text":"你好,你是谁？","url":""},"prompt2":{"bindCurrentPage":false,"isApi":false,"isNextUse":true,"model":"ChatGPT","queryObj":{"isQuery":false,"query":"","url":""},"temperature":0.25,"text":"你现在是一位著名的科幻作家，写过《流浪地球》的大作，提取关键信息，用中文创作一个科幻故事","url":""},"prompt3":{"bindCurrentPage":false,"isApi":false,"isNextUse":false,"model":"ChatGPT","queryObj":{"isQuery":false,"query":"","url":""},"temperature":0.13,"text":"作为读者，根据这个故事，用中文写出你的读后感","url":""},"role":"","tag":"根据微博内容创作科幻故事"}]
+﻿[{
+    "checked": false,
+    "combo": 3,
+    "id": "18822914d15",
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": true,
+        "model": "ChatGPT",
+        "queryObj": {
+            "isQuery": true,
+            "query": ".weibo-main .weibo-text",
+            "url": "m.weibo.cn/search?containerid=100103type%3D1%26q%3D%23AGIUI"
+        },
+        "temperature": 0.14,
+        "text": "你好,你是谁？",
+        "url": ""
+    },
+    "prompt2": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": true,
+        "model": "ChatGPT",
+        "queryObj": {
+            "isQuery": false,
+            "query": "",
+            "url": ""
+        },
+        "temperature": 0.25,
+        "text": "你现在是一位著名的科幻作家，写过《流浪地球》的大作，提取关键信息，用中文创作一个科幻故事",
+        "url": ""
+    },
+    "prompt3": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": false,
+        "model": "ChatGPT",
+        "queryObj": {
+            "isQuery": false,
+            "query": "",
+            "url": ""
+        },
+        "temperature": 0.13,
+        "text": "作为读者，根据这个故事，用中文写出你的读后感",
+        "url": ""
+    },
+    "role": "",
+    "tag": "根据微博内容创作科幻故事"
+}]
