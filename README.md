@@ -50,16 +50,8 @@ npm run build [browser]
 
 [示例2：获取微博最新消息，写一个访谈提纲](/examples/example02.json)
 
+[示例3：chirper上的shadowai行为解读](/examples/example03.json)
 
-
-chirper上的shadowai行为解读
-```
-url:chirper.ai/shadowai/
-
-query:.MuiCardContent-root
-
-
-```
 
 ## combo的数据示例
 ```
@@ -96,6 +88,8 @@ query:.MuiCardContent-root
 ```
 
 ## 相关资料：
+
+[视频demo](https://space.bilibili.com/540054369)
 
 [如何构建属于自己的知识引擎？](https://mp.weixin.qq.com/s/W6wjg8873gNci2vcZhamGg)
 

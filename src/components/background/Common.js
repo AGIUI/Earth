@@ -1,6 +1,18 @@
 /**
  * background里的监听事件的定义
  *
+ * 返回 运行状态 
+ * status 
+ * llm-start 开始调用LLM
+ * llm-end 
+ * 
+ * sendResponse({
+                        status: 'llm-start',
+                        data: {
+                            ...data
+                        }
+                    })
+
  */
 
 
@@ -159,7 +171,12 @@ class Common {
                         }
                     );
 
-                    sendResponse(initTalksResult)
+                    sendResponse({
+                        status: 'llm-start',
+                        data: {
+                            ...data
+                        }
+                    })
 
                 } else if (cmd == 'chat-bot-talk-new') {
                     if (data.newTalk) {

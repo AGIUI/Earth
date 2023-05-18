@@ -105,11 +105,11 @@ class ComboModal extends React.Component {
     _onFinish() {
         let data: any = {}, prompts: any = {};
         const promptKeys = Array.from([1, 2, 3, 4, 5, 6, 7], i => `prompt${i != 1 ? i : ''}`);
-        console.log('this.state.currentPrompt', JSON.stringify(this.state.currentPrompt, null, 2))
+        // console.log('this.state.currentPrompt', JSON.stringify(this.state.currentPrompt, null, 2))
         for (const key in this.state.currentPrompt) {
             if (this.state.currentPrompt[key] !== undefined || this.state.currentPrompt[key] !== "") {
                 if (key.match('prompt')) {
-                    if (promptKeys.includes(key) && this.state.currentPrompt[key].text && this.state.currentPrompt[key].text != "") prompts[key] = this.state.currentPrompt[key];
+                    if (promptKeys.includes(key) && ((this.state.currentPrompt[key].text && this.state.currentPrompt[key].text != '') || (this.state.currentPrompt[key].queryObj && this.state.currentPrompt[key].queryObj.isQuery))) prompts[key] = this.state.currentPrompt[key];
                 } else {
                     data[key] = this.state.currentPrompt[key];
                 }

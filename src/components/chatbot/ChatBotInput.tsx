@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Card, Button, Input, Checkbox } from 'antd';
+import { Card, Button, Input, Checkbox, Radio } from 'antd';
 import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 import { defaultCombo, defaultPrompt } from "../combo/ComboData";
@@ -45,7 +45,10 @@ type StateType = {
         tag: string
     },
     placeholder: string;
-    userSelected: boolean
+    userSelected: boolean;
+    bindCurrentPage: boolean;
+    bindCurrentPageTooltip: string;
+    output: any
 }
 
 interface ChatBotInput {
@@ -80,7 +83,11 @@ class ChatBotInput extends React.Component {
                 tag: ''
             },
             placeholder: 'Ask or search anything',
-            userSelected: false
+            userSelected: false,
+            bindCurrentPage: false,
+            bindCurrentPageTooltip: '绑定当前网页',
+            // 输出格式
+            output: [{ label: 'JSON格式', value: 'json' }, { label: 'MarkDown格式', value: 'markdown' }, { label: '默认', value: 'defalut', checked: true }]
         }
 
         document.addEventListener("selectionchange", () => {
@@ -135,12 +142,15 @@ class ChatBotInput extends React.Component {
                 prompt: {
                     ...defaultPrompt,
                     text: prompt
-                }
+                },
+                combo: -1
             }
             this.props.callback({
                 cmd: "send-talk",
                 data: {
-                    prompt: combo.prompt, tag, _combo: combo
+                    prompt: combo.prompt,
+                    tag,
+                    _combo: combo,
                 }
             });
             this.setState({
@@ -153,9 +163,6 @@ class ChatBotInput extends React.Component {
         }
     }
 
-    // _bindCurrentPage(b:boolean){
-
-    // }
 
     _userSelectionAdd() {
         if (this.state.placeholder != 'Ask or search anything') this.setState({
@@ -188,10 +195,37 @@ class ChatBotInput extends React.Component {
                 isLoading: false
             })
         } else {
-            this._sendTalk(this.state.userInput)
+            this._sendTalk({ ...this.state.userInput })
         }
     }
 
+    _bindCurrentPage(b: boolean) {
+        this.setState({
+            bindCurrentPage: b,
+            bindCurrentPageTooltip: b ? '绑定当前网页，将消耗大量token' : '绑定当前网页'
+        })
+        this.props.callback({
+            cmd: "bind-current-page", data: {
+                bindCurrentPage: b
+            }
+        })
+    }
+
+    _outputChange(t: string) {
+        let output = Array.from(this.state.output, (o: any) => {
+            return {
+                ...o, checked: t == o.value
+            }
+        });
+        this.setState({
+            output
+        })
+        this.props.callback({
+            cmd: "output-change", data: {
+                output: t
+            }
+        })
+    }
 
     render() {
         return (
@@ -277,10 +311,30 @@ class ChatBotInput extends React.Component {
                         alignItems: 'baseline'
                     }}
                     options={[{
-                        label: '绑定当前网页', value: 'bindCurrentPage'
+                        label: this.state.bindCurrentPageTooltip, value: 'bindCurrentPage'
                     }]}
-                    onChange={(e) => console.log(e[0])} />
+                    defaultValue={this.state.bindCurrentPage ? ['bindCurrentPage'] : []}
+                    onChange={(e) => this._bindCurrentPage(e[0] == 'bindCurrentPage')} />
 
+                {/* <Checkbox.Group
+                    style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'baseline'
+                    }}
+                    options={this.state.output}
+                    defaultValue={this.state.bindCurrentPage ? ['bindCurrentPage'] : []}
+                    onChange={(e) => this._bindCurrentPage(e[0] == 'bindCurrentPage')} /> */}
+
+
+                <Radio.Group
+                    options={this.state.output}
+                    onChange={(e) => this._outputChange(e.target.value)}
+                    value={this.state.output.filter((m: any) => m.checked)[0].value}
+                    optionType="button"
+                    buttonStyle="solid"
+                    size="small"
+                />
 
 
                 <TextArea
@@ -300,6 +354,7 @@ class ChatBotInput extends React.Component {
                     placeholder={this.state.placeholder}
                     autoSize={{ minRows: 2, maxRows: 15 }}
                     disabled={this.state.isLoading}
+                    style={this.state.userInput.prompt ? { height: 'auto' } : {}}
                 />
 
             </Card>

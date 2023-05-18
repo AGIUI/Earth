@@ -97,10 +97,23 @@ const Talks = {
 }
 
 const sendMessageToBackground = {
-    'chat-bot-talk': (data: any) => chrome.runtime.sendMessage({
-        cmd: 'chat-bot-talk',
-        data
-    }, console.log),
+    'chat-bot-talk': (data: any) => {
+        let lmmStart = false;
+        chrome.runtime.sendMessage({
+            cmd: 'chat-bot-talk',
+            data
+        }, res => {
+            console.log('status', res.status)
+            lmmStart = true
+        })
+        setTimeout(() => {
+            if (lmmStart === false) {
+                console.log('失败')
+                message.info('出错了，请刷新')
+                chrome.runtime.reload()
+            }
+        }, 5000)
+    },
     'chat-bot-talk-new': (data: any) => chrome.runtime.sendMessage({
         cmd: 'chat-bot-talk-new',
         data
@@ -183,7 +196,10 @@ class Main extends React.Component<{
     PromptIndex: number,
 
 
-
+    // 绑定当前网页内容
+    bindCurrentPage: boolean
+    // 输出格式
+    output: string
 }> {
 
 
@@ -242,6 +258,8 @@ class Main extends React.Component<{
             currentPrompt: {},
             PromptIndex: 0,
 
+            bindCurrentPage: false,
+            output: 'default'
         }
 
 
@@ -624,7 +642,18 @@ class Main extends React.Component<{
         // 获取当前网页正文信息
         const { length, title, textContent, href } = this._extractArticle();
         if (prompt) {
-            prompt = `<tag>标题:${title},网址:${href},正文:${textContent.slice(0, 1000)}</tag>` + prompt;
+            const text = textContent.replace(/\s+/ig, ' ');
+            prompt = `<tag>标题:${title},网址:${href},正文:${text.slice(0, 1200)}</tag>,` + prompt;
+        }
+        return prompt
+    }
+
+    // type markdown/json
+    _promptOutput(prompt: string, type: string) {
+        if (type == 'markdown') {
+            prompt = `${prompt},按照markdown格式，输出结果`
+        } else if (type == 'json') {
+            prompt = `${prompt},按照json格式，输出结果`
         }
         return prompt
     }
@@ -874,7 +903,9 @@ class Main extends React.Component<{
             let nTalks = [...talks];
 
             console.log('_control:', nTalks, data)
+
             const sendTalk = () => {
+                const combo = data._combo ? data._combo.combo : -1;
                 let { prompt, tag, newTalk } = data;
                 prompt = JSON.parse(JSON.stringify(prompt))
 
@@ -897,9 +928,21 @@ class Main extends React.Component<{
 
                 // console.log(`prompt需要改造数据格式：{text,isNextUse,bindCurrentPage,queryObj}`, prompt, data)
                 // return 
-                if (prompt.bindCurrentPage) {
+                if (combo > 0 && prompt.bindCurrentPage) {
+                    prompt.text = this._promptBindCurrentSite(prompt.text)
+                } else if (combo == -1 && this.state.bindCurrentPage) {
+                    // 从输入框里输入的
                     prompt.text = this._promptBindCurrentSite(prompt.text)
                 }
+
+                if (combo > 0 && prompt.output != 'default') {
+                    prompt.text = this._promptOutput(prompt.text, prompt.output)
+                } else if (combo == -1 && this.state.output != 'default') {
+                    // 从输入框里输入的
+                    prompt.text = this._promptOutput(prompt.text, this.state.output)
+                }
+
+
                 if (prompt.queryObj && prompt.queryObj.isQuery && prompt.queryObj.url && !this.props.agents) {
 
                     // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
@@ -1064,13 +1107,16 @@ class Main extends React.Component<{
                     sendMessageToBackground['chat-bot-talk-new']({ type: this.state.chatBotType, newTalk: true });
 
                     break;
-                // case "run-agents-result":
-                //     nTalks.push({
-                //         type: 'talk',
-                //         user: false,
-                //         ...this._createTalkBubble(data.markdown)
-                //     });
-                //     break;
+                case "bind-current-page":
+                    this.setState({
+                        bindCurrentPage: data.bindCurrentPage
+                    })
+                    break;
+                case "output-change":
+                    this.setState({
+                        output: data.output
+                    })
+                    break;
                 default:
                     console.log("default");
                 // // 初始化bing
@@ -1196,6 +1242,7 @@ class Main extends React.Component<{
     _extractArticle() {
         const documentClone: any = document.cloneNode(true);
         const article: any = new Readability(documentClone, { nbTopCandidates: 2 }).parse();
+        // console.log(article)
         article.href = window.location.href.replace(/\?.*/ig, '');
         return article
     }

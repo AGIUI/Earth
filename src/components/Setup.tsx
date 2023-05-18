@@ -201,7 +201,7 @@ class Setup extends React.Component<{
 
 
         if (myConfig.creditUrl) {
-            setTimeout(()=>this._getCredit(myConfig.creditUrl, myConfig.token),1000)
+            setTimeout(() => this._getCredit(myConfig.creditUrl, myConfig.token), 1000)
         }
 
         this.setState({
@@ -394,8 +394,8 @@ class Setup extends React.Component<{
                             {this.state.chatGPTConfig.canImport ? <OpenFileButton
                                 callback={(e: any) => this._importConfig()}
                                 disabled={false} /> : ''}
-                            <FileTextOutlined alt={'使用教程'} style={{ marginLeft: 4 }} onClick={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}
-                                disabled={false} />
+                            {this.state.chatGPTConfig.helpUrl ? <FileTextOutlined alt={'使用教程'} style={{ marginLeft: 4 }} onClick={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}
+                                disabled={false} /> : ''}
                         </Title>
                         {(() => {
                             if (this.state.status['ChatGPT'] == 'OK') {
