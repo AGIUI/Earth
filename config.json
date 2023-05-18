@@ -2,8 +2,12 @@
     "discord": "https://discord.gg/SGwA9anUrr",
     "chatGPT": {
         "token": "",
-        "apis": ["https://api.openai.com"],
+        "apis": [{
+            "value": "https://api.openai.com",
+            "label": "openai"
+        }],
         "api": "https://api.openai.com",
+        "displayApiName": "openai",
         "models": ["gpt-3.5-turbo"],
         "model": "gpt-3.5-turbo",
         "canImport": true

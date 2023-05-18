@@ -65,7 +65,8 @@ class Setup extends React.Component<{
     loading: boolean,
     checked: boolean,
     credit: string,
-    name: string
+    name: string,
+    isChange: boolean
 }> {
     constructor(props: any) {
         super(props)
@@ -73,7 +74,10 @@ class Setup extends React.Component<{
             os: 'win',
             chatGPTConfig: {
                 token: '',
-                apis: ['https://api.openai.com'],
+                apis: [{
+                    "value": 'https://api.openai.com',
+                    "label": 'openai'
+                }],
                 api: 'https://api.openai.com',
                 models: ['gpt-3.5-turbo'],
                 model: 'gpt-3.5-turbo',
@@ -85,7 +89,8 @@ class Setup extends React.Component<{
             loading: false,
             checked: false,
             credit: '',
-            name: ''
+            name: '',
+            isChange: false
         }
 
         chrome.storage.sync.onChanged.addListener(() => {
@@ -118,7 +123,7 @@ class Setup extends React.Component<{
             chrome.runtime.sendMessage({
                 cmd: 'chat-bot-init',
                 data
-            })
+            }, res => console.log(res))
 
             this.setState({
                 checked: true
@@ -140,13 +145,15 @@ class Setup extends React.Component<{
                 let myConfig = res.myConfig;
                 // console.log(myConfig)
                 let chatGPTConfig = { ...this.state.chatGPTConfig, ...myConfig };
-                if (myConfig && myConfig.api && !chatGPTConfig.apis.includes(myConfig.api)) {
-                    chatGPTConfig.apis.push(myConfig.api);
+
+                if (myConfig && myConfig.api && chatGPTConfig.apis.filter((a: any) => a.value == myConfig.api).length == 0) {
+                    chatGPTConfig.apis.push({ value: myConfig.api, label: myConfig.displayApiName });
                 }
                 // console.log(this.state.chatGPTConfig, chatGPTConfig)
                 if (chatGPTConfig.creditUrl) {
                     this._getCredit(chatGPTConfig.creditUrl, chatGPTConfig.token)
                 }
+                // console.log(chatGPTConfig)
                 this.setState({ chatGPTConfig })
             } else {
                 getConfig().then(json => {
@@ -187,7 +194,8 @@ class Setup extends React.Component<{
     _update() {
         if (this.state.loading) {
             this.setState({
-                loading: false
+                loading: false,
+                isChange: false
             })
             return
         }
@@ -203,7 +211,8 @@ class Setup extends React.Component<{
         }
 
         this.setState({
-            loading: true
+            loading: true,
+            isChange: false
         })
 
     }
@@ -223,18 +232,20 @@ class Setup extends React.Component<{
                         status[c.type] = c.available.info || ''
                     }
                 })
-                console.log(status)
+                console.log(status, res.chatBotAvailables)
                 this.setState({
                     status, loading: false
                 })
             };
+            let credit = `剩余点数：0 P`
             if (res.myPoints) {
                 // api2d
                 console.log(res.myPoints)
-                if (res.myPoints.points) this.setState({
-                    credit: `剩余点数：${res.myPoints.points}P`
-                })
+                if (res.myPoints.points) credit = `剩余点数：${res.myPoints.points}P`
             }
+            this.setState({
+                credit
+            })
         })
     }
 
@@ -398,11 +409,11 @@ class Setup extends React.Component<{
 
                         </Title>
                         {(() => {
-                            if (this.state.status['ChatGPT'] == 'OK') {
+                            if (this.state.status['ChatGPT'] == 'OK'&&this.state.isChange==false) {
                                 return <Tag color="#87d068">当前可用</Tag>
                             } else {
                                 return <Space direction={"horizontal"} size={0}>
-                                    <Tag color={"#cd201f"}>暂不可用</Tag>
+                                    <Tag color={"#cd201f"}>{this.state.isChange?'待更新':'暂不可用'}</Tag>
                                     <Popover zIndex={1200} content={
                                         <div>{this.state.status['ChatGPT']}</div>
                                     } title="详情">
@@ -424,7 +435,7 @@ class Setup extends React.Component<{
                             }
 
                             {
-                                this.state.chatGPTConfig.creditUrl ? <div
+                                this.state.chatGPTConfig.creditUrl && this.state.chatGPTConfig.api && this.state.chatGPTConfig.api.match('api2d') ? <div
                                     style={{
                                         display: 'flex', flexDirection: 'row',
                                         alignItems: 'center'
@@ -450,7 +461,8 @@ class Setup extends React.Component<{
                                             chatGPTConfig.team = e.target.value
                                             this.setState({
                                                 chatGPTConfig,
-                                                credit: ''
+                                                credit: '',
+                                                isChange: true
                                             })
                                         }} />
                                 </> : ''
@@ -466,7 +478,8 @@ class Setup extends React.Component<{
                                     chatGPTConfig.token = e.target.value
                                     this.setState({
                                         chatGPTConfig,
-                                        credit: ''
+                                        credit: '',
+                                        isChange: true
                                     })
                                 }} />
 
@@ -480,20 +493,16 @@ class Setup extends React.Component<{
                                         placeholder="https://api.openai.com"
                                         value={this.state.chatGPTConfig.api}
                                         onChange={(e: any) => {
-                                            // console.log(e)
+                                            console.log(e)
                                             let chatGPTConfig = this.state.chatGPTConfig;
                                             chatGPTConfig.api = e[0];
                                             this.setState({
                                                 chatGPTConfig,
-                                                credit: ''
+                                                credit: '',
+                                                isChange: true
                                             })
                                         }}
-                                        options={Array.from(this.state.chatGPTConfig.apis, c => {
-                                            return {
-                                                value: c,
-                                                label: c
-                                            }
-                                        })}
+                                        options={this.state.chatGPTConfig.apis}
                                     /></>
                             }
 
@@ -513,7 +522,8 @@ class Setup extends React.Component<{
                                             chatGPTConfig.model = value[0];
                                             this.setState({
                                                 chatGPTConfig,
-                                                credit: ''
+                                                credit: '',
+                                                isChange: true
                                             })
                                         }}
                                         options={
@@ -531,7 +541,12 @@ class Setup extends React.Component<{
                         </Space>
                     </Spin>
                     <Space direction={"horizontal"}>
-                        <Button style={{ marginTop: 10 }} onClick={() => this._update()}>{this.state.loading ? '更新中' : '更新状态'}</Button>
+                        <Button
+                            type={this.state.isChange ? 'primary' : 'default'}
+                            style={{ marginTop: 10 }}
+                            onClick={() => this._update()}>
+                            {this.state.loading ? '更新中' : '更新状态'}
+                        </Button>
                     </Space>
                 </Space></Content>
         )

@@ -132,7 +132,9 @@ class NewBing {
         // console.log(this.available)
         return this.available
     }
-
+    clearAvailable() {
+        this.available = null;
+    }
     async getAvailable() {
         let res = {
             success: false,

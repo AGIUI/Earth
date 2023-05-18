@@ -86,7 +86,11 @@ class Common {
                 tabId = sender.tab.id
 
                 if (cmd == 'chat-bot-init') {
-                    // 初始化 chatbot
+
+                    chatBot.clearAvailables();
+                    // console.log(chatBot.getAvailables())
+                    sendResponse({ cmd: 'chat-bot-init-start', data: data })
+                        // 初始化 chatbot
                     const { type, api, model, token, team } = data || {}
 
                     if (api && model && token) {
@@ -103,7 +107,7 @@ class Common {
                     await chatBot.init('Bing')
 
                     let availables = await chatBot.getAvailables()
-                    sendResponse({ cmd: 'chat-bot-init-result', data: availables })
+
                     this.sendMessage(
                         'chat-bot-init-result',
                         availables && availables.length > 0,
@@ -180,10 +184,14 @@ class Common {
                 } else if (cmd == "get-my-points") {
                     const apiName = data.apiName,
                         token = data.token;
+
+                    chrome.storage.sync.set({ myPoints: null })
+
                     // 获取我的积分
                     Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
+
 
                 }
 
