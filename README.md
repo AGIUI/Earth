@@ -7,9 +7,14 @@ AGI-UI的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人�
 
 > 作为AGIUI的首个开源项目，Earth是一个浏览器插件，支持常见的浏览器：Chrome, Firefox, Safari, Edge, Brave等。
 
-
-<iframe src="//player.bilibili.com/player.html?aid=271181111&bvid=BV1zc411P7vS&cid=1132599638&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
-
+<iframe 
+    height=450 
+    width=800 
+    src="http://player.bilibili.com/player.html?aid=271181111&bvid=BV1zc411P7vS&cid=1132599638&page=1" 
+    frameborder=0 
+    allowfullscreen>
+</iframe> 
+ 
 
 ## 如何使用？
 
