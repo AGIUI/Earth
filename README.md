@@ -44,9 +44,9 @@ npm run build [browser]
 # npm run build chrome firefox safari
 ```
 
-## 从notion里读取你的数据
+## 配置数据
 
-- config.json 里配置你的notion数据源
+- config.json 里配置你的数据
 
 
 ## Combo的一些示例
