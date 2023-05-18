@@ -1,5 +1,6 @@
 const PROMPT_MAX_LENGTH = 720
 
+// output : default,json,markdown
 const defaultPrompt = {
     text: '',
     isNextUse: false,
@@ -10,7 +11,8 @@ const defaultPrompt = {
     isApi: false,
     url: '',
     temperature: 0.6,
-    model: 'ChatGPT'
+    model: 'ChatGPT',
+    output:'default'
 }
 
 /**

@@ -25,7 +25,7 @@ import DownloadButton from '@components/buttons/DownloadButton';
 import { FlexRow } from "@components/Style";
 import OpenFileButton from "@components/buttons/OpenFileButton";
 import ImportButton from "@components/buttons/ImportOfficialCombo";
-import {parsePromptsData} from "@components/combo/ImportComboData";
+import { parsePromptsData } from "@components/combo/ImportComboData";
 
 type PropType = {
     myPrompts: any;
@@ -62,7 +62,7 @@ class ComboEditor extends React.Component {
             sendResponse
         ) => {
             if (request.cmd == 'get-data-from-notion-result') {
-                const {results, type} = request.data;
+                const { results, type } = request.data;
                 if (type) {
                     if (request.success && results && results.length > 0) {
                         const newCombo = await parsePromptsData(results);
@@ -142,14 +142,14 @@ class ComboEditor extends React.Component {
 
 
     _showModal(event: React.MouseEvent<HTMLButtonElement>, prompt: any) {
-        const data={
+        const data = {
             prompt: {
                 ...defaultCombo,
                 ...prompt
             },
             from: 'combo-editor'
         }
-        console.log('_showModal',data)
+        console.log('_showModal', data)
         event.stopPropagation();
         event.preventDefault();
         if (this.props.callback) this.props.callback({
@@ -159,20 +159,20 @@ class ComboEditor extends React.Component {
 
     _importOfficialCombo(value: any) {
         chrome.runtime.sendMessage({
-                cmd: 'get-data-from-notion',
-                data: {
-                    type: 'other',
-                    expirationTime: 0,
-                    dataBase: value.key
-                }
-            },
+            cmd: 'get-data-from-notion',
+            data: {
+                type: 'other',
+                expirationTime: 0,
+                dataBase: value.key
+            }
+        },
             response => {
                 console.log("Received response", response);
             }
         )
         chrome.runtime.onMessage.addListener(
             (request, sender, sendResponse) => {
-                const {cmd, data} = request;
+                const { cmd, data } = request;
             }
         )
 
@@ -217,22 +217,24 @@ class ComboEditor extends React.Component {
 
                     chromeStorageGet(['user']).then((items: any) => {
                         let myPrompts = [...that.state.myPrompts];
+                        let newUser:any = []
 
                         if (items && items.user) {
-                            let newUser = [...items.user]
-                            for (const n of json) {
-                                let isNew = true;
-                                if (items.user.filter((u: any) => u.id == n.id).length > 0) isNew = false;
-                                if (isNew) {
-                                    newUser.push(n);
-                                    myPrompts.push(n)
-                                };
-                            }
-
-                            chromeStorageSet({ 'user': newUser });
-
-                            that.setState({ myPrompts })
+                            newUser = [...items.user]
                         }
+
+                        for (const n of json) {
+                            let isNew = true;
+                            if (newUser.filter((u: any) => u.id == n.id).length > 0) isNew = false;
+                            if (isNew) {
+                                newUser.push(n);
+                                myPrompts.push(n)
+                            };
+                        }
+
+                        chromeStorageSet({ 'user': newUser });
+
+                        that.setState({ myPrompts })
 
 
                     });
@@ -301,20 +303,20 @@ class ComboEditor extends React.Component {
                                 disabled={false}
                                 callback={() => this.setState({
                                     showImportModal: true
-                                })}/>
+                                })} />
                         </div>
                     </FlexRow>
                     <Modal centered={true} footer={false} title="填写信息" open={this.state.showImportModal}
-                           onOk={() => this.setState({
-                               showImportModal: false
-                           })}
-                           onCancel={() => this.setState({
-                               showImportModal: false
-                           })}
-                           maskClosable={false}>
+                        onOk={() => this.setState({
+                            showImportModal: false
+                        })}
+                        onCancel={() => this.setState({
+                            showImportModal: false
+                        })}
+                        maskClosable={false}>
                         <Form onFinish={(e) => this._importOfficialCombo(e)}>
                             <Form.Item
-                                style={{marginTop: 16, marginBottom: 0}}
+                                style={{ marginTop: 16, marginBottom: 0 }}
                                 name={'key'}
                                 rules={[
                                     {
@@ -326,10 +328,10 @@ class ComboEditor extends React.Component {
                                     },
                                 ]}
                             >
-                                <Input placeholder="填写32位字符"/>
+                                <Input placeholder="填写32位字符" />
                             </Form.Item>
                             <Form.Item
-                                style={{display: "flex", justifyContent: "flex-end", marginTop: 16, marginBottom: 0}}>
+                                style={{ display: "flex", justifyContent: "flex-end", marginTop: 16, marginBottom: 0 }}>
                                 <Button type="primary" htmlType="submit">导入</Button>
                             </Form.Item>
                         </Form>
