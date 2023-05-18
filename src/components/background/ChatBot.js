@@ -65,7 +65,12 @@ class ChatBotBackground {
         }
         return
     }
-
+    clearAvailables() {
+        Array.from(this.items, item => item.clearAvailable());
+        chrome.storage.sync.set({
+            chatBotAvailables: null
+        })
+    }
     async getAvailables() {
         let res = []
         for (const n of this.getList()['list']) {
@@ -105,16 +110,11 @@ class ChatBotBackground {
             let id = this.createKeyIdForInit(type, {})
             chrome.storage.sync.get(id).then(data => {
                 let chatBotAvailable = data[id]
-                    //60*60s 24h缓存
-                    // console.log(chatBotAvailable,
-                    //     chatBotAvailable.available,
-                    //     (new Date()).getTime() - chatBotAvailable.time,
-                    //     60 * 1000)
-
+                    //3s 缓存
                 if (
                     chatBotAvailable &&
                     chatBotAvailable.available && chatBotAvailable.available.success &&
-                    new Date().getTime() - chatBotAvailable.time < 24 * 60 * 60 * 1000
+                    new Date().getTime() - chatBotAvailable.time < 1 * 1 * 3 * 1000
                 ) {
                     res(chatBotAvailable)
                 }
@@ -122,6 +122,8 @@ class ChatBotBackground {
             })
         })
     }
+
+
 
     //   是否可用
     async getAvailable(type) {

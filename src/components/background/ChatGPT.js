@@ -144,7 +144,9 @@ export default class ChatGPT {
             ...this.conversationContext.messages.slice(-this.contextSize)
         ]
     }
-
+    clearAvailable() {
+        this.available = null;
+    }
     async getAvailable() {
         let res = {
             success: false,
@@ -165,8 +167,8 @@ export default class ChatGPT {
 
 
         baseUrl = baseUrl ? createAPIUrl(baseUrl) : this.baseUrl
-        token = token || this.token
-        model = model || this.model
+            // token = token || this.token
+            // model = model || this.model
 
         this.token = token
         this.baseUrl = baseUrl
@@ -185,20 +187,31 @@ export default class ChatGPT {
 
         const resp = await postData(baseUrl, token, {
             model: model,
-            messages: [{ role: 'user', content: 'hi' }],
+            messages: [{ role: 'user', content: 'hi' + (new Date()).getTime() }],
             temperature: 0.6,
             stream: false
         })
         let res = await resp.json()
-            // console.log('init ', res, res.error && res.error.message ? false : true);
+        console.log('init ', res, res.error && res.error.message ? false : true);
+
+        let success = true;
+        if (res.error && res.error.message) success = false;
+        if (res.object == "error") success = false;
+        if (res.statusCode == 401) success = false;
+
+        let info = ''
+        if (res.message) info = res.message;
+        if (res.error && res.error.message) info = res.error.message;
+
 
         this.available = {
-            success: res.error && res.error.message ? false : true,
-            info: res.error ? res.error.message : '',
+            success,
+            info,
             data: res,
             style: 0.6,
             temperature: 0.6
         }
+
         return this.available
             // this.doSendMessageForBg('hi', (success, data) => {
             //     console.log('init - doSendMessageForBg:', success, data, this.available);
