@@ -17,11 +17,11 @@
 
 
 class Common {
-    constructor(json, notion, chatBot, Agent, Credit) {
+    constructor(json, chatBot, Agent, Credit) {
         this.appName = json.app;
 
         this.init()
-        this.onMessage(json, notion, chatBot, Agent, Credit)
+        this.onMessage(json, chatBot, Agent, Credit)
 
     }
 
@@ -78,57 +78,14 @@ class Common {
         })
     }
 
-    onMessage(json, notion, chatBot, Agent, Credit) {
+    onMessage(json, chatBot, Agent, Credit) {
         // 用于监听发到bg的消息
         chrome.runtime.onMessage.addListener(
             async(request, sender, sendResponse) => {
                 const { cmd, data } = request,
                 tabId = sender.tab.id
 
-                if (cmd == 'get-block') {
-                    // 查询block的数据
-                    notion.getBlock(data.blockId).then(data => {
-                        this.sendMessage(
-                            'get-block-result',
-                            data.status == 200,
-                            data,
-                            tabId
-                        )
-                    })
-                } else if (cmd == 'get-block-children') {
-                    // 获取block的子数据
-                    notion
-                        .getBlockChildren(data.blockId, data.expirationTime || 1000 * 60)
-                        .then(data => {
-                            this.sendMessage(
-                                'get-block-children-result',
-                                data.status == 200,
-                                data,
-                                tabId
-                            )
-                        })
-                } else if (cmd == 'get-data-from-notion') {
-                    const type = data.type
-                    let databaseId
-                    if (type == 'news') databaseId = json.databaseId
-                    if (type == 'copilots') databaseId = json.databaseId2
-                    if (type == 'prompts') databaseId = json.databaseId3
-                    if (type == 'other') databaseId = data.dataBase
-
-                    // 查询database
-                    if (databaseId)
-                        notion
-                        .queryDatabase(databaseId, data.expirationTime || 1000 * 60 * 60)
-                        .then(res => {
-                            res = {...res, type }
-                            this.sendMessage(
-                                'get-data-from-notion-result',
-                                res.status == 200,
-                                res,
-                                tabId
-                            )
-                        })
-                } else if (cmd == 'chat-bot-init') {
+                if (cmd == 'chat-bot-init') {
                     // 初始化 chatbot
                     const { type, api, model, token, team } = data || {}
 

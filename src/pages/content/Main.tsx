@@ -143,8 +143,6 @@ const sendMessageToBackground = {
 class Main extends React.Component<{
     appName: string,
     agents: any,
-    databaseId: any,
-    blockId: any,
     readability: any,
     fullscreen: boolean,
     initIsOpen: boolean,
@@ -159,9 +157,7 @@ class Main extends React.Component<{
     loading: boolean,
     // 是否全屏
     fullscreen: boolean,
-    // 预处理的cot数据
-    cardsLoaded: boolean,
-
+   
     // 全局的禁止操作
     disabledAll: boolean,
     // 加载机器人，初始化
@@ -182,7 +178,7 @@ class Main extends React.Component<{
     showEdit: boolean,
 
     activeIndex: any,
-    cards: Array<{}>,
+    
     talks: Array<{}>,
     mixedCards: Array<{}>,
 
@@ -231,12 +227,11 @@ class Main extends React.Component<{
             loading: this.props.initIsOpen ? false : true,
             fullscreen: this.props.fullscreen,
             activeIndex: undefined,
-            cards: [],
+            
             talks: [],
 
             mixedCards: [],
-            // 预处理数据加载
-            cardsLoaded: false,
+          
             // 禁止点击
             disabledAll: true,
 
@@ -304,7 +299,8 @@ class Main extends React.Component<{
         let isOpen = this.props.fullscreen && this.props.userInput && this.props.userInput.prompt && this.props.initChatBotType;
         // 打开任何网站都会初始化
 
-        this._initBlockAndBot(false);
+        this.show(false);
+
         if (!this.state.chatBotIsAvailable) this.initChatBot(isOpen);
 
         if (isOpen || this.props.initIsOpen) {
@@ -350,8 +346,7 @@ class Main extends React.Component<{
         window.onfocus = (e) => {
             if (document.readyState == 'complete') {
                 console.log('激活状态！')
-                // _.throttle(() => this._initBlockAndBot(false), 3000)
-                // _.throttle(() => this.initChatBot(false), 3000)
+
                 this._updateCurrentTalks()
             }
         }
@@ -394,112 +389,7 @@ class Main extends React.Component<{
             } else if (cmd == 'toggle-insight') {
                 this.setState({ initIsOpen: true });
                 this.show(false);
-            } else if (cmd == 'get-block-children-result') {
-                // 失败
-                if (!success) return this.show(true);
-                this.setState({
-                    cardsLoaded: success
-                });
-                let result = data.results;
-                let cards: any = [];
-                // console.log(result)
-                for (const r of result) {
-                    let type = r.type;
-                    let content = r[type];
-                    let richText = content.rich_text;
-
-                    let has_children = r.has_children;
-                    // console.log(type,content)
-
-                    // 是标题，用于分割内容块
-                    let isTitle = (type === 'heading_1');
-
-                    // console.log('------', richText)
-                    let text = Array.from(richText, (r: any) => r.plain_text).join('\n'),
-                        html = '';
-
-                    if (richText && richText.length > 0) {
-                        if (type == 'code') {
-                            // md渲染成html
-                            let md = new MarkdownIt();
-                            let result = md.render(text);
-                            // 处理a标签
-                            let div = document.createElement('div');
-                            div.innerHTML = result;
-                            Array.from(div.querySelectorAll('a'), a => a.setAttribute('target', '_blank'))
-                            html = div.innerHTML
-                        } else {
-                            let richTextResult = [];
-                            for (const text of richText) {
-                                if (text.type == 'text') {
-                                    let t = text.href ? `<a 
-              style="${parseInt(text.plain_text.trim()) > 0 ? aNumStyle : linkStyle}"
-              href='${encodeURI(text.href)}' target='_blank'
-              >${text.plain_text}</a>` : text.plain_text;
-                                    richTextResult.push(isTitle ? `<h4 style="${titleStyle}">${t}</h4>` : `<span style="${text.href ? divStyle : ''}">${t}</span>`)
-                                }
-                            }
-                            html = richTextResult.join('')
-                        }
-                        // console.log(type,text,html)
-                        cards.push({
-                            isTitle,
-                            type,
-                            text,
-                            html,
-                            // 是否有嵌套
-                            hasChildren: has_children
-                        })
-                    }
-                }
-                ;
-
-                // 对cards里的数据分组，根据isTitle
-                let group = [];
-                for (const card of cards) {
-                    if (card.isTitle) group.push(new Array());
-                    group[group.length - 1].push(card);
-                }
-                ;
-
-                // console.log(cards,group)
-                // 需要嵌入到文章里
-                let mixedCards: any = [];
-                // 放到右侧tab里
-                cards = [];
-
-                // 不需要嵌入到文章
-                for (const g of group) {
-                    cards.push(g)
-                }
-
-                // console.log(mixedCards, cards)
-                // 判断数据是否正常，决定缓存时长
-                if (mixedCards.length <= 1 && cards.length <= 0) {
-                    that.setState({
-                        expirationTime: mixedCards.length <= 1 && cards.length <= 0 ? 1000 : 1000 * 60 * 60 * 24 * 7
-                    })
-                }
-                ;
-
-                let title = document.title;
-
-                let d = {
-                    title,
-                    mixedCards,
-                    cards,
-                    activeIndex: cards.length > 0 ? 0 : undefined,
-                    inputCardDisplay: 'flex',
-                    buttonsDisplay: 'flex'
-                }
-                that.setState(d);
-
-                // 缓存用来加速
-                localStorage.setItem('_mk003_data', JSON.stringify(d))
-
-                // 显示
-                that.show(false);
-            } else if (cmd == 'chat-bot-init-result') {
+            }else if (cmd == 'chat-bot-init-result') {
                 that.initChatBot(false);
             }
 
@@ -541,24 +431,6 @@ class Main extends React.Component<{
         });
     }
 
-    _initBlockAndBot(isAutoShow = true) {
-        if (this.props.blockId && !this.state.cardsLoaded) {
-            chrome.runtime.sendMessage({
-                cmd: 'get-block-children',
-                data: {
-                    blockId: this.props.blockId,
-                    expirationTime: this.state.expirationTime
-                }
-            },
-                response => {
-                    // 解决偶尔获取不到的情况
-                    if (!response) setTimeout(() => this._initBlockAndBot(), 100)
-                }
-            );
-        } else if (isAutoShow) {
-            this.show(false);
-        }
-    }
 
 
     _getChatBotFromLocal() {
@@ -1258,25 +1130,14 @@ class Main extends React.Component<{
 
 
     _doChatBotData() {
-        let cards: any = this.state.cards || [];
-
+    
         let subjects = [{
             type: 'chatbot', text: '聊天', index: -1
-        }, ...Array.from(cards, (cs: any, index) => {
-            return { ...cs.filter((c: any) => c.isTitle)[0], index }
-        })];
+        }];
 
-        let activeIndex = this.state.activeIndex === undefined ? 0 : this.state.activeIndex;
-
-        if (cards.length == 0) activeIndex = -1;
+        let activeIndex = -1;
 
         let talks: any = [...this.state.talks];
-
-        // content内容展示预处理还是聊天
-        // let datas: any = ((cards[subjects.filter((s: any) => s.index == activeIndex)[0]?.index] || []).filter((f: any) => !f.isTitle)) || [];
-        // if (activeIndex == -1) datas = [...this.state.talks];
-
-        // console.log(this.state.chatBotIsAvailable, activeIndex)
 
         // 聊天服务无效,补充提示
         if (!this.state.chatBotIsAvailable && activeIndex == -1) {
@@ -1286,15 +1147,8 @@ class Main extends React.Component<{
             }))
         }
 
-        const datas = [talks, ...cards]
-
-        // 添加prompts , 服务有效，聊天tab
-        // if (datas.length === 0 && this.state.chatBotIsAvailable && activeIndex == -1) {
-        //     // this._control({
-        //     //     cmd: 'new-talk'
-        //     // })
-        // }
-
+        const datas = [talks]
+ 
         const tabList = Array.from(subjects, subject => {
             return {
                 key: subject.text,
@@ -1302,20 +1156,15 @@ class Main extends React.Component<{
                 index: subject.index
             }
         });
-        // console.log(tabList, datas)
+     
         return {
             tabList, datas, activeIndex
         }
     }
 
     render() {
-
-        const { tabList, datas, activeIndex } = this._doChatBotData();
-        // console.log('_doChatBotData', tabList, datas, activeIndex)
+        const { tabList, datas, activeIndex } = this._doChatBotData(); 
         return (<>
-
-
-
             <FlexColumn
                 translate="no"
                 display={

@@ -1,6 +1,5 @@
 console.log('Service Worker')
 
-import Notion from '@components/background/Notion'
 import NewBing from '@components/background/NewBing'
 import ChatGPT from '@components/background/ChatGPT'
 import ChatBot from '@components/background/ChatBot'
@@ -53,7 +52,6 @@ import { getConfig } from '@components/Utils';
     //   return true
     // });
 
-    const notion = new Notion(json.notionToken)
 
     const chatBot = new ChatBot({
         items: []
@@ -66,5 +64,5 @@ import { getConfig } from '@components/Utils';
         // 初始化
     chatBot.getAvailables()
 
-    new Common(json, notion, chatBot, Agent, Credit)
+    new Common(json, chatBot, Agent, Credit)
 })()

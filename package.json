@@ -6,7 +6,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": ""
+        "url": "https://github.com/AGIUI/Earth"
     },
     "scripts": {
         "start": "ts-node-esm scripts/build.ts --dev",

@@ -8,7 +8,7 @@ async function init() {
   let json: any = await getConfig() || {};
 
   // from Bing,ChatGPT 初始化对话框 采用哪个引擎
-  const { databaseId, blockId, reader, fullscreen, userInput, from, agents } = getConfigFromUrl();
+  const {  reader, fullscreen, userInput, from, agents } = getConfigFromUrl();
 
   let dom = document.body;
 
@@ -25,10 +25,7 @@ async function init() {
     appName={json.app}
     // 代理器
     agents={agents === "1"}
-    // 暂无用
-    databaseId={databaseId || ''}
-    // 读取预处理数据
-    blockId={blockId}
+   
     // 阅读模式
     readability={readerHack(!!reader)}
     // 是否全屏
@@ -39,7 +36,7 @@ async function init() {
       tag: decodeURI(userInput || '')
     }}
     // 默认是否开启
-    initIsOpen={!!(databaseId || blockId || reader || userInput)}
+    initIsOpen={!!(reader || userInput)}
     // 初始引擎
     initChatBotType={
       from
@@ -47,8 +44,7 @@ async function init() {
   />
   );
 
-  // console.log('init',fullscreen==="1"?true:false,decodeURI(userInput||''),!!(databaseId||blockId||reader||userInput))
-
+ 
   dom.appendChild(rootContainer);
 
 }
