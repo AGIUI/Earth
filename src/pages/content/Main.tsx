@@ -98,21 +98,27 @@ const Talks = {
 
 const sendMessageToBackground = {
     'chat-bot-talk': (data: any) => {
+
         let lmmStart = false;
-        chrome.runtime.sendMessage({
-            cmd: 'chat-bot-talk',
-            data
-        }, res => {
-            console.log('status', res.status)
-            lmmStart = true
-        })
-        setTimeout(() => {
-            if (lmmStart === false) {
-                console.log('失败')
-                message.info('出错了，请刷新')
-                chrome.runtime.reload()
-            }
-        }, 5000)
+
+        const r = () => {
+            chrome.runtime.sendMessage({
+                cmd: 'chat-bot-talk',
+                data
+            }, res => {
+                console.log('status', res.status)
+                lmmStart = true
+            })
+
+            setTimeout(() => {
+                if (lmmStart === false) {
+                    console.log('出错了，重试ing')
+                    // message.info('出错了，重试ing')
+                    r();
+                }
+            }, 2200)
+        }
+        r();
     },
     'chat-bot-talk-new': (data: any) => chrome.runtime.sendMessage({
         cmd: 'chat-bot-talk-new',
@@ -642,8 +648,11 @@ class Main extends React.Component<{
         // 获取当前网页正文信息
         const { length, title, textContent, href } = this._extractArticle();
         if (prompt) {
-            const text = textContent.replace(/\s+/ig, ' ');
-            prompt = `<tag>标题:${title},网址:${href},正文:${text.slice(0, 1200)}</tag>,` + prompt;
+            const text = textContent.trim().replace(/\s+/ig, ' ');
+            prompt = prompt.trim();
+            const t = `标题:${title},网址:${href}`
+            const count = prompt.length + t.length;
+            prompt = `<tag>${t}${1920 - count > 0 ? `,正文:${text.slice(0, 1920 - count)}` : ''}</tag>,` + prompt;
         }
         return prompt
     }
