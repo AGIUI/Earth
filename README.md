@@ -87,6 +87,14 @@ npm run build [browser]
 }]
 ```
 
+## 版本记录
+
+v0.2.0 
+
+新增绑定当前网页、输出格式，combo编辑器导入导出，提供示例
+
+
+
 ## 相关资料：
 
 [视频demo](https://space.bilibili.com/540054369)
