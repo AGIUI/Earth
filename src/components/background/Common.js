@@ -1,15 +1,27 @@
 /**
  * background里的监听事件的定义
  *
+ * 返回 运行状态 
+ * status 
+ * llm-start 开始调用LLM
+ * llm-end 
+ * 
+ * sendResponse({
+                        status: 'llm-start',
+                        data: {
+                            ...data
+                        }
+                    })
+
  */
 
 
 class Common {
-    constructor(json, notion, chatBot, Agent, Api2d) {
+    constructor(json, chatBot, Agent, Credit) {
         this.appName = json.app;
 
         this.init()
-        this.onMessage(json, notion, chatBot, Agent, Api2d)
+        this.onMessage(json, chatBot, Agent, Credit)
 
     }
 
@@ -66,65 +78,25 @@ class Common {
         })
     }
 
-    onMessage(json, notion, chatBot, Agent, Api2d) {
+    onMessage(json, chatBot, Agent, Credit) {
         // 用于监听发到bg的消息
         chrome.runtime.onMessage.addListener(
             async(request, sender, sendResponse) => {
                 const { cmd, data } = request,
                 tabId = sender.tab.id
 
-                if (cmd == 'get-block') {
-                    // 查询block的数据
-                    notion.getBlock(data.blockId).then(data => {
-                        this.sendMessage(
-                            'get-block-result',
-                            data.status == 200,
-                            data,
-                            tabId
-                        )
-                    })
-                } else if (cmd == 'get-block-children') {
-                    // 获取block的子数据
-                    notion
-                        .getBlockChildren(data.blockId, data.expirationTime || 1000 * 60)
-                        .then(data => {
-                            this.sendMessage(
-                                'get-block-children-result',
-                                data.status == 200,
-                                data,
-                                tabId
-                            )
-                        })
-                } else if (cmd == 'get-data-from-notion') {
-                    const type = data.type
-                    let databaseId
-                    if (type == 'news') databaseId = json.databaseId
-                    if (type == 'copilots') databaseId = json.databaseId2
-                    if (type == 'prompts') databaseId = json.databaseId3
-
-                    // 查询database
-                    if (databaseId)
-                        notion
-                        .queryDatabase(databaseId, data.expirationTime || 1000 * 60 * 60)
-                        .then(res => {
-                            res = {...res, type }
-                            this.sendMessage(
-                                'get-data-from-notion-result',
-                                res.status == 200,
-                                res,
-                                tabId
-                            )
-                        })
-                } else if (cmd == 'chat-bot-init') {
+                if (cmd == 'chat-bot-init') {
                     // 初始化 chatbot
-                    const { chatGPTAPI, chatGPTModel, chatGPTToken } = data || {}
+                    const { type, api, model, token, team } = data || {}
 
-                    if (chatGPTAPI && chatGPTModel && chatGPTToken) {
+                    if (api && model && token) {
                         await chatBot.init(
-                            'ChatGPT',
-                            chatGPTToken,
-                            chatGPTAPI,
-                            chatGPTModel
+                            type || 'ChatGPT', {
+                                token,
+                                api,
+                                model,
+                                team
+                            }
                         )
                     }
 
@@ -156,7 +128,12 @@ class Common {
                         }
                     );
 
-                    sendResponse(initTalksResult)
+                    sendResponse({
+                        status: 'llm-start',
+                        data: {
+                            ...data
+                        }
+                    })
 
                 } else if (cmd == 'chat-bot-talk-new') {
                     if (data.newTalk) {
@@ -200,9 +177,11 @@ class Common {
                     })
                 } else if (cmd == 'run-agents') {
                     Agent.executeScript(data.url, data.query, data.combo)
-                } else if (cmd == "get-my-points-for-api2d") {
+                } else if (cmd == "get-my-points") {
+                    const apiName = data.apiName,
+                        token = data.token;
                     // 获取我的积分
-                    Api2d.getPoints().then(res => {
+                    Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
 

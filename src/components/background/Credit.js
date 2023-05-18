@@ -1,7 +1,15 @@
-const getPoints = (token) => {
-    return fetch('https://openai.api2d.net/dashboard/billing/credit_grants', {
-        method: 'POST',
+/**
+ * 查询剩余额度
+ */
 
+const apis = {
+    'api2d': 'https://openai.api2d.net/dashboard/billing/credit_grants'
+}
+
+
+const getPoints = (token, apiName) => {
+    return fetch(apis[apiName], {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`

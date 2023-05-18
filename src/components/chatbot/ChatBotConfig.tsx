@@ -9,6 +9,12 @@ getConfig().then(json => {
 
 function get() {
     return [{
+        type: 'ChatGPT',
+        name: 'ChatGPT',
+        icon: chrome.runtime.getURL(`public/chatgpt.png`),
+        style: { type: 'range', label: 'temperature', value: 0.6, values: [0, 1] },
+        checked: false
+    }, {
         type: 'Bing',
         name: 'New Bing',
         icon: chrome.runtime.getURL(`public/bing.svg`),
@@ -21,12 +27,6 @@ function get() {
             ],
             value: 'Creative'
         }, checked: true
-    }, {
-        type: 'ChatGPT',
-        name: 'ChatGPT',
-        icon: chrome.runtime.getURL(`public/chatgpt.png`),
-        style: { type: 'range', label: 'temperature', value: 0.6, values: [0, 1] },
-        checked: false
     }]
 
 }

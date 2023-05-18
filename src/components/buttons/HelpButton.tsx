@@ -6,7 +6,7 @@ import {
 
 
 import {
-    FolderOpenFilled 
+    QuestionCircleOutlined
 } from '@ant-design/icons';
 
 type PropType = {
@@ -57,9 +57,9 @@ class OpenFileButton extends React.Component {
                     margin: '0px 5px 0px 10px',
                     boxShadow: 'none'
                 }}
-                icon={<FolderOpenFilled   style={{ fontSize: 20 }} />}
+                icon={<QuestionCircleOutlined   style={{ fontSize: 20 }} />}
                 disabled={this.state.disabled}
-                onClick={() => this.props.callback({ cmd: 'open-file' })} />
+                onClick={() => this.props.callback({ cmd: 'help' })} />
         );
     }
 }

@@ -56,7 +56,8 @@ class ChatBotBackground {
     }
 
     // 初始化
-    async init(type, token, api, model) {
+    async init(type, params = {}) {
+        const { token, api, model, team } = params;
         // if (this.dev) return this.devInit()
         if (this.items) {
             let item = this.items.filter(item => item.type == type)[0]

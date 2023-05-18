@@ -4,10 +4,10 @@ import {
     Button
 } from 'antd';
 
-
 import {
-    FolderOpenFilled 
+    PlusOutlined
 } from '@ant-design/icons';
+import FullscreenButton from "@components/buttons/FullscreenButton";
 
 type PropType = {
     disabled: boolean;
@@ -19,12 +19,12 @@ type StateType = {
     disabled: boolean
 }
 
-interface OpenFileButton {
+interface ImportButton {
     state: StateType;
     props: PropType
 }
 
-class OpenFileButton extends React.Component {
+class ImportButton extends React.Component {
     constructor(props: any) {
         super(props);
         this.state = {
@@ -57,11 +57,13 @@ class OpenFileButton extends React.Component {
                     margin: '0px 5px 0px 10px',
                     boxShadow: 'none'
                 }}
-                icon={<FolderOpenFilled   style={{ fontSize: 20 }} />}
+                icon={<PlusOutlined style={{ fontSize: 20 }} />}
                 disabled={this.state.disabled}
-                onClick={() => this.props.callback({ cmd: 'open-file' })} />
-        );
+                onClick={
+                    () => this.props.callback({ cmd: 'import-official-combo' })}
+            />
+        )
     }
 }
 
-export default OpenFileButton;
+export default ImportButton;

@@ -1,11 +1,10 @@
 console.log('Service Worker')
 
-import Notion from '@components/background/Notion'
 import NewBing from '@components/background/NewBing'
 import ChatGPT from '@components/background/ChatGPT'
 import ChatBot from '@components/background/ChatBot'
 import Agent from "@components/background/Agent";
-import Api2d from "@components/background/Api2d"
+import Credit from "@components/background/Credit"
 import Common from '@components/background/Common'
 
 import { getConfig } from '@components/Utils';
@@ -43,7 +42,7 @@ import { getConfig } from '@components/Utils';
       )}`
         )
         if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-            chrome.runtime.setUninstallURL('https://discord.gg/DtAYT2Pt')
+            chrome.runtime.setUninstallURL(json.discord)
         }
         return true
     })
@@ -53,7 +52,6 @@ import { getConfig } from '@components/Utils';
     //   return true
     // });
 
-    const notion = new Notion(json.notionToken)
 
     const chatBot = new ChatBot({
         items: []
@@ -66,5 +64,5 @@ import { getConfig } from '@components/Utils';
         // 初始化
     chatBot.getAvailables()
 
-    new Common(json, notion, chatBot, Agent, Api2d)
+    new Common(json, chatBot, Agent, Credit)
 })()

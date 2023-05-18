@@ -43,36 +43,53 @@ npm run build [browser]
 
 - config.json 里配置你的notion数据源
 
+
 ## Combo的一些示例
 
-- 根据选择器获取网页信息 示例
+[示例1：获取微博信息-创作科幻故事.json](/examples/example01.json)
+
+[示例2：获取微博最新消息，写一个访谈提纲](/examples/example02.json)
+
+[示例3：chirper上的shadowai行为解读](/examples/example03.json)
 
 
-获取微博话题下面的文本内容
+## combo的数据示例
 ```
-{
-    "url":"https://m.weibo.cn/search?containerid=100103type%3D1%26q%3D%23AGIUI",
-    "query":".weibo-main .weibo-text"
-}
+[{
+    "checked": true,
+    "combo": 3,
+    "id": "1881e7d386e",
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": true,
+        "queryObj": {
+            "isQuery": false,
+            "query": "",
+            "url": ""
+        },
+        "text": "给我一个科幻故事，和植物、机器人、爱情有关",
+        "url": ""
+    },
+    "prompt2": {
+        "bindCurrentPage": false,
+        "isApi": false,
+        "isNextUse": false,
+        "text": "总结下"
+    },
+    "prompt3": {
+        "text": "嗯"
+    },
+    "role": "",
+    "tag": "科幻故事"
+}]
 ```
-
-获取微博推荐的内容
-```
-{   "url":"https://m.weibo.cn/?ref=mix",
-    "query":".weibo-text"
-}
-```
-
-chirper上的shadowai行为解读
-```
-{
-    "url":"https://chirper.ai/shadowai/?ref=mix",
-    "query":".MuiCardContent-root"
-}
-```
-
 
 ## 相关资料：
+
+[视频demo](https://space.bilibili.com/540054369)
 
 [如何构建属于自己的知识引擎？](https://mp.weixin.qq.com/s/W6wjg8873gNci2vcZhamGg)
 

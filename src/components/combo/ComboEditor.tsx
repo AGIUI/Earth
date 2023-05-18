@@ -4,8 +4,7 @@ import {
     Button,
     Typography,
     Tag,
-    List,
-    Switch, Divider, Empty,
+    List,Empty, 
 } from 'antd';
 
 const { Text } = Typography;
@@ -15,15 +14,12 @@ import {
 } from '@ant-design/icons';
 
 import { chromeStorageGet, chromeStorageSet, md5 } from "@components/Utils"
-
-
 import { defaultCombo } from '@components/combo/ComboData'
 
 import DownloadButton from '@components/buttons/DownloadButton';
 import { FlexRow } from "@components/Style";
 import OpenFileButton from "@components/buttons/OpenFileButton";
-
-
+ 
 type PropType = {
     myPrompts: any;
     callback: any;
@@ -32,9 +28,9 @@ type PropType = {
 
 type StateType = {
     name: string;
-    title: string;
     secondTitle: string;
-    myPrompts: any
+    myPrompts: any,
+    showImportModal: boolean;
 }
 
 interface ComboEditor {
@@ -47,9 +43,9 @@ class ComboEditor extends React.Component {
         super(props);
         this.state = {
             name: 'comboEditor',
-            title: '官方Prompts',
             secondTitle: '我的Prompts',
-            myPrompts: this.props.myPrompts
+            myPrompts: this.props.myPrompts,
+            showImportModal: false,
         }
     }
 
@@ -90,46 +86,27 @@ class ComboEditor extends React.Component {
         })
     }
 
-
-    _editSwitch = (checked: boolean, event: React.MouseEvent<HTMLButtonElement>, prompt: any) => {
-        // console.log('EditSwitch');
-        event.stopPropagation();
-        event.preventDefault();
-
-        chromeStorageGet(['official']).then((items: any) => {
-            if (items && items.official) {
-                const official = items.official;
-                for (let i = 0; i < official.length; i++) {
-                    const officePrompt = official[i];
-                    if (officePrompt.tag === prompt.tag) {
-                        officePrompt.checked = checked;
-                        official[i] = officePrompt;
-                    }
-                }
-                chromeStorageSet({ 'official': official });
-            }
-
-        });
-    };
-
-
     _showModal(event: React.MouseEvent<HTMLButtonElement>, prompt: any) {
-
+        const data = {
+            prompt: {
+                ...defaultCombo,
+                ...prompt
+            },
+            from: 'combo-editor'
+        }
+        // console.log('_showModal', data)
         event.stopPropagation();
         event.preventDefault();
         if (this.props.callback) this.props.callback({
-            cmd: 'show-combo-modal', data: {
-                prompt: {
-                    ...defaultCombo,
-                    ...prompt
-                },
-                from: 'combo-editor'
-            }
+            cmd: 'show-combo-modal', data
         })
     };
 
+   
+
     _downloadMyCombo() {
-        const prompts=this.state.myPrompts.filter((p:any)=>p.owner!='official')
+        const prompts = this.state.myPrompts.filter((p: any) => p.owner != 'official')
+
         const data = JSON.stringify(prompts)
 
         //通过创建a标签实现
@@ -146,6 +123,53 @@ class ComboEditor extends React.Component {
     }
     _importMyCombo() {
         console.log(this.state.myPrompts)
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = ".json"
+        document.body.appendChild(input);
+        let that = this;
+        input.addEventListener('change', (e: any) => {
+            // console.log(e);
+            const files = e.target.files;
+            if (files.length == 1) {
+                let file = files[0];
+                var fileReader = new FileReader();
+                fileReader.readAsText(file);
+                fileReader.onload = function () {
+                    // 获取得到的结果
+                    const data: any = this.result;
+                    const json = JSON.parse(data);
+                    // console.log(json)
+
+                    chromeStorageGet(['user']).then((items: any) => {
+                        let myPrompts = [...that.state.myPrompts];
+                        let newUser:any = []
+
+                        if (items && items.user) {
+                            newUser = [...items.user]
+                        }
+
+                        for (const n of json) {
+                            let isNew = true;
+                            if (newUser.filter((u: any) => u.id == n.id).length > 0) isNew = false;
+                            if (isNew) {
+                                newUser.push(n);
+                                myPrompts.push(n)
+                            };
+                        }
+
+                        chromeStorageSet({ 'user': newUser });
+
+                        that.setState({ myPrompts })
+
+
+                    });
+
+                }
+            }
+            input.remove();
+        }, false)
+        input.click();
     }
     render() {
         return (
@@ -195,101 +219,61 @@ class ComboEditor extends React.Component {
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
-                    <Text style={{
-                        fontSize: 20,
-                        fontWeight: "bold"
-                    }}>{this.state.title}</Text>
-
-                    {this.state.myPrompts.filter((p: any) => p.owner === 'official').length > 0 ? (
-                        <List>
-                            {[...Array.from(this.state.myPrompts.filter((p: any) => p.owner === 'official'), (p: any, i) => {
-                                return (
-                                    <a key={i}>
-                                        <List.Item
-                                            style={{
-                                                border: 1,
-                                                borderColor: '#d9d9d9',
-                                                borderStyle: 'solid',
-                                                borderRadius: 5,
-                                                paddingTop: 15,
-                                                paddingBottom: 15,
-                                                paddingLeft: 10,
-                                                paddingRight: 10,
-                                                marginTop: 10,
-                                                marginBottom: 10
-                                            }}
-                                            actions={[
-                                                <Switch key='switch' checkedChildren="显示"
-                                                    unCheckedChildren="隐藏"
-                                                    defaultChecked={p.checked}
-                                                    onClick={(checked: boolean, event: any) => this._editSwitch(checked, event, p)} />,
-                                                <Button onClick={() => this._comboHandle(p, "getPromptPage")}>运行</Button>
-                                            ]}
-                                        ><Text style={{ fontWeight: "bold" }}>{p.tag}
-                                                {
-                                                    p.combo > 1 ? (<Tag style={{ marginLeft: 10 }}>Combo</Tag>) : null
-                                                }
-
-                                            </Text></List.Item>
-                                    </a>
-                                )
-                            })]}
-                        </List>
-                    ) : (
-                        <Empty style={{ marginTop: 100, marginBottom: 100 }} />
-                    )}
-
-                    <Divider />
+                   
 
                     <FlexRow display="flex">
                         <Text style={{ fontSize: 20, fontWeight: "bold" }}>{this.state.secondTitle}</Text>
-                        <DownloadButton
-                            disabled={false}
-                            callback={() => this._downloadMyCombo()} />
-                        {/* <OpenFileButton
-                            disabled={false}
-                            callback={() => this._importMyCombo()} /> */}
-                        
+                        <div >
+
+                            <DownloadButton
+                                disabled={false}
+                                callback={() => this._downloadMyCombo()} />
+                            <OpenFileButton
+                                disabled={false}
+                                callback={() => this._importMyCombo()} />
+
+                        </div>
+
                     </FlexRow>
 
                     {this.state.myPrompts.filter((p: any) => p.owner !== 'official').length > 0 ? (
                         <List>
                             {this.state.myPrompts.filter((p: any) => p.owner !== 'official').map((p: any, i: number) => {
                                 return (
-                                    <a
+                                    <List.Item
                                         key={i}
+                                        style={{
+                                            border: 1,
+                                            borderColor: '#d9d9d9',
+                                            borderStyle: 'solid',
+                                            borderRadius: 5,
+                                            paddingTop: 15,
+                                            paddingBottom: 15,
+                                            paddingLeft: 10,
+                                            paddingRight: 10,
+                                            marginTop: 10,
+                                            marginBottom: 10
+                                        }}
+                                        actions={[
+                                            <Button
+                                                onClick={(event: any) => this._showModal(event, p)}
+                                                key={'edit'}
+                                                type={'text'}
+                                            >
+                                                编辑
+                                            </Button>,
+                                            <Button onClick={() => this._comboHandle(p, "getPromptPage")}
+                                            >运行</Button>
+                                        ]}
                                     >
-                                        <List.Item
-                                            style={{
-                                                border: 1,
-                                                borderColor: '#d9d9d9',
-                                                borderStyle: 'solid',
-                                                borderRadius: 5,
-                                                padding: 10,
-                                                marginTop: 10,
-                                                marginBottom: 10,
-                                            }}
-                                            actions={[
-                                                <Button
-                                                    onClick={(event: any) => this._showModal(event, p)}
-                                                    key={'edit'}
-                                                    type={'text'}
-                                                >
-                                                    编辑
-                                                </Button>,
-                                                <Button onClick={() => this._comboHandle(p, "getPromptPage")}
-                                                >运行</Button>
-                                            ]}
-                                        >
-                                            <Text style={{ fontWeight: 'bold' }}>
-                                                {p.tag}
-                                                {
-                                                    p.combo > 1 ? (
-                                                        <Tag style={{ marginLeft: 10 }}>Combo</Tag>) : null
-                                                }
-                                            </Text>
-                                        </List.Item>
-                                    </a>
+                                        <Text style={{ fontWeight: 'bold' }}>
+                                            {p.tag}
+                                            {
+                                                p.combo > 1 ? (
+                                                    <Tag style={{ marginLeft: 10 }}>Combo</Tag>) : null
+                                            }
+                                        </Text>
+                                    </List.Item>
                                 )
                             })}
                         </List>
