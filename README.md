@@ -14,7 +14,7 @@ AGI-UI的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人�
 
 ## 如何使用？
 
-安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.2.0
+安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.2.1
 
 Chrome：
 
