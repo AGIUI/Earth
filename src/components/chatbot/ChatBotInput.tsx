@@ -1,6 +1,8 @@
 import * as React from "react";
 
-import { Card, Button, Input, Checkbox, Radio } from 'antd';
+
+import { Card, Button, Input, Checkbox, Radio,message } from 'antd';
+
 import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 import { defaultCombo, defaultPrompt } from "../combo/ComboData";
@@ -199,11 +201,20 @@ class ChatBotInput extends React.Component {
         }
     }
 
+
+    _toast(){
+            message.open({
+                type: 'warning',
+                content: '绑定当前网页可能会消耗大量Token，建议在需要时绑定',
+            });
+        }
+
     _bindCurrentPage(b: boolean) {
         this.setState({
             bindCurrentPage: b,
             bindCurrentPageTooltip: b ? '绑定当前网页，将消耗大量token' : '绑定当前网页'
         })
+      if(b)this._toast();
         this.props.callback({
             cmd: "bind-current-page", data: {
                 bindCurrentPage: b
@@ -225,6 +236,7 @@ class ChatBotInput extends React.Component {
                 output: t
             }
         })
+
     }
 
     render() {
@@ -313,6 +325,7 @@ class ChatBotInput extends React.Component {
                     options={[{
                         label: this.state.bindCurrentPageTooltip, value: 'bindCurrentPage'
                     }]}
+
                     defaultValue={this.state.bindCurrentPage ? ['bindCurrentPage'] : []}
                     onChange={(e) => this._bindCurrentPage(e[0] == 'bindCurrentPage')} />
 
@@ -335,6 +348,7 @@ class ChatBotInput extends React.Component {
                     buttonStyle="solid"
                     size="small"
                 />
+
 
 
                 <TextArea

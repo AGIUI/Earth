@@ -51,7 +51,8 @@ type StateType = {
     isCombo: boolean;
     currentPrompt: any;
     options: any;
-    promptOptions: any
+    promptOptions: any;
+    step:number;
 }
 
 interface ComboModal {
@@ -68,7 +69,8 @@ class ComboModal extends React.Component {
             isCombo: this.props.currentPrompt && this.props.currentPrompt.combo > 1,
             currentPrompt: this.props.currentPrompt,
             options: comboOptions,
-            promptOptions
+            promptOptions,
+            step:0.1
         }
         console.log('currentPrompt', this.props.currentPrompt)
     }
@@ -220,6 +222,19 @@ class ComboModal extends React.Component {
 
         json[key][type] = value
 
+
+        if(type == 'model'){
+            if(value=="Bing"){
+                this.setState({
+                    step:0.5,
+                })
+            }else {
+                this.setState({
+                    step:0.1,
+                })
+            }
+        }
+
         this._updateCurrentPrompt(json);
     }
 
@@ -323,7 +338,7 @@ class ComboModal extends React.Component {
         return <>
             {
                 isQuery ? <div style={{
-                    padding: '32px'
+                    padding: '0px'
                 }}><Form.Item
                     name={`Prompt${index}Url`}
                     label={`url`}
@@ -436,14 +451,16 @@ class ComboModal extends React.Component {
                         })}
                 </Radio.Group>
             </Form.Item>
-            <Form.Item name={`Prompt${index}EditOptionsForTemperature`} >
+            <Form.Item name={`Prompt${index}EditOptionsForTemperature`}
+                       label="发散程度"
+            >
                 <Slider
                     style={{ width: '120px' }}
                     range={false}
                     max={1}
                     min={0}
-                    step={0.01}
-                    defaultValue={0.6}
+                    step={this.state.step}
+                    defaultValue={0.7}
                     onChange={(e) => this._handlePromptModelAndTemperatureSetting(index - 1, e, 'temperature')}
                 />
             </Form.Item></>
