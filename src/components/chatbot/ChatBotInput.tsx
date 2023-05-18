@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Card, Button, Input, Checkbox } from 'antd';
+import { Card, Button, Input, Checkbox,message } from 'antd';
 import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 import { defaultCombo, defaultPrompt } from "../combo/ComboData";
@@ -192,6 +192,14 @@ class ChatBotInput extends React.Component {
         }
     }
 
+    _toast(e){
+        if(e!=undefined){
+            message.open({
+                type: 'warning',
+                content: '绑定当前网页可能会消耗大量Token，建议在需要时绑定',
+            });
+        }
+    }
 
     render() {
         return (
@@ -279,9 +287,7 @@ class ChatBotInput extends React.Component {
                     options={[{
                         label: '绑定当前网页', value: 'bindCurrentPage'
                     }]}
-                    onChange={(e) => console.log(e[0])} />
-
-
+                    onChange={(e) => this._toast(e[0])} />
 
                 <TextArea
                     maxLength={2000}

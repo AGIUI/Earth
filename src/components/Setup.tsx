@@ -244,7 +244,7 @@ class Setup extends React.Component<{
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = ".json"
-        document.body.appendChild(input);
+
         let that = this;
         input.addEventListener('change', (e: any) => {
             // console.log(e);
@@ -394,8 +394,8 @@ class Setup extends React.Component<{
                             {this.state.chatGPTConfig.canImport ? <OpenFileButton
                                 callback={(e: any) => this._importConfig()}
                                 disabled={false} /> : ''}
-                            <FileTextOutlined alt={'使用教程'} style={{ marginLeft: 4 }} onClick={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}
-                                disabled={false} />
+                            {/*<FileTextOutlined alt={'使用教程'} style={{ marginLeft: 4 }} onClick={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}*/}
+                            {/*    disabled={false} />*/}
                         </Title>
                         {(() => {
                             if (this.state.status['ChatGPT'] == 'OK') {
