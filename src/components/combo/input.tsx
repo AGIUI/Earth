@@ -1,4 +1,5 @@
 import { Readability } from '@mozilla/readability'
+import {md5} from '@components/Utils'
 
 const MAX_LENGTH = 2000;
 
@@ -39,7 +40,14 @@ const extractArticle = () => {
 
     let elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p')].flat()).flat().filter((f: any) => f);
 
-    article.elements = Array.from(elements, (e: any, index) => [{ element: e, text: e.innerText.trim() }]).flat().filter((d: any) => d.text);
+    article.elements = Array.from(elements, (e: any, index) => {
+        e.id=md5(e.innerText.trim())
+        return {
+            element: e,
+            text: e.innerText.trim(),
+            html: e.outerHTML
+        }
+    }).flat().filter((d: any) => d.text);
     // article.elements = Array.from(elements, (t: any) => t.element)
 
 
@@ -67,8 +75,8 @@ const promptBindCurrentSite = (prompt: string, type = 'text') => {
         const count = prompt.length + t.length;
         prompt = `<tag>${t}${MAX_LENGTH - count > 0 ? `,正文:${text.slice(0, MAX_LENGTH - count)}` : ''}</tag>,` + prompt;
     } else if (prompt && type == 'html') {
-        const texts = Array.from(elements, (t: any) => t.text)
-        prompt = `<tag>${JSON.stringify(texts)}</tag>,` + prompt;
+        const htmls = Array.from(elements, (t: any) => t.html)
+        prompt = `<tag>${JSON.stringify(htmls)}</tag>,` + prompt;
     }
     return prompt
 }
@@ -77,12 +85,12 @@ const promptBindCurrentSite = (prompt: string, type = 'text') => {
  * 
  * @returns element
  */
-const extractHTML = () => {
+const extractDomElement = () => {
     // 获取当前网页正文信息
-    const {elements } = extractArticle();
+    const { elements } = extractArticle();
     return Array.from(elements, (t: any) => t.element)
 }
 
 export {
-    promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractHTML
+    promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractDomElement
 }

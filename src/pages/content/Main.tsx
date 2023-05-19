@@ -10,8 +10,8 @@ import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
 
 import { promptParse, promptUseLastTalk } from '@components/combo/Output'
-import { promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractHTML } from '@components/combo/Input'
-import { parseJSONAndHighlightText } from "@components/combo/Agent"
+import { promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractDomElement } from '@components/combo/Input'
+import { highlightText } from "@components/combo/Agent"
 
 import Setup from "@components/Setup"
 
@@ -516,8 +516,9 @@ class Main extends React.Component<{
     _agentRun(agent: string, text: string) {
         let success = false;
         if (agent == 'parseJSONAndHighlightText') {
-            let elements = extractHTML()
-            success = parseJSONAndHighlightText(text, elements)
+            let elements = extractDomElement();
+            console.log(text,elements)
+            success = highlightText(text, elements)
         }
         if (success) message.info('成功执行')
     }
