@@ -342,11 +342,9 @@ class Main extends React.Component<{
     }
 
     init() {
-
         window.onfocus = (e) => {
             if (document.readyState == 'complete') {
                 console.log('激活状态！')
-
                 this._updateCurrentTalks()
             }
         }
@@ -357,48 +355,25 @@ class Main extends React.Component<{
             if (visibilityState === 0) { }
         }, false);
 
-
-        const titleStyle = `margin: 0;padding: 0;font-size: 16px;border-left: 4px solid #10aeff;padding-left: 6px;font-weight: 800;`,
-            aNumStyle = `color: blue;font-weight: 400; font-size: small;`,
-            linkStyle = `color: blue;background: transparent;width: max-content;`,
-            divStyle = `overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;`;
-
-        let that = this;
-
-
-        // 缓存
-        let localData: any = localStorage.getItem('_mk003_data');
-        if (localData) {
-            localData = JSON.parse(localData);
-            that.setState(localData);
-            console.log('缓存')
-        }
-
         chrome.runtime.onMessage.addListener(async (
             request,
             sender,
             sendResponse
         ) => {
-
             const {
                 cmd, data, success
             } = request;
-
             if (cmd == 'open-readability') {
                 window.location.href = window.location.origin + window.location.pathname + window.location.search + '&reader=1'
             } else if (cmd == 'toggle-insight') {
                 this.setState({ initIsOpen: true });
                 this.show(false);
             } else if (cmd == 'chat-bot-init-result') {
-                that.initChatBot(false);
+                this.initChatBot(false);
             }
-
             sendResponse('我是content，已收到消息')
-            // sendResponse()
             return true;
         });
-
-
     }
 
     async show(loading: boolean) {
