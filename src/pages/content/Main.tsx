@@ -157,7 +157,7 @@ class Main extends React.Component<{
     loading: boolean,
     // 是否全屏
     fullscreen: boolean,
-   
+
     // 全局的禁止操作
     disabledAll: boolean,
     // 加载机器人，初始化
@@ -178,7 +178,7 @@ class Main extends React.Component<{
     showEdit: boolean,
 
     activeIndex: any,
-    
+
     talks: Array<{}>,
     mixedCards: Array<{}>,
 
@@ -227,11 +227,11 @@ class Main extends React.Component<{
             loading: this.props.initIsOpen ? false : true,
             fullscreen: this.props.fullscreen,
             activeIndex: undefined,
-            
+
             talks: [],
 
             mixedCards: [],
-          
+
             // 禁止点击
             disabledAll: true,
 
@@ -389,7 +389,7 @@ class Main extends React.Component<{
             } else if (cmd == 'toggle-insight') {
                 this.setState({ initIsOpen: true });
                 this.show(false);
-            }else if (cmd == 'chat-bot-init-result') {
+            } else if (cmd == 'chat-bot-init-result') {
                 that.initChatBot(false);
             }
 
@@ -539,20 +539,17 @@ class Main extends React.Component<{
         return prompt
     }
 
-    async _getPromptsData() {
+    //['user']
+    async _getPromptsData(keys = ['user']) {
         let prompts: any[] = [];
-        const res: any = await chromeStorageGet(['user', 'official']);
-
-        if (res && res.user) for (const userPrompt of res.user) {
-            prompts.push(userPrompt);
+        const res: any = await chromeStorageGet(keys);
+        for (const k of keys) {
+            if (res && res[k]) {
+                for (const combo of res[k]) {
+                    prompts.push(combo);
+                }
+            }
         }
-
-        if (res && res.official) for (const officialPrompt of res.official) {
-            prompts.push(officialPrompt);
-        }
-
-        // console.log(prompts)
-
         return prompts;
     }
 
@@ -1130,7 +1127,7 @@ class Main extends React.Component<{
 
 
     _doChatBotData() {
-    
+
         let subjects = [{
             type: 'chatbot', text: '聊天', index: -1
         }];
@@ -1148,7 +1145,7 @@ class Main extends React.Component<{
         }
 
         const datas = [talks]
- 
+
         const tabList = Array.from(subjects, subject => {
             return {
                 key: subject.text,
@@ -1156,14 +1153,14 @@ class Main extends React.Component<{
                 index: subject.index
             }
         });
-     
+
         return {
             tabList, datas, activeIndex
         }
     }
 
     render() {
-        const { tabList, datas, activeIndex } = this._doChatBotData(); 
+        const { tabList, datas, activeIndex } = this._doChatBotData();
         return (<>
             <FlexColumn
                 translate="no"

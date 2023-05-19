@@ -66,7 +66,12 @@ class ChatBotBackground {
         return
     }
     clearAvailables() {
-        Array.from(this.items, item => item.clearAvailable());
+        Array.from(this.items, item => {
+            item.clearAvailable();
+            item.token = null;
+            item.model = null;
+            item.baseUrl = null;
+        });
         chrome.storage.sync.set({
             chatBotAvailables: null
         })
