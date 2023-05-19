@@ -7,6 +7,10 @@
 //     { label: '默认', value: 'defalut', checked: true }]
 // }
 
+const promptUseLastTalk = (prompt: string, laskTalk: string) => {
+    if (prompt && laskTalk) prompt = `${laskTalk ? '```背景信息：' + laskTalk.trim() + '```,' : ''}${prompt.trim()}`
+    return prompt
+}
 
 // type markdown/json
 const promptParse = (prompt: string, type: string) => {
@@ -23,5 +27,5 @@ const promptParse = (prompt: string, type: string) => {
 }
 
 export {
-    promptParse
+    promptParse, promptUseLastTalk
 }

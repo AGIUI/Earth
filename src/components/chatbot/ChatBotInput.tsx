@@ -231,7 +231,7 @@ class ChatBotInput extends React.Component {
     render() {
         const flexStyle = {
             display: 'flex', justifyContent: 'flex-start',
-            alignItems: 'center'
+            alignItems: 'center',padding: '8px'
         }
         return (
             <Card

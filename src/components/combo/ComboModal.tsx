@@ -52,7 +52,7 @@ type StateType = {
     currentPrompt: any;
     options: any;
     promptOptions: any;
-    step:number;
+    step: number;
 }
 
 interface ComboModal {
@@ -70,7 +70,7 @@ class ComboModal extends React.Component {
             currentPrompt: this.props.currentPrompt,
             options: comboOptions,
             promptOptions,
-            step:0.1
+            step: 0.1
         }
         console.log('currentPrompt', this.props.currentPrompt)
     }
@@ -153,54 +153,50 @@ class ComboModal extends React.Component {
             cmd: 'edit-combo-cancel'
         })
     }
-    //临时方案，JSON.parse('{url,query}')
-    _parseQuery = (text: string, isQuery: boolean) => {
-
-        try {
-            const { url, query } = JSON.parse(text);
-            return { url, query, isQuery }
-        } catch (error) {
-
-        }
-        return
-    }
 
     /**
      * 
      * @param value // ['bindCurrentPage','isNextUse']
      */
     _handlePromptSetting(promptIndex: number, value: any) {
-
-        let bindCurrentPage = false, isNextUse = false, isQuery = false, isApi = false;
-
-        if (value && value.length > 0) {
-            console.log(value)
-            bindCurrentPage = value.includes("bindCurrentPage");
-            isNextUse = value.includes("isNextUse");
-            isQuery = value.includes("isQuery");
-            isApi = value.includes("isApi");
-        };
-
-        let json: any = {};
         const currentPrompt = this.state.currentPrompt;
-
         const key = promptIndex == 0 ? `prompt` : `prompt${promptIndex + 1}`;
         // console.log(currentPrompt[key])
         if (currentPrompt[key] == undefined) currentPrompt[key] = { ...defaultPrompt }
-        // console.log( currentPrompt[key].queryObj,defaultPrompt.queryObj)
-        // if (isQuery) {
-        //     currentPrompt[key].queryObj.isQuery = isQuery;
-        // }
+
+        /**单选的 */
+        const opts = [...this.state.promptOptions],
+            inputs = opts.filter((f: any) => f.input),
+            outputs = opts.filter((f: any) => f.output);
+
+        let output = currentPrompt[key].output,
+            input = currentPrompt[key].input;
+
+        console.log(value)
+        if (value && value.target && value.target.value) {
+            if (Array.from(inputs, (o: any) => o.value).includes(value.target.value)) {
+                input = value.target.value;
+            }
+            if (Array.from(outputs, (o: any) => o.value).includes(value.target.value)) {
+                output = value.target.value;
+            }
+        };
+
+
+        let json: any = {};
 
         json[key] = {
             ...currentPrompt[key],
-            bindCurrentPage,
-            isNextUse,
             queryObj: {
                 ...currentPrompt[key].queryObj,
-                isQuery
+                isQuery: input == 'isQuery'
             },
-            isApi
+            api: {
+                ...currentPrompt[key].api,
+                isApi: input == 'isApi'
+            },
+            input,
+            output
         }
 
         // console.log('_handlePromptSetting:', key, JSON.stringify(json, null, 2))
@@ -223,14 +219,14 @@ class ComboModal extends React.Component {
         json[key][type] = value
 
 
-        if(type == 'model'){
-            if(value=="Bing"){
+        if (type == 'model') {
+            if (value == "Bing") {
                 this.setState({
-                    step:0.5,
+                    step: 0.5,
                 })
-            }else {
+            } else {
                 this.setState({
-                    step:0.1,
+                    step: 0.1,
                 })
             }
         }
@@ -292,44 +288,25 @@ class ComboModal extends React.Component {
             const prompt = {
                 ...this.state.currentPrompt, ...newData
             }
-            // console.log('_updateCurrentPrompt', JSON.stringify(prompt, null, 2))
-            // for (const key in prompt) {
-            //     if (key.match('prompt') && prompt[key].queryObj && prompt[key].queryObj.isQuery) {
-            //         const q = this._parseQuery(prompt[key].text, prompt[key].queryObj.isQuery);
-            //         if (q) prompt[key].queryObj = q
-            //     }
-            // }
-
             this.setState({
                 currentPrompt: prompt
             })
         }
     }
 
-
-
     _addOptions(prompt: any) {
         const options: any = {
-            options: [],
+            input: 'defalut',
+            output: 'defalut',
             temperature: prompt.temperature || 0.6,
             model: prompt.model || 'ChatGPT',
             url: prompt.queryObj.url,
             query: prompt.queryObj.query
         };
 
-        if (prompt.isNextUse) {
-            options['options'].push('isNextUse');
-        }
-        if (prompt.bindCurrentPage) {
-            options['options'].push('bindCurrentPage');
-        }
-        if (prompt.queryObj && prompt.queryObj.isQuery) {
-            options['options'].push('isQuery');
-        }
-
-        // if (prompt.isApi) {
-        //     options.push('isApi');
-        // }
+        options['output'] = prompt.output;
+        options['input'] = prompt.input;
+       
         return options;
     }
 
@@ -419,16 +396,30 @@ class ComboModal extends React.Component {
             }
 
 
-            <Form.Item name={`Prompt${index}EditOptionsForCheckbox`} >
-                <Checkbox.Group
+            <Form.Item
+                name={`Prompt${index}EditOptionsForInput`}
+                label="输入">
+                <Radio.Group
                     style={{
                         flexDirection: 'column',
                         justifyContent: 'center',
                         alignItems: 'baseline'
                     }}
-                    options={this.state.promptOptions.filter((p: any) => p.type == 'checkbox')}
+                    options={this.state.promptOptions.filter((p: any) => p.type == 'checkbox' && p.input)}
                     onChange={(e) => this._handlePromptSetting(index - 1, e)} />
             </Form.Item>
+
+            <Form.Item name={`Prompt${index}EditOptionsForOutput`} label="输出">
+                <Radio.Group
+                    style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'baseline'
+                    }}
+                    options={this.state.promptOptions.filter((p: any) => p.type == 'checkbox' && p.output)}
+                    onChange={(e) => this._handlePromptSetting(index - 1, e)} />
+            </Form.Item>
+
             <Form.Item
                 name={`Prompt${index}EditOptionsForModel`}
                 label="模型"
@@ -452,7 +443,7 @@ class ComboModal extends React.Component {
                 </Radio.Group>
             </Form.Item>
             <Form.Item name={`Prompt${index}EditOptionsForTemperature`}
-                       label="发散程度"
+                label="严谨程度 Temperature"
             >
                 <Slider
                     style={{ width: '120px' }}
@@ -501,7 +492,8 @@ class ComboModal extends React.Component {
             const options = this._addOptions({ ...prompt });
             // console.log(index, promptValue, `prompt${index + 1}`, options)
             formData[`Prompt${index + 1}Text`] = prompt.text || '';
-            formData[`Prompt${index + 1}EditOptionsForCheckbox`] = options['options'];
+            formData[`Prompt${index + 1}EditOptionsForInput`] = options['input'];
+            formData[`Prompt${index + 1}EditOptionsForOutput`] = options['output'];
             formData[`Prompt${index + 1}EditOptionsForTemperature`] = options['temperature'];
             formData[`Prompt${index + 1}EditOptionsForModel`] = options['model'];
             formData[`Prompt${index + 1}Url`] = options['url'];
@@ -513,13 +505,14 @@ class ComboModal extends React.Component {
         return (<>
 
             <Modal
+                width={640}
                 zIndex={1200}
                 maskClosable={false}
                 title="添加Prompts"
                 open={true}
                 onOk={() => this._onFinish()} onCancel={() => this._handleCancel()}
                 footer={null}
-                style={{ userSelect: 'none' }}
+                style={{top: 20, userSelect: 'none'  }}
             >
                 <Form1
                     name="promptsForm"
@@ -556,12 +549,12 @@ class ComboModal extends React.Component {
 
                     </Form.Item> */}
 
-                    {this._createOptionUI(1, formData.Prompt1EditOptionsForCheckbox.includes('isQuery'))}
+                    {this._createOptionUI(1, formData.Prompt1EditOptionsForInput.includes('isQuery'))}
 
                     {(this.state.isCombo || hasCombo) && comboCount > 1 ?
                         Array.from(new Array(comboCount - 1),
                             (_, index: number) => this._createOptionUI(index + 2,
-                                formData[`Prompt${index + 2}EditOptionsForCheckbox`].includes('isQuery')))
+                                formData[`Prompt${index + 2}EditOptionsForInput`].includes('isQuery')))
 
                         : null}
 

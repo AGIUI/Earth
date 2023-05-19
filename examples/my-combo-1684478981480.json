@@ -1,0 +1,260 @@
+﻿[{
+        "checked": false,
+        "combo": 3,
+        "id": "18822914d15",
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "output": "isNextUse",
+            "input": "isQuery",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": true,
+                "query": ".weibo-main .weibo-text",
+                "url": "m.weibo.cn/search?containerid=100103type%3D1%26q%3D%23AGIUI"
+            },
+            "temperature": 0.14,
+            "text": "你好,你是谁？",
+            "url": ""
+        },
+        "prompt2": {
+            "output": "isNextUse",
+            "input": "default",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.25,
+            "text": "你现在是一位著名的科幻作家，写过《流浪地球》的大作，提取关键信息，用中文创作一个科幻故事",
+            "url": ""
+        },
+        "prompt3": {
+            "output": "default",
+            "input": "default",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.13,
+            "text": "作为读者，根据这个故事，用中文写出你的读后感",
+            "url": ""
+        },
+        "role": "",
+        "tag": "根据微博内容创作科幻故事"
+    },
+    {
+        "checked": false,
+        "combo": 3,
+        "id": "1882847a340",
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "output": "isNextUse",
+            "input": "isQuery",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": true,
+                "query": ".weibo-text",
+                "url": "m.weibo.cn"
+            },
+            "temperature": 0.23,
+            "text": "7",
+            "url": ""
+        },
+        "prompt2": {
+            "output": "isNextUse",
+            "input": "default",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.13,
+            "text": "提取人物、关键事件，虚构一个故事，你现在是记者，请编写中文访谈提纲",
+            "url": ""
+        },
+        "prompt3": {
+            "output": "default",
+            "input": "default",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.14,
+            "text": "你现在是技术专家，为这个访谈提纲增加科技的话题，可以包括人工智能、元宇宙等，用中文写一个访谈的概要和提纲",
+            "url": ""
+        },
+        "role": "",
+        "tag": "获取微博最新消息，写一个访谈提纲"
+    },
+    {
+        "checked": false,
+        "combo": 2,
+        "id": "1882cf38f60",
+        "isInfinite": true,
+        "owner": "user",
+        "prompt": {
+            "output": "isNextUse",
+            "input": "default",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.6,
+            "text": "现在你是顶级设计师，对方也是顶级设计师，你会根据上文内容阐述你对设计的理解。如果没有上文，你可以发起交流。",
+            "url": ""
+        },
+        "prompt2": {
+            "output": "isNextUse",
+            "input": "default",
+            "model": "Bing",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.6,
+            "text": "现在你是顶级设计师，对方也是顶级设计师，你会根据上文内容阐述你对设计的理解。",
+            "url": ""
+        },
+        "role": "",
+        "tag": "Bing和ChatGPT聊天"
+    },
+    {
+        "checked": true,
+        "combo": 4,
+        "id": "188321b6c7b",
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "output": "isNextUse",
+            "input": "default",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.9,
+            "text": "按照新闻、体育、汽车、房产、旅游、教育、时尚、科技、财经、娱乐、综合，这几种类别，分类文章类别",
+            "url": ""
+        },
+        "prompt2": {
+            "output": "isNextUse",
+            "input": "bindCurrentPage",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.9,
+            "text": "根据文章的信息，提取关键词和文章摘要，用中文写",
+            "url": ""
+        },
+        "prompt3": {
+            "output": "isNextUse",
+            "input": "default",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.8,
+            "text": "用中文提出3个启发人的问题，按照markdown格式输出",
+            "url": ""
+        },
+        "prompt4": {
+            "output": "default",
+            "input": "default",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.9,
+            "text": "按照文章类别、关键词、摘要、问题，用中文，按照markdown格式输出",
+            "url": ""
+        },
+        "role": "",
+        "tag": "阅读理解"
+    },
+    {
+        "checked": false,
+        "combo": 1,
+        "id": "18832a0e3be",
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "api": {
+                "isApi": false,
+                "url": ""
+            },
+            "output": "isNextUse",
+            "input": "default",
+            "model": "ChatGPT",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.1,
+            "text": "7",
+            "url": ""
+        },
+        "role": "",
+        "tag": "7"
+    },
+    {
+        "checked": false,
+        "combo": 2,
+        "id": "18832c2b1af",
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "api": {
+                "isApi": false,
+                "url": ""
+            },
+            "input": "bindCurrentPage",
+            "model": "ChatGPT",
+            "output": "markdown",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.3,
+            "text": "1"
+        },
+        "prompt2": {
+            "api": {
+                "isApi": false,
+                "url": ""
+            },
+            "input": "bindCurrentPageHTML",
+            "model": "Bing",
+            "output": "translate-zh",
+            "queryObj": {
+                "isQuery": false,
+                "query": "",
+                "url": ""
+            },
+            "temperature": 0.6,
+            "text": "77"
+        },
+        "role": "",
+        "tag": "1"
+    }
+]

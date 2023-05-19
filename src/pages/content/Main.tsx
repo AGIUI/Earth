@@ -9,10 +9,10 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
 
-import { promptParse } from '@components/prompt/output'
-import { promptBindCurrentSite, promptBindUserSelection, userSelectionInit } from '@components/prompt/input'
+import { promptParse, promptUseLastTalk } from '@components/combo/output'
+import { promptBindCurrentSite, promptBindUserSelection, userSelectionInit } from '@components/combo/input'
 
-import Setup from "@src/components/Setup"
+import Setup from "@components/Setup"
 
 import * as _ from "lodash"
 
@@ -504,8 +504,12 @@ class Main extends React.Component<{
     }
 
     // type markdown/json/
-    _promptOutput(prompt: string, type: string) {
-        return promptParse(prompt, type)
+    _promptOutput(type: string, prompt: string, lastTalk = '') {
+        if (type == 'isNextUse') {
+            return promptUseLastTalk(prompt, lastTalk)
+        } else {
+            return promptParse(prompt, type)
+        }
     }
 
     //['user']
@@ -591,7 +595,7 @@ class Main extends React.Component<{
                             // 结束的时候，循环起来
                             // 当前的prompt
                             const currentPrompt = this.state.currentPrompt[`prompt${this.state.currentPrompt.combo}`]
-                            isNextUse = !!(currentPrompt.isNextUse);
+                            isNextUse = currentPrompt.output == 'isNextUse';
                             PromptIndex = 0;
                         }
                     }
@@ -602,15 +606,15 @@ class Main extends React.Component<{
                         if (PromptIndex > 0) {
                             const prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
                             // 如果有isNextUse
-                            isNextUse = !!(prePrompt.isNextUse)
+                            isNextUse = prePrompt.output == 'isNextUse'
                         }
 
                         PromptIndex = PromptIndex + 1;
                         const prompt = JSON.parse(JSON.stringify(this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]));
 
                         if (isNextUse) {
-                            let laskTalk = Talks.getLaskTalk([...nTalks])
-                            prompt.text = `${laskTalk ? '```背景信息：' + laskTalk.trim() + '```,' : ''}${prompt.text.trim()}`
+                            let laskTalk = Talks.getLaskTalk([...nTalks]);
+                            prompt.text = this._promptOutput('isNextUse', prompt.text, laskTalk);
                         }
                         // console.log('prompt', prompt,PromptIndex);
                         // 下一个prompt
@@ -774,8 +778,12 @@ class Main extends React.Component<{
                 })
 
                 console.log(`prompt`, prompt, this.state.input)
-                // return 
-                if (combo > 0 && prompt.bindCurrentPage) {
+
+
+                // combo>0从comboor对话流里运行
+                // combo==-1 用户对话框里的输入
+                // input的处理
+                if (combo > 0 && prompt.input == 'bindCurrentPage') {
                     prompt.text = this._promptBindCurrentSite(prompt.text, 'text')
                 } else if (combo == -1 && this.state.input == 'bindCurrentPage') {
                     // 从输入框里输入的
@@ -788,11 +796,12 @@ class Main extends React.Component<{
                     prompt.text = this._promptBindUserSelection(prompt.text)
                 }
 
+                // output的处理
                 if (combo > 0 && prompt.output != 'default') {
-                    prompt.text = this._promptOutput(prompt.text, prompt.output)
+                    prompt.text = this._promptOutput(prompt.output, prompt.text)
                 } else if (combo == -1 && this.state.output != 'default') {
                     // 从输入框里输入的
-                    prompt.text = this._promptOutput(prompt.text, this.state.output)
+                    prompt.text = this._promptOutput(this.state.output, prompt.text)
                 }
 
 

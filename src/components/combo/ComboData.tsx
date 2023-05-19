@@ -3,16 +3,16 @@ const PROMPT_MAX_LENGTH = 720
 // output : default,json,markdown
 const defaultPrompt = {
     text: '',
-    isNextUse: false,
-    bindCurrentPage: false,
+    api: {
+        url: '', isApi: false
+    },
     queryObj: {
         query: '', url: '', isQuery: false
     },
-    isApi: false,
-    url: '',
     temperature: 0.6,
     model: 'ChatGPT',
-    output:'default'
+    input:'default',
+    output: 'default'
 }
 
 /**
@@ -45,6 +45,19 @@ const comboOptions = [
 
 const promptOptions = [
     {
+        input: true,
+        label: '默认',
+        value: 'defalut',
+        type: 'checkbox'
+    },
+    {
+        output: true,
+        label: '默认',
+        value: 'defalut',
+        type: 'checkbox'
+    },
+    {
+        input: true,
         label: '根据选择器获取网页信息',
         value: 'isQuery',
         type: 'checkbox'
@@ -54,13 +67,41 @@ const promptOptions = [
     //     value:'isApi'
     // },
     {
-        label: '绑定当前网页',
+        input: true,
+        label: '绑定网页正文',
         value: 'bindCurrentPage',
         type: 'checkbox'
     },
     {
+        input: true,
+        label: '绑定网页HTML',
+        value: 'bindCurrentPageHTML',
+        type: 'checkbox'
+    },
+    {
+        output: true,
         label: '作为上下文',
         value: 'isNextUse',
+        type: 'checkbox'
+    },
+    {
+        output: true,
+        label: 'JSON格式',
+        value: 'json',
+        type: 'checkbox'
+    },
+    {
+        output: true,
+        label: 'MarkDown格式',
+        value: 'markdown',
+        type: 'checkbox'
+    },
+    {
+        output: true, label: '中文', value: 'translate-zh',
+        type: 'checkbox'
+    },
+    {
+        output: true, label: '英文', value: 'translate-en',
         type: 'checkbox'
     },
     {
@@ -72,17 +113,13 @@ const promptOptions = [
         label: '模型',
         value: 'model',
         type: 'select',
-        options:[
+        options: [
             { value: 'ChatGPT', label: 'ChatGPT' },
             { value: 'Bing', label: 'Bing' }
         ]
     }
 ];
 
-
-const createPrompts = () => {
-
-}
 
 export {
     PROMPT_MAX_LENGTH,
