@@ -167,10 +167,12 @@ class ComboModal extends React.Component {
         /**单选的 */
         const opts = [...this.state.promptOptions],
             inputs = opts.filter((f: any) => f.input),
-            outputs = opts.filter((f: any) => f.output);
+            outputs = opts.filter((f: any) => f.output),
+            agents = opts.filter((f: any) => f.agent);
 
         let output = currentPrompt[key].output,
-            input = currentPrompt[key].input;
+            input = currentPrompt[key].input,
+            agent=currentPrompt[key].agent;
 
         console.log(value)
         if (value && value.target && value.target.value) {
@@ -179,6 +181,9 @@ class ComboModal extends React.Component {
             }
             if (Array.from(outputs, (o: any) => o.value).includes(value.target.value)) {
                 output = value.target.value;
+            }
+            if (Array.from(agents, (o: any) => o.value).includes(value.target.value)) {
+                agent = value.target.value;
             }
         };
 
@@ -196,7 +201,8 @@ class ComboModal extends React.Component {
                 isApi: input == 'isApi'
             },
             input,
-            output
+            output,
+            agent
         }
 
         // console.log('_handlePromptSetting:', key, JSON.stringify(json, null, 2))
@@ -296,17 +302,15 @@ class ComboModal extends React.Component {
 
     _addOptions(prompt: any) {
         const options: any = {
-            input: 'defalut',
-            output: 'defalut',
+            input: prompt.input || 'defalut',
+            output: prompt.output || 'defalut',
+            agent: prompt.agent || 'defalut',
             temperature: prompt.temperature || 0.6,
             model: prompt.model || 'ChatGPT',
             url: prompt.queryObj.url,
             query: prompt.queryObj.query
         };
 
-        options['output'] = prompt.output;
-        options['input'] = prompt.input;
-       
         return options;
     }
 
@@ -420,6 +424,17 @@ class ComboModal extends React.Component {
                     onChange={(e) => this._handlePromptSetting(index - 1, e)} />
             </Form.Item>
 
+            <Form.Item name={`Prompt${index}EditOptionsForAgent`} label="代理">
+                <Radio.Group
+                    style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'baseline'
+                    }}
+                    options={this.state.promptOptions.filter((p: any) => p.type == 'checkbox' && p.agent)}
+                    onChange={(e) => this._handlePromptSetting(index - 1, e)} />
+            </Form.Item>
+
             <Form.Item
                 name={`Prompt${index}EditOptionsForModel`}
                 label="模型"
@@ -494,6 +509,7 @@ class ComboModal extends React.Component {
             formData[`Prompt${index + 1}Text`] = prompt.text || '';
             formData[`Prompt${index + 1}EditOptionsForInput`] = options['input'];
             formData[`Prompt${index + 1}EditOptionsForOutput`] = options['output'];
+            formData[`Prompt${index + 1}EditOptionsForAgent`] = options['agent'];
             formData[`Prompt${index + 1}EditOptionsForTemperature`] = options['temperature'];
             formData[`Prompt${index + 1}EditOptionsForModel`] = options['model'];
             formData[`Prompt${index + 1}Url`] = options['url'];
@@ -512,7 +528,7 @@ class ComboModal extends React.Component {
                 open={true}
                 onOk={() => this._onFinish()} onCancel={() => this._handleCancel()}
                 footer={null}
-                style={{top: 20, userSelect: 'none'  }}
+                style={{ top: 20, userSelect: 'none' }}
             >
                 <Form1
                     name="promptsForm"

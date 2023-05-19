@@ -26,6 +26,7 @@ const promptParse = (prompt: string, type: string) => {
     return prompt
 }
 
+
 export {
     promptParse, promptUseLastTalk
 }

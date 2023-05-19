@@ -37,7 +37,11 @@ const extractArticle = () => {
     let divs: any = [...document.body.children]
     divs = divs.filter((d: any) => d.className != '_agi_ui')
 
-    article.elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p')].flat()).flat().filter((f: any) => f);
+    let elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p')].flat()).flat().filter((f: any) => f);
+
+    article.elements = Array.from(elements, (e: any, index) => [{ element: e, text: e.innerText.trim() }]).flat().filter((d: any) => d.text);
+    // article.elements = Array.from(elements, (t: any) => t.element)
+
 
     try {
         article = { ...(new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse()), ...article };
@@ -55,7 +59,7 @@ const extractArticle = () => {
 const promptBindCurrentSite = (prompt: string, type = 'text') => {
     // 获取当前网页正文信息
     const { length, title, textContent, href, elements } = extractArticle();
-
+    // console.log(prompt,type)
     if (prompt && type == 'text') {
         const text = textContent.trim().replace(/\s+/ig, ' ');
         prompt = prompt.trim();
@@ -63,13 +67,22 @@ const promptBindCurrentSite = (prompt: string, type = 'text') => {
         const count = prompt.length + t.length;
         prompt = `<tag>${t}${MAX_LENGTH - count > 0 ? `,正文:${text.slice(0, MAX_LENGTH - count)}` : ''}</tag>,` + prompt;
     } else if (prompt && type == 'html') {
-        const texts = Array.from(elements, (e: any, index) => [{ index, text: e.innerText.trim() }]).filter((d: any) => d.text);
+        const texts = Array.from(elements, (t: any) => t.text)
         prompt = `<tag>${JSON.stringify(texts)}</tag>,` + prompt;
     }
     return prompt
 }
 
+/**
+ * 
+ * @returns element
+ */
+const extractHTML = () => {
+    // 获取当前网页正文信息
+    const {elements } = extractArticle();
+    return Array.from(elements, (t: any) => t.element)
+}
 
 export {
-    promptBindCurrentSite, promptBindUserSelection, userSelectionInit
+    promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractHTML
 }

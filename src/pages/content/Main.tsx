@@ -9,8 +9,9 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
 
-import { promptParse, promptUseLastTalk } from '@components/combo/output'
-import { promptBindCurrentSite, promptBindUserSelection, userSelectionInit } from '@components/combo/input'
+import { promptParse, promptUseLastTalk } from '@components/combo/Output'
+import { promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractHTML } from '@components/combo/Input'
+import { parseJSONAndHighlightText } from "@components/combo/Agent"
 
 import Setup from "@components/Setup"
 
@@ -512,6 +513,15 @@ class Main extends React.Component<{
         }
     }
 
+    _agentRun(agent: string, text: string) {
+        let success = false;
+        if (agent == 'parseJSONAndHighlightText') {
+            let elements = extractHTML()
+            success = parseJSONAndHighlightText(text, elements)
+        }
+        if (success) message.info('成功执行')
+    }
+
     //['user']
     async _getPromptsData(keys = ['user']) {
         let prompts: any[] = [];
@@ -601,26 +611,30 @@ class Main extends React.Component<{
                     }
                     // console.log('1无限循环功能', isNextUse, PromptIndex);
                     // this.state.isAuto == true
-                    if (this.state.currentPrompt.combo > PromptIndex) {
+                    let agent = 'defalut';
 
-                        if (PromptIndex > 0) {
-                            const prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
-                            // 如果有isNextUse
-                            isNextUse = prePrompt.output == 'isNextUse'
-                        }
+                    let prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
+                    // 如果有agent
+                    if (prePrompt && prePrompt.agent) agent = prePrompt.agent || 'defalut';
+                    // 如果有isNextUse
+                    if (prePrompt && prePrompt.output) isNextUse = prePrompt.output == 'isNextUse';
+
+                    let laskTalk = Talks.getLaskTalk([...nTalks]);
+
+                    if (this.state.currentPrompt.combo > PromptIndex) {
 
                         PromptIndex = PromptIndex + 1;
                         const prompt = JSON.parse(JSON.stringify(this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]));
 
                         if (isNextUse) {
-                            let laskTalk = Talks.getLaskTalk([...nTalks]);
                             prompt.text = this._promptOutput('isNextUse', prompt.text, laskTalk);
                         }
                         // console.log('prompt', prompt,PromptIndex);
                         // 下一个prompt
                         let data: any = {
                             prompt,
-                            newTalk: true
+                            newTalk: true,
+                            from: 'combo'
                         }
                         if (prompt.queryObj && prompt.queryObj.isQuery) {
                             data['_combo'] = this.state.currentPrompt
@@ -642,6 +656,11 @@ class Main extends React.Component<{
                         // this._promptControl({ cmd: 'stop-combo' });
                         setTimeout(() => this._control({ cmd: 'stop-talk' }), 500)
 
+                    }
+
+                    // agent的执行，input先执行，output的完成，agent和下一条prompt同时执行
+                    if (agent != 'defalut') {
+                        this._agentRun(agent, laskTalk);
                     }
 
                 }
@@ -756,8 +775,9 @@ class Main extends React.Component<{
             console.log('_control:', nTalks, data)
 
             const sendTalk = () => {
-                const combo = data._combo ? data._combo.combo : -1;
-                let { prompt, tag, newTalk } = data;
+                let combo = data._combo ? data._combo.combo : -1;
+                let { prompt, tag, newTalk, from } = data;
+                if (from == 'combo') combo = 1;
                 prompt = JSON.parse(JSON.stringify(prompt))
 
                 // 清空type thinking && suggest 的状态
@@ -777,7 +797,7 @@ class Main extends React.Component<{
                     openMyPrompts: false
                 })
 
-                console.log(`prompt`, prompt, this.state.input)
+                console.log(`prompt`, prompt, combo, prompt.input, this.state.input)
 
 
                 // combo>0从comboor对话流里运行
@@ -785,6 +805,8 @@ class Main extends React.Component<{
                 // input的处理
                 if (combo > 0 && prompt.input == 'bindCurrentPage') {
                     prompt.text = this._promptBindCurrentSite(prompt.text, 'text')
+                } else if (combo > 0 && prompt.input == 'bindCurrentPageHTML') {
+                    prompt.text = this._promptBindCurrentSite(prompt.text, 'html')
                 } else if (combo == -1 && this.state.input == 'bindCurrentPage') {
                     // 从输入框里输入的
                     prompt.text = this._promptBindCurrentSite(prompt.text, 'text')

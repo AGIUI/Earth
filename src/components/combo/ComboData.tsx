@@ -12,7 +12,8 @@ const defaultPrompt = {
     temperature: 0.6,
     model: 'ChatGPT',
     input:'default',
-    output: 'default'
+    output: 'default',
+    agent:'default'
 }
 
 /**
@@ -52,6 +53,11 @@ const promptOptions = [
     },
     {
         output: true,
+        label: '默认',
+        value: 'defalut',
+        type: 'checkbox'
+    },{
+        agent: true,
         label: '默认',
         value: 'defalut',
         type: 'checkbox'
@@ -103,6 +109,11 @@ const promptOptions = [
     {
         output: true, label: '英文', value: 'translate-en',
         type: 'checkbox'
+    },
+    {
+        agent:true,
+        label:'高亮网页内容',
+        value:'parseJSONAndHighlightText',type: 'checkbox'
     },
     {
         label: '温度',
