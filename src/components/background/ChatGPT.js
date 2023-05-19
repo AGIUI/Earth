@@ -304,7 +304,9 @@ export default class ChatGPT {
             try {
                 data = JSON.parse(message)
             } catch (err) {
-                if (!isDone) params.onEvent({ type: 'ERROR', data: message ? message : `message error` })
+                let info = message ? message : `message error`;
+                if (message.error && message.error.message) info = `${message.error.code} _ ${message.error.message}`;
+                if (!isDone) params.onEvent({ type: 'ERROR', data: info })
                 return
             }
 

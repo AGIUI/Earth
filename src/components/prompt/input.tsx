@@ -1,6 +1,6 @@
 import { Readability } from '@mozilla/readability'
 
-
+const MAX_LENGTH = 2000;
 
 const userSelectionInit = () => {
     document.addEventListener("selectionchange", () => {
@@ -24,7 +24,7 @@ const promptBindUserSelection = (prompt: string) => {
         const text = userText.replace(/\s+/ig, ' ');
         prompt = prompt.trim();
         const count = prompt.length;
-        prompt = `'''${1920 - count > 0 ? text.slice(0, 1920 - count) : ''}''',` + prompt;
+        prompt = `'''${MAX_LENGTH - count > 0 ? text.slice(0, MAX_LENGTH - count) : ''}''',` + prompt;
     }
     return prompt
 }
@@ -54,15 +54,17 @@ const extractArticle = () => {
 
 const promptBindCurrentSite = (prompt: string, type = 'text') => {
     // 获取当前网页正文信息
-    const { length, title, textContent, href } = extractArticle();
+    const { length, title, textContent, href, elements } = extractArticle();
+
     if (prompt && type == 'text') {
         const text = textContent.trim().replace(/\s+/ig, ' ');
         prompt = prompt.trim();
         const t = `标题:${title},网址:${href}`
         const count = prompt.length + t.length;
-        prompt = `<tag>${t}${1920 - count > 0 ? `,正文:${text.slice(0, 1920 - count)}` : ''}</tag>,` + prompt;
+        prompt = `<tag>${t}${MAX_LENGTH - count > 0 ? `,正文:${text.slice(0, MAX_LENGTH - count)}` : ''}</tag>,` + prompt;
     } else if (prompt && type == 'html') {
-
+        const texts = Array.from(elements, (e: any, index) => [{ index, text: e.innerText.trim() }]).filter((d: any) => d.text);
+        prompt = `<tag>${JSON.stringify(texts)}</tag>,` + prompt;
     }
     return prompt
 }

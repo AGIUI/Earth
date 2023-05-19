@@ -10,7 +10,7 @@ import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
 
 import { promptParse } from '@components/prompt/output'
-import { promptBindCurrentSite, promptBindUserSelection,userSelectionInit } from '@components/prompt/input'
+import { promptBindCurrentSite, promptBindUserSelection, userSelectionInit } from '@components/prompt/input'
 
 import Setup from "@src/components/Setup"
 
@@ -499,8 +499,8 @@ class Main extends React.Component<{
     /**
      * 绑定当前页面信息
      */
-    _promptBindCurrentSite(prompt: string) {
-        return promptBindCurrentSite(prompt)
+    _promptBindCurrentSite(prompt: string, type: string) {
+        return promptBindCurrentSite(prompt, type)
     }
 
     // type markdown/json/
@@ -776,10 +776,13 @@ class Main extends React.Component<{
                 console.log(`prompt`, prompt, this.state.input)
                 // return 
                 if (combo > 0 && prompt.bindCurrentPage) {
-                    prompt.text = this._promptBindCurrentSite(prompt.text)
+                    prompt.text = this._promptBindCurrentSite(prompt.text, 'text')
                 } else if (combo == -1 && this.state.input == 'bindCurrentPage') {
                     // 从输入框里输入的
-                    prompt.text = this._promptBindCurrentSite(prompt.text)
+                    prompt.text = this._promptBindCurrentSite(prompt.text, 'text')
+                } else if (combo == -1 && this.state.input == 'bindCurrentPageHTML') {
+                    // 从输入框里输入的
+                    prompt.text = this._promptBindCurrentSite(prompt.text, 'html')
                 } else if (combo == -1 && this.state.input == 'userSelection') {
                     // 从用户划选
                     prompt.text = this._promptBindUserSelection(prompt.text)
