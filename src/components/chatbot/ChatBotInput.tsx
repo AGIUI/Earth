@@ -3,6 +3,7 @@ import { Card, Button, Input, Checkbox, Radio, message } from 'antd';
 import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 import { defaultCombo, defaultPrompt } from "../combo/ComboData";
+import ChatBotConfig from "./ChatBotConfig";
 
 /**
  * <ChatBotInput callback={({data,cmd})=>{console.log(cmd,data)}} isLoading={false} leftButton={label:'My Prompts'}/>
@@ -40,9 +41,9 @@ type StateType = {
         tag: string
     },
     placeholder: string;
-    userSelected: boolean;
-    bindCurrentPage: boolean;
-    bindCurrentPageTooltip: string;
+   
+   
+    input:any;
     output: any
 }
 
@@ -78,22 +79,22 @@ class ChatBotInput extends React.Component {
                 tag: ''
             },
             placeholder: 'Ask or search anything',
-            userSelected: false,
-            bindCurrentPage: false,
-            bindCurrentPageTooltip: '绑定当前网页',
+        
+        
+            input:ChatBotConfig.getInput(),
             // 输出格式
-            output: [{ label: 'JSON格式', value: 'json' }, { label: 'MarkDown格式', value: 'markdown' }, { label: '默认', value: 'defalut', checked: true }]
+            output: ChatBotConfig.getOutput()
         }
 
-        document.addEventListener("selectionchange", () => {
-            const text = this._userSelection();
+        // document.addEventListener("selectionchange", () => {
+        //     const text = this._userSelection();
 
-            this.setState({
-                placeholder: text.length > 0 ? this._userSelection() : 'Ask or search anything',
-                userSelected: text.length > 0
-            })
+        //     this.setState({
+        //         placeholder: text.length > 0 ? this._userSelection() : 'Ask or search anything',
+        //         userSelected: text.length > 0
+        //     })
 
-        });
+        // });
 
     }
 
@@ -113,12 +114,7 @@ class ChatBotInput extends React.Component {
         // this.destroyConnection();
     }
 
-    _userSelection() {
-        const selObj: any = window.getSelection();
-        // let textContent = selObj.type !== 'None' ? (selObj.getRangeAt(0)).startContainer.textContent : '';
-        let textContent = selObj.toString();
-        return textContent.trim();
-    }
+    
 
     _newTalk() {
         this.props.callback({
@@ -159,14 +155,14 @@ class ChatBotInput extends React.Component {
     }
 
 
-    _userSelectionAdd() {
-        if (this.state.placeholder != 'Ask or search anything') this.setState({
-            userInput: {
-                prompt: this.state.placeholder,
-                tag: this.state.placeholder
-            }
-        })
-    }
+    // _userSelectionAdd() {
+    //     if (this.state.placeholder != 'Ask or search anything') this.setState({
+    //         userInput: {
+    //             prompt: this.state.placeholder,
+    //             tag: this.state.placeholder
+    //         }
+    //     })
+    // }
 
 
     _leftBtnClick() {
@@ -201,34 +197,35 @@ class ChatBotInput extends React.Component {
         });
     }
 
-    _bindCurrentPage(b: boolean) {
-        this.setState({
-            bindCurrentPage: b,
-            bindCurrentPageTooltip: b ? '绑定当前网页，将消耗大量token' : '绑定当前网页'
-        })
-        if (b) this._toast();
-        this.props.callback({
-            cmd: "bind-current-page", data: {
-                bindCurrentPage: b
-            }
-        })
-    }
+    _change(t: string, key: string) {
 
-    _outputChange(t: string) {
-        let output = Array.from(this.state.output, (o: any) => {
+        if (t == 'bindCurrentPage') {
+            this._toast();
+            // this.setState({
+            //     bindCurrentPage: true,
+            //     bindCurrentPageTooltip: '绑定当前网页，将消耗大量token'
+            // })
+        }
+
+        const state: any = this.state;
+        let items: any = {};
+        items[key] = Array.from(state[key], (o: any) => {
             return {
                 ...o, checked: t == o.value
             }
         });
+
         this.setState({
-            output
-        })
-        this.props.callback({
-            cmd: "output-change", data: {
-                output: t
-            }
+            ...items
         })
 
+        let data: any = {}
+        data[key] = items[key].filter((d: any) => d.checked)[0].value;
+        this.props.callback({
+            cmd: key + "-change", data: {
+                ...data
+            }
+        })
     }
 
     render() {
@@ -302,39 +299,27 @@ class ChatBotInput extends React.Component {
                 ]}
             >
 
-                <Button type="text"
+                {/* <Button type="text"
                     onClick={() => this._userSelectionAdd()}
                 >
                     使用划选内容
-                </Button>
+                </Button> */}
 
-                <Checkbox.Group
-                    style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'baseline'
-                    }}
-                    options={[{
-                        label: this.state.bindCurrentPageTooltip, value: 'bindCurrentPage'
-                    }]}
+                <Radio.Group
 
-                    defaultValue={this.state.bindCurrentPage ? ['bindCurrentPage'] : []}
-                    onChange={(e) => this._bindCurrentPage(e[0] == 'bindCurrentPage')} />
+                    options={this.state.input}
 
-                {/* <Checkbox.Group
-                    style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'baseline'
-                    }}
-                    options={this.state.output}
-                    defaultValue={this.state.bindCurrentPage ? ['bindCurrentPage'] : []}
-                    onChange={(e) => this._bindCurrentPage(e[0] == 'bindCurrentPage')} /> */}
+                    onChange={(e) => this._change(e.target.value,'input')}
+                    value={this.state.input.filter((m: any) => m.checked)[0].value}
+                    optionType="button"
+                    buttonStyle="solid"
+                    size="small"
+                />
 
 
                 <Radio.Group
                     options={this.state.output}
-                    onChange={(e) => this._outputChange(e.target.value)}
+                    onChange={(e) => this._change(e.target.value,'output')}
                     value={this.state.output.filter((m: any) => m.checked)[0].value}
                     optionType="button"
                     buttonStyle="solid"

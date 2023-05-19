@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { FlexColumn } from "@components/Style";
-import { Readability } from '@mozilla/readability'
 import MarkdownIt from 'markdown-it'
 
 import ChatBotPanel from "@components/chatbot/ChatBotPanel"
@@ -9,6 +8,9 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 
 import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
+
+import { promptParse } from '@components/prompt/output'
+import { promptBindCurrentSite, promptBindUserSelection,userSelectionInit } from '@components/prompt/input'
 
 import Setup from "@src/components/Setup"
 
@@ -198,8 +200,8 @@ class Main extends React.Component<{
     PromptIndex: number,
 
 
-    // 绑定当前网页内容
-    bindCurrentPage: boolean
+    // 输入
+    input: string,
     // 输出格式
     output: string
 }> {
@@ -259,8 +261,8 @@ class Main extends React.Component<{
             currentPrompt: {},
             PromptIndex: 0,
 
-            bindCurrentPage: false,
-            output: 'default'
+            output: 'default',
+            input: 'default'
         }
 
 
@@ -374,6 +376,8 @@ class Main extends React.Component<{
             sendResponse('我是content，已收到消息')
             return true;
         });
+
+        userSelectionInit();
     }
 
     async show(loading: boolean) {
@@ -487,31 +491,21 @@ class Main extends React.Component<{
         })
     }
 
+    // 用户划选
+    _promptBindUserSelection(prompt: string) {
+        return promptBindUserSelection(prompt);
+    }
 
     /**
      * 绑定当前页面信息
      */
     _promptBindCurrentSite(prompt: string) {
-        // 获取当前网页正文信息
-        const { length, title, textContent, href } = this._extractArticle();
-        if (prompt) {
-            const text = textContent.trim().replace(/\s+/ig, ' ');
-            prompt = prompt.trim();
-            const t = `标题:${title},网址:${href}`
-            const count = prompt.length + t.length;
-            prompt = `<tag>${t}${1920 - count > 0 ? `,正文:${text.slice(0, 1920 - count)}` : ''}</tag>,` + prompt;
-        }
-        return prompt
+        return promptBindCurrentSite(prompt)
     }
 
-    // type markdown/json
+    // type markdown/json/
     _promptOutput(prompt: string, type: string) {
-        if (type == 'markdown') {
-            prompt = `${prompt},按照markdown格式，输出结果`
-        } else if (type == 'json') {
-            prompt = `${prompt},按照json格式，输出结果`
-        }
-        return prompt
+        return promptParse(prompt, type)
     }
 
     //['user']
@@ -779,13 +773,16 @@ class Main extends React.Component<{
                     openMyPrompts: false
                 })
 
-                // console.log(`prompt需要改造数据格式：{text,isNextUse,bindCurrentPage,queryObj}`, prompt, data)
+                console.log(`prompt`, prompt, this.state.input)
                 // return 
                 if (combo > 0 && prompt.bindCurrentPage) {
                     prompt.text = this._promptBindCurrentSite(prompt.text)
-                } else if (combo == -1 && this.state.bindCurrentPage) {
+                } else if (combo == -1 && this.state.input == 'bindCurrentPage') {
                     // 从输入框里输入的
                     prompt.text = this._promptBindCurrentSite(prompt.text)
+                } else if (combo == -1 && this.state.input == 'userSelection') {
+                    // 从用户划选
+                    prompt.text = this._promptBindUserSelection(prompt.text)
                 }
 
                 if (combo > 0 && prompt.output != 'default') {
@@ -960,9 +957,9 @@ class Main extends React.Component<{
                     sendMessageToBackground['chat-bot-talk-new']({ type: this.state.chatBotType, newTalk: true });
 
                     break;
-                case "bind-current-page":
+                case "input-change":
                     this.setState({
-                        bindCurrentPage: data.bindCurrentPage
+                        input: data.input
                     })
                     break;
                 case "output-change":
@@ -1090,14 +1087,6 @@ class Main extends React.Component<{
             )
             this.updateChatBotStatus(false)
         }
-    }
-
-    _extractArticle() {
-        const documentClone: any = document.cloneNode(true);
-        const article: any = new Readability(documentClone, { nbTopCandidates: 2 }).parse();
-        // console.log(article)
-        article.href = window.location.href.replace(/\?.*/ig, '');
-        return article
     }
 
 

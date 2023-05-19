@@ -197,7 +197,7 @@ class ChatBotPanel extends React.Component {
                 })} />,
             <FullscreenButton
                 fullscreen={this.state.fullscreen}
-                disabled={this.state.disabled}
+                disabled={false}
                 callback={() => this.setState({
                     fullscreen:!this.state.fullscreen
                 })} />,

@@ -292,7 +292,7 @@ class ComboModal extends React.Component {
             const prompt = {
                 ...this.state.currentPrompt, ...newData
             }
-            console.log('_updateCurrentPrompt', JSON.stringify(prompt, null, 2))
+            // console.log('_updateCurrentPrompt', JSON.stringify(prompt, null, 2))
             // for (const key in prompt) {
             //     if (key.match('prompt') && prompt[key].queryObj && prompt[key].queryObj.isQuery) {
             //         const q = this._parseQuery(prompt[key].text, prompt[key].queryObj.isQuery);
@@ -471,9 +471,7 @@ class ComboModal extends React.Component {
         const hasCombo = promptValue && promptValue.combo > 1;
         const comboCount = promptValue.combo || 5;
 
-        console.log('this.state.currentPrompt---', JSON.stringify(this.state.currentPrompt, null, 2))
-
-
+        // console.log('this.state.currentPrompt---', JSON.stringify(this.state.currentPrompt, null, 2))
         const formData: any = {
             tag: promptValue.tag || '',
             role: promptValue.role || '',

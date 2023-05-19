@@ -31,6 +31,27 @@ function get() {
 
 }
 
+function getInput() {
+    return [{
+        label: '当前网页',
+        value: 'bindCurrentPage'
+    }, {
+        label: '划选内容',
+        value: 'userSelection'
+    }, {
+        label: '输入框',
+        value: 'defalut', checked: true
+    }]
+}
+
+function getOutput() {
+    return [{ label: 'JSON格式', value: 'json' },
+    { label: 'MarkDown格式', value: 'markdown' },
+    { label: '中文', value: 'translate-zh' },
+    { label: '英文', value: 'translate-en' },
+    { label: '默认', value: 'defalut', checked: true }]
+}
+
 /**
  * 
  * @param type chatbot-is-available-false
@@ -137,5 +158,5 @@ function createTalkData(type: string, json: any) {
 }
 
 export default {
-    get, createTalkData
+    get, createTalkData, getOutput, getInput
 }
