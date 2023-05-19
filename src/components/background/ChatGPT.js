@@ -167,8 +167,8 @@ export default class ChatGPT {
 
 
         baseUrl = baseUrl ? createAPIUrl(baseUrl) : this.baseUrl
-            // token = token || this.token
-            // model = model || this.model
+        token = token || this.token
+        model = model || this.model
 
         this.token = token
         this.baseUrl = baseUrl
