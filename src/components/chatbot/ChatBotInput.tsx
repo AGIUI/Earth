@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Card, Button, Input, Checkbox, Radio, message } from 'antd';
-import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined } from '@ant-design/icons';
+import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 import { defaultCombo, defaultPrompt } from "../combo/ComboData";
 import ChatBotConfig from "./ChatBotConfig";
@@ -41,9 +41,9 @@ type StateType = {
         tag: string
     },
     placeholder: string;
-   
-   
-    input:any;
+
+
+    input: any;
     output: any
 }
 
@@ -79,9 +79,9 @@ class ChatBotInput extends React.Component {
                 tag: ''
             },
             placeholder: 'Ask or search anything',
-        
-        
-            input:ChatBotConfig.getInput(),
+
+
+            input: ChatBotConfig.getInput(),
             // 输出格式
             output: ChatBotConfig.getOutput()
         }
@@ -114,7 +114,7 @@ class ChatBotInput extends React.Component {
         // this.destroyConnection();
     }
 
-    
+
 
     _newTalk() {
         this.props.callback({
@@ -229,6 +229,10 @@ class ChatBotInput extends React.Component {
     }
 
     render() {
+        const flexStyle = {
+            display: 'flex', justifyContent: 'flex-start',
+            alignItems: 'center'
+        }
         return (
             <Card
                 type="inner"
@@ -267,16 +271,6 @@ class ChatBotInput extends React.Component {
                     }}
                     >
 
-                        {/* {
-                            this.state.userSelected ? <Button
-                                style={buttonStyle}
-                                type="dashed"
-                                icon={<PlusOutlined />}
-                                onClick={() => this._userSelectionAdd()}
-                            >已选 {this.state.placeholder.length}</Button> : ''
-                        } */}
-
-
                         <Button
                             style={{
                                 ...buttonStyle, marginRight: '12px'
@@ -299,34 +293,25 @@ class ChatBotInput extends React.Component {
                 ]}
             >
 
-                {/* <Button type="text"
-                    onClick={() => this._userSelectionAdd()}
-                >
-                    使用划选内容
-                </Button> */}
-
-                <Radio.Group
-
-                    options={this.state.input}
-
-                    onChange={(e) => this._change(e.target.value,'input')}
-                    value={this.state.input.filter((m: any) => m.checked)[0].value}
-                    optionType="button"
-                    buttonStyle="solid"
-                    size="small"
-                />
-
-
-                <Radio.Group
+                <div style={flexStyle}>
+                    <LoginOutlined style={{marginRight:'12px'}}/>
+                    <Radio.Group
+                        options={this.state.input}
+                        onChange={(e) => this._change(e.target.value, 'input')}
+                        value={this.state.input.filter((m: any) => m.checked)[0].value}
+                        optionType="button"
+                        buttonStyle="solid"
+                        size="small"
+                    />
+                </div>
+                <div style={flexStyle}><LogoutOutlined  style={{marginRight:'12px'}}/><Radio.Group
                     options={this.state.output}
-                    onChange={(e) => this._change(e.target.value,'output')}
+                    onChange={(e) => this._change(e.target.value, 'output')}
                     value={this.state.output.filter((m: any) => m.checked)[0].value}
                     optionType="button"
                     buttonStyle="solid"
                     size="small"
-                />
-
-
+                /></div>
 
                 <TextArea
                     maxLength={2000}

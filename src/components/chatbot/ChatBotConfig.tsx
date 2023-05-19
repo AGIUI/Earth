@@ -33,7 +33,10 @@ function get() {
 
 function getInput() {
     return [{
-        label: '当前网页',
+        label: '当前网页HTML',
+        value: 'bindCurrentPageHTML'
+    },{
+        label: '当前网页正文',
         value: 'bindCurrentPage'
     }, {
         label: '划选内容',

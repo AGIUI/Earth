@@ -1,12 +1,11 @@
-
 import { Readability } from '@mozilla/readability'
 
 
 
-const userSelectionInit=()=>{
+const userSelectionInit = () => {
     document.addEventListener("selectionchange", () => {
         const text = userSelection();
-        if(text!='') localStorage.setItem('___userSelection', text)
+        if (text != '') localStorage.setItem('___userSelection', text)
         // console.log(text)
         return text
     });
@@ -33,26 +32,42 @@ const promptBindUserSelection = (prompt: string) => {
 
 const extractArticle = () => {
     const documentClone: any = document.cloneNode(true);
-    const article: any = new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse();
+    let article: any = {};
+
+    let divs: any = [...document.body.children]
+    divs = divs.filter((d: any) => d.className != '_agi_ui')
+
+    article.elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p')].flat()).flat().filter((f: any) => f);
+
+    try {
+        article = { ...(new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse()), ...article };
+    } catch (error) {
+        let d = document.createElement('div');
+        d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
+        article.title = document.title;
+        article.textContent = (Array.from(['p', 'span'], e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("")
+    }
     console.log('_extractArticle', article)
     article.href = window.location.href.replace(/\?.*/ig, '');
     return article
 }
 
-const promptBindCurrentSite = (prompt: string) => {
+const promptBindCurrentSite = (prompt: string, type = 'text') => {
     // 获取当前网页正文信息
     const { length, title, textContent, href } = extractArticle();
-    if (prompt) {
+    if (prompt && type == 'text') {
         const text = textContent.trim().replace(/\s+/ig, ' ');
         prompt = prompt.trim();
         const t = `标题:${title},网址:${href}`
         const count = prompt.length + t.length;
         prompt = `<tag>${t}${1920 - count > 0 ? `,正文:${text.slice(0, 1920 - count)}` : ''}</tag>,` + prompt;
+    } else if (prompt && type == 'html') {
+
     }
     return prompt
 }
 
 
 export {
-    promptBindCurrentSite, promptBindUserSelection,userSelectionInit
+    promptBindCurrentSite, promptBindUserSelection, userSelectionInit
 }
