@@ -9,20 +9,17 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
 
-import { promptParse, promptUseLastTalk } from '@components/combo/Output'
-import { promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractDomElement } from '@components/combo/Input'
+import { promptParse, promptUseLastTalk } from '@components/combo/PromptOutput'
+import { promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractDomElement } from '@components/combo/PromptInput'
 import { highlightText } from "@components/combo/Agent"
 
 import Setup from "@components/Setup"
 
 import * as _ from "lodash"
 
-// import pdfjsLib from ''
-// import PdfjsWorker from "pdfjs-dist/build/pdf.worker.min.js?worker"
-// import { PDFViewer } from 'pdfjs-dist/web/pdf_viewer'
-// import 'pdfjs-dist/web/pdf_viewer.css'
-// pdfjsLib.GlobalWorkerOptions.workerPort = new PdfjsWorker()
- 
+//@ts-ignore
+import PDF from '@components/PDF'
+
 
 import { chromeStorageGet, chromeStorageSet } from "@components/Utils"
 import { message } from 'antd';

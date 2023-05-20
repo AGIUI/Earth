@@ -172,7 +172,7 @@ class ComboModal extends React.Component {
 
         let output = currentPrompt[key].output,
             input = currentPrompt[key].input,
-            agent=currentPrompt[key].agent;
+            agent = currentPrompt[key].agent;
 
         console.log(value)
         if (value && value.target && value.target.value) {
@@ -242,20 +242,30 @@ class ComboModal extends React.Component {
 
     /**
      * 
-     * @param value // ['bindCurrentPage', 'Combo', 'ShowInChat']
+     * @param value // ['bindCurrentPage', 'Combo', 'showInChat']
      */
     _handleComboSetting(value: any) {
         // console.log('_handleComboSetting', value)
-        let checked = false, isInfinite = false;
+        let interfaces:string[]=[], 
+        isInfinite = false;
 
         if (value && value.length > 0) {
-            checked = value.includes("ShowInChat");
+            if(value.includes("showInChat")){
+                interfaces.push("showInChat")
+            }
+            if(value.includes("contextMenus")){
+                interfaces.push("contextMenus")
+            }
+            if(value.includes("home")){
+                interfaces.push("home")
+            }
+          
         };
         if (value && value.length > 0) {
             isInfinite = value.includes('Infinite');
         }
 
-        let currentPrompt = { ...this.state.currentPrompt, checked, isInfinite }
+        let currentPrompt = { ...this.state.currentPrompt, interfaces, isInfinite }
 
         let updateData: any = { currentPrompt }
 
@@ -473,7 +483,7 @@ class ComboModal extends React.Component {
     }
 
     render() {
-        const promptValue = this.state.currentPrompt;
+        const promptValue: any = this.state.currentPrompt;
         const hasCombo = promptValue && promptValue.combo > 1;
         const comboCount = promptValue.combo || 5;
 
@@ -487,9 +497,19 @@ class ComboModal extends React.Component {
                 if (hasCombo) {
                     options.push('Combo');
                 }
-                if (promptValue.checked === true) {
-                    options.push('ShowInChat');
+
+                for (const i of (promptValue.interfaces || [])) {
+                    if (i === 'showInChat') {
+                        options.push('showInChat');
+                    }
+                    if (i === 'contextMenus') {
+                        options.push('contextMenus');
+                    }
+                    if (i === 'home') {
+                        options.push('home');
+                    }
                 }
+
                 if (promptValue.isInfinite === true) {
                     options.push('Infinite')
                 }

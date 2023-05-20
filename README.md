@@ -14,7 +14,7 @@ AGI-UI的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人�
 
 ## 如何使用？
 
-安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.2.2
+安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.3.0
 
 Chrome：
 
@@ -61,31 +61,29 @@ npm run build [browser]
 ## combo的数据示例
 ```
 [{
-    "checked": true,
+    "interfaces": [],
     "combo": 3,
     "id": "1881e7d386e",
     "isInfinite": false,
     "owner": "user",
     "prompt": {
-        "bindCurrentPage": false,
-        "isApi": false,
-        "isNextUse": true,
+        "input":'default',
+        "output": 'default',
+        "agent":'default'
+        "api": {},
         "queryObj": {
             "isQuery": false,
             "query": "",
             "url": ""
         },
         "text": "给我一个科幻故事，和植物、机器人、爱情有关",
-        "url": ""
-    },
-    "prompt2": {
-        "bindCurrentPage": false,
-        "isApi": false,
-        "isNextUse": false,
-        "text": "总结下"
+        temperature: 0.6,
+        model: 'ChatGPT',
     },
     "prompt3": {
-        "text": "嗯"
+        "text": "嗯",
+        temperature: 0.6,
+        model: 'ChatGPT',
     },
     "role": "",
     "tag": "科幻故事"
@@ -98,6 +96,14 @@ v0.2.0
 
 新增绑定当前网页、输出格式，combo编辑器导入导出，提供示例
 
+v0.3.0
+- combo数据结构调整及编辑器，新增：interfaces（home、contextMenus、showInChat）、input、output
+
+- API节点
+
+- PDF阅读器、pdf读取节点
+
+- 高亮网页信息节点（实验功能）
 
 
 ## 相关资料：

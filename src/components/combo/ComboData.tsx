@@ -17,13 +17,14 @@ const defaultPrompt = {
 }
 
 /**
- * 
+ * interfaces -- home、contextMenus、showInChat
+ *  
  */
 const defaultCombo = {
     tag: '',
     role: '',
     combo: 1,
-    checked: false,
+    interfaces: [],
     isInfinite: false,
     owner: 'official',
     prompt: defaultPrompt,
