@@ -262,14 +262,14 @@ class ComboModal extends React.Component {
           
         };
         if (value && value.length > 0) {
-            isInfinite = value.includes('Infinite');
+            isInfinite = value.includes('infinite');
         }
 
         let currentPrompt = { ...this.state.currentPrompt, interfaces, isInfinite }
 
         let updateData: any = { currentPrompt }
 
-        if (value.includes('Combo')) {
+        if (value.includes('combo')) {
             let combo = this.state.currentPrompt.combo || 5;
             combo = combo <= 1 ? 5 : combo;
             updateData['currentPrompt'] = { ...updateData['currentPrompt'], combo }
@@ -495,7 +495,7 @@ class ComboModal extends React.Component {
             EditOptions: (() => {
                 const options = [];
                 if (hasCombo) {
-                    options.push('Combo');
+                    options.push('combo');
                 }
 
                 for (const i of (promptValue.interfaces || [])) {
@@ -511,7 +511,7 @@ class ComboModal extends React.Component {
                 }
 
                 if (promptValue.isInfinite === true) {
-                    options.push('Infinite')
+                    options.push('infinite')
                 }
                 return options;
             })(),

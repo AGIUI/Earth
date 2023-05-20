@@ -33,15 +33,23 @@ const defaultCombo = {
 const comboOptions = [
     {
         label: '开启Prompts Combo',
-        value: 'Combo',
+        value: 'combo',
     },
     {
         label: '作为对话流选项',
-        value: 'ShowInChat',
+        value: 'showInChat',
+    },
+    {
+        label: '作为右键菜单选项',
+        value: 'contextMenus',
+    },
+    {
+        label: '首页',
+        value: 'home',
     },
     {
         label: '无限循环',
-        value: 'Infinite',
+        value: 'infinite',
     }
 ];
 
