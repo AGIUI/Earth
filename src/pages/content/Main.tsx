@@ -17,6 +17,12 @@ import Setup from "@components/Setup"
 
 import * as _ from "lodash"
 
+// import pdfjsLib from ''
+// import PdfjsWorker from "pdfjs-dist/build/pdf.worker.min.js?worker"
+// import { PDFViewer } from 'pdfjs-dist/web/pdf_viewer'
+// import 'pdfjs-dist/web/pdf_viewer.css'
+// pdfjsLib.GlobalWorkerOptions.workerPort = new PdfjsWorker()
+ 
 
 import { chromeStorageGet, chromeStorageSet } from "@components/Utils"
 import { message } from 'antd';
@@ -514,7 +520,7 @@ class Main extends React.Component<{
     }
 
     _agentRun(agent: string, text: string) {
-        let success = false;
+        let success:any = false;
         if (agent == 'parseJSONAndHighlightText') {
             let elements = extractDomElement();
             console.log(text,elements)
