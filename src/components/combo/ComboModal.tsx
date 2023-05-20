@@ -7,8 +7,9 @@ import {
     Checkbox,
     Form,
     Popconfirm,
-    Divider, Select, Slider, Radio
+    Divider, Select, Slider, Radio, Tabs
 } from 'antd';
+import type { TabsProps } from 'antd';
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -246,20 +247,20 @@ class ComboModal extends React.Component {
      */
     _handleComboSetting(value: any) {
         // console.log('_handleComboSetting', value)
-        let interfaces:string[]=[], 
-        isInfinite = false;
+        let interfaces: string[] = [],
+            isInfinite = false;
 
         if (value && value.length > 0) {
-            if(value.includes("showInChat")){
+            if (value.includes("showInChat")) {
                 interfaces.push("showInChat")
             }
-            if(value.includes("contextMenus")){
+            if (value.includes("contextMenus")) {
                 interfaces.push("contextMenus")
             }
-            if(value.includes("home")){
+            if (value.includes("home")) {
                 interfaces.push("home")
             }
-          
+
         };
         if (value && value.length > 0) {
             isInfinite = value.includes('infinite');
@@ -326,7 +327,28 @@ class ComboModal extends React.Component {
 
     _createOptionUI(index = 1, isQuery = false) {
         // console.log('_createOptionUI', index, isQuery)
+
+        const items: TabsProps['items'] = [
+            {
+                key: '1',
+                label: `Tab 1`,
+                children: `Content of Tab Pane 1`,
+            },
+            {
+                key: '2',
+                label: `Tab 2`,
+                children: `Content of Tab Pane 2`,
+            },
+            {
+                key: '3',
+                label: `Tab 3`,
+                children: `Content of Tab Pane 3`,
+            },
+        ];
+
+
         return <>
+            <Tabs defaultActiveKey="1" items={items} onChange={(e)=>console.log(e)} />
             {
                 isQuery ? <div style={{
                     padding: '0px'

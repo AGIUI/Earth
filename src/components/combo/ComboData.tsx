@@ -18,7 +18,9 @@ const defaultPrompt = {
 
 /**
  * interfaces -- home、contextMenus、showInChat
- *  
+ * app 应用名
+ * version版本号
+ * app、version 在combo导出的时候会动态写
  */
 const defaultCombo = {
     tag: '',
@@ -28,6 +30,8 @@ const defaultCombo = {
     isInfinite: false,
     owner: 'official',
     prompt: defaultPrompt,
+    version:'0.3.0',
+    app:'earth'
 }
 
 const comboOptions = [
@@ -91,6 +95,12 @@ const promptOptions = [
         input: true,
         label: '绑定网页HTML',
         value: 'bindCurrentPageHTML',
+        type: 'checkbox'
+    },
+    {
+        input: true,
+        label: '绑定网页URL',
+        value: 'bindCurrentPageURL',
         type: 'checkbox'
     },
     {

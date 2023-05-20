@@ -19,6 +19,8 @@ import { defaultCombo } from '@components/combo/ComboData'
 import DownloadButton from '@components/buttons/DownloadButton';
 import { FlexRow } from "@components/Style";
 import OpenFileButton from "@components/buttons/OpenFileButton";
+
+import {getConfig} from '@components/Utils'
  
 type PropType = {
     myPrompts: any;
@@ -31,6 +33,8 @@ type StateType = {
     secondTitle: string;
     myPrompts: any,
     showImportModal: boolean;
+    version:string;
+    app:string;
 }
 
 interface ComboEditor {
@@ -46,7 +50,13 @@ class ComboEditor extends React.Component {
             secondTitle: '我的Prompts',
             myPrompts: this.props.myPrompts,
             showImportModal: false,
+            version:'',
+            app:''
         }
+        getConfig().then(json=>this.setState({
+            app:json.app,
+            version:json.version
+        }))
     }
 
     componentDidMount() {
@@ -105,9 +115,11 @@ class ComboEditor extends React.Component {
    
 
     _downloadMyCombo() {
-        const prompts = this.state.myPrompts.filter((p: any) => p.owner != 'official')
-
-        const data = JSON.stringify(prompts)
+        const combo = this.state.myPrompts.filter((p: any) => p.owner != 'official')
+        combo.version=this.state.version;
+        combo.app=this.state.app;
+        
+        const data = JSON.stringify(combo)
 
         //通过创建a标签实现
         const link = document.createElement('a')

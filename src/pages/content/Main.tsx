@@ -811,13 +811,18 @@ class Main extends React.Component<{
                     prompt.text = this._promptBindCurrentSite(prompt.text, 'text')
                 } else if (combo > 0 && prompt.input == 'bindCurrentPageHTML') {
                     prompt.text = this._promptBindCurrentSite(prompt.text, 'html')
+                } else if (combo > 0 && prompt.input == 'bindCurrentPageURL') {
+                    prompt.text = this._promptBindCurrentSite(prompt.text, 'url')
                 } else if (combo == -1 && this.state.input == 'bindCurrentPage') {
                     // 从输入框里输入的
                     prompt.text = this._promptBindCurrentSite(prompt.text, 'text')
                 } else if (combo == -1 && this.state.input == 'bindCurrentPageHTML') {
                     // 从输入框里输入的
                     prompt.text = this._promptBindCurrentSite(prompt.text, 'html')
-                } else if (combo == -1 && this.state.input == 'userSelection') {
+                }else if (combo == -1 && this.state.input == 'bindCurrentPageURL') {
+                    // 从输入框里输入的
+                    prompt.text = this._promptBindCurrentSite(prompt.text, 'url')
+                }  else if (combo == -1 && this.state.input == 'userSelection') {
                     // 从用户划选
                     prompt.text = this._promptBindUserSelection(prompt.text)
                 }
