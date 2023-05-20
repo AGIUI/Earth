@@ -1171,7 +1171,7 @@ class Main extends React.Component<{
                         (this.state.loading ? 'none' : 'flex')
                         : 'none'}
             >
-
+{/* <PDF name='pdf'/> */}
                 {!this.state.loadingChatBot && this.state.openMyPrompts ?
                     <ComboEditor
                         myPrompts={this.state.myPrompts}
