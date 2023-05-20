@@ -114,8 +114,6 @@ class ChatBotInput extends React.Component {
         // this.destroyConnection();
     }
 
-
-
     _newTalk() {
         this.props.callback({
             cmd: "new-talk"

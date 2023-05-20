@@ -7,15 +7,15 @@ import {
     Checkbox,
     Form,
     Popconfirm,
-    Divider, Select, Slider, Radio, Tabs
+    Divider, Select, Slider, Radio, Tabs, message
 } from 'antd';
-import type { TabsProps } from 'antd';
+
 const { Option } = Select;
 const { TextArea } = Input;
 
-import { md5 } from '@components/Utils'
+import { md5, getConfig } from '@components/Utils'
 
-import { PROMPT_MAX_LENGTH, promptOptions, comboOptions, defaultCombo, defaultPrompt } from "@components/combo/ComboData"
+import { PROMPT_MAX_LENGTH, promptOptions, inputs, outputs, models, comboOptions, defaultCombo, defaultPrompt } from "@components/combo/ComboData"
 
 import styled from 'styled-components';
 
@@ -54,6 +54,8 @@ type StateType = {
     options: any;
     promptOptions: any;
     step: number;
+    app: string;
+    version: string;
 }
 
 interface ComboModal {
@@ -71,9 +73,17 @@ class ComboModal extends React.Component {
             currentPrompt: this.props.currentPrompt,
             options: comboOptions,
             promptOptions,
-            step: 0.1
+            step: 0.1,
+            app: '',
+            version: ''
         }
         console.log('currentPrompt', this.props.currentPrompt)
+        getConfig().then(json => {
+            this.setState({
+                app: json.app,
+                version: json.version
+            })
+        })
     }
 
     componentDidMount() {
@@ -102,42 +112,90 @@ class ComboModal extends React.Component {
         // this.destroyConnection();
     }
 
-    /**
-     * 结果
-     */
-    _onFinish() {
+    _createTabKey(prompt: any) {
+        let tabKey = "prompt";
+        if (prompt.queryObj && prompt.queryObj.isQuery) {
+            tabKey = 'isQuery'
+        }
+        // if(prompt.queryObj&&prompt.queryObj.isQuery){
+        //     tabKey='isQuery'
+        // }
+        this.setState({
+            tabKey
+        })
+    }
+
+    _saveMyCombo() {
+        const currentPrompt = this.state.currentPrompt
         let data: any = {}, prompts: any = {};
         const promptKeys = Array.from([1, 2, 3, 4, 5, 6, 7], i => `prompt${i != 1 ? i : ''}`);
-        // console.log('this.state.currentPrompt', JSON.stringify(this.state.currentPrompt, null, 2))
-        for (const key in this.state.currentPrompt) {
-            if (this.state.currentPrompt[key] !== undefined || this.state.currentPrompt[key] !== "") {
-                if (key.match('prompt')) {
-                    if (promptKeys.includes(key) && ((this.state.currentPrompt[key].text && this.state.currentPrompt[key].text != '') || (this.state.currentPrompt[key].queryObj && this.state.currentPrompt[key].queryObj.isQuery))) prompts[key] = this.state.currentPrompt[key];
+        // console.log('_onFinish', JSON.stringify(currentPrompt, null, 2))
+        for (const key in currentPrompt) {
+            if (currentPrompt[key]) {
+                if (promptKeys.includes(key)) {
+                    // 判断类型
+                    const type = currentPrompt[key].type;
+                    let isEmpty = false;
+                    if (type == 'api') {
+                        currentPrompt[key].api.isApi = true;
+                        currentPrompt[key].queryObj = { ...defaultPrompt.queryObj };
+                        currentPrompt[key].text = '';
+                    } else if (type == 'query') {
+                        currentPrompt[key].api = { ...defaultPrompt.api };
+                        currentPrompt[key].queryObj.isQuery = true;
+                        currentPrompt[key].text = '';
+                    } else if (type == 'tasks' || type == 'prompt' || type == 'highlight') {
+                        currentPrompt[key].api = { ...defaultPrompt.api };
+                        currentPrompt[key].queryObj = { ...defaultPrompt.queryObj };
+                        isEmpty = !currentPrompt[key].text
+                    }
+
+                    if (isEmpty == false) prompts[key] = currentPrompt[key];
+
                 } else {
-                    data[key] = this.state.currentPrompt[key];
+                    data[key] = currentPrompt[key];
                 }
             }
         }
-        // console.log('_onFinish', data, this.state.currentPrompt)
-        const timestamp = new Date().getTime();
-        const uniqueId = timestamp.toString(16);
-        if (data && !data.id) data.id = uniqueId;
+        // console.log('_onFinish', data, prompts)
 
         let combo = 0, newPrompts: any = {};
         for (const key in prompts) {
             if (promptKeys.includes(key)) {
                 combo++;
-                newPrompts[`prompt${combo == 1 ? '' : combo}`] = prompts[key]
+                const prompt = prompts[key];
+                newPrompts[`prompt${combo == 1 ? '' : combo}`] = prompt
+
             }
         }
 
         data = {
-            prompt: {
-                ...defaultCombo,
-                ...data,
-                ...newPrompts,
-                combo
-            },
+            ...defaultCombo,
+            ...data,
+            ...newPrompts,
+            combo
+        }
+
+        data.prompt.version = this.state.version;
+        data.prompt.app = this.state.app;
+        if (!data.prompt.id) data.prompt.id = md5((new Date()).getTime() + '');
+
+        this.setState({
+            currentPrompt: data
+        })
+
+        return data;
+    }
+
+    /**
+     * 结果
+     */
+    _onFinish() {
+
+        const combo = this._saveMyCombo();
+
+        const data = {
+            prompt: combo,
             from: 'combo-editor'
         }
 
@@ -145,6 +203,36 @@ class ComboModal extends React.Component {
             cmd: 'edit-combo-finish', data
         })
     }
+
+    _downloadMyCombo() {
+        const combos = [this._saveMyCombo()];
+
+        const data: any = [];
+        for (const combo of combos) {
+            combo.version = this.state.version;
+            combo.app = this.state.app;
+            combo.id = "";
+            combo.id = md5(JSON.stringify(combo));
+            data.push(combo)
+        }
+
+        const name = combos[0].tag;
+        const id = md5(JSON.stringify(data));
+
+        //通过创建a标签实现
+        const link = document.createElement('a')
+        //encodeURIComponent解决中文乱码
+        link.href = `data:application/json;charset=utf-8,\ufeff${encodeURIComponent(JSON.stringify(data))}`
+
+        //下载文件命名
+        link.download = `${name}_${id}`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link);
+
+    }
+
+
 
     _handleCancel() {
         this.setState({
@@ -158,34 +246,27 @@ class ComboModal extends React.Component {
     /**
      * 
      * @param value // ['bindCurrentPage','isNextUse']
+     * type :input output  
      */
-    _handlePromptSetting(promptIndex: number, value: any) {
+    _handlePromptSetting(promptIndex: number, value: any, type: string) {
         const currentPrompt = this.state.currentPrompt;
         const key = promptIndex == 0 ? `prompt` : `prompt${promptIndex + 1}`;
-        // console.log(currentPrompt[key])
+
         if (currentPrompt[key] == undefined) currentPrompt[key] = { ...defaultPrompt }
 
         /**单选的 */
-        const opts = [...this.state.promptOptions],
-            inputs = opts.filter((f: any) => f.input),
-            outputs = opts.filter((f: any) => f.output),
-            agents = opts.filter((f: any) => f.agent);
-
         let output = currentPrompt[key].output,
-            input = currentPrompt[key].input,
-            agent = currentPrompt[key].agent;
+            input = currentPrompt[key].input ;
 
         console.log(value)
         if (value && value.target && value.target.value) {
-            if (Array.from(inputs, (o: any) => o.value).includes(value.target.value)) {
+            if (Array.from(inputs, (o: any) => o.value).includes(value.target.value) && type == 'input') {
                 input = value.target.value;
             }
-            if (Array.from(outputs, (o: any) => o.value).includes(value.target.value)) {
+            if (Array.from(outputs, (o: any) => o.value).includes(value.target.value) && type == 'output') {
                 output = value.target.value;
             }
-            if (Array.from(agents, (o: any) => o.value).includes(value.target.value)) {
-                agent = value.target.value;
-            }
+         
         };
 
 
@@ -195,18 +276,15 @@ class ComboModal extends React.Component {
             ...currentPrompt[key],
             queryObj: {
                 ...currentPrompt[key].queryObj,
-                isQuery: input == 'isQuery'
+                isQuery: input == 'query'
             },
             api: {
                 ...currentPrompt[key].api,
-                isApi: input == 'isApi'
+                isApi: input == 'api'
             },
             input,
-            output,
-            agent
+            output 
         }
-
-        // console.log('_handlePromptSetting:', key, JSON.stringify(json, null, 2))
 
         this._updateCurrentPrompt(json);
 
@@ -225,19 +303,41 @@ class ComboModal extends React.Component {
 
         json[key][type] = value
 
+        // if (type == 'model') {
+        //     if (value == "Bing") {
+        //         this.setState({
+        //             step: 0.5,
+        //         })
+        //     } else {
+        //         this.setState({
+        //             step: 0.1,
+        //         })
+        //     }
+        // }
 
-        if (type == 'model') {
-            if (value == "Bing") {
-                this.setState({
-                    step: 0.5,
-                })
-            } else {
-                this.setState({
-                    step: 0.1,
-                })
-            }
+        this._updateCurrentPrompt(json);
+    }
+
+
+
+    _handlePromptTypeSetting(promptIndex = 1, value: any) {
+        const currentPrompt = this.state.currentPrompt;
+        const key = promptIndex == 0 ? `prompt` : `prompt${promptIndex + 1}`;
+        let json: any = {};
+        json[key] = {
+            ...currentPrompt[key],
+            type: value
         }
 
+        // 如果output只有1个选项，则默认选中
+        const out = promptOptions.filter((p: any) => p.key == value)[0].outputs
+        if (out.length == 1) json[key].output = out[0].value
+
+        // 如果input只有1个选项，则默认选中
+        const inp = promptOptions.filter((p: any) => p.key == value)[0].inputs
+        if (inp.length == 1) json[key].input = inp[0].value
+
+        // console.log(json, currentPrompt)
         this._updateCurrentPrompt(json);
     }
 
@@ -305,6 +405,7 @@ class ComboModal extends React.Component {
             const prompt = {
                 ...this.state.currentPrompt, ...newData
             }
+            // console.log('_updateCurrentPrompt', JSON.stringify(prompt, null, 2))
             this.setState({
                 currentPrompt: prompt
             })
@@ -312,161 +413,79 @@ class ComboModal extends React.Component {
     }
 
     _addOptions(prompt: any) {
+
+        const init = prompt.api.init;
+        if (typeof (init) == 'object' && init.body && typeof (init.body) == 'string') {
+            try {
+                init.body = JSON.parse(init.body)
+            } catch (error) {
+
+            }
+        }
         const options: any = {
-            input: prompt.input || 'defalut',
-            output: prompt.output || 'defalut',
-            agent: prompt.agent || 'defalut',
-            temperature: prompt.temperature || 0.6,
-            model: prompt.model || 'ChatGPT',
+            input: prompt.input,
+            output: prompt.output,
+            // agent: prompt.agent,
+            temperature: prompt.temperature,
+            model: prompt.model,
             url: prompt.queryObj.url,
-            query: prompt.queryObj.query
+            query: prompt.queryObj.query,
+            init: typeof (init) == 'object' ? JSON.stringify(init, null, 2) : init,
+            type: prompt.type
         };
+
+        if (prompt.type == 'api') options.url = prompt.api.url;
+        if (prompt.type == 'query') options.url = prompt.queryObj.url;
 
         return options;
     }
 
-    _createOptionUI(index = 1, isQuery = false) {
-        // console.log('_createOptionUI', index, isQuery)
+    _createInputsForOpts(index = 1, inputs: any = []) {
+        return <Form.Item
+            name={`Prompt${index}EditOptionsForInput`}
+            label="输入"
+        >
+            <Radio.Group
+                style={{
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'baseline'
+                }}
 
-        const items: TabsProps['items'] = [
-            {
-                key: '1',
-                label: `Tab 1`,
-                children: `Content of Tab Pane 1`,
-            },
-            {
-                key: '2',
-                label: `Tab 2`,
-                children: `Content of Tab Pane 2`,
-            },
-            {
-                key: '3',
-                label: `Tab 3`,
-                children: `Content of Tab Pane 3`,
-            },
-        ];
+                options={inputs.filter((p: any) => p.type == 'checkbox' && p.input)}
+                onChange={(e) => this._handlePromptSetting(index - 1, e, 'input')} />
+        </Form.Item>
+    }
 
+    _createOutputsForOpts(index = 1, outputs = []) {
+        // const d:any={};
+        // d[`Prompt${index}EditOptionsForOutput`]=this.state.currentPrompt[`prompt${index==1?"":index}`].output
+        // console.log(d)
+        return <Form.Item
+            name={`Prompt${index}EditOptionsForOutput`}
+            label="输出"
+        // initialValue={d}
+        >
+            {/* <Select
+                onChange={(e) => this._handlePromptSetting(index - 1, e, 'output')}
+                style={{ width: 200 }}
+                options={outputs.filter((p: any) => p.type == 'checkbox' && p.output)}
+            /> */}
 
+            <Radio.Group
+                style={{
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'baseline'
+                }}
+                options={outputs.filter((p: any) => p.type == 'checkbox' && p.output)}
+                onChange={(e) => this._handlePromptSetting(index - 1, e, 'output')} />
+        </Form.Item>
+    }
+
+    _createModelsForOpts(index = 1) {
+        const m: any = models.filter((ps: any) => ps.value == 'model')[0];
         return <>
-            <Tabs defaultActiveKey="1" items={items} onChange={(e)=>console.log(e)} />
-            {
-                isQuery ? <div style={{
-                    padding: '0px'
-                }}><Form.Item
-                    name={`Prompt${index}Url`}
-                    label={`url`}
-                    rules={[
-                        {
-                            required: true,
-                            message: '请填写url',
-                        },
-                    ]}>
-                        <Input addonBefore="https://"
-                            placeholder={`请填写url`}
-                            defaultValue=""
-                            onChange={(e: any) => {
-                                const data: any = {};
-                                const i = index > 1 ? index : '';
-                                data[`prompt${i}`] = {
-                                    ...defaultPrompt,
-                                    ...this.state.currentPrompt[`prompt${i}`]
-                                }
-                                data[`prompt${i}`].queryObj.url = e.currentTarget.value.trim();
-                                // data[`prompt${i}`].queryObj.isQuery = data[`prompt${i}`].queryObj.url && data[`prompt${i}`].queryObj.query;
-                                this._updateCurrentPrompt(data)
-                            }}
-                        />
-
-                    </Form.Item>
-                    <Form.Item
-                        name={`Prompt${index}Query`}
-                        label={`Query`}
-                        rules={[
-                            {
-                                required: true,
-                                message: '请填写Query',
-                            },
-                        ]}>
-                        <Input
-                            placeholder={`请填写Query`}
-
-                            onChange={(e: any) => {
-                                const data: any = {};
-                                const i = index > 1 ? index : '';
-                                data[`prompt${i}`] = {
-                                    ...defaultPrompt,
-                                    ...this.state.currentPrompt[`prompt${i}`]
-                                }
-                                data[`prompt${i}`].queryObj.query = e.currentTarget.value.trim();
-                                // data[`prompt${i}`].queryObj.isQuery = data[`prompt${i}`].queryObj.url && data[`prompt${i}`].queryObj.query;
-                                this._updateCurrentPrompt(data)
-                            }}
-                        />
-                    </Form.Item>
-                </div> : <Form.Item
-                    name={`Prompt${index}Text`}
-                    label={`Prompt Combo ${index}`}
-                    rules={[
-                        {
-                            required: index == 1,
-                            message: '请填写Prompt',
-                        },
-                    ]}>
-                    <TextArea
-                        placeholder={index == 1 ? `必填，Prompt Combo ${index}` : ''}
-                        showCount
-                        maxLength={PROMPT_MAX_LENGTH}
-                        onChange={(e: any) => {
-                            const data: any = {};
-                            const i = index > 1 ? index : '';
-                            data[`prompt${i}`] = {
-                                ...defaultPrompt,
-                                ...this.state.currentPrompt[`prompt${i}`],
-                                text: e.currentTarget.value.trim()
-                            }
-                            console.log('TextArea', JSON.stringify(data[`prompt${i}`], null, 2))
-                            this._updateCurrentPrompt(data)
-                        }}
-                    />
-                </Form.Item>
-            }
-
-
-            <Form.Item
-                name={`Prompt${index}EditOptionsForInput`}
-                label="输入">
-                <Radio.Group
-                    style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'baseline'
-                    }}
-                    options={this.state.promptOptions.filter((p: any) => p.type == 'checkbox' && p.input)}
-                    onChange={(e) => this._handlePromptSetting(index - 1, e)} />
-            </Form.Item>
-
-            <Form.Item name={`Prompt${index}EditOptionsForOutput`} label="输出">
-                <Radio.Group
-                    style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'baseline'
-                    }}
-                    options={this.state.promptOptions.filter((p: any) => p.type == 'checkbox' && p.output)}
-                    onChange={(e) => this._handlePromptSetting(index - 1, e)} />
-            </Form.Item>
-
-            <Form.Item name={`Prompt${index}EditOptionsForAgent`} label="代理">
-                <Radio.Group
-                    style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'baseline'
-                    }}
-                    options={this.state.promptOptions.filter((p: any) => p.type == 'checkbox' && p.agent)}
-                    onChange={(e) => this._handlePromptSetting(index - 1, e)} />
-            </Form.Item>
-
             <Form.Item
                 name={`Prompt${index}EditOptionsForModel`}
                 label="模型"
@@ -481,7 +500,7 @@ class ComboModal extends React.Component {
                     onChange={(e) => this._handlePromptModelAndTemperatureSetting(index - 1, e.target.value, 'model')}
                     defaultValue={'ChatGPT'}
                 >
-                    {Array.from(this.state.promptOptions.filter((ps: any) => ps.value == 'model')[0].options,
+                    {Array.from(m.options,
                         (p: any) => {
                             return <Radio.Button
                                 value={p.value}
@@ -489,7 +508,8 @@ class ComboModal extends React.Component {
                         })}
                 </Radio.Group>
             </Form.Item>
-            <Form.Item name={`Prompt${index}EditOptionsForTemperature`}
+            <Form.Item
+                name={`Prompt${index}EditOptionsForTemperature`}
                 label="严谨程度 Temperature"
             >
                 <Slider
@@ -498,10 +518,239 @@ class ComboModal extends React.Component {
                     max={1}
                     min={0}
                     step={this.state.step}
-                    defaultValue={0.7}
+                    defaultValue={0.2}
                     onChange={(e) => this._handlePromptModelAndTemperatureSetting(index - 1, e, 'temperature')}
                 />
             </Form.Item></>
+    }
+
+    _createPromptForOpts(type = 'prompt', index = 1) {
+        // 'prompt' || 'tasks' ||   'highlight'
+        return <Form.Item
+            name={`Prompt${index}Text`}
+            label={`${type == 'tasks' ? '目标' : 'Prompt Combo'} ${index}`}
+            rules={[
+                {
+                    required: index == 1,
+                    message: `请填写${type == 'tasks' ? '目标' : 'Prompt'}`,
+                },
+            ]}>
+            <TextArea
+                placeholder={index == 1 ? `必填，${type == 'tasks' ? '目标' : 'Prompt Combo'} ${index}` : ''}
+                showCount
+                maxLength={PROMPT_MAX_LENGTH}
+                onChange={(e: any) => {
+                    const data: any = {};
+                    const i = index > 1 ? index : '';
+                    data[`prompt${i}`] = {
+                        ...defaultPrompt,
+                        ...this.state.currentPrompt[`prompt${i}`],
+                        text: e.currentTarget.value.trim()
+                    }
+                    console.log('TextArea', JSON.stringify(data[`prompt${i}`], null, 2))
+                    this._updateCurrentPrompt(data)
+                }}
+            />
+        </Form.Item>
+    }
+    _createQueryForOpts(index = 1) {
+        return <div style={{
+            padding: '0px'
+        }}><Form.Item
+            name={`Prompt${index}Url`}
+            label={`url`}
+            rules={[
+                {
+                    required: true,
+                    message: '请填写url',
+                },
+            ]}>
+                <Input addonBefore="https://"
+                    placeholder={`请填写url`}
+                    defaultValue=""
+                    onChange={(e: any) => {
+                        const data: any = {};
+                        const i = index > 1 ? index : '';
+                        data[`prompt${i}`] = {
+                            ...defaultPrompt,
+                            ...this.state.currentPrompt[`prompt${i}`]
+                        }
+                        data[`prompt${i}`].queryObj.url = e.currentTarget.value.trim();
+                        // data[`prompt${i}`].queryObj.isQuery = data[`prompt${i}`].queryObj.url && data[`prompt${i}`].queryObj.query;
+                        this._updateCurrentPrompt(data)
+                    }}
+                />
+
+            </Form.Item>
+            <Form.Item
+                name={`Prompt${index}Query`}
+                label={`Query`}
+                rules={[
+                    {
+                        required: true,
+                        message: '请填写Query',
+                    },
+                ]}>
+                <Input
+                    placeholder={`请填写Query`}
+
+                    onChange={(e: any) => {
+                        const data: any = {};
+                        const i = index > 1 ? index : '';
+                        data[`prompt${i}`] = {
+                            ...defaultPrompt,
+                            ...this.state.currentPrompt[`prompt${i}`]
+                        }
+                        data[`prompt${i}`].queryObj.query = e.currentTarget.value.trim();
+                        // data[`prompt${i}`].queryObj.isQuery = data[`prompt${i}`].queryObj.url && data[`prompt${i}`].queryObj.query;
+                        this._updateCurrentPrompt(data)
+                    }}
+                />
+            </Form.Item>
+        </div>
+    }
+
+    _createApiForOpts(index = 1) {
+
+        // const i = index > 1 ? index : '';
+        // const prompt=this.state.currentPrompt[`prompt${i}`];
+
+        let isError = false;
+        return <div style={{
+            padding: '0px'
+        }}>
+            <Form.Item
+                name={`Prompt${index}Url`}
+                label={`url`}
+                rules={[
+                    {
+                        required: true,
+                        message: '请填写url',
+                    },
+                ]}>
+                <Input addonBefore="https://"
+                    placeholder={`请填写url`}
+                    defaultValue=""
+                    onChange={(e: any) => {
+                        const data: any = {};
+                        const i = index > 1 ? index : '';
+                        data[`prompt${i}`] = {
+                            ...defaultPrompt,
+                            ...this.state.currentPrompt[`prompt${i}`]
+                        }
+                        data[`prompt${i}`].api.url = e.currentTarget.value.trim();
+
+                        this._updateCurrentPrompt(data)
+                    }}
+                />
+
+            </Form.Item>
+            <Form.Item
+                name={`Prompt${index}FetchInit`}
+                label={`FetchInit`}
+                // hasFeedback 
+                // validateStatus={isError ? "error" : 'success'}
+                rules={[
+                    {
+                        required: true,
+                        message: '请填写init',
+                    },
+                ]}>
+                <TextArea rows={4}
+                    placeholder="请填写init"
+                    autoSize
+                    onChange={(e: any) => {
+                        const data: any = {};
+                        const i = index > 1 ? index : '';
+                        data[`prompt${i}`] = {
+                            ...defaultPrompt,
+                            ...this.state.currentPrompt[`prompt${i}`]
+                        }
+                        try {
+                            const init = JSON.parse(e.currentTarget.value.trim());
+                            if (init.body && typeof (init.body) === 'object') {
+                                try {
+                                    init.body = JSON.stringify(init.body)
+                                } catch (error) {
+                                    isError = true;
+                                }
+                            }
+
+                            data[`prompt${i}`].api.init = init;
+
+                        } catch (error) {
+                            // message.error('请检查init格式');
+                            isError = true;
+                            data[`prompt${i}`].api.init = e.currentTarget.value.trim();
+                        }
+                        // console.log(data[`prompt${i}`].api.init)
+                        // data[`prompt${i}`].api.error=isError;
+                        this._updateCurrentPrompt(data)
+
+                    }}
+                />
+
+            </Form.Item>
+        </div>
+    }
+
+    // _createHighlightForOpts(index = 1) {
+    //     return <Form.Item name={`Prompt${index}EditOptionsForAgent`} label="代理">
+    //         <Radio.Group
+    //             style={{
+    //                 flexDirection: 'column',
+    //                 justifyContent: 'center',
+    //                 alignItems: 'baseline'
+    //             }}
+    //             options={this.state.promptOptions.filter((p: any) => p.type == 'checkbox' && p.agent)}
+    //             onChange={(e) => this._handlePromptSetting(index - 1, e, 'agent')} />
+    //     </Form.Item>
+    // }
+
+    _createOptionUI(index = 1, type = 'prompt') {
+        // console.log('_createOptionUI', index, isQuery)
+        const currentPrompt = this.state.currentPrompt;
+        const promptIndex = index == 1 ? `prompt` : `prompt${index}`;
+
+        const items: any = []
+
+        for (const opts of promptOptions) {
+            const inputs: any = opts.inputs,
+                outputs: any = opts.outputs,
+                models = opts.models;
+            const key = opts.key;
+            const children = [],
+                childrenOfInputs = [],
+                childrenOfOutputs = [],
+                childrenOfModels = [];
+
+            if (key == currentPrompt[promptIndex].type) {
+                if (key == 'query') {
+                    children.push(this._createQueryForOpts(index))
+                }
+                if (key == 'api') children.push(this._createApiForOpts(index))
+                if (key == 'prompt' || key == 'tasks' || key == 'highlight') {
+                    children.push(this._createPromptForOpts(key, index))
+                }
+
+                if (inputs.length > 0) childrenOfInputs.push(this._createInputsForOpts(index, inputs))
+                if (outputs.length > 0) childrenOfOutputs.push(this._createOutputsForOpts(index, outputs))
+                if (models.length > 0) childrenOfModels.push(this._createModelsForOpts(index))
+            }
+
+            items.push({
+                key: opts.key,
+                label: opts.label,
+                children: <>
+                    <div>{...children}</div>
+                    <div>{...childrenOfInputs}</div>
+                    <div>{...childrenOfOutputs}</div>
+                    <div>{...childrenOfModels}</div>
+                </>
+            })
+        }
+
+        return <Tabs defaultActiveKey={type} items={items} onChange={(e) => this._handlePromptTypeSetting(index - 1, e)} />
     }
 
     render() {
@@ -513,13 +762,11 @@ class ComboModal extends React.Component {
         const formData: any = {
             tag: promptValue.tag || '',
             role: promptValue.role || '',
-            uniqueId: promptValue.id,
             EditOptions: (() => {
                 const options = [];
                 if (hasCombo) {
                     options.push('combo');
                 }
-
                 for (const i of (promptValue.interfaces || [])) {
                     if (i === 'showInChat') {
                         options.push('showInChat');
@@ -531,7 +778,6 @@ class ComboModal extends React.Component {
                         options.push('home');
                     }
                 }
-
                 if (promptValue.isInfinite === true) {
                     options.push('infinite')
                 }
@@ -549,12 +795,14 @@ class ComboModal extends React.Component {
             const options = this._addOptions({ ...prompt });
             // console.log(index, promptValue, `prompt${index + 1}`, options)
             formData[`Prompt${index + 1}Text`] = prompt.text || '';
+            formData[`Prompt${index + 1}Type`] = options['type'];
             formData[`Prompt${index + 1}EditOptionsForInput`] = options['input'];
             formData[`Prompt${index + 1}EditOptionsForOutput`] = options['output'];
-            formData[`Prompt${index + 1}EditOptionsForAgent`] = options['agent'];
+            // formData[`Prompt${index + 1}EditOptionsForAgent`] = options['agent'];
             formData[`Prompt${index + 1}EditOptionsForTemperature`] = options['temperature'];
             formData[`Prompt${index + 1}EditOptionsForModel`] = options['model'];
             formData[`Prompt${index + 1}Url`] = options['url'];
+            formData[`Prompt${index + 1}FetchInit`] = options['init'];
             formData[`Prompt${index + 1}Query`] = options['query'];
         }
 
@@ -568,7 +816,8 @@ class ComboModal extends React.Component {
                 maskClosable={false}
                 title="添加Prompts"
                 open={true}
-                onOk={() => this._onFinish()} onCancel={() => this._handleCancel()}
+                onOk={() => this._onFinish()}
+                onCancel={() => this._handleCancel()}
                 footer={null}
                 style={{ top: 20, userSelect: 'none' }}
             >
@@ -578,7 +827,6 @@ class ComboModal extends React.Component {
                     onFinish={() => this._onFinish()}
                     autoComplete="off"
                     initialValues={formData}
-
                 >
                     < Form.Item name="tag" label={'标题'}
                         rules={[
@@ -607,13 +855,12 @@ class ComboModal extends React.Component {
 
                     </Form.Item> */}
 
-                    {this._createOptionUI(1, formData.Prompt1EditOptionsForInput.includes('isQuery'))}
+                    {this._createOptionUI(1, formData.Prompt1Type)}
 
                     {(this.state.isCombo || hasCombo) && comboCount > 1 ?
                         Array.from(new Array(comboCount - 1),
                             (_, index: number) => this._createOptionUI(index + 2,
-                                formData[`Prompt${index + 2}EditOptionsForInput`].includes('isQuery')))
-
+                                formData[`Prompt${index + 2}Type`]))
                         : null}
 
                     <Divider />
@@ -626,10 +873,9 @@ class ComboModal extends React.Component {
                             }}
                             options={this.state.options} onChange={(e) => this._handleComboSetting(e)} />
                     </Form.Item>
-                    <Form.Item name="uniqueId">
-                        <Input type="hidden" />
-                    </Form.Item>
+
                     <Form.Item style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <Button style={{ marginRight: 10 }} onClick={() => this._downloadMyCombo()}>下载</Button>
                         <Popconfirm
                             placement="bottomRight"
                             title={'确定删除Prompt？'}

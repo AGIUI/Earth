@@ -99,6 +99,8 @@ v0.2.0
 v0.3.0
 - combo数据结构调整及编辑器，新增：interfaces（home、contextMenus、showInChat）、input、output
 
+- combo支持单个导出
+
 - API节点
 
 - PDF阅读器、pdf读取节点

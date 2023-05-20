@@ -181,6 +181,42 @@ class Common {
                     })
                 } else if (cmd == 'run-agents') {
                     Agent.executeScript(data.url, data.query, data.combo)
+                } else if (cmd == "api-run") {
+                    const { url, init } = data;
+                    console.log('_agentApiRun', url, init)
+
+                    if (init.method === 'GET') delete init.body;
+
+                    const responseType = init.responseType || 'text';
+
+                    fetch(url, init).then(res => {
+                        // json | text 
+                        if (responseType === 'json') {
+                            return res.json();
+                        } else {
+                            return res.text()
+                        }
+                    }).then(res => {
+                        console.log('_agentApiRun---result', res)
+                        const result = {
+                            data: res,
+                            responseType: responseType
+                        }
+                        this.sendMessage(
+                            'api-run-result',
+                            true,
+                            result,
+                            tabId
+                        )
+                    })
+
+                    sendResponse({
+                        status: 'api-run-start',
+                        data: {
+                            ...data
+                        }
+                    })
+
                 } else if (cmd == "get-my-points") {
                     const apiName = data.apiName,
                         token = data.token;
@@ -191,8 +227,6 @@ class Common {
                     Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
-
-
                 }
 
                 sendResponse('我是后台，已收到消息：' + JSON.stringify(request))

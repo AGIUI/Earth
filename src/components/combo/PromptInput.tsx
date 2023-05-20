@@ -84,6 +84,18 @@ const promptBindCurrentSite = (prompt: string, type = 'text') => {
     return prompt
 }
 
+// 拆解任务目标
+const promptBindTasks=(prompt:string)=>{
+    prompt = prompt.trim();
+    return `'''${prompt}''',针对以上的任务目标，一步步思考如何完成，按照可行的步骤列出来：`
+}
+
+// 高亮信息
+const promptBindHighlight=(prompt:string)=>{
+    prompt = prompt.trim();
+    return `'''${prompt}''',从以上html元素中选择最值得看的信息，返回top5的元素id号给我`
+}
+
 /**
  * 
  * @returns element
@@ -95,5 +107,5 @@ const extractDomElement = () => {
 }
 
 export {
-    promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractDomElement
+    promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractDomElement,promptBindTasks,promptBindHighlight
 }

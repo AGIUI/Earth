@@ -1,8 +1,8 @@
-import {chromeStorageGet, chromeStorageSet} from "@components/Utils";
-import {defaultCombo} from "@components/combo/ComboData";
+import { chromeStorageGet, chromeStorageSet } from "@components/Utils";
+import { defaultCombo } from "@components/combo/ComboData";
 import requestUpdateCheck = chrome.runtime.requestUpdateCheck;
 
-async function parsePromptsData(data: any){
+async function parsePromptsData(data: any) {
     let combo: any[] = [];
     for (let i = 0; i < data.length; i++) {
         const item = data[i];
@@ -120,4 +120,4 @@ async function _getPromptsData() {
     return prompts;
 }
 
-export {parsePromptsData};
+export { parsePromptsData };

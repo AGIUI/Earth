@@ -1,19 +1,31 @@
 const PROMPT_MAX_LENGTH = 720
 
 // output : default,json,markdown
+//  type:prompt,tasks,query,api,highlight
 const defaultPrompt = {
     text: '',
     api: {
-        url: '', isApi: false
+        url: '',
+        init: {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: "{}",
+            mode: 'cors',
+            cache: 'default',
+            responseType: 'text'
+        },
+        isApi: false
     },
     queryObj: {
         query: '', url: '', isQuery: false
     },
     temperature: 0.6,
     model: 'ChatGPT',
-    input:'default',
+    input: 'default',
     output: 'default',
-    agent:'default'
+    type: 'prompt'
 }
 
 /**
@@ -21,6 +33,7 @@ const defaultPrompt = {
  * app 应用名
  * version版本号
  * app、version 在combo导出的时候会动态写
+ *
  */
 const defaultCombo = {
     tag: '',
@@ -30,8 +43,9 @@ const defaultCombo = {
     isInfinite: false,
     owner: 'official',
     prompt: defaultPrompt,
-    version:'0.3.0',
-    app:'earth'
+    version: '0.3.0',
+    app: 'earth',
+    id: ''
 }
 
 const comboOptions = [
@@ -57,35 +71,34 @@ const comboOptions = [
     }
 ];
 
-const promptOptions = [
+const models = [
+    {
+        label: '温度',
+        value: 'temperature',
+        type: 'range'
+    },
+    {
+        label: '模型',
+        value: 'model',
+        type: 'select',
+        options: [
+            { value: 'ChatGPT', label: 'ChatGPT' },
+            { value: 'Bing', label: 'Bing' }
+        ]
+    }
+]
+
+
+/**
+ * ask 等待用户输入，TODO待处理
+ */
+const inputs = [
     {
         input: true,
         label: '默认',
-        value: 'defalut',
+        value: 'default',
         type: 'checkbox'
-    },
-    {
-        output: true,
-        label: '默认',
-        value: 'defalut',
-        type: 'checkbox'
-    },{
-        agent: true,
-        label: '默认',
-        value: 'defalut',
-        type: 'checkbox'
-    },
-    {
-        input: true,
-        label: '根据选择器获取网页信息',
-        value: 'isQuery',
-        type: 'checkbox'
-    },
-    // {
-    //     label:'API请求',
-    //     value:'isApi'
-    // },
-    {
+    }, {
         input: true,
         label: '绑定网页正文',
         value: 'bindCurrentPage',
@@ -104,6 +117,24 @@ const promptOptions = [
         type: 'checkbox'
     },
     {
+        input: true,
+        ask:true,
+        label: '用户划选',
+        value: 'userSelection',
+        type: 'checkbox'
+    },
+]
+
+/**
+ * 默认 - 就是 文本
+ */
+const outputs = [
+    {
+        output: true,
+        label: '默认',
+        value: 'default',
+        type: 'checkbox'
+    }, {
         output: true,
         label: '作为上下文',
         value: 'isNextUse',
@@ -117,44 +148,75 @@ const promptOptions = [
     },
     {
         output: true,
+        label: '列表',
+        value: 'list',
+        type: 'checkbox'
+    },
+    {
+        output: true,
         label: 'MarkDown格式',
         value: 'markdown',
         type: 'checkbox'
     },
     {
-        output: true, label: '中文', value: 'translate-zh',
+        output: true,
+        label: '中文',
+        value: 'translate-zh',
         type: 'checkbox'
     },
     {
-        output: true, label: '英文', value: 'translate-en',
+        output: true,
+        label: '英文',
+        value: 'translate-en',
         type: 'checkbox'
-    },
-    {
-        agent:true,
-        label:'高亮网页内容',
-        value:'parseJSONAndHighlightText',type: 'checkbox'
-    },
-    {
-        label: '温度',
-        value: 'temperature',
-        type: 'range'
-    },
-    {
-        label: '模型',
-        value: 'model',
-        type: 'select',
-        options: [
-            { value: 'ChatGPT', label: 'ChatGPT' },
-            { value: 'Bing', label: 'Bing' }
-        ]
     }
-];
+]
+
+const promptOptions = [
+    {
+        key: 'prompt',
+        label: `Prompt`,
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    }, {
+        key: 'tasks',
+        label: `目标拆解`,
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    }, {
+        key: 'highlight',
+        label: `高亮网页内容`,
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    }, {
+        key: 'query',
+        label: `根据选择器获取网页信息`,
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    }, {
+        key: 'api',
+        label: `API`,
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    },
+]
 
 
 export {
     PROMPT_MAX_LENGTH,
     defaultCombo,
     defaultPrompt,
+    comboOptions,
     promptOptions,
-    comboOptions
+    inputs, outputs, models
 }
