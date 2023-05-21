@@ -180,7 +180,11 @@ class Common {
                         url: data.url
                     })
                 } else if (cmd == 'run-agents') {
-                    Agent.executeScript(data.url, data.query, data.combo)
+                    Agent.executeScript(data.url, {
+                        query: data.query,
+                        text: data.text,
+                        type: data.type
+                    }, data.combo)
                 } else if (cmd == "api-run") {
                     const { url, init } = data;
                     console.log('_agentApiRun', url, init)

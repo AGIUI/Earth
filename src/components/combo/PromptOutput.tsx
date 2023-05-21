@@ -8,20 +8,28 @@
 // }
 
 const promptUseLastTalk = (prompt: string, laskTalk: string) => {
-    if (prompt && laskTalk) prompt = `${laskTalk ? '```背景信息：' + laskTalk.trim() + '```,' : ''}${prompt.trim()}`
+    prompt = prompt.trim()
+    laskTalk = laskTalk.trim()
+    if (prompt) {
+        prompt = `${laskTalk ? '<' + laskTalk + '>' : ''}${prompt ? ',' + prompt : ''}`
+    } else {
+        prompt = laskTalk
+    }
     return prompt
 }
 
 // type markdown/json
 const promptParse = (prompt: string, type: string) => {
     if (type == 'markdown') {
-        prompt = `${prompt},完成任务并按照markdown格式，只输出结果`
+        prompt = `${prompt},完成任务并按照markdown格式输出`
     } else if (type == 'json') {
-        prompt = `${prompt},完成任务并按照json格式，只输出结果`
+        prompt = `${prompt},完成任务并按照json格式输出`
     } else if (type == 'translate-zh') {
-        prompt = `${prompt},完成任务并翻译成中文，只输出翻译结果`
+        prompt = `${prompt},完成任务,翻译成中文`
     } else if (type == 'translate-en') {
-        prompt = `${prompt},完成任务并翻译成英文，只输出翻译结果`
+        prompt = `${prompt},完成任务,翻译成英文`
+    } else if (type == 'extract') {
+        prompt = `完成这个任务：分析实体词，并分类。[USER INPUT]${prompt}`
     }
     return prompt
 }

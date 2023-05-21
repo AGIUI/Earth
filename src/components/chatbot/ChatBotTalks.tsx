@@ -95,7 +95,7 @@ const Content: any = styled(Flex)`
     overflow-y: scroll;
     overflow-x: hidden;
     margin: 4px 0;
-    font-family: fantasy;
+    font-family: fantasy!important;
     &::-webkit-scrollbar
     {
       width:2px;
@@ -120,8 +120,22 @@ const Content: any = styled(Flex)`
       margin: 6px 0;
     }
     & .chatbot-text-bubble p{
-        margin: 24px 12px;
-        line-height: 24px; 
+        margin: 8px 4px!important;
+        line-height: 24px!important; 
+    }
+    & .chatbot-suggest{
+        background: rgb(22, 119, 255)!important;
+        border: none!important;
+        margin: 0px 12px 12px 0px!important;
+        color: white!important;
+        font-weight: 500!important;
+        height: fit-content!important;
+    }
+    & .chatbot-suggest span{
+        color: white!important;
+    }
+    & .chatbot-error{
+        border: 1px solid red !important;
     }
 `
 

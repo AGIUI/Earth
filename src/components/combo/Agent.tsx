@@ -19,7 +19,6 @@ const highlightText = async (text = '', elements: any) => {
                 // console.log(element.id, element)
                 target.push(element)
             }
-
         }
 
         for (const t of target) {
@@ -34,6 +33,18 @@ const highlightText = async (text = '', elements: any) => {
     return success
 }
 
+// 知识星球自动发内容 https://wx.zsxq.com/dweb2/index/group/481225281248
+const postTopicForZsxq = async (text: any) => {
+    const h: any = document.querySelector('.post-topic-head');
+    h.click();
+    await sleep(1000)
+    const inp: any = document.querySelector('.ql-editor');
+    inp.innerText = text;
+    await sleep(1000)
+    const btn: any = document.querySelector('.submit-btn');
+    btn.click()
+}
+
 export {
-    highlightText
+    highlightText,postTopicForZsxq
 }

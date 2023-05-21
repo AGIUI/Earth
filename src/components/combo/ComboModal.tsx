@@ -176,9 +176,9 @@ class ComboModal extends React.Component {
             combo
         }
 
-        data.prompt.version = this.state.version;
-        data.prompt.app = this.state.app;
-        if (!data.prompt.id) data.prompt.id = md5((new Date()).getTime() + '');
+        data.version = this.state.version;
+        data.app = this.state.app;
+        if (data.id==""||data.id===undefined) data.id = md5((new Date()).getTime() + '');
 
         this.setState({
             currentPrompt: data
@@ -193,7 +193,7 @@ class ComboModal extends React.Component {
     _onFinish() {
 
         const combo = this._saveMyCombo();
-
+        console.log('_onFinish',combo)
         const data = {
             prompt: combo,
             from: 'combo-editor'
@@ -256,7 +256,7 @@ class ComboModal extends React.Component {
 
         /**单选的 */
         let output = currentPrompt[key].output,
-            input = currentPrompt[key].input ;
+            input = currentPrompt[key].input;
 
         console.log(value)
         if (value && value.target && value.target.value) {
@@ -266,7 +266,7 @@ class ComboModal extends React.Component {
             if (Array.from(outputs, (o: any) => o.value).includes(value.target.value) && type == 'output') {
                 output = value.target.value;
             }
-         
+
         };
 
 
@@ -283,7 +283,7 @@ class ComboModal extends React.Component {
                 isApi: input == 'api'
             },
             input,
-            output 
+            output
         }
 
         this._updateCurrentPrompt(json);
@@ -553,6 +553,66 @@ class ComboModal extends React.Component {
             />
         </Form.Item>
     }
+
+    _createZSXQForOpts(index = 1) {
+        return <div style={{
+            padding: '0px'
+        }}><Form.Item
+            name={`Prompt${index}Url`}
+            label={`url`}
+            rules={[
+                {
+                    required: true,
+                    message: '请填写url',
+                },
+            ]}>
+                <Input addonBefore="https://"
+                    placeholder={`请填写url`}
+                    defaultValue=""
+                    onChange={(e: any) => {
+                        const data: any = {};
+                        const i = index > 1 ? index : '';
+                        data[`prompt${i}`] = {
+                            ...defaultPrompt,
+                            ...this.state.currentPrompt[`prompt${i}`]
+                        }
+                        data[`prompt${i}`].queryObj.url = e.currentTarget.value.trim();
+                        // data[`prompt${i}`].queryObj.isQuery = data[`prompt${i}`].queryObj.url && data[`prompt${i}`].queryObj.query;
+                        this._updateCurrentPrompt(data)
+                    }}
+                />
+
+            </Form.Item>
+            <Form.Item
+                name={`Prompt${index}Text`}
+                label={`Text`}
+                rules={[
+                    {
+                        required: false,
+                        message: '请填写Text',
+                    },
+                ]}>
+
+                <TextArea
+                    placeholder={'请填写Text'}
+                    showCount
+                    maxLength={PROMPT_MAX_LENGTH}
+                    onChange={(e: any) => {
+                        const data: any = {};
+                        const i = index > 1 ? index : '';
+                        data[`prompt${i}`] = {
+                            ...defaultPrompt,
+                            ...this.state.currentPrompt[`prompt${i}`],
+                            text: e.currentTarget.value.trim()
+                        }
+                        // console.log('TextArea', JSON.stringify(data[`prompt${i}`], null, 2))
+                        this._updateCurrentPrompt(data)
+                    }}
+                />
+            </Form.Item>
+        </div>
+    }
+
     _createQueryForOpts(index = 1) {
         return <div style={{
             padding: '0px'
@@ -727,9 +787,11 @@ class ComboModal extends React.Component {
             if (key == currentPrompt[promptIndex].type) {
                 if (key == 'query') {
                     children.push(this._createQueryForOpts(index))
-                }
-                if (key == 'api') children.push(this._createApiForOpts(index))
-                if (key == 'prompt' || key == 'tasks' || key == 'highlight') {
+                } else if (key == 'api') {
+                    children.push(this._createApiForOpts(index))
+                } else if (key == 'send-to-zsxq') {
+                    children.push(this._createZSXQForOpts(index))
+                } else {
                     children.push(this._createPromptForOpts(key, index))
                 }
 
@@ -750,7 +812,30 @@ class ComboModal extends React.Component {
             })
         }
 
-        return <Tabs defaultActiveKey={type} items={items} onChange={(e) => this._handlePromptTypeSetting(index - 1, e)} />
+        // <>
+        // <Select
+        // showSearch
+        // style={{ width: 200 }}
+        // placeholder="Search to Select"
+        // optionFilterProp="children"
+        // filterOption={(input:any, option:any) => (option?.label ?? '').includes(input)}
+        // filterSort={(optionA, optionB) =>
+        //   (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())
+        // }
+        // options={items}
+        // onChange={(e) => console.log(e)}
+        // />
+        // {
+        //     items.filter((item:any)=>item.value===type)[0].children
+        // }
+        // </> 
+
+
+        return <Tabs defaultActiveKey={type}
+            tabPosition={'left'}
+            style={{ height:560 }}
+            items={items} onChange={(e) => this._handlePromptTypeSetting(index - 1, e)} />
+
     }
 
     render() {
@@ -811,8 +896,8 @@ class ComboModal extends React.Component {
         return (<>
 
             <Modal
-                width={640}
-                zIndex={1200}
+                width={720}
+                zIndex={900}
                 maskClosable={false}
                 title="添加Prompts"
                 open={true}

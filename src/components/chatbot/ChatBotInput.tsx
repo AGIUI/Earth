@@ -122,9 +122,9 @@ class ChatBotInput extends React.Component {
 
     _sendTalk(userInput: any = {}) {
         // console.log(userInput)
-        const prompt = (userInput && userInput.prompt ? userInput.prompt : '').trim();
+        let prompt = (userInput && userInput.prompt ? userInput.prompt : '').trim();
         const tag = (userInput && userInput.tag ? userInput.tag : '').trim();
-
+        if(this.state.output.filter((ot: any) => ot.checked)[0].value !== 'defalut'&&!prompt) prompt="."
         if (prompt) {
             const combo = {
                 ...defaultCombo,
@@ -229,7 +229,7 @@ class ChatBotInput extends React.Component {
     render() {
         const flexStyle = {
             display: 'flex', justifyContent: 'flex-start',
-            alignItems: 'center',padding: '8px'
+            alignItems: 'center', padding: '8px'
         }
         return (
             <Card
@@ -292,7 +292,7 @@ class ChatBotInput extends React.Component {
             >
 
                 <div style={flexStyle}>
-                    <LoginOutlined style={{marginRight:'12px'}}/>
+                    <LoginOutlined style={{ marginRight: '12px' }} />
                     <Radio.Group
                         options={this.state.input}
                         onChange={(e) => this._change(e.target.value, 'input')}
@@ -302,7 +302,7 @@ class ChatBotInput extends React.Component {
                         size="small"
                     />
                 </div>
-                <div style={flexStyle}><LogoutOutlined  style={{marginRight:'12px'}}/><Radio.Group
+                <div style={flexStyle}><LogoutOutlined style={{ marginRight: '12px' }} /><Radio.Group
                     options={this.state.output}
                     onChange={(e) => this._change(e.target.value, 'output')}
                     value={this.state.output.filter((m: any) => m.checked)[0].value}

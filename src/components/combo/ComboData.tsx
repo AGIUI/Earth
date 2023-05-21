@@ -4,6 +4,7 @@ const PROMPT_MAX_LENGTH = 720
 //  type:prompt,tasks,query,api,highlight
 const defaultPrompt = {
     text: '',
+    url: '',
     api: {
         url: '',
         init: {
@@ -118,7 +119,7 @@ const inputs = [
     },
     {
         input: true,
-        ask:true,
+        ask: true,
         label: '用户划选',
         value: 'userSelection',
         type: 'checkbox'
@@ -132,7 +133,7 @@ const inputs = [
 ]
 
 /**
- * 默认 - 就是 文本
+ * 默认 - 不传递
  */
 const outputs = [
     {
@@ -146,36 +147,7 @@ const outputs = [
         value: 'isNextUse',
         type: 'checkbox'
     },
-    {
-        output: true,
-        label: 'JSON格式',
-        value: 'json',
-        type: 'checkbox'
-    },
-    {
-        output: true,
-        label: '列表',
-        value: 'list',
-        type: 'checkbox'
-    },
-    {
-        output: true,
-        label: 'MarkDown格式',
-        value: 'markdown',
-        type: 'checkbox'
-    },
-    {
-        output: true,
-        label: '中文',
-        value: 'translate-zh',
-        type: 'checkbox'
-    },
-    {
-        output: true,
-        label: '英文',
-        value: 'translate-en',
-        type: 'checkbox'
-    }
+
 ]
 
 const promptOptions = [
@@ -208,8 +180,63 @@ const promptOptions = [
         outputs: outputs.filter(f => f.value),
         models: models
     }, {
+        key: 'send-to-zsxq',
+        label: `发布内容至知识星球`,
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: []
+    }, {
         key: 'api',
         label: `API`,
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    },
+    {
+        label: 'JSON格式',
+        key: 'json',
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    },
+    {
+        label: '列表',
+        key: 'list',
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    },
+    {
+        label: 'MarkDown格式',
+        key: 'markdown',
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    },
+    {
+        label: '中文',
+        key: 'translate-zh',
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    },
+    {
+        label: '英文',
+        key: 'translate-en',
+        children: [],
+        inputs: inputs.filter(f => f.value),
+        outputs: outputs.filter(f => f.value),
+        models: models
+    },
+    {
+        label: '提取结构化数据',
+        key: 'extract',
         children: [],
         inputs: inputs.filter(f => f.value),
         outputs: outputs.filter(f => f.value),

@@ -51,12 +51,22 @@ function getInput() {
     ]
 }
 
-function getOutput() {
+function getPromptOpts() {
     return [{ label: 'JSON格式', value: 'json' },
     { label: 'MarkDown格式', value: 'markdown' },
     { label: '中文', value: 'translate-zh' },
     { label: '英文', value: 'translate-en' },
+    { label: '提取结构化数据', value: 'extract' },
     { label: '默认', value: 'defalut', checked: true }]
+}
+
+function getOutput() {
+    return [
+        {
+            label: '作为上下文',
+            value: 'isNextUse',
+        },
+        { label: '默认', value: 'defalut', checked: true }]
 }
 
 /**
@@ -165,5 +175,5 @@ function createTalkData(type: string, json: any) {
 }
 
 export default {
-    get, createTalkData, getOutput, getInput
+    get, createTalkData, getOutput, getInput, getPromptOpts
 }
