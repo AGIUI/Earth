@@ -181,7 +181,7 @@ const createListItem = (data: any, index: number) => <div style={{ margin: '2px 
             }
         </> : (data.html ? <p
             style={createTalkBubbleStyle(data.user)}
-            className={`chatbot-text-bubble-${data.user?'user':''}`}
+            className={`chatbot-text-bubble${data.user?'-user':''}`}
             key={index}
             dangerouslySetInnerHTML={{ __html: data.html }}>
         </p> : '')
