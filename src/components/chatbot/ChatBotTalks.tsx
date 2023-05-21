@@ -146,13 +146,17 @@ const createTalkBubbleStyle = (user = false) => {
 }
 
 const thinkingBtn = (name = '思考中') => <Button type="primary" loading disabled>{name}</Button>
-const suggestBtn = (i: string, name: string, callback: any) => <Button key={i} style={{
+const suggestBtn = (i: string, name: string, callback: any) => <Button key={i} 
+style={{
     background: '#1677ff',
     border: 'none',
     margin: '0px 12px 12px 0px',
     color: 'white',
     fontWeight: '500', height: 'fit-content'
-}} onClick={() => callback()}>{name}</Button>
+}} 
+onClick={() => callback()}
+className="chatbot-suggest"
+>{name}</Button>
 
 
 

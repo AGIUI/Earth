@@ -123,6 +123,12 @@ const inputs = [
         value: 'userSelection',
         type: 'checkbox'
     },
+    {
+        input: true,
+        label: '剪切板',
+        value: 'clipboard',
+        type: 'checkbox'
+    },
 ]
 
 /**

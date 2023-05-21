@@ -14,6 +14,7 @@ import {
     promptBindCurrentSite,
     promptBindUserSelection,
     promptBindTasks,
+    promptBindUserClipboard,
     userSelectionInit,
     extractDomElement
 } from '@components/combo/PromptInput'
@@ -540,6 +541,11 @@ class Main extends React.Component<{
         })
     }
 
+    // 用户剪切板
+    async _promptBindUserClipboard(prompt: string) {
+        return await promptBindUserClipboard(prompt);
+    }
+
     // 用户划选
     _promptBindUserSelection(prompt: string) {
         return promptBindUserSelection(prompt);
@@ -900,12 +906,11 @@ class Main extends React.Component<{
 
             console.log('_control:', nTalks, data)
 
-            const sendTalk = () => {
+            const sendTalk = async () => {
                 let combo = data._combo ? data._combo.combo : -1;
                 let { prompt, tag, lastTalk, newTalk, from } = data;
                 if (from == 'combo') combo = 1;
                 prompt = JSON.parse(JSON.stringify(prompt))
-
 
                 // 清空type thinking && suggest 的状态
                 nTalks = nTalks.filter(n => (n.type == 'talk' || n.type == 'markdown' || n.type == 'done'))
@@ -957,6 +962,9 @@ class Main extends React.Component<{
                     } else if (this.state.input == 'userSelection') {
                         // 从用户划选
                         prompt.text = this._promptBindUserSelection(prompt.text)
+                    } else if (this.state.input == 'clipboard') {
+                        // 从用户划选
+                        prompt.text = await this._promptBindUserClipboard(prompt.text)
                     }
 
                     // output的处理

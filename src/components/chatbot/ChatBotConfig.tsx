@@ -35,16 +35,20 @@ function getInput() {
     return [{
         label: '当前网页HTML',
         value: 'bindCurrentPageHTML'
-    },{
+    }, {
         label: '当前网页正文',
         value: 'bindCurrentPage'
     }, {
         label: '划选内容',
         value: 'userSelection'
     }, {
+        label: '剪切板',
+        value: 'clipboard'
+    }, {
         label: '输入框',
         value: 'defalut', checked: true
-    }]
+    }
+    ]
 }
 
 function getOutput() {

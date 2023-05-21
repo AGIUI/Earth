@@ -1,5 +1,5 @@
 import { Readability } from '@mozilla/readability'
-import {md5} from '@components/Utils'
+import { md5 } from '@components/Utils'
 
 const MAX_LENGTH = 2000;
 
@@ -19,13 +19,28 @@ const userSelection = () => {
     return textContent.trim();
 }
 
+const promptBindText = (userText: string, prompt: string) => {
+    const text = userText.replace(/\s+/ig, ' ');
+    prompt = prompt.trim();
+    const count = prompt.length;
+    prompt = `'''${MAX_LENGTH - count > 0 ? text.slice(0, MAX_LENGTH - count) : ''}''',` + prompt;
+    return prompt
+}
+
 const promptBindUserSelection = (prompt: string) => {
     const userText = localStorage.getItem('___userSelection') || ''
     if (prompt && userText) {
-        const text = userText.replace(/\s+/ig, ' ');
-        prompt = prompt.trim();
-        const count = prompt.length;
-        prompt = `'''${MAX_LENGTH - count > 0 ? text.slice(0, MAX_LENGTH - count) : ''}''',` + prompt;
+        prompt = promptBindText(userText, prompt)
+    }
+    return prompt
+}
+
+
+const promptBindUserClipboard = async (prompt: string) => {
+    let text = await navigator.clipboard.readText()
+    // console.log('navigator.clipboard.readText()', text)
+    if (text && prompt) {
+        prompt = promptBindText(text, prompt)
     }
     return prompt
 }
@@ -41,7 +56,7 @@ const extractArticle = () => {
     let elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p')].flat()).flat().filter((f: any) => f);
 
     article.elements = Array.from(elements, (e: any, index) => {
-        e.id=md5(e.innerText.trim())
+        e.id = md5(e.innerText.trim())
         return {
             element: e,
             text: e.innerText.trim(),
@@ -57,7 +72,7 @@ const extractArticle = () => {
         let d = document.createElement('div');
         d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
         article.title = document.title;
-        article.textContent = (Array.from(['p', 'span','h1'], e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("")
+        article.textContent = (Array.from(['p', 'span', 'h1'], e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("")
     }
     console.log('_extractArticle', article)
     article.href = window.location.href.replace(/\?.*/ig, '');
@@ -85,13 +100,13 @@ const promptBindCurrentSite = (prompt: string, type = 'text') => {
 }
 
 // 拆解任务目标
-const promptBindTasks=(prompt:string)=>{
+const promptBindTasks = (prompt: string) => {
     prompt = prompt.trim();
     return `'''${prompt}''',针对以上的任务目标，一步步思考如何完成，按照可行的步骤列出来：`
 }
 
 // 高亮信息
-const promptBindHighlight=(prompt:string)=>{
+const promptBindHighlight = (prompt: string) => {
     prompt = prompt.trim();
     return `'''${prompt}''',从以上html元素中选择最值得看的信息，返回top5的元素id号给我`
 }
@@ -107,5 +122,11 @@ const extractDomElement = () => {
 }
 
 export {
-    promptBindCurrentSite, promptBindUserSelection, userSelectionInit, extractDomElement,promptBindTasks,promptBindHighlight
+    promptBindCurrentSite,
+    promptBindUserSelection,
+    userSelectionInit,
+    promptBindUserClipboard,
+    extractDomElement,
+    promptBindTasks,
+    promptBindHighlight
 }
