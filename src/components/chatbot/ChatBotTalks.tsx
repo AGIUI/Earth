@@ -145,17 +145,20 @@ const createTalkBubbleStyle = (user = false) => {
     return r
 }
 
-const thinkingBtn = (name = '思考中') => <Button type="primary" loading disabled>{name}</Button>
-const suggestBtn = (i: string, name: string, callback: any) => <Button key={i} 
-style={{
-    background: '#1677ff',
-    border: 'none',
-    margin: '0px 12px 12px 0px',
-    color: 'white',
-    fontWeight: '500', height: 'fit-content'
-}} 
-onClick={() => callback()}
-className="chatbot-suggest"
+const thinkingBtn = (name = '思考中') => <Button type="primary"
+    className="chatbot-thinking"
+    loading disabled
+    >{name}</Button>
+const suggestBtn = (i: string, name: string, callback: any) => <Button key={i}
+    style={{
+        background: '#1677ff',
+        border: 'none',
+        margin: '0px 12px 12px 0px',
+        color: 'white',
+        fontWeight: '500', height: 'fit-content'
+    }}
+    onClick={() => callback()}
+    className="chatbot-suggest"
 >{name}</Button>
 
 
@@ -178,6 +181,7 @@ const createListItem = (data: any, index: number) => <div style={{ margin: '2px 
             }
         </> : (data.html ? <p
             style={createTalkBubbleStyle(data.user)}
+            className={`chatbot-text-bubble-${data.user?'user':''}`}
             key={index}
             dangerouslySetInnerHTML={{ __html: data.html }}>
         </p> : '')
