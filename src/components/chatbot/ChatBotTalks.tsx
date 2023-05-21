@@ -95,6 +95,7 @@ const Content: any = styled(Flex)`
     overflow-y: scroll;
     overflow-x: hidden;
     margin: 4px 0;
+    font-family: fantasy;
     &::-webkit-scrollbar
     {
       width:2px;
@@ -117,6 +118,10 @@ const Content: any = styled(Flex)`
     }
     & p,li{
       margin: 6px 0;
+    }
+    & .chatbot-text-bubble p{
+        margin: 24px 12px;
+        line-height: 24px; 
     }
 `
 
