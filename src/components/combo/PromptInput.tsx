@@ -1,5 +1,5 @@
 import { Readability } from '@mozilla/readability'
-import { md5 } from '@components/Utils'
+import { md5, textSplitByLength } from '@components/Utils'
 
 const MAX_LENGTH = 2000;
 
@@ -40,6 +40,10 @@ const promptBindUserClipboard = async (prompt: string) => {
     let text = await navigator.clipboard.readText()
     // console.log('navigator.clipboard.readText()', text)
     if (text && prompt) {
+        let texts = textSplitByLength(text, MAX_LENGTH);
+        texts = Array.from(texts, t => t.trim());
+        text = texts.join('')
+        console.log(texts)
         prompt = promptBindText(text, prompt)
     }
     return prompt
@@ -64,7 +68,6 @@ const extractArticle = () => {
         }
     }).flat().filter((d: any) => d.text);
     // article.elements = Array.from(elements, (t: any) => t.element)
-
 
     try {
         article = { ...(new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse()), ...article };

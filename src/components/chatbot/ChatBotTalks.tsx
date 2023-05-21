@@ -254,9 +254,10 @@ class ChatBotTalks extends React.Component {
         const defaultItems = [ChatBotConfig.createTalkData('help', {})];
 
         // 当this.props.items 为空
-        let items: any = !(this.props.items && this.props.items.length > 0) ? defaultItems : [...this.props.items];
+        let items: any = (!(this.props.items && this.props.items.length > 0) ? defaultItems : [...this.props.items]).filter(i=>i);
         // console.log('this.props.items',items)
         items = Array.from(items, (item: any, index: number) => {
+            // console.log(item)
             const user = (!!item.user) || false,
                 html = item.html;
             const buttons = Array.from(

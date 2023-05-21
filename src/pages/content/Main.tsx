@@ -51,6 +51,7 @@ const getPromptsData = async (keys = ['user']) => {
 
 const Talks = {
     save: (value: any) => {
+        console.log(value)
         let talks = Array.from(value, (v: any, index: number) => {
             // 去除user==true的连续重复
             if (v.user && value[index - 1] && v.html == value[index - 1].html) {
@@ -860,7 +861,9 @@ class Main extends React.Component<{
                 }
             }))
         }
-        // console.log('nTalks:', nTalks)
+        
+        nTalks=nTalks.filter(t=>t)
+
         this.setState({
             talks: nTalks  // 保存对话内容 一句话也可以是按钮
         });
@@ -1101,6 +1104,9 @@ class Main extends React.Component<{
                     console.log("default");
                 // // 初始化bing
             }
+
+
+            nTalks=nTalks.filter(t=>t)
 
             this.setState({
                 talks: nTalks  // 保存对话内容 一句话也可以是按钮
