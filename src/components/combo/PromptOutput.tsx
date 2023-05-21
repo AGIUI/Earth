@@ -15,13 +15,13 @@ const promptUseLastTalk = (prompt: string, laskTalk: string) => {
 // type markdown/json
 const promptParse = (prompt: string, type: string) => {
     if (type == 'markdown') {
-        prompt = `${prompt},按照markdown格式，输出结果`
+        prompt = `${prompt},完成任务并按照markdown格式，只输出结果`
     } else if (type == 'json') {
-        prompt = `${prompt},按照json格式，输出结果`
+        prompt = `${prompt},完成任务并按照json格式，只输出结果`
     } else if (type == 'translate-zh') {
-        prompt = `${prompt},翻译成中文，输出结果`
+        prompt = `${prompt},完成任务并翻译成中文，只输出翻译结果`
     } else if (type == 'translate-en') {
-        prompt = `${prompt},翻译成英文，输出结果`
+        prompt = `${prompt},完成任务并翻译成英文，只输出翻译结果`
     }
     return prompt
 }

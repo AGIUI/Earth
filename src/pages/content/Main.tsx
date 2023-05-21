@@ -853,6 +853,7 @@ class Main extends React.Component<{
                     tag: '刷新',
                     prompt: {
                         text: promptFromLocal,
+                        type:'prompt',
                     },
                     // 用来强制刷新获取新的对话
                     newTalk: true
