@@ -1,10 +1,10 @@
+import { workflow } from '@components/Workflow'
 import { getConfig } from '@components/Utils';
 
 let discord: any;
 getConfig().then(json => {
     discord = json.discord
 })
-
 
 
 function get() {
@@ -31,43 +31,38 @@ function get() {
 
 }
 
-function getInput() {
-    return [{
-        label: '当前网页HTML',
-        value: 'bindCurrentPageHTML'
-    }, {
-        label: '当前网页正文',
-        value: 'bindCurrentPage'
-    }, {
-        label: '划选内容',
-        value: 'userSelection'
-    }, {
-        label: '剪切板',
-        value: 'clipboard'
-    }, {
-        label: '输入框',
-        value: 'default', checked: true
-    }
-    ]
-}
 
-function getPromptOpts() {
-    return [{ label: 'JSON格式', value: 'json' },
-    { label: 'MarkDown格式', value: 'markdown' },
-    { label: '中文', value: 'translate-zh' },
-    { label: '英文', value: 'translate-en' },
-    { label: '提取结构化数据', value: 'extract' },
-    { label: '默认', value: 'default', checked: true }]
+
+function getInput() {
+    return Array.from(workflow.inputs, inp => {
+        return {
+            ...inp, checked: inp.value == 'default'
+        }
+    })
 }
 
 function getOutput() {
-    return [
-        {
-            label: '作为上下文',
-            value: 'isNextUse',
-        },
-        { label: '默认', value: 'default', checked: true }]
+    return Array.from(workflow.outputs, out => {
+        return {
+            ...out, checked: out.value == 'default'
+        }
+    })
 }
+
+
+
+function getAgentOpts() {
+    return Array.from(workflow.agents, (agent: any) => {
+        if (!agent.disabled) return {
+            value: agent.key,
+            label: agent.label,
+            checked: agent.key == 'prompt'
+        }
+    }).filter(a => a)
+}
+
+
+
 
 /**
  * 
@@ -175,5 +170,5 @@ function createTalkData(type: string, json: any) {
 }
 
 export default {
-    get, createTalkData, getOutput, getInput, getPromptOpts
+    get, createTalkData, getOutput, getInput, getAgentOpts
 }

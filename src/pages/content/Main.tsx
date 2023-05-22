@@ -304,7 +304,6 @@ class Main extends React.Component<{
         }
 
 
-
         this.init();
 
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -343,6 +342,7 @@ class Main extends React.Component<{
 
 
     componentDidMount(): void {
+        console.log('#### init #### ',this.state.appName)
         if (this.props.initIsOpen) {
             message.info('自动化执行任务ing')
         }
@@ -454,6 +454,7 @@ class Main extends React.Component<{
     }
 
     _updateCurrentTalks() {
+        if(this.state.disabledAll)return
         Talks.get().then(async talks => {
             let talk = await Talks.createShowInChatInterfaces()
             talks.push(talk);

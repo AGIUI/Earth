@@ -8,7 +8,9 @@
         }],
         "api": "https://api.openai.com",
         "displayApiName": "openai",
-        "models": ["gpt-3.5-turbo"],
+        "models": [
+            "gpt-3.5-turbo"
+        ],
         "model": "gpt-3.5-turbo",
         "canImport": true
     }

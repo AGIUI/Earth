@@ -1,3 +1,6 @@
+import { workflow } from '@components/Workflow'
+
+
 const PROMPT_MAX_LENGTH = 720
 
 // output : default,json,markdown
@@ -72,177 +75,44 @@ const comboOptions = [
     }
 ];
 
-const models = [
-    {
-        label: '温度',
-        value: 'temperature',
-        type: 'range'
-    },
-    {
-        label: '模型',
-        value: 'model',
-        type: 'select',
-        options: [
-            { value: 'ChatGPT', label: 'ChatGPT' },
-            { value: 'Bing', label: 'Bing' }
-        ]
+
+
+
+const models = Array.from(workflow.models, model => {
+    if (model.value === 'temperature') return {
+        ...model, type: 'range'
     }
-]
+    if (model.value === 'model') return {
+        ...model, type: 'select'
+    }
+})
 
 
-/**
- * ask 等待用户输入，TODO待处理
- */
-const inputs = [
-    {
-        input: true,
-        label: '默认',
-        value: 'default',
-        type: 'checkbox'
-    }, {
-        input: true,
-        label: '绑定网页正文',
-        value: 'bindCurrentPage',
-        type: 'checkbox'
-    },
-    {
-        input: true,
-        label: '绑定网页HTML',
-        value: 'bindCurrentPageHTML',
-        type: 'checkbox'
-    },
-    {
-        input: true,
-        label: '绑定网页URL',
-        value: 'bindCurrentPageURL',
-        type: 'checkbox'
-    },
-    {
-        input: true,
-        ask: true,
-        label: '用户划选',
-        value: 'userSelection',
-        type: 'checkbox'
-    },
-    {
-        input: true,
-        label: '剪切板',
-        value: 'clipboard',
-        type: 'checkbox'
-    },
-]
+
+const inputs = Array.from(workflow.inputs, inp => {
+    return {
+        ...inp, input: true, type: 'checkbox'
+    }
+})
 
 /**
  * 默认 - 不传递
  */
-const outputs = [
-    {
-        output: true,
-        label: '默认',
-        value: 'default',
-        type: 'checkbox'
-    }, {
-        output: true,
-        label: '作为上下文',
-        value: 'isNextUse',
-        type: 'checkbox'
-    },
+const outputs = Array.from(workflow.outputs, out => {
+    return {
+        ...out, output: true, type: 'checkbox'
+    }
+})
 
-]
-
-const promptOptions = [
-    {
-        key: 'prompt',
-        label: `Prompt`,
+const promptOptions = Array.from(workflow.agents, agent => {
+    if (!agent.disabled) return {
+        ...agent,
         children: [],
         inputs: inputs.filter(f => f.value),
         outputs: outputs.filter(f => f.value),
         models: models
-    }, {
-        key: 'tasks',
-        label: `目标拆解`,
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    }, {
-        key: 'highlight',
-        label: `高亮网页内容`,
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    }, {
-        key: 'query',
-        label: `根据选择器获取网页信息`,
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    }, {
-        key: 'send-to-zsxq',
-        label: `发布内容至知识星球`,
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: []
-    }, {
-        key: 'api',
-        label: `API`,
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    },
-    {
-        label: 'JSON格式',
-        key: 'json',
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    },
-    {
-        label: '列表',
-        key: 'list',
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    },
-    {
-        label: 'MarkDown格式',
-        key: 'markdown',
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    },
-    {
-        label: '中文',
-        key: 'translate-zh',
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    },
-    {
-        label: '英文',
-        key: 'translate-en',
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    },
-    {
-        label: '提取结构化数据',
-        key: 'extract',
-        children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
-        models: models
-    },
-]
+    }
+}).filter(a => a)
 
 
 export {
