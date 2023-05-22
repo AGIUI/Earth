@@ -254,21 +254,7 @@ class Common {
                     Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
-                } else if (cmd == 'save-combo') {
-                    if (data.interfaces.includes('contextMenus')) {
-                        chrome.contextMenus.create({
-                            id: data.tag,
-                            title: data.tag,
-                            type: 'normal',
-                            "parentId": json.app,
-                            contexts: ['page']
-                        })
-                    } else if (!data.interfaces.includes('contextMenus')) {
-                        chrome.contextMenus.remove(data.tag)
-                    }
-
                 }
-
                 sendResponse('我是后台，已收到消息：' + JSON.stringify(request))
                 return true
             }

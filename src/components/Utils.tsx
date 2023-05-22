@@ -12,7 +12,14 @@ function chromeStorageGet(k: any) {
 
 function chromeStorageSet(json: any) {
     return new Promise<void>((res, rej) => {
-        chrome.storage.local.set(json).then(() => res())
+        chrome.storage.local.set(json).then(
+            () => {
+                chrome.runtime.sendMessage({
+                    cmd: 'update-chromeStorage-data',
+                })
+                res();
+            }
+        )
     });
 }
 

@@ -1259,10 +1259,6 @@ class Main extends React.Component<{
 
         } else if (cmd == "edit-combo-finish") {
             console.log('edit-on-finish', data)
-            chrome.runtime.sendMessage({
-                cmd: 'save-combo',
-                data: data.prompt
-            }, res => console.log(res))
             const { prompt, from } = data;
             if (data) this._promptUpdateUserData('add', prompt);
 

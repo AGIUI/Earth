@@ -11,7 +11,8 @@ import Common from '@components/background/Common'
 
 import { getConfig } from '@components/Utils';
 
-async function loadData(){
+async function loadContextMenuData(){
+    let json = await getConfig()
     const res = await chromeStorageGet(['user', 'official']);
     let Menu = [];
     for (let i in res['user']) {
@@ -25,12 +26,7 @@ async function loadData(){
         }
     }
 
-    return Menu;
-
-}
-
-(async() => {
-    let json = await getConfig()
+    chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
         "id": json.app,
         "title": json.app,
@@ -45,7 +41,6 @@ async function loadData(){
         contexts: ['page']
     })
 
-    let Menu = await loadData();
     for (let i in Menu) {
         chrome.contextMenus.create({
             id: Menu[i].tag,
@@ -55,6 +50,13 @@ async function loadData(){
             contexts: ['page']
         })
     }
+    return Menu;
+
+}
+
+(async() => {
+    let json = await getConfig()
+    let Menu = await loadContextMenuData();
 
     // chrome.commands.getAll().then(commands => {
     //     let isNew = true
@@ -91,6 +93,11 @@ async function loadData(){
     //   return true
     // });
 
+    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+        if (request.cmd === 'update-chromeStorage-data') {
+            Menu = await loadContextMenuData();
+        }
+    })
 
     chrome.contextMenus.onClicked.addListener(async(item, tab) => {
         const from = 'contextMenus';
@@ -120,7 +127,7 @@ async function loadData(){
                     // console.log(response)
                 }
             )
-            Menu = await loadData();
+
             for (let i in Menu) {
                 if (id === Menu[i].tag) {
                     chrome.tabs.sendMessage(
