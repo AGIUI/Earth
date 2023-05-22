@@ -69,13 +69,16 @@ class Common {
             })
         })
 
-        chrome.contextMenus.onClicked.addListener(async(item, tab) => {
-            const id = item.menuItemId
-            if (!tab.url.match('http')) return
-            if (id == 'toggle-insight') {
-                this.sendMessage('toggle-insight', true, true, tab.id)
-            }
-        })
+        // chrome.contextMenus.onClicked.addListener(async(item, tab) => {
+        //     const id = item.menuItemId
+        //     if (!tab.url.match('http')) return
+        //     if (id == 'toggle-insight') {
+        //         this.sendMessage('toggle-insight', true, true, tab.id)
+        //     }else{
+        //         this.sendMessage('toggle-insight', true, true, tab.id)
+        //         console.log(id);
+        //     }
+        // })
     }
 
     onMessage(json, chatBot, Agent, Credit) {
@@ -231,6 +234,20 @@ class Common {
                     Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
+                } else if (cmd == 'save-combo'){
+                    console.log(data);
+                    if(data.interfaces.includes('contextMenus')){
+                        chrome.contextMenus.create({
+                            id: data.tag,
+                            title: data.tag,
+                            type: 'normal',
+                            "parentId": json.app,
+                            contexts: ['page']
+                        })
+                    }else if(!data.interfaces.includes('contextMenus')){
+                        chrome.contextMenus.remove(data.tag)
+                    }
+
                 }
 
                 sendResponse('我是后台，已收到消息：' + JSON.stringify(request))

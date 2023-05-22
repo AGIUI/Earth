@@ -194,6 +194,7 @@ class ComboModal extends React.Component {
 
         const combo = this._saveMyCombo();
         console.log('_onFinish',combo)
+
         const data = {
             prompt: combo,
             from: 'combo-editor'

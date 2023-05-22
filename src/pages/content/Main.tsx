@@ -318,6 +318,9 @@ class Main extends React.Component<{
                     markdown: `API请求成功:<br>类型:${data.responseType}<br>内容:${data.data.slice(0, 100)}...`,
                     tId: (new Date()).getTime()
                 }]);
+            } else if(cmd==='contextMenus'){
+                console.log(data);
+                this._control(data);
             }
         });
 
@@ -1218,6 +1221,10 @@ class Main extends React.Component<{
 
         } else if (cmd == "edit-combo-finish") {
             console.log('edit-on-finish', data)
+            chrome.runtime.sendMessage({
+                cmd: 'save-combo',
+                data: data.prompt
+            }, res => console.log(res))
             const { prompt, from } = data;
             if (data) this._promptUpdateUserData('add', prompt);
 
