@@ -191,14 +191,12 @@ class ComboModal extends React.Component {
      * 结果
      */
     _onFinish() {
-
         const combo = this._saveMyCombo();
         console.log('_onFinish', combo)
         const data = {
             prompt: combo,
             from: 'combo-editor'
         }
-
         this.props.callback({
             cmd: 'edit-combo-finish', data
         })
