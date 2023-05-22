@@ -1,7 +1,7 @@
 import { Readability } from '@mozilla/readability'
 import { md5, textSplitByLength } from '@components/Utils'
 
-const MAX_LENGTH = 2000;
+const MAX_LENGTH = 1800;
 
 const userSelectionInit = () => {
     document.addEventListener("selectionchange", () => {
