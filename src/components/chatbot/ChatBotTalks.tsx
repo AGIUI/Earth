@@ -88,6 +88,7 @@ const Flex: any = styled(Base)`
 display:${(props: any) => props.display || 'none'};
 `
 
+// 定义聊天对话界面的样式
 const Content: any = styled(Flex)`
     display:flex;
     height:100%; 
@@ -95,6 +96,8 @@ const Content: any = styled(Flex)`
     overflow-y: scroll;
     overflow-x: hidden;
     margin: 4px 0;
+    font-family: fantasy!important;
+    letter-spacing: 1px!important;
     &::-webkit-scrollbar
     {
       width:2px;
@@ -117,6 +120,24 @@ const Content: any = styled(Flex)`
     }
     & p,li{
       margin: 6px 0;
+    }
+    & .chatbot-text-bubble p{
+        margin: 8px 4px!important;
+        line-height: 24px!important; 
+    }
+    & .chatbot-suggest{
+        background: rgb(22, 119, 255)!important;
+        border: none!important;
+        margin: 0px 12px 12px 0px!important;
+        color: white!important;
+        font-weight: 500!important;
+        height: fit-content!important;
+    }
+    & .chatbot-suggest span{
+        color: white!important;
+    }
+    & .chatbot-error{
+        border: 1px solid red !important;
     }
 `
 
@@ -145,14 +166,21 @@ const createTalkBubbleStyle = (user = false) => {
     return r
 }
 
-const thinkingBtn = (name = '思考中') => <Button type="primary" loading disabled>{name}</Button>
-const suggestBtn = (i: string, name: string, callback: any) => <Button key={i} style={{
-    background: '#1677ff',
-    border: 'none',
-    margin: '0px 12px 12px 0px',
-    color: 'white',
-    fontWeight: '500', height: 'fit-content'
-}} onClick={() => callback()}>{name}</Button>
+const thinkingBtn = (name = '思考中') => <Button type="primary"
+    className="chatbot-thinking"
+    loading disabled
+    >{name}</Button>
+const suggestBtn = (i: string, name: string, callback: any) => <Button key={i}
+    style={{
+        background: '#1677ff',
+        border: 'none',
+        margin: '0px 12px 12px 0px',
+        color: 'white',
+        fontWeight: '500', height: 'fit-content'
+    }}
+    onClick={() => callback()}
+    className="chatbot-suggest"
+>{name}</Button>
 
 
 
@@ -174,6 +202,7 @@ const createListItem = (data: any, index: number) => <div style={{ margin: '2px 
             }
         </> : (data.html ? <p
             style={createTalkBubbleStyle(data.user)}
+            className={`chatbot-text-bubble${data.user?'-user':''}`}
             key={index}
             dangerouslySetInnerHTML={{ __html: data.html }}>
         </p> : '')
@@ -241,9 +270,10 @@ class ChatBotTalks extends React.Component {
         const defaultItems = [ChatBotConfig.createTalkData('help', {})];
 
         // 当this.props.items 为空
-        let items: any = !(this.props.items && this.props.items.length > 0) ? defaultItems : [...this.props.items];
+        let items: any = (!(this.props.items && this.props.items.length > 0) ? defaultItems : [...this.props.items]).filter(i=>i);
         // console.log('this.props.items',items)
         items = Array.from(items, (item: any, index: number) => {
+            // console.log(item)
             const user = (!!item.user) || false,
                 html = item.html;
             const buttons = Array.from(

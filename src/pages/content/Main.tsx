@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { FlexColumn } from "@components/Style";
-import { Readability } from '@mozilla/readability'
 import MarkdownIt from 'markdown-it'
 
 import ChatBotPanel from "@components/chatbot/ChatBotPanel"
@@ -10,9 +9,23 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
 
-import Setup from "@src/components/Setup"
+import { promptParse, promptUseLastTalk } from '@components/combo/PromptOutput'
+import {
+    promptBindCurrentSite,
+    promptBindUserSelection,
+    promptBindTasks,
+    promptBindUserClipboard,
+    userSelectionInit,
+    extractDomElement
+} from '@components/combo/PromptInput'
+import { highlightText } from "@components/combo/Agent"
+
+import Setup from "@components/Setup"
 
 import * as _ from "lodash"
+
+//@ts-ignore
+import PDF from '@components/PDF'
 
 
 import { chromeStorageGet, chromeStorageSet } from "@components/Utils"
@@ -21,9 +34,24 @@ import { message } from 'antd';
 
 const defaultChatbots: any = ChatBotConfig.get();
 
+//['user']
+const getPromptsData = async (keys = ['user']) => {
+    let prompts: any[] = [];
+    const res: any = await chromeStorageGet(keys);
+    for (const k of keys) {
+        if (res && res[k]) {
+            for (const combo of res[k]) {
+                prompts.push(combo);
+            }
+        }
+    }
+    return prompts;
+}
+
 
 const Talks = {
     save: (value: any) => {
+        // console.log(value)
         let talks = Array.from(value, (v: any, index: number) => {
             // 去除user==true的连续重复
             if (v.user && value[index - 1] && v.html == value[index - 1].html) {
@@ -60,24 +88,27 @@ const Talks = {
         };
         return []
     },
-    getLaskTalk: (talks: any) => {
+    getLastTalk: (talks: any) => {
         const getTalkInnerText = (data: any) => {
             const json = { ...data };
             const dom = document.createElement('div');
             if (json && json.html) dom.innerHTML = json.html;
+            dom.innerHTML = dom.innerHTML.replaceAll('<br><br>', '\n')
+            // console.log('laskTalk:', dom.innerHTML, dom.innerText)
             return dom.innerText;
         };
+        // n.type == 'talk' || n.type == 'markdown' || n.type == 'done'
         const lastTalks = talks.filter((talk: any) => (talk.type == "markdown" || talk.type == "done") && !talk.user);
         const laskTalk = lastTalks.slice(-1)[0];
-        // console.log('laskTalk:', laskTalk)
+
         return getTalkInnerText(laskTalk)
     },
     createTalkBubble: (text: string) => {
         const dom = document.createElement('div');
-
         let md = new MarkdownIt();
         dom.innerHTML = md.render(text);
-
+        const texts = Array.from(dom.innerText.split('\n'), t => t.trim()).filter(f => f);
+        dom.innerHTML = texts.join('<br><br>')
         Array.from(dom.querySelectorAll('a'), (a: any) => {
             a.innerText = a.innerText.replace(/\^/ig, '');
             a.style = `background: #1677ff;
@@ -93,50 +124,65 @@ const Talks = {
 
         let json = { html: dom.innerHTML };
         return json
+    },
+    createShowInChatInterfaces: async () => {
+        const buttons = Array.from(
+            await getPromptsData(),
+            d => {
+                return d.interfaces.includes('showInChat') ? {
+                    from: 'combo',
+                    data: {
+                        combo: d.combo,
+                        tag: d.tag,
+                        prompt: d.prompt,
+                        // 强制刷新
+                        newTalk: true,
+                        _combo: d
+                    }
+                } : null
+            }
+        ).filter((b: any) => b);
+
+        if (buttons && buttons.length > 0) {
+            return ChatBotConfig.createTalkData('new-talk', { buttons })
+        }
     }
 }
 
-const sendMessageToBackground = {
-    'chat-bot-talk': (data: any) => {
+const sendMessageCanRetry = (cmd: any, data: any) => {
+    let start = false, count = 0;
+    const r = () => {
+        chrome.runtime.sendMessage({
+            cmd,
+            data
+        }, res => {
+            console.log('status', res.status)
+            start = true;
+        })
 
-        let lmmStart = false;
-
-        const r = () => {
-            chrome.runtime.sendMessage({
-                cmd: 'chat-bot-talk',
-                data
-            }, res => {
-                console.log('status', res.status)
-                lmmStart = true
-            })
-
-            setTimeout(() => {
-                if (lmmStart === false) {
-                    console.log('出错了，重试ing')
-                    // message.info('出错了，重试ing')
+        setTimeout(() => {
+            if (start === false) {
+                console.log('出错了，重试ing')
+                count++;
+                if (count > 10) {
+                    message.info('出错了，请重试')
+                } else {
+                    //TODO 把上一条的对话输入，传过来
                     r();
                 }
-            }, 2200)
-        }
-        r();
-    },
-    'chat-bot-talk-new': (data: any) => chrome.runtime.sendMessage({
-        cmd: 'chat-bot-talk-new',
-        data
-    }, console.log)
-    ,
-    'chat-bot-talk-stop': (data: any) => chrome.runtime.sendMessage({
-        cmd: 'chat-bot-talk-stop',
-        data
-    }, console.log),
-    'run-agents': (data: any) => chrome.runtime.sendMessage({
-        cmd: 'run-agents',
-        data
-    }, console.log),
-    'open-url': (data: any) => chrome.runtime.sendMessage({
-        cmd: 'open-url',
-        data
-    })
+            }
+        }, 2100)
+    }
+    r();
+}
+
+const sendMessageToBackground = {
+    'chat-bot-talk': (data: any) => sendMessageCanRetry('chat-bot-talk', data),
+    'chat-bot-talk-new': (data: any) => sendMessageCanRetry('chat-bot-talk-new', data),
+    'chat-bot-talk-stop': (data: any) => sendMessageCanRetry('chat-bot-talk-stop', data),
+    'run-agents': (data: any) => sendMessageCanRetry('run-agents', data),
+    'open-url': (data: any) => sendMessageCanRetry('open-url', data),
+    'api-run': (data: any) => sendMessageCanRetry('api-run', data)
 }
 
 
@@ -197,11 +243,6 @@ class Main extends React.Component<{
     //当前Prompts内有多少个prompt
     PromptIndex: number,
 
-
-    // 绑定当前网页内容
-    bindCurrentPage: boolean
-    // 输出格式
-    output: string
 }> {
 
 
@@ -259,18 +300,26 @@ class Main extends React.Component<{
             currentPrompt: {},
             PromptIndex: 0,
 
-            bindCurrentPage: false,
-            output: 'default'
-        }
 
+        }
 
 
         this.init();
 
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            const { cmd, data } = request;
+            const { cmd, data, success } = request;
             if (cmd === 'chat-bot-talk-result') {
                 this._updateChatBotTalksResult(data);
+            } else if (cmd === "api-run-result") {
+                console.log('api-run-result', data)
+                this._updateChatBotTalksResult([{
+                    type: 'done',
+                    markdown: `API请求成功:<br>类型:${data.responseType}<br>内容:${data.data.slice(0, 100)}...`,
+                    tId: (new Date()).getTime()
+                }]);
+            } else if(cmd==='contextMenus'){
+                console.log(data);
+                this._control(data);
             }
         });
 
@@ -293,13 +342,32 @@ class Main extends React.Component<{
 
 
     componentDidMount(): void {
-        this.props.initIsOpen && message.info('Init Is Open')
+        console.log('#### init #### ', this.state.appName)
+        if (this.props.initIsOpen) {
+            message.info('自动化执行任务ing')
+        }
 
         //  is auto open
         let isOpen = this.props.fullscreen && this.props.userInput && this.props.userInput.prompt && this.props.initChatBotType;
         // 打开任何网站都会初始化
 
-        this.show(false);
+        Talks.get().then(talks => {
+            if (this.props.initIsOpen) {
+                talks.push({
+                    type: 'done',
+                    html: '自动化执行任务ing',
+                    user: false,
+                    tId: (new Date()).getTime() + '02'
+                })
+            }
+
+            if (talks && talks.length > 0) {
+                this.setState({
+                    talks
+                })
+            }
+
+        });
 
         if (!this.state.chatBotIsAvailable) this.initChatBot(isOpen);
 
@@ -315,6 +383,7 @@ class Main extends React.Component<{
         if (prevState.chatBotType != this.state.chatBotType) {
             this.initChatBot();
         }
+
     }
 
     _getAgentsResult() {
@@ -342,11 +411,9 @@ class Main extends React.Component<{
     }
 
     init() {
-
         window.onfocus = (e) => {
             if (document.readyState == 'complete') {
                 console.log('激活状态！')
-
                 this._updateCurrentTalks()
             }
         }
@@ -357,81 +424,46 @@ class Main extends React.Component<{
             if (visibilityState === 0) { }
         }, false);
 
-
-        const titleStyle = `margin: 0;padding: 0;font-size: 16px;border-left: 4px solid #10aeff;padding-left: 6px;font-weight: 800;`,
-            aNumStyle = `color: blue;font-weight: 400; font-size: small;`,
-            linkStyle = `color: blue;background: transparent;width: max-content;`,
-            divStyle = `overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis;`;
-
-        let that = this;
-
-
-        // 缓存
-        let localData: any = localStorage.getItem('_mk003_data');
-        if (localData) {
-            localData = JSON.parse(localData);
-            that.setState(localData);
-            console.log('缓存')
-        }
-
         chrome.runtime.onMessage.addListener(async (
             request,
             sender,
             sendResponse
         ) => {
-
             const {
                 cmd, data, success
             } = request;
-
             if (cmd == 'open-readability') {
                 window.location.href = window.location.origin + window.location.pathname + window.location.search + '&reader=1'
             } else if (cmd == 'toggle-insight') {
                 this.setState({ initIsOpen: true });
                 this.show(false);
             } else if (cmd == 'chat-bot-init-result') {
-                that.initChatBot(false);
+                this.initChatBot(false);
             }
-
             sendResponse('我是content，已收到消息')
-            // sendResponse()
             return true;
         });
 
-
+        userSelectionInit();
     }
 
     async show(loading: boolean) {
         this.setState({
             loading
         });
-        if (loading == false) {
-            Talks.get().then(talks => {
-                if (talks) {
-                    // 正好要打开面板才会询问
-                    if (talks && talks.length > 0) {
-                        let oldTalks = this.state.talks.filter((t: any) => !(t.subType && t.subType == 'current-article'))
-                        if (oldTalks.length == 0) {
-                            this.setState({
-                                talks
-                            })
-                        }
-                    }
-                }
-            });
-
-        }
     }
 
     _updateCurrentTalks() {
-        Talks.get().then(talks => {
-            this.setState({
+        if (this.state.disabledAll) return
+        Talks.get().then(async talks => {
+            let talk = await Talks.createShowInChatInterfaces()
+            talks.push(talk);
+            talks = talks.filter((t: any) => t)
+            if (talks.length > 0) this.setState({
                 talks
             })
         });
     }
-
-
 
     _getChatBotFromLocal() {
         return new Promise((res: any, rej) => {
@@ -512,46 +544,169 @@ class Main extends React.Component<{
         })
     }
 
+    // 用户剪切板
+    async _promptBindUserClipboard(prompt: string) {
+        return await promptBindUserClipboard(prompt);
+    }
+
+    // 用户划选
+    _promptBindUserSelection(prompt: string) {
+        return promptBindUserSelection(prompt);
+    }
 
     /**
      * 绑定当前页面信息
      */
-    _promptBindCurrentSite(prompt: string) {
-        // 获取当前网页正文信息
-        const { length, title, textContent, href } = this._extractArticle();
-        if (prompt) {
-            const text = textContent.trim().replace(/\s+/ig, ' ');
-            prompt = prompt.trim();
-            const t = `标题:${title},网址:${href}`
-            const count = prompt.length + t.length;
-            prompt = `<tag>${t}${1920 - count > 0 ? `,正文:${text.slice(0, 1920 - count)}` : ''}</tag>,` + prompt;
+    _promptBindCurrentSite(prompt: string, type: string) {
+        return promptBindCurrentSite(prompt, type)
+    }
+
+    // 
+    _promptOutput(type: string, prompt: string, lastTalk = '') {
+        if (type == 'isNextUse') {
+            return promptUseLastTalk(prompt, lastTalk)
         }
         return prompt
     }
+    //type markdown/json/
+    // _promptByType(type: string, prompt: string, lastTalk = '') {
+    //     return promptParse(prompt, type)
+    // }
 
-    // type markdown/json
-    _promptOutput(prompt: string, type: string) {
-        if (type == 'markdown') {
-            prompt = `${prompt},按照markdown格式，输出结果`
-        } else if (type == 'json') {
-            prompt = `${prompt},按照json格式，输出结果`
+    _agentApiRun(api: any) {
+        let { url, init, isApi } = api;
+        if (isApi == false) return;
+
+        if (url && !url.match('https')) url = `https://${url}`;
+
+        if (init.body && typeof (init.body) == 'object') init.body = JSON.stringify(init.body);
+        sendMessageToBackground['api-run']({
+            url, init
+        })
+    }
+
+    _agentQueryRun(queryObj: any, combo: any) {
+
+        if (queryObj && queryObj.isQuery && queryObj.url && !this.props.agents) {
+            // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
+
+            this.updateChatBotStatus(false);
+
+            let { url, query, isQuery } = queryObj;
+
+            // 对url进行处理
+            if (url && !url.match('https')) url = `https://${url}`
+            if (url.match(/\?/)) {
+                url = url + url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')
+            }
+
+            const agentsJson = JSON.parse(JSON.stringify({
+                type: 'query',
+                url,
+                query,
+                combo: { ...combo } //用来传递combo数据
+            }));
+
+
+            // 需要把当前面板的状态停止
+            this._promptControl({ cmd: 'stop-combo' });
+
+            sendMessageToBackground['run-agents'](agentsJson)
+
         }
-        return prompt
+    }
+
+    _agentSendToZsxqRun(url: string, text: string, combo: any) {
+
+        if (url && !this.props.agents) {
+            // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
+
+            this.updateChatBotStatus(false);
+
+
+            // 对url进行处理
+            if (url && !url.match('https')) url = `https://${url}${url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')}`
+
+            // text = text.replaceAll('<br><br>', '\n\n')
+            // console.log(text)
+            const agentsJson = JSON.parse(JSON.stringify({
+                type: 'send-to-zsxq',
+                url,
+                text,
+                combo: { ...combo } //用来传递combo数据
+            }));
+
+
+            // 需要把当前面板的状态停止
+            this._promptControl({ cmd: 'stop-combo' });
+
+            sendMessageToBackground['run-agents'](agentsJson)
+
+        }
+    }
+
+    _agentHighlightTextRun(text: string) {
+        let success: any = false;
+
+        let elements = extractDomElement();
+        console.log(text, elements)
+        success = highlightText(text, elements)
+
+        if (success) message.info('成功执行')
+    }
+
+
+    /**
+     * 'prompt' ||   'tasks'  
+     */
+
+    _llmRun(prompt: any, newTalk: boolean) {
+
+        const { temperature, model, text, type } = prompt;
+
+        let newText = text;
+
+        if (type === 'tasks') {
+            newText = promptBindTasks(text);
+        } else {
+            // console.log('_llmRun:',type)
+            newText = promptParse(text, type)
+        }
+
+        let chatBotType = this.state.chatBotType,
+            style: any = 0;
+
+        if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
+
+        if (temperature > -1) style = temperature;
+        if (model) chatBotType = model;
+
+        // 增加一个Bing的转化
+        if (model == "Bing" && temperature > -1) style = this._temperature2BingStyle(temperature);
+
+        console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, newText)
+
+        sendMessageToBackground['chat-bot-talk']({
+            prompt: newText,
+            type: chatBotType,
+            style,
+            newTalk: !!newTalk
+        })
     }
 
     //['user']
-    async _getPromptsData(keys = ['user']) {
-        let prompts: any[] = [];
-        const res: any = await chromeStorageGet(keys);
-        for (const k of keys) {
-            if (res && res[k]) {
-                for (const combo of res[k]) {
-                    prompts.push(combo);
-                }
-            }
-        }
-        return prompts;
-    }
+    // async _getPromptsData(keys = ['user']) {
+    //     let prompts: any[] = [];
+    //     const res: any = await chromeStorageGet(keys);
+    //     for (const k of keys) {
+    //         if (res && res[k]) {
+    //             for (const combo of res[k]) {
+    //                 prompts.push(combo);
+    //             }
+    //         }
+    //     }
+    //     return prompts;
+    // }
 
     // TODO 需要放到某个监听里，来更新对话数据
     _updateChatBotTalksResult(items: any) {
@@ -614,40 +769,42 @@ class Main extends React.Component<{
 
                     let PromptIndex = this.state.PromptIndex,
                         isNextUse = false;
-                    // console.log('done', this.state.currentPrompt.combo, PromptIndex)
+                    console.log('done', this.state.currentPrompt.combo, PromptIndex)
+
+
                     // 无限循环功能
                     if (this.state.currentPrompt.combo && this.state.currentPrompt.isInfinite && this.state.currentPrompt.combo > 1) {
-
                         if (this.state.currentPrompt.combo <= PromptIndex) {
                             // 结束的时候，循环起来
                             // 当前的prompt
                             const currentPrompt = this.state.currentPrompt[`prompt${this.state.currentPrompt.combo}`]
-                            isNextUse = !!(currentPrompt.isNextUse);
+                            isNextUse = currentPrompt.output == 'isNextUse';
                             PromptIndex = 0;
                         }
                     }
                     // console.log('1无限循环功能', isNextUse, PromptIndex);
-                    // this.state.isAuto == true
-                    if (this.state.currentPrompt.combo > PromptIndex) {
 
-                        if (PromptIndex > 0) {
-                            const prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
-                            // 如果有isNextUse
-                            isNextUse = !!(prePrompt.isNextUse)
-                        }
+
+                    const prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
+
+                    // 如果有isNextUse
+                    if (prePrompt && prePrompt.output) isNextUse = prePrompt.output == 'isNextUse';
+
+                    if (this.state.currentPrompt.combo > PromptIndex) {
 
                         PromptIndex = PromptIndex + 1;
                         const prompt = JSON.parse(JSON.stringify(this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]));
 
-                        if (isNextUse) {
-                            let laskTalk = Talks.getLaskTalk([...nTalks])
-                            prompt.text = `${laskTalk ? '```背景信息：' + laskTalk.trim() + '```,' : ''}${prompt.text.trim()}`
-                        }
+                        // if (isNextUse) {
+                        //     prompt.text = this._promptOutput('isNextUse', prompt.text, laskTalk);
+                        // }
                         // console.log('prompt', prompt,PromptIndex);
                         // 下一个prompt
                         let data: any = {
                             prompt,
-                            newTalk: true
+                            prePrompt,
+                            newTalk: true,
+                            from: 'combo'
                         }
                         if (prompt.queryObj && prompt.queryObj.isQuery) {
                             data['_combo'] = this.state.currentPrompt
@@ -706,8 +863,9 @@ class Main extends React.Component<{
 
 
             } else if (data.type == 'error') {
-
-                let d = { ...data, ...Talks.createTalkBubble(data.markdown) };
+                const talk = Talks.createTalkBubble(data.markdown)
+                talk.html = `<div class="chatbot-error">${talk.html}</div>`
+                let d = { ...data, ...talk };
                 nTalks.push(d);
 
                 // 错误状态，把信息吐给用户
@@ -729,13 +887,16 @@ class Main extends React.Component<{
                     tag: '刷新',
                     prompt: {
                         text: promptFromLocal,
+                        type: 'prompt',
                     },
                     // 用来强制刷新获取新的对话
                     newTalk: true
                 }
             }))
         }
-        // console.log('nTalks:', nTalks)
+
+        nTalks = nTalks.filter(t => t)
+
         this.setState({
             talks: nTalks  // 保存对话内容 一句话也可以是按钮
         });
@@ -778,21 +939,21 @@ class Main extends React.Component<{
             // 对话数据
             const talks: any = this.state.talks;
             // 更新到这里
-            let nTalks = [...talks];
+            let nTalks = [...talks].filter(t => t);
 
             console.log('_control:', nTalks, data)
 
-            const sendTalk = () => {
-                const combo = data._combo ? data._combo.combo : -1;
-                let { prompt, tag, newTalk } = data;
+            const sendTalk = async () => {
+                let combo = data._combo ? data._combo.combo : -1;
+                let { prompt, tag, lastTalk, newTalk, from, prePrompt } = data;
+                // from : combo ,chatbot-input
+
                 prompt = JSON.parse(JSON.stringify(prompt))
 
                 // 清空type thinking && suggest 的状态
-                nTalks = nTalks.filter(n => (n.type == 'talk' || n.type == 'markdown' || n.type == 'done'))
+                nTalks = nTalks.filter(n => n && (n.type == 'talk' || n.type == 'markdown' || n.type == 'done'))
                 this.updateChatBotStatus(true)
-
-                if (tag) nTalks.push(ChatBotConfig.createTalkData('tag', { html: tag }));
-
+                if (tag) nTalks.push(ChatBotConfig.createTalkData('tag', { html: tag, user: true }));
                 // 增加思考状态
                 nTalks.push(ChatBotConfig.createTalkData('thinking', {}));
 
@@ -804,67 +965,59 @@ class Main extends React.Component<{
                     openMyPrompts: false
                 })
 
-                // console.log(`prompt需要改造数据格式：{text,isNextUse,bindCurrentPage,queryObj}`, prompt, data)
-                // return 
-                if (combo > 0 && prompt.bindCurrentPage) {
-                    prompt.text = this._promptBindCurrentSite(prompt.text)
-                } else if (combo == -1 && this.state.bindCurrentPage) {
-                    // 从输入框里输入的
-                    prompt.text = this._promptBindCurrentSite(prompt.text)
+                console.log(`prompt`, JSON.stringify(prompt, null, 2), JSON.stringify(prePrompt, null, 2), combo, prompt.input)
+
+                // combo>0从comboor对话流里运行
+                // combo==-1 用户对话框里的输入
+
+
+                // input的处理
+                if (prompt.input == 'bindCurrentPage') {
+                    // 绑定全文
+                    prompt.text = this._promptBindCurrentSite(prompt.text, 'text')
+                } else if (prompt.input == 'bindCurrentPageHTML') {
+                    // 绑定网页
+                    prompt.text = this._promptBindCurrentSite(prompt.text, 'html')
+                } else if (prompt.input == 'bindCurrentPageURL') {
+                    // 绑定url
+                    prompt.text = this._promptBindCurrentSite(prompt.text, 'url')
+                } else if (prompt.input == 'userSelection') {
+                    // 从用户划选
+                    prompt.text = this._promptBindUserSelection(prompt.text)
+                } else if (prompt.input == 'clipboard') {
+                    // 从剪切板
+                    prompt.text = await this._promptBindUserClipboard(prompt.text)
                 }
 
-                if (combo > 0 && prompt.output != 'default') {
-                    prompt.text = this._promptOutput(prompt.text, prompt.output)
-                } else if (combo == -1 && this.state.output != 'default') {
-                    // 从输入框里输入的
-                    prompt.text = this._promptOutput(prompt.text, this.state.output)
+                // output的处理
+                if (prePrompt && prePrompt.output != 'default') {
+                    let lastTalk = Talks.getLastTalk([...nTalks]);
+                    prompt.text = this._promptOutput(prePrompt.output, prompt.text, lastTalk)
                 }
 
 
-                if (prompt.queryObj && prompt.queryObj.isQuery && prompt.queryObj.url && !this.props.agents) {
-
-                    // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
-                    // 
-                    this.updateChatBotStatus(false);
-
-                    // 对url进行处理
-                    let url = prompt.queryObj.url
-                    if (url && !url.match('https')) url = `https://${url}${url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')}`
-
-                    const agentsJson = JSON.parse(JSON.stringify({
-                        url,
-                        query: prompt.queryObj.query,
-                        combo: { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex } //用来传递combo数据
-                    }));
+                // 运行时
+                console.log('prompt.type------', prompt.type, prompt.text)
 
 
-                    // 需要把当前面板的状态停止
-                    this._promptControl({ cmd: 'stop-combo' });
+                if (['prompt',
+                    'tasks',
+                    'extract',
+                    'json',
+                    'list',
+                    'markdown',
+                    'translate-zh',
+                    'translate-en'].includes(prompt.type)) this._llmRun(prompt, newTalk);
 
-                    sendMessageToBackground['run-agents'](agentsJson)
-
-                } else {
-                    const { temperature, model } = prompt;
-
-                    let type = this.state.chatBotType,
-                        style: any = 0;
-
-                    if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
-
-                    if (temperature > -1) style = temperature;
-                    if (model) type = model;
-
-                    // 增加一个Bing的转化
-                    if (model == "Bing" && temperature > -1) style = this._temperature2BingStyle(temperature);
-                    console.log(`sendMessageToBackground['chat-bot-talk']`, temperature, model, prompt.text)
-                    sendMessageToBackground['chat-bot-talk']({
-                        prompt: prompt.text,
-                        type,
-                        style,
-                        newTalk: !!newTalk
-                    })
-
+                if (prompt.type === 'highlight') {
+                    this._agentHighlightTextRun(lastTalk)
                 }
+
+                if (prompt.type === 'query') this._agentQueryRun(prompt.queryObj, { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex });
+
+                if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex })
+
+                if (prompt.type === 'api') this._agentApiRun(prompt.api);
 
             }
 
@@ -890,7 +1043,7 @@ class Main extends React.Component<{
                     return;
                 // 打开我的prompts
                 case "left-button-action":
-                    this._getPromptsData().then((prompts: any) => {
+                    getPromptsData().then((prompts: any) => {
                         this.setState({
                             openMyPrompts: true,
                             myPrompts: prompts
@@ -955,50 +1108,31 @@ class Main extends React.Component<{
                     break;
                 // 新建对话
                 case "new-talk":
-
                     nTalks = []
-                    // 先获取
-                    const buttons = Array.from(
-                        await this._getPromptsData(),
-                        d => {
-                            // TODO 改造逻辑
-                            // const nd = this._promptBindCurrentSite(d)
-                            // console.log('改造逻辑', d)
-                            return d.checked ? {
-                                from: 'combo',
-                                data: {
-                                    combo: d.combo,
-                                    tag: d.tag,
-                                    prompt: d.prompt,
-                                    // 强制刷新
-                                    newTalk: true,
-                                    _combo: d
-                                }
-                            } : null
-                        }
-                    ).filter((b: any) => b);
 
-                    if (buttons && buttons.length > 0) {
-                        nTalks = [ChatBotConfig.createTalkData('new-talk', { buttons })];
-                    }
-
+                    let talk = await Talks.createShowInChatInterfaces()
+                    if (talk) nTalks.push(talk);
+                    Talks.clear();
                     sendMessageToBackground['chat-bot-talk-new']({ type: this.state.chatBotType, newTalk: true });
 
                     break;
-                case "bind-current-page":
-                    this.setState({
-                        bindCurrentPage: data.bindCurrentPage
-                    })
-                    break;
-                case "output-change":
-                    this.setState({
-                        output: data.output
-                    })
-                    break;
+                // case "input-change":
+                //     this.setState({
+                //         input: data.input
+                //     })
+                //     break;
+                // case "output-change":
+                //     this.setState({
+                //         output: data.output
+                //     })
+                //     break;
                 default:
                     console.log("default");
                 // // 初始化bing
             }
+
+
+            nTalks = nTalks.filter(t => t)
 
             this.setState({
                 talks: nTalks  // 保存对话内容 一句话也可以是按钮
@@ -1080,14 +1214,21 @@ class Main extends React.Component<{
         } else if (cmd == "show-combo-modal") {
             // console.log("show-combo-modal",data)
             const { prompt, from } = data;
-            if (prompt) this.setState({
-                showEdit: true,
-                openMyPrompts: true,
-                currentPrompt: prompt
-            })
+            if (prompt) {
+                this.setState({
+                    showEdit: true,
+
+                    openMyPrompts: true,
+                    currentPrompt: prompt
+                })
+            }
 
         } else if (cmd == "edit-combo-finish") {
             console.log('edit-on-finish', data)
+            chrome.runtime.sendMessage({
+                cmd: 'save-combo',
+                data: data.prompt
+            }, res => console.log(res))
             const { prompt, from } = data;
             if (data) this._promptUpdateUserData('add', prompt);
 
@@ -1115,14 +1256,6 @@ class Main extends React.Component<{
             )
             this.updateChatBotStatus(false)
         }
-    }
-
-    _extractArticle() {
-        const documentClone: any = document.cloneNode(true);
-        const article: any = new Readability(documentClone, { nbTopCandidates: 2 }).parse();
-        // console.log(article)
-        article.href = window.location.href.replace(/\?.*/ig, '');
-        return article
     }
 
 
@@ -1169,8 +1302,8 @@ class Main extends React.Component<{
                         (this.state.loading ? 'none' : 'flex')
                         : 'none'}
             >
-
-                {!this.state.loadingChatBot && this.state.openMyPrompts ?
+                {/* <PDF name='pdf'/> */}
+                {!this.state.showEdit && !this.state.loadingChatBot && this.state.openMyPrompts ?
                     <ComboEditor
                         myPrompts={this.state.myPrompts}
                         callback={(event: any) => this._control(event)}
@@ -1182,11 +1315,11 @@ class Main extends React.Component<{
                 />}
 
                 {
-                    this.state.toggleSetup &&
+                    !this.state.showEdit && this.state.toggleSetup &&
                     <Setup callback={(event: any) => this._control(event)} />}
 
                 {
-                    !this.state.toggleSetup && !this.state.openMyPrompts ?
+                    !this.state.showEdit && !this.state.toggleSetup && !this.state.openMyPrompts ?
                         <ChatBotPanel
                             name={this.state.appName}
                             tabList={tabList}

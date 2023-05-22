@@ -69,13 +69,16 @@ class Common {
             })
         })
 
-        chrome.contextMenus.onClicked.addListener(async(item, tab) => {
-            const id = item.menuItemId
-            if (!tab.url.match('http')) return
-            if (id == 'toggle-insight') {
-                this.sendMessage('toggle-insight', true, true, tab.id)
-            }
-        })
+        // chrome.contextMenus.onClicked.addListener(async(item, tab) => {
+        //     const id = item.menuItemId
+        //     if (!tab.url.match('http')) return
+        //     if (id == 'toggle-insight') {
+        //         this.sendMessage('toggle-insight', true, true, tab.id)
+        //     }else{
+        //         this.sendMessage('toggle-insight', true, true, tab.id)
+        //         console.log(id);
+        //     }
+        // })
     }
 
     onMessage(json, chatBot, Agent, Credit) {
@@ -120,17 +123,21 @@ class Common {
                 } else if (cmd == 'chat-bot-talk') {
                     // console.log(cmd, data)
                     // prompt, style, type, callback
-                    const initTalksResult = chatBot.doSendMessage(
-                        data.prompt,
-                        data.style,
-                        data.type,
-                        data.newTalk,
-                        (success, res) => {
-                            // 处理数据结构
-                            let dataNew = chatBot.parseData(res)
-                            this.sendMessage('chat-bot-talk-result', success, dataNew, tabId)
-                        }
-                    );
+                    try {
+                        chatBot.doSendMessage(
+                            data.prompt,
+                            data.style,
+                            data.type,
+                            data.newTalk,
+                            (success, res) => {
+                                // 处理数据结构
+                                let dataNew = chatBot.parseData(res)
+                                this.sendMessage('chat-bot-talk-result', success, dataNew, tabId)
+                            }
+                        );
+                    } catch (error) {
+                        this.sendMessage('chat-bot-talk-result', false, [{ type: 'error', markdown: '出错了，请重试' }], tabId)
+                    }
 
                     sendResponse({
                         status: 'llm-start',
@@ -180,7 +187,47 @@ class Common {
                         url: data.url
                     })
                 } else if (cmd == 'run-agents') {
-                    Agent.executeScript(data.url, data.query, data.combo)
+                    Agent.executeScript(data.url, {
+                        query: data.query,
+                        text: data.text,
+                        type: data.type
+                    }, data.combo)
+                } else if (cmd == "api-run") {
+                    const { url, init } = data;
+                    console.log('_agentApiRun', url, init)
+
+                    if (init.method === 'GET') delete init.body;
+
+                    const responseType = init.responseType || 'text';
+
+                    fetch(url, init).then(res => {
+                        // json | text 
+                        if (responseType === 'json') {
+                            return res.json();
+                        } else {
+                            return res.text()
+                        }
+                    }).then(res => {
+                        console.log('_agentApiRun---result', res)
+                        const result = {
+                            data: res,
+                            responseType: responseType
+                        }
+                        this.sendMessage(
+                            'api-run-result',
+                            true,
+                            result,
+                            tabId
+                        )
+                    })
+
+                    sendResponse({
+                        status: 'api-run-start',
+                        data: {
+                            ...data
+                        }
+                    })
+
                 } else if (cmd == "get-my-points") {
                     const apiName = data.apiName,
                         token = data.token;
@@ -191,7 +238,19 @@ class Common {
                     Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
-
+                } else if (cmd == 'save-combo'){
+                    console.log(data);
+                    if(data.interfaces.includes('contextMenus')){
+                        chrome.contextMenus.create({
+                            id: data.tag,
+                            title: data.tag,
+                            type: 'normal',
+                            "parentId": json.app,
+                            contexts: ['page']
+                        })
+                    }else if(!data.interfaces.includes('contextMenus')){
+                        chrome.contextMenus.remove(data.tag)
+                    }
 
                 }
 
