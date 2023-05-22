@@ -194,11 +194,13 @@ class Common {
                     }, data.combo)
                 } else if (cmd == "api-run") {
                     const { url, init } = data;
-                    console.log('_agentApiRun', url, init)
+
 
                     if (init.method === 'GET') delete init.body;
 
                     const responseType = init.responseType || 'text';
+                    const responseExtract = init.responseExtract;
+                    console.log('_agentApiRun', url, init)
 
                     fetch(url, init).then(res => {
                         // json | text 
@@ -209,9 +211,23 @@ class Common {
                         }
                     }).then(res => {
                         console.log('_agentApiRun---result', res)
+                        let apiResult;
+                        if (responseExtract && responseExtract.key && responseExtract.type) {
+                            // 解析提取目标字段
+                            let items = res[responseExtract.key];
+                            if (responseExtract.type === 'images') {
+                                apiResult = Array.from(items, item => {
+                                    if (!(item.match('http://') || item.match('https://')) && !item.match('data:image')) {
+                                        item = `data:image/png;base64,` + item;
+                                    }
+                                    return item
+                                })
+                            }
+                        }
                         const result = {
-                            data: res,
-                            responseType: responseType
+                            data: apiResult,
+                            responseExtract: responseExtract || { key: '', type: 'text' },
+                            responseType
                         }
                         this.sendMessage(
                             'api-run-result',
@@ -238,9 +254,9 @@ class Common {
                     Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
-                } else if (cmd == 'save-combo'){
+                } else if (cmd == 'save-combo') {
                     console.log(data);
-                    if(data.interfaces.includes('contextMenus')){
+                    if (data.interfaces.includes('contextMenus')) {
                         chrome.contextMenus.create({
                             id: data.tag,
                             title: data.tag,
@@ -248,7 +264,7 @@ class Common {
                             "parentId": json.app,
                             contexts: ['page']
                         })
-                    }else if(!data.interfaces.includes('contextMenus')){
+                    } else if (!data.interfaces.includes('contextMenus')) {
                         chrome.contextMenus.remove(data.tag)
                     }
 

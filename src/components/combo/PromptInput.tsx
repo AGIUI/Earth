@@ -52,9 +52,11 @@ const promptBindUserClipboard = async (prompt: string) => {
 
 const extractArticle = () => {
     const documentClone: any = document.cloneNode(true);
+    documentClone.querySelector('._agi_ui')?.remove();
+
     let article: any = {};
 
-    let divs: any = [...document.body.children]
+    let divs: any = [...documentClone.body.children]
     divs = divs.filter((d: any) => d.className != '_agi_ui')
 
     let elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p'), ...div.querySelectorAll('span'), ...div.querySelectorAll('h1'), ...div.querySelectorAll('section')].flat()).flat().filter((f: any) => f);
