@@ -148,16 +148,14 @@ class ChatBotPanel extends React.Component {
                     justifyContent: 'space-between',
                     paddingTop: '20px'
                 }}>
-                    <ChatBotSelect
-                        callback={(res: any) => this.props.callback(res)}
-                        isLoading={this.state.disabled}
-                        config={this.state.config}
-                        name={''} />
+                    
                     <ChatBotTalks callback={(e: any) => this.props.callback(e)}
                         items={datas[subject.index+1]} />
+                    
                     <ChatBotInput
                         callback={(e: any) => this.props.callback(e)}
                         isLoading={this.state.disabled}
+                        config={this.state.config}
                         leftButton={{ label: 'Combo' }} />
                 </div>
 
@@ -197,7 +195,7 @@ class ChatBotPanel extends React.Component {
                 })} />,
             <FullscreenButton
                 fullscreen={this.state.fullscreen}
-                disabled={this.state.disabled}
+                disabled={false}
                 callback={() => this.setState({
                     fullscreen:!this.state.fullscreen
                 })} />,

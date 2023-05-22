@@ -20,6 +20,7 @@ async function init() {
   const rootContainer = document.createElement('div');
   const root = createRoot(rootContainer);
   rootContainer.id = id;
+  rootContainer.className="_agi_ui"
 
   root.render(<Main
     appName={json.app}
