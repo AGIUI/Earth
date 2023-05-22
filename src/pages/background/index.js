@@ -1,4 +1,4 @@
-import {chromeStorageGet} from "../../components/Utils.js";
+import { chromeStorageGet } from "../../components/Utils.js";
 
 console.log('Service Worker')
 
@@ -9,10 +9,10 @@ import Agent from "@components/background/Agent";
 import Credit from "@components/background/Credit"
 import Common from '@components/background/Common'
 
-import {getConfig} from '@components/Utils';
+import { getConfig } from '@components/Utils';
 
 
-(async () => {
+(async() => {
     let json = await getConfig()
     chrome.contextMenus.create({
         "id": json.app,
@@ -51,7 +51,7 @@ import {getConfig} from '@components/Utils';
         })
     }
 
-    chrome.contextMenus.onClicked.addListener(async (item, tab) => {
+    chrome.contextMenus.onClicked.addListener(async(item, tab) => {
         const from = 'contextMenus';
         const tabId = tab.id;
         const id = item.menuItemId
@@ -61,9 +61,9 @@ import {getConfig} from '@components/Utils';
         if (id === 'toggle-insight') {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd:'toggle-insight',
-                    success:true,
-                    data:true
+                    cmd: 'toggle-insight',
+                    success: true,
+                    data: true
                 },
                 function(response) {
                     // console.log(response)
@@ -72,9 +72,9 @@ import {getConfig} from '@components/Utils';
         } else {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd:'toggle-insight',
-                    success:true,
-                    data:true
+                    cmd: 'toggle-insight',
+                    success: true,
+                    data: true
                 },
                 function(response) {
                     // console.log(response)
@@ -85,13 +85,14 @@ import {getConfig} from '@components/Utils';
                 if (id === Menu[i].tag) {
                     chrome.tabs.sendMessage(
                         tabId, {
-                            cmd:'contextMenus',
-                            success:true,
+                            cmd: 'contextMenus',
+                            success: true,
                             data: {
                                 cmd: 'combo',
                                 data: {
                                     '_combo': Menu[i],
-                                    from, prompt: Menu[i].prompt,
+                                    from,
+                                    prompt: Menu[i].prompt,
                                     tag: Menu[i].tag,
                                     newTalk: true
                                 }
@@ -150,7 +151,7 @@ import {getConfig} from '@components/Utils';
     const bingBot = new NewBing()
     chatBot.add(bingBot)
     chatBot.add(chatGPT)
-    // 初始化
+        // 初始化
     chatBot.getAvailables()
 
     new Common(json, chatBot, Agent, Credit)
