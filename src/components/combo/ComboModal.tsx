@@ -687,14 +687,14 @@ class ComboModal extends React.Component {
                     },
                 ]}>
                 <Input addonBefore={
-                    <Select defaultValue="https://" onChange={(e:string)=>{
+                    <Select defaultValue="https://" onChange={(e: string) => {
                         const data: any = {};
                         const i = index > 1 ? index : '';
                         data[`prompt${i}`] = {
                             ...defaultPrompt,
                             ...this.state.currentPrompt[`prompt${i}`]
                         };
-                        data[`prompt${i}`].api.protocol=e;
+                        data[`prompt${i}`].api.protocol = e;
                         this._updateCurrentPrompt(data)
                     }}>
                         <Option value="http://">http://</Option>
@@ -711,8 +711,9 @@ class ComboModal extends React.Component {
                             ...defaultPrompt,
                             ...this.state.currentPrompt[`prompt${i}`]
                         }
-                        data[`prompt${i}`].api.url=e.currentTarget.value.trim();
-                        data[`prompt${i}`].url=e.currentTarget.value.trim();
+                        data[`prompt${i}`].api.url = e.currentTarget.value.trim();
+                        data[`prompt${i}`].url = e.currentTarget.value.trim();
+                        data[`prompt${i}`].api.protocol = data[`prompt${i}`].api.protocol || 'https://';
                         this._updateCurrentPrompt(data)
                     }}
                 />

@@ -139,12 +139,20 @@ const Content: any = styled(Flex)`
     & .chatbot-error{
         border: 1px solid red !important;
     }
+    & img{
+        width: 200px!important;
+        height: fit-content!important;
+    }
+    & .logo{
+        width: 44px!important;
+        height: fit-content!important;
+    }
 `
 
 const customizeRenderEmpty = (text = 'Data Not Found') => (
     <div style={{ textAlign: 'left', marginTop: '10px' }}>
-        <img src={chrome.runtime.getURL('public/logo.png')} style={{
-            width: '44px'
+        <img src={chrome.runtime.getURL('public/logo.png')} className="logo" style={{
+            width: '44px !important'
         }} />
         {/* <SmileOutlined style={{ fontSize: 20 }} /> */}
         <p>{text}</p>

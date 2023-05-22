@@ -83,7 +83,7 @@ const Talks = {
         let data: any = await chromeStorageGet(['_currentTalks'])
         if (data && data['_currentTalks'] && data['_currentTalks'].talks) {
             // 只保留type==markdown talk
-            const talks = data['_currentTalks'].talks.filter((t: any) => t.type == 'talk' || t.type == 'markdown' || t.type == 'done')
+            const talks = data['_currentTalks'].talks.filter((t: any) => t.type == 'talk' || t.type == 'markdown' || t.type == 'done' || t.type == 'images')
             return talks
         };
         return []
@@ -312,12 +312,28 @@ class Main extends React.Component<{
                 this._updateChatBotTalksResult(data);
             } else if (cmd === "api-run-result") {
                 console.log('api-run-result', data)
-                this._updateChatBotTalksResult([{
+                // 解析数据格式
+                const { responseExtract,
+                    responseType, data: result } = data;
+                const ttype = responseExtract.type;
+
+                const items: any = [{
                     type: 'done',
-                    markdown: `API请求成功:<br>类型:${data.responseType}<br>内容:${data.data.slice(0, 100)}...`,
+                    markdown: `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`,
                     tId: (new Date()).getTime()
-                }]);
-            } else if(cmd==='contextMenus'){
+                }];
+
+                if (ttype == 'images') {
+                    items.push({
+                        type: 'images',
+                        images: result,
+                        tId: (new Date()).getTime()
+                    })
+                }
+
+                this._updateChatBotTalksResult(items);
+
+            } else if (cmd === 'contextMenus') {
                 console.log(data);
                 this._control(data);
             }
@@ -573,13 +589,23 @@ class Main extends React.Component<{
     //     return promptParse(prompt, type)
     // }
 
-    _agentApiRun(api: any) {
-        let { url, init, isApi } = api;
+    _agentApiRun(api: any, prePromptText: string) {
+        let { url, init, isApi, protocol } = api;
         if (isApi == false) return;
 
-        if (url && !url.match('https')) url = `https://${url}`;
+        if (url && !url.match('//')) url = `${protocol}${url}`;
+        console.log(api, init.body)
 
         if (init.body && typeof (init.body) == 'object') init.body = JSON.stringify(init.body);
+
+        if (init.body && typeof (init.body) == 'string' && prePromptText) {
+            // 替换${text} 表示从上一个节点传递来的text
+            prePromptText = prePromptText.replaceAll('"', '')
+            prePromptText = prePromptText.replaceAll("'", '')
+            prePromptText = prePromptText.replace(/\n/ig, '')
+            init.body = init.body.replaceAll('${text}', prePromptText)
+        }
+
         sendMessageToBackground['api-run']({
             url, init
         })
@@ -595,7 +621,7 @@ class Main extends React.Component<{
             let { url, query, isQuery } = queryObj;
 
             // 对url进行处理
-            if (url && !url.match('https')) url = `https://${url}`
+            if (url && !url.match('//')) url = `https://${url}`
             if (url.match(/\?/)) {
                 url = url + url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')
             }
@@ -625,7 +651,7 @@ class Main extends React.Component<{
 
 
             // 对url进行处理
-            if (url && !url.match('https')) url = `https://${url}${url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')}`
+            if (url && !url.match('//')) url = `https://${url}${url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')}`
 
             // text = text.replaceAll('<br><br>', '\n\n')
             // console.log(text)
@@ -862,6 +888,15 @@ class Main extends React.Component<{
                 }))
 
 
+            } else if (data.type === 'images') {
+                // 图像
+                const talk = {
+                    html: Array.from(data.images, url => `<img src='${url}' />`).join('')
+                }
+                delete data.images;
+                let d = { ...data, ...talk };
+                nTalks.push(d);
+
             } else if (data.type == 'error') {
                 const talk = Talks.createTalkBubble(data.markdown)
                 talk.html = `<div class="chatbot-error">${talk.html}</div>`
@@ -951,7 +986,7 @@ class Main extends React.Component<{
                 prompt = JSON.parse(JSON.stringify(prompt))
 
                 // 清空type thinking && suggest 的状态
-                nTalks = nTalks.filter(n => n && (n.type == 'talk' || n.type == 'markdown' || n.type == 'done'))
+                nTalks = nTalks.filter(n => n && (n.type == 'talk' || n.type == 'markdown' || n.type == 'done' || n.type == 'images'))
                 this.updateChatBotStatus(true)
                 if (tag) nTalks.push(ChatBotConfig.createTalkData('tag', { html: tag, user: true }));
                 // 增加思考状态
@@ -1017,7 +1052,7 @@ class Main extends React.Component<{
 
                 if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex })
 
-                if (prompt.type === 'api') this._agentApiRun(prompt.api);
+                if (prompt.type === 'api') this._agentApiRun(prompt.api, prompt.text);
 
             }
 
@@ -1271,7 +1306,7 @@ class Main extends React.Component<{
 
         // 聊天服务无效,补充提示
         if (!this.state.chatBotIsAvailable && activeIndex == -1) {
-            talks = talks.filter((d: any) => d.type == 'markdown' || d.type == 'talk' || d.type == 'done');
+            talks = talks.filter((d: any) => d.type == 'markdown' || d.type == 'talk' || d.type == 'done' || d.type == 'images');
             talks.push(ChatBotConfig.createTalkData('chatbot-is-available-false', {
                 hi: this.state.chatBotType
             }))
