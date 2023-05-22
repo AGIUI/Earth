@@ -57,14 +57,16 @@ const extractArticle = () => {
     let divs: any = [...document.body.children]
     divs = divs.filter((d: any) => d.className != '_agi_ui')
 
-    let elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p')].flat()).flat().filter((f: any) => f);
+    let elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p'), ...div.querySelectorAll('span'), ...div.querySelectorAll('h1'), ...div.querySelectorAll('section')].flat()).flat().filter((f: any) => f);
 
-    article.elements = Array.from(elements, (e: any, index) => {
-        e.id = md5(e.innerText.trim())
+    article.elements = Array.from(elements, (element: any, index) => {
+        const tagName = element.tagName.toLowerCase();
+        const text = element.innerText.trim();
+        element.id = md5(element.innerText.trim())
         return {
-            element: e,
-            text: e.innerText.trim(),
-            html: e.outerHTML
+            element,
+            text,
+            html: `<${tagName} id='${element.id}'>${text}</${tagName}>`
         }
     }).flat().filter((d: any) => d.text);
     // article.elements = Array.from(elements, (t: any) => t.element)
@@ -75,7 +77,7 @@ const extractArticle = () => {
         let d = document.createElement('div');
         d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
         article.title = document.title;
-        article.textContent = (Array.from(['p', 'span', 'h1'], e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("")
+        article.textContent = (Array.from(['p', 'span', 'h1', 'section'], e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("")
     }
     console.log('_extractArticle', article)
     article.href = window.location.href.replace(/\?.*/ig, '');
@@ -85,19 +87,33 @@ const extractArticle = () => {
 const promptBindCurrentSite = (prompt: string, type = 'text') => {
     // 获取当前网页正文信息
     const { length, title, textContent, href, elements } = extractArticle();
-    // console.log(prompt,type)
-    if (prompt && type == 'text') {
+    prompt = prompt.trim();
+
+    if (type == 'text') {
         const text = textContent.trim().replace(/\s+/ig, ' ');
-        prompt = prompt.trim();
-        const t = `'''标题:${title},网址:${href}'''`
+        const t = `'''title:${title},url:${href}'''`
         const count = prompt.length + t.length;
-        prompt = `'''${t}${MAX_LENGTH - count > 0 ? `,正文:${text.slice(0, MAX_LENGTH - count)}` : ''}''',` + prompt;
-    } else if (prompt && type == 'html') {
+        if (prompt) {
+            prompt = `'''${t}${MAX_LENGTH - count > 0 ? `,content:${text.slice(0, MAX_LENGTH - count)}` : ''}''',` + prompt;
+        } else {
+            prompt = `'''${t}${MAX_LENGTH - count > 0 ? `,content:${text.slice(0, MAX_LENGTH - count)}` : ''}'''`;
+        }
+
+    } else if (type == 'html') {
         const htmls = Array.from(elements, (t: any) => t.html)
-        prompt = `'''${JSON.stringify(htmls)}''',` + prompt;
-    } else if (prompt && type == 'url') {
-        const htmls = Array.from(elements, (t: any) => t.html)
-        prompt = `'''标题:${title},网址:${href}''',` + prompt;
+        if (prompt) {
+            prompt = `'''${JSON.stringify(htmls)}''',` + prompt;
+        } else {
+            prompt = `'''${JSON.stringify(htmls)}'''`;
+        }
+
+    } else if (type == 'url') {
+        // const htmls = Array.from(elements, (t: any) => t.html)
+        if (prompt) {
+            prompt = `'''title:${title},url:${href}''',` + prompt;
+        } else {
+            prompt = `'''title:${title},url:${href}'''`;
+        }
     }
     return prompt
 }

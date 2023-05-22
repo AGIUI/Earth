@@ -88,6 +88,7 @@ const Flex: any = styled(Base)`
 display:${(props: any) => props.display || 'none'};
 `
 
+// 定义聊天对话界面的样式
 const Content: any = styled(Flex)`
     display:flex;
     height:100%; 
@@ -96,6 +97,7 @@ const Content: any = styled(Flex)`
     overflow-x: hidden;
     margin: 4px 0;
     font-family: fantasy!important;
+    letter-spacing: 1px!important;
     &::-webkit-scrollbar
     {
       width:2px;

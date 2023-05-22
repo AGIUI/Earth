@@ -124,13 +124,16 @@ class ChatBotInput extends React.Component {
         // console.log(userInput)
         let prompt = (userInput && userInput.prompt ? userInput.prompt : '').trim();
         const tag = (userInput && userInput.tag ? userInput.tag : '').trim();
-        if(this.state.output.filter((ot: any) => ot.checked)[0].value !== 'defalut'&&!prompt) prompt="."
+        if (this.state.output.filter((ot: any) => ot.checked)[0].value !== 'defalut' && !prompt) prompt = "."
         if (prompt) {
+            const output = this.state.output.filter((oup: any) => oup.checked)[0].value;
             const combo = {
                 ...defaultCombo,
                 prompt: {
                     ...defaultPrompt,
-                    text: prompt
+                    text: prompt,
+                    input: this.state.input.filter((inp: any) => inp.checked)[0].value,
+                    output
                 },
                 combo: -1
             }
@@ -139,6 +142,10 @@ class ChatBotInput extends React.Component {
                 data: {
                     prompt: combo.prompt,
                     tag,
+                    from: 'chatbot-input',
+                    prePrompt: {
+                        output
+                    },
                     _combo: combo,
                 }
             });
@@ -217,13 +224,13 @@ class ChatBotInput extends React.Component {
             ...items
         })
 
-        let data: any = {}
-        data[key] = items[key].filter((d: any) => d.checked)[0].value;
-        this.props.callback({
-            cmd: key + "-change", data: {
-                ...data
-            }
-        })
+        // let data: any = {}
+        // data[key] = items[key].filter((d: any) => d.checked)[0].value;
+        // this.props.callback({
+        //     cmd: key + "-change", data: {
+        //         ...data
+        //     }
+        // })
     }
 
     render() {

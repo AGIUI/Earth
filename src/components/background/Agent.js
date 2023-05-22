@@ -59,17 +59,22 @@ const executeScript = (url, data = {}, combo) => {
                                 setTimeout(() => res(), t)
                             })
                         }
-                        const h = document.querySelector('.post-topic-head');
-                        h.click();
-                        await sleep(1000)
-                        const inp = document.querySelector('.ql-editor');
-                        inp.innerText = text;
-                        await sleep(1000)
-                        const btn = document.querySelector('.submit-btn');
-                        btn.click()
-                        const markdown = 'done'
+                        let success = true;
+                        try {
+                            const h = document.querySelector('.post-topic-head');
+                            h.click();
+                            await sleep(1000)
+                            const inp = document.querySelector('.ql-editor');
+                            inp.innerText = text;
+                            await sleep(1000)
+                            const btn = document.querySelector('.submit-btn');
+                            btn.click()
+                        } catch (error) {
+                            success = false;
+                        }
+
                         const data = {
-                            markdown,
+                            markdown: success ? '[知识星球发内容] 任务完成' : '任务失败，请重试',
                             text,
                             combo
                         }

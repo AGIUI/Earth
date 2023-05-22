@@ -7,13 +7,13 @@
 //     { label: '默认', value: 'defalut', checked: true }]
 // }
 
-const promptUseLastTalk = (prompt: string, laskTalk: string) => {
+const promptUseLastTalk = (prompt: string, lastTalk: string) => {
     prompt = prompt.trim()
-    laskTalk = laskTalk.trim()
-    if (prompt) {
-        prompt = `${laskTalk ? '<' + laskTalk + '>' : ''}${prompt ? ',' + prompt : ''}`
-    } else {
-        prompt = laskTalk
+    lastTalk = lastTalk.trim()
+    if (lastTalk && prompt) {
+        prompt = `<${lastTalk}>,[USER INPUT]${prompt}`
+    } else if (lastTalk) {
+        prompt = lastTalk;
     }
     return prompt
 }

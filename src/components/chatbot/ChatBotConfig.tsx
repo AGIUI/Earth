@@ -46,7 +46,7 @@ function getInput() {
         value: 'clipboard'
     }, {
         label: '输入框',
-        value: 'defalut', checked: true
+        value: 'default', checked: true
     }
     ]
 }
@@ -57,7 +57,7 @@ function getPromptOpts() {
     { label: '中文', value: 'translate-zh' },
     { label: '英文', value: 'translate-en' },
     { label: '提取结构化数据', value: 'extract' },
-    { label: '默认', value: 'defalut', checked: true }]
+    { label: '默认', value: 'default', checked: true }]
 }
 
 function getOutput() {
@@ -66,7 +66,7 @@ function getOutput() {
             label: '作为上下文',
             value: 'isNextUse',
         },
-        { label: '默认', value: 'defalut', checked: true }]
+        { label: '默认', value: 'default', checked: true }]
 }
 
 /**
