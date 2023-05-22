@@ -106,7 +106,7 @@ const Talks = {
 
         let md = new MarkdownIt();
         dom.innerHTML = md.render(text);
-        dom.innerHTML=dom.innerText.split('\n').join('<br>')
+        dom.innerHTML = dom.innerText.split('\n').join('<br>')
         Array.from(dom.querySelectorAll('a'), (a: any) => {
             a.innerText = a.innerText.replace(/\^/ig, '');
             a.style = `background: #1677ff;
@@ -1235,6 +1235,7 @@ class Main extends React.Component<{
             if (prompt) {
                 this.setState({
                     showEdit: true,
+
                     openMyPrompts: true,
                     currentPrompt: prompt
                 })
@@ -1316,7 +1317,7 @@ class Main extends React.Component<{
                         : 'none'}
             >
                 {/* <PDF name='pdf'/> */}
-                {!this.state.loadingChatBot && this.state.openMyPrompts ?
+                {!this.state.showEdit && !this.state.loadingChatBot && this.state.openMyPrompts ?
                     <ComboEditor
                         myPrompts={this.state.myPrompts}
                         callback={(event: any) => this._control(event)}
@@ -1328,11 +1329,11 @@ class Main extends React.Component<{
                 />}
 
                 {
-                    this.state.toggleSetup &&
+                    !this.state.showEdit && this.state.toggleSetup &&
                     <Setup callback={(event: any) => this._control(event)} />}
 
                 {
-                    !this.state.toggleSetup && !this.state.openMyPrompts ?
+                    !this.state.showEdit && !this.state.toggleSetup && !this.state.openMyPrompts ?
                         <ChatBotPanel
                             name={this.state.appName}
                             tabList={tabList}
