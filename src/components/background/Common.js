@@ -255,7 +255,6 @@ class Common {
                         chrome.storage.sync.set({ myPoints: res })
                     })
                 } else if (cmd == 'save-combo') {
-                    console.log(data);
                     if (data.interfaces.includes('contextMenus')) {
                         chrome.contextMenus.create({
                             id: data.tag,

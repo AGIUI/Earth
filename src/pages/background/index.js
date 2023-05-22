@@ -28,19 +28,7 @@ import { getConfig } from '@components/Utils';
         contexts: ['page']
     })
 
-    const res = await chromeStorageGet(['user', 'official']);
-    let Menu = [];
-    for (let i in res['user']) {
-        if (res['user'][i].interfaces.includes('contextMenus')) {
-            Menu.push(res['user'][i])
-        }
-    }
-    for (let i in res['official']) {
-        if (res['official'][i].interfaces.includes('contextMenus')) {
-            Menu.push(res['official'][i])
-        }
-    }
-
+    let Menu = await loadData();
     for (let i in Menu) {
         chrome.contextMenus.create({
             id: Menu[i].tag,
@@ -50,62 +38,6 @@ import { getConfig } from '@components/Utils';
             contexts: ['page']
         })
     }
-
-    chrome.contextMenus.onClicked.addListener(async(item, tab) => {
-        const from = 'contextMenus';
-        const tabId = tab.id;
-        const id = item.menuItemId
-        console.log(id);
-        console.log(tab.id);
-        if (!tab.url.match('http')) return
-        if (id === 'toggle-insight') {
-            chrome.tabs.sendMessage(
-                tabId, {
-                    cmd: 'toggle-insight',
-                    success: true,
-                    data: true
-                },
-                function(response) {
-                    // console.log(response)
-                }
-            )
-        } else {
-            chrome.tabs.sendMessage(
-                tabId, {
-                    cmd: 'toggle-insight',
-                    success: true,
-                    data: true
-                },
-                function(response) {
-                    // console.log(response)
-                }
-            )
-            for (let i in Menu) {
-                console.log(Menu[i]);
-                if (id === Menu[i].tag) {
-                    chrome.tabs.sendMessage(
-                        tabId, {
-                            cmd: 'contextMenus',
-                            success: true,
-                            data: {
-                                cmd: 'combo',
-                                data: {
-                                    '_combo': Menu[i],
-                                    from,
-                                    prompt: Menu[i].prompt,
-                                    tag: Menu[i].tag,
-                                    newTalk: true
-                                }
-                            }
-                        },
-                        function(response) {
-                            // console.log(response)
-                        }
-                    )
-                }
-            }
-        }
-    })
 
     // chrome.commands.getAll().then(commands => {
     //     let isNew = true
@@ -142,6 +74,61 @@ import { getConfig } from '@components/Utils';
     //   return true
     // });
 
+
+    chrome.contextMenus.onClicked.addListener(async(item, tab) => {
+        const from = 'contextMenus';
+        const tabId = tab.id;
+        const id = item.menuItemId
+        if (!tab.url.match('http')) return
+
+        if (id === 'toggle-insight') {
+            chrome.tabs.sendMessage(
+                tabId, {
+                    cmd: 'toggle-insight',
+                    success: true,
+                    data: true
+                },
+                function(response) {
+                    // console.log(response)
+                }
+            )
+        } else {
+            chrome.tabs.sendMessage(
+                tabId, {
+                    cmd: 'toggle-insight',
+                    success: true,
+                    data: true
+                },
+                function(response) {
+                    // console.log(response)
+                }
+            )
+            Menu = await loadData();
+            for (let i in Menu) {
+                if (id === Menu[i].tag) {
+                    chrome.tabs.sendMessage(
+                        tabId, {
+                            cmd: 'contextMenus',
+                            success: true,
+                            data: {
+                                cmd: 'combo',
+                                data: {
+                                    '_combo': Menu[i],
+                                    from,
+                                    prompt: Menu[i].prompt,
+                                    tag: Menu[i].tag,
+                                    newTalk: true
+                                }
+                            }
+                        },
+                        function(response) {
+                            // console.log(response)
+                        }
+                    )
+                }
+            }
+        }
+    })
 
     const chatBot = new ChatBot({
         items: []

@@ -334,7 +334,6 @@ class Main extends React.Component<{
                 this._updateChatBotTalksResult(items);
 
             } else if (cmd === 'contextMenus') {
-                console.log(data);
                 this._control(data);
             }
         });
