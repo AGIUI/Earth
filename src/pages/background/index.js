@@ -11,6 +11,23 @@ import Common from '@components/background/Common'
 
 import { getConfig } from '@components/Utils';
 
+async function loadData(){
+    const res = await chromeStorageGet(['user', 'official']);
+    let Menu = [];
+    for (let i in res['user']) {
+        if (res['user'][i].interfaces.includes('contextMenus')) {
+            Menu.push(res['user'][i])
+        }
+    }
+    for (let i in res['official']) {
+        if (res['official'][i].interfaces.includes('contextMenus')) {
+            Menu.push(res['official'][i])
+        }
+    }
+
+    return Menu;
+
+}
 
 (async() => {
     let json = await getConfig()
