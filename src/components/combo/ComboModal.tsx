@@ -178,7 +178,7 @@ class ComboModal extends React.Component {
 
         data.version = this.state.version;
         data.app = this.state.app;
-        if (data.id==""||data.id===undefined) data.id = md5((new Date()).getTime() + '');
+        if (data.id == "" || data.id === undefined) data.id = md5((new Date()).getTime() + '');
 
         this.setState({
             currentPrompt: data
@@ -193,7 +193,7 @@ class ComboModal extends React.Component {
     _onFinish() {
 
         const combo = this._saveMyCombo();
-        console.log('_onFinish',combo)
+        console.log('_onFinish', combo)
         const data = {
             prompt: combo,
             from: 'combo-editor'
@@ -577,7 +577,7 @@ class ComboModal extends React.Component {
                             ...this.state.currentPrompt[`prompt${i}`]
                         }
                         data[`prompt${i}`].queryObj.url = e.currentTarget.value.trim();
-                        // data[`prompt${i}`].queryObj.isQuery = data[`prompt${i}`].queryObj.url && data[`prompt${i}`].queryObj.query;
+                        data[`prompt${i}`].url = e.currentTarget.value.trim();
                         this._updateCurrentPrompt(data)
                     }}
                 />
@@ -636,7 +636,7 @@ class ComboModal extends React.Component {
                             ...this.state.currentPrompt[`prompt${i}`]
                         }
                         data[`prompt${i}`].queryObj.url = e.currentTarget.value.trim();
-                        // data[`prompt${i}`].queryObj.isQuery = data[`prompt${i}`].queryObj.url && data[`prompt${i}`].queryObj.query;
+                        data[`prompt${i}`].url = e.currentTarget.value.trim();
                         this._updateCurrentPrompt(data)
                     }}
                 />
@@ -688,18 +688,33 @@ class ComboModal extends React.Component {
                         message: '请填写url',
                     },
                 ]}>
-                <Input addonBefore="https://"
+                <Input addonBefore={
+                    <Select defaultValue="https://" onChange={(e:string)=>{
+                        const data: any = {};
+                        const i = index > 1 ? index : '';
+                        data[`prompt${i}`] = {
+                            ...defaultPrompt,
+                            ...this.state.currentPrompt[`prompt${i}`]
+                        };
+                        data[`prompt${i}`].api.protocol=e;
+                        this._updateCurrentPrompt(data)
+                    }}>
+                        <Option value="http://">http://</Option>
+                        <Option value="https://">https://</Option>
+                    </Select>
+                }
                     placeholder={`请填写url`}
                     defaultValue=""
                     onChange={(e: any) => {
+                        // console.log(e)
                         const data: any = {};
                         const i = index > 1 ? index : '';
                         data[`prompt${i}`] = {
                             ...defaultPrompt,
                             ...this.state.currentPrompt[`prompt${i}`]
                         }
-                        data[`prompt${i}`].api.url = e.currentTarget.value.trim();
-
+                        data[`prompt${i}`].api.url=e.currentTarget.value.trim();
+                        data[`prompt${i}`].url=e.currentTarget.value.trim();
                         this._updateCurrentPrompt(data)
                     }}
                 />
@@ -716,7 +731,7 @@ class ComboModal extends React.Component {
                         message: '请填写init',
                     },
                 ]}>
-                <TextArea rows={4}
+                <TextArea rows={3}
                     placeholder="请填写init"
                     autoSize
                     onChange={(e: any) => {
@@ -833,7 +848,7 @@ class ComboModal extends React.Component {
 
         return <Tabs defaultActiveKey={type}
             tabPosition={'left'}
-            style={{ height:560 }}
+            style={{ height: 720 }}
             items={items} onChange={(e) => this._handlePromptTypeSetting(index - 1, e)} />
 
     }

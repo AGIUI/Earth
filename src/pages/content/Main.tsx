@@ -100,7 +100,7 @@ const Talks = {
         // n.type == 'talk' || n.type == 'markdown' || n.type == 'done'
         const lastTalks = talks.filter((talk: any) => (talk.type == "markdown" || talk.type == "done") && !talk.user);
         const laskTalk = lastTalks.slice(-1)[0];
-        
+
         return getTalkInnerText(laskTalk)
     },
     createTalkBubble: (text: string) => {
@@ -339,7 +339,7 @@ class Main extends React.Component<{
 
 
     componentDidMount(): void {
-        console.log('#### init #### ',this.state.appName)
+        console.log('#### init #### ', this.state.appName)
         if (this.props.initIsOpen) {
             message.info('自动化执行任务ing')
         }
@@ -353,8 +353,8 @@ class Main extends React.Component<{
                 talks.push({
                     type: 'done',
                     html: '自动化执行任务ing',
-                    user:false,
-                    tId: (new Date()).getTime()+'02'
+                    user: false,
+                    tId: (new Date()).getTime() + '02'
                 })
             }
 
@@ -451,7 +451,7 @@ class Main extends React.Component<{
     }
 
     _updateCurrentTalks() {
-        if(this.state.disabledAll)return
+        if (this.state.disabledAll) return
         Talks.get().then(async talks => {
             let talk = await Talks.createShowInChatInterfaces()
             talks.push(talk);
@@ -592,7 +592,10 @@ class Main extends React.Component<{
             let { url, query, isQuery } = queryObj;
 
             // 对url进行处理
-            if (url && !url.match('https')) url = `https://${url}${url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')}`
+            if (url && !url.match('https')) url = `https://${url}`
+            if (url.match(/\?/)) {
+                url = url + url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')
+            }
 
             const agentsJson = JSON.parse(JSON.stringify({
                 type: 'query',
@@ -959,7 +962,7 @@ class Main extends React.Component<{
                     openMyPrompts: false
                 })
 
-                console.log(`prompt`, JSON.stringify(prompt,null,2), JSON.stringify(prePrompt,null,2), combo, prompt.input)
+                console.log(`prompt`, JSON.stringify(prompt, null, 2), JSON.stringify(prePrompt, null, 2), combo, prompt.input)
 
                 // combo>0从comboor对话流里运行
                 // combo==-1 用户对话框里的输入
@@ -1008,7 +1011,7 @@ class Main extends React.Component<{
                 }
 
                 if (prompt.type === 'query') this._agentQueryRun(prompt.queryObj, { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex });
-                
+
                 if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex })
 
                 if (prompt.type === 'api') this._agentApiRun(prompt.api);

@@ -10,6 +10,7 @@ const defaultPrompt = {
     url: '',
     api: {
         url: '',
+        protocol: 'https://',
         init: {
             method: 'POST',
             headers: {
@@ -23,7 +24,7 @@ const defaultPrompt = {
         isApi: false
     },
     queryObj: {
-        query: '', url: '', isQuery: false
+        query: '', url: '', protocol: 'https://', isQuery: false
     },
     temperature: 0.6,
     model: 'ChatGPT',
@@ -78,7 +79,7 @@ const comboOptions = [
 
 
 
-const models = Array.from(workflow.models, model => {
+const models:any = Array.from(workflow.models, model => {
     if (model.value === 'temperature') return {
         ...model, type: 'range'
     }
@@ -89,7 +90,7 @@ const models = Array.from(workflow.models, model => {
 
 
 
-const inputs = Array.from(workflow.inputs, inp => {
+const inputs:any = Array.from(workflow.inputs, inp => {
     return {
         ...inp, input: true, type: 'checkbox'
     }
@@ -98,18 +99,18 @@ const inputs = Array.from(workflow.inputs, inp => {
 /**
  * 默认 - 不传递
  */
-const outputs = Array.from(workflow.outputs, out => {
+const outputs:any = Array.from(workflow.outputs, out => {
     return {
         ...out, output: true, type: 'checkbox'
     }
 })
 
-const promptOptions = Array.from(workflow.agents, agent => {
+const promptOptions:any = Array.from(workflow.agents, agent => {
     if (!agent.disabled) return {
         ...agent,
         children: [],
-        inputs: inputs.filter(f => f.value),
-        outputs: outputs.filter(f => f.value),
+        inputs: inputs.filter((f:any) => f.value),
+        outputs: outputs.filter((f:any) => f.value),
         models: models
     }
 }).filter(a => a)

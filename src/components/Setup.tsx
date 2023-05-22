@@ -332,7 +332,7 @@ class Setup extends React.Component<{
                     style={{ width: 500, padding: 20, display: 'flex' }}>
 
                     <Spin spinning={this.state.loading}>
-
+                        {/*TODO  清空缓存 ，显示缓存的prompt数量 */}
                         <Title level={3}>设置 <p style={{ fontSize: '14px' }}>{this.state.name}</p></Title>
                         <Button icon={<CloseOutlined style={{ fontSize: 20 }} />} style={{
                             position: 'absolute',

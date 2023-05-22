@@ -120,17 +120,21 @@ class Common {
                 } else if (cmd == 'chat-bot-talk') {
                     // console.log(cmd, data)
                     // prompt, style, type, callback
-                    const initTalksResult = chatBot.doSendMessage(
-                        data.prompt,
-                        data.style,
-                        data.type,
-                        data.newTalk,
-                        (success, res) => {
-                            // 处理数据结构
-                            let dataNew = chatBot.parseData(res)
-                            this.sendMessage('chat-bot-talk-result', success, dataNew, tabId)
-                        }
-                    );
+                    try {
+                        chatBot.doSendMessage(
+                            data.prompt,
+                            data.style,
+                            data.type,
+                            data.newTalk,
+                            (success, res) => {
+                                // 处理数据结构
+                                let dataNew = chatBot.parseData(res)
+                                this.sendMessage('chat-bot-talk-result', success, dataNew, tabId)
+                            }
+                        );
+                    } catch (error) {
+                        this.sendMessage('chat-bot-talk-result', false, [{ type: 'error', markdown: '出错了，请重试' }], tabId)
+                    }
 
                     sendResponse({
                         status: 'llm-start',
