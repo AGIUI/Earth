@@ -11,9 +11,22 @@ import Common from '@components/background/Common'
 
 import { getConfig } from '@components/Utils';
 
-
-(async() => {
+async function loadContextMenuData(){
     let json = await getConfig()
+    const res = await chromeStorageGet(['user', 'official']);
+    let Menu = [];
+    for (let i in res['user']) {
+        if (res['user'][i].interfaces.includes('contextMenus')) {
+            Menu.push(res['user'][i])
+        }
+    }
+    for (let i in res['official']) {
+        if (res['official'][i].interfaces.includes('contextMenus')) {
+            Menu.push(res['official'][i])
+        }
+    }
+
+    chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
         "id": json.app,
         "title": json.app,
@@ -28,19 +41,6 @@ import { getConfig } from '@components/Utils';
         contexts: ['page']
     })
 
-    const res = await chromeStorageGet(['user', 'official']);
-    let Menu = [];
-    for (let i in res['user']) {
-        if (res['user'][i].interfaces.includes('contextMenus')) {
-            Menu.push(res['user'][i])
-        }
-    }
-    for (let i in res['official']) {
-        if (res['official'][i].interfaces.includes('contextMenus')) {
-            Menu.push(res['official'][i])
-        }
-    }
-
     for (let i in Menu) {
         chrome.contextMenus.create({
             id: Menu[i].tag,
@@ -50,62 +50,13 @@ import { getConfig } from '@components/Utils';
             contexts: ['page']
         })
     }
+    return Menu;
 
-    chrome.contextMenus.onClicked.addListener(async(item, tab) => {
-        const from = 'contextMenus';
-        const tabId = tab.id;
-        const id = item.menuItemId
-        console.log(id);
-        console.log(tab.id);
-        if (!tab.url.match('http')) return
-        if (id === 'toggle-insight') {
-            chrome.tabs.sendMessage(
-                tabId, {
-                    cmd: 'toggle-insight',
-                    success: true,
-                    data: true
-                },
-                function(response) {
-                    // console.log(response)
-                }
-            )
-        } else {
-            chrome.tabs.sendMessage(
-                tabId, {
-                    cmd: 'toggle-insight',
-                    success: true,
-                    data: true
-                },
-                function(response) {
-                    // console.log(response)
-                }
-            )
-            for (let i in Menu) {
-                console.log(Menu[i]);
-                if (id === Menu[i].tag) {
-                    chrome.tabs.sendMessage(
-                        tabId, {
-                            cmd: 'contextMenus',
-                            success: true,
-                            data: {
-                                cmd: 'combo',
-                                data: {
-                                    '_combo': Menu[i],
-                                    from,
-                                    prompt: Menu[i].prompt,
-                                    tag: Menu[i].tag,
-                                    newTalk: true
-                                }
-                            }
-                        },
-                        function(response) {
-                            // console.log(response)
-                        }
-                    )
-                }
-            }
-        }
-    })
+}
+
+(async() => {
+    let json = await getConfig()
+    let Menu = await loadContextMenuData();
 
     // chrome.commands.getAll().then(commands => {
     //     let isNew = true
@@ -142,6 +93,66 @@ import { getConfig } from '@components/Utils';
     //   return true
     // });
 
+    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+        if (request.cmd === 'update-chromeStorage-data') {
+            Menu = await loadContextMenuData();
+        }
+    })
+
+    chrome.contextMenus.onClicked.addListener(async(item, tab) => {
+        const from = 'contextMenus';
+        const tabId = tab.id;
+        const id = item.menuItemId
+        if (!tab.url.match('http')) return
+
+        if (id === 'toggle-insight') {
+            chrome.tabs.sendMessage(
+                tabId, {
+                    cmd: 'toggle-insight',
+                    success: true,
+                    data: true
+                },
+                function(response) {
+                    // console.log(response)
+                }
+            )
+        } else {
+            chrome.tabs.sendMessage(
+                tabId, {
+                    cmd: 'toggle-insight',
+                    success: true,
+                    data: true
+                },
+                function(response) {
+                    // console.log(response)
+                }
+            )
+
+            for (let i in Menu) {
+                if (id === Menu[i].tag) {
+                    chrome.tabs.sendMessage(
+                        tabId, {
+                            cmd: 'contextMenus',
+                            success: true,
+                            data: {
+                                cmd: 'combo',
+                                data: {
+                                    '_combo': Menu[i],
+                                    from,
+                                    prompt: Menu[i].prompt,
+                                    tag: Menu[i].tag,
+                                    newTalk: true
+                                }
+                            }
+                        },
+                        function(response) {
+                            // console.log(response)
+                        }
+                    )
+                }
+            }
+        }
+    })
 
     const chatBot = new ChatBot({
         items: []
