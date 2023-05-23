@@ -359,7 +359,7 @@ class Main extends React.Component<{
 
     componentDidMount(): void {
         console.log('#### init #### ', this.state.appName)
-        if (this.props.initIsOpen) {
+        if (this.props.agents) {
             message.info('自动化执行任务ing')
         }
 
@@ -368,7 +368,7 @@ class Main extends React.Component<{
         // 打开任何网站都会初始化
 
         Talks.get().then(talks => {
-            if (this.props.initIsOpen) {
+            if (this.props.agents) {
                 talks.push({
                     type: 'done',
                     html: '自动化执行任务ing',

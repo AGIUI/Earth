@@ -59,8 +59,8 @@ const parseUrl = () => {
 // from Bing,ChatGPT 初始化对话框 采用哪个引擎
 // const {  reader, fullscreen, userInput, from } = parseUrl();
 const getConfigFromUrl = () => {
-    const { reader, fullscreen, userInput, from, agents } = parseUrl();
-    return { reader, fullscreen, userInput, from, agents }
+    const { reader, fullscreen, userInput, from, agents,databaseId, blockId } = parseUrl();
+    return { reader, fullscreen, userInput, from, agents,databaseId, blockId }
 }
 
 const getConfig = async () => {
