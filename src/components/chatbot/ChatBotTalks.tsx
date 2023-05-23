@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button, Card, message } from 'antd';
 import {
-    DownOutlined
+    CopyOutlined  
 } from '@ant-design/icons';
 
 import styled from 'styled-components';
@@ -208,7 +208,7 @@ const createListItem = (data: any, index: number) => {
                     extra={
                     <Button type="dashed"
                         style={{margin:'4px 0'}}
-                        icon={<DownOutlined />}
+                        icon={<CopyOutlined />}
                         size={'small'}
                         onClick={() => copy(text)} />}
                         
