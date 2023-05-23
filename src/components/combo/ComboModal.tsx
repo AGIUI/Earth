@@ -23,7 +23,7 @@ const Form1 = styled(Form)`
     &.ant-form{
         display: block!important;
     }
-    .ant-form-item-control-input-content{
+    &.ant-form-item-control-input-content{
         text-align: left!important;
     }
 `;
