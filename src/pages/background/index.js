@@ -11,20 +11,22 @@ import Common from '@components/background/Common'
 
 import { getConfig } from '@components/Utils';
 
-async function loadContextMenuData(){
+async function loadContextMenuData() {
     let json = await getConfig()
     const res = await chromeStorageGet(['user', 'official']);
     let Menu = [];
-    for (let i in res['user']) {
-        if (res['user'][i].interfaces.includes('contextMenus')) {
-            Menu.push(res['user'][i])
+    if (res['user'] && res['user'].length > 0)
+        for (let i in res['user']) {
+            if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus')) {
+                Menu.push(res['user'][i])
+            }
         }
-    }
-    for (let i in res['official']) {
-        if (res['official'][i].interfaces.includes('contextMenus')) {
-            Menu.push(res['official'][i])
+    if (res['official'] && res['official'].length > 0)
+        for (let i in res['official']) {
+            if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus')) {
+                Menu.push(res['official'][i])
+            }
         }
-    }
 
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
@@ -93,7 +95,7 @@ async function loadContextMenuData(){
     //   return true
     // });
 
-    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener(async(request, sender, sendResponse) => {
         if (request.cmd === 'update-chromeStorage-data') {
             Menu = await loadContextMenuData();
         }
