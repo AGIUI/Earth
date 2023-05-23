@@ -508,7 +508,7 @@ class ComboModal extends React.Component {
             </Form.Item>
             <Form.Item
                 name={`Prompt${index}EditOptionsForTemperature`}
-                label="严谨程度 Temperature"
+                label="发散程度 Temperature"
             >
                 <Slider
                     style={{ width: '120px' }}

@@ -1,5 +1,9 @@
 import * as React from "react";
-import { Button } from 'antd';
+import { Button, Card, message } from 'antd';
+import {
+    DownOutlined
+} from '@ant-design/icons';
+
 import styled from 'styled-components';
 import ChatBotConfig from "./ChatBotConfig";
 
@@ -96,8 +100,6 @@ const Content: any = styled(Flex)`
     overflow-y: scroll;
     overflow-x: hidden;
     margin: 4px 0;
-    font-family: fantasy!important;
-    letter-spacing: 1px!important;
     &::-webkit-scrollbar
     {
       width:2px;
@@ -114,45 +116,13 @@ const Content: any = styled(Flex)`
       -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
       background:rgba(0, 0,0, 0.2);
     }
-    & h1,h2{
-      margin: 12px 0;
-      font-weight: 800;
-    }
-    & p,li{
-      margin: 6px 0;
-    }
-    & .chatbot-text-bubble p{
-        margin: 8px 4px!important;
-        line-height: 24px!important; 
-    }
-    & .chatbot-suggest{
-        background: rgb(22, 119, 255)!important;
-        border: none!important;
-        margin: 0px 12px 12px 0px!important;
-        color: white!important;
-        font-weight: 500!important;
-        height: fit-content!important;
-    }
-    & .chatbot-suggest span{
-        color: white!important;
-    }
-    & .chatbot-error{
-        border: 1px solid red !important;
-    }
-    & img{
-        width: 200px!important;
-        height: fit-content!important;
-    }
-    & .logo{
-        width: 44px!important;
-        height: fit-content!important;
-    }
 `
 
 const customizeRenderEmpty = (text = 'Data Not Found') => (
     <div style={{ textAlign: 'left', marginTop: '10px' }}>
-        <img src={chrome.runtime.getURL('public/logo.png')} className="logo" style={{
-            width: '44px !important'
+        <img src={chrome.runtime.getURL('public/icon-34.png')} className="logo" style={{
+            width: '34px !important',
+            height: 'fit-content!important'
         }} />
         {/* <SmileOutlined style={{ fontSize: 20 }} /> */}
         <p>{text}</p>
@@ -174,10 +144,10 @@ const createTalkBubbleStyle = (user = false) => {
     return r
 }
 
-const thinkingBtn = (name = '思考中') => <Button type="primary"
+const thinkingBtn = (name = '思考中') => <Button type="dashed"
     className="chatbot-thinking"
     loading disabled
-    >{name}</Button>
+>{name}</Button>
 const suggestBtn = (i: string, name: string, callback: any) => <Button key={i}
     style={{
         background: '#1677ff',
@@ -190,33 +160,73 @@ const suggestBtn = (i: string, name: string, callback: any) => <Button key={i}
     className="chatbot-suggest"
 >{name}</Button>
 
+const copy = async (copyText: string) => {
+    let type = "text/plain"
+    try {
+        const blob: any = new Blob([copyText], { type });
+        const data = [new ClipboardItem({ [type]: blob })];
+        // 写入剪切板
+        await navigator.clipboard.write(data);
+        message.info('已拷贝');
+    } catch (e) {
+        console.error('Failed to copy: ', e);
+    }
+}
 
+const createListItem = (data: any, index: number) => {
+    const div = document.createElement('div');
+    div.innerHTML = data.html;
+    const text = div.innerText;
+    return <div style={{ margin: '2px 0' }}>{
+        // 状态判断：思考、建议选项、对话
+        data.type == 'thinking' ? thinkingBtn(data.hi) : (
+            data.type == 'suggest' ? <>
+                {
+                    data.buttons
+                        && data.buttons.length > 0
+                        && data.hi ?
+                        customizeRenderEmpty(data.hi) : ''
+                }
+                {
+                    data.buttons && data.buttons.length > 0 ? Array.from(
+                        data.buttons,
+                        (button: any, i) => suggestBtn(i + '', button.name, () => button.callback && button.callback())
+                    ) : ''
+                }
+            </> : (data.html ?
+                data.user ? <p
+                    style={createTalkBubbleStyle(data.user)}
+                    className={`chatbot-text-bubble${data.user ? '-user' : ''}`}
+                    key={index}
+                    dangerouslySetInnerHTML={{ __html: data.html }}>
+                </p> : <Card title={""}
+                    headStyle={{
+                        minHeight: '12px',backgroundColor:'white'
+                    }}
+                    bordered={false}
+                    size={'small'}
+                    extra={
+                    <Button type="dashed"
+                        style={{margin:'4px 0'}}
+                        icon={<DownOutlined />}
+                        size={'small'}
+                        onClick={() => copy(text)} />}
+                        
+                    style={{
+                        width: '100%', background: 'rgba(70, 70, 70, 0.04)', marginTop: '12px',
+                        marginBottom: '12px'
+                    }}>
+                    <p
+                        style={createTalkBubbleStyle(data.user)}
+                        className={`chatbot-text-bubble${data.user ? '-user' : ''}`}
+                        key={index}
+                        dangerouslySetInnerHTML={{ __html: data.html }}>
+                    </p>
+                </Card> : '')
+        )
 
-const createListItem = (data: any, index: number) => <div style={{ margin: '2px 0' }}>{
-    // 状态判断：思考、建议选项、对话
-    data.type == 'thinking' ? thinkingBtn(data.hi) : (
-        data.type == 'suggest' ? <>
-            {
-                data.buttons
-                    && data.buttons.length > 0
-                    && data.hi ?
-                    customizeRenderEmpty(data.hi) : ''
-            }
-            {
-                data.buttons && data.buttons.length > 0 ? Array.from(
-                    data.buttons,
-                    (button: any, i) => suggestBtn(i + '', button.name, () => button.callback && button.callback())
-                ) : ''
-            }
-        </> : (data.html ? <p
-            style={createTalkBubbleStyle(data.user)}
-            className={`chatbot-text-bubble${data.user?'-user':''}`}
-            key={index}
-            dangerouslySetInnerHTML={{ __html: data.html }}>
-        </p> : '')
-    )
-
-}</div>
+    }</div>
+}
 
 
 type PropType = {
@@ -278,7 +288,7 @@ class ChatBotTalks extends React.Component {
         const defaultItems = [ChatBotConfig.createTalkData('help', {})];
 
         // 当this.props.items 为空
-        let items: any = (!(this.props.items && this.props.items.length > 0) ? defaultItems : [...this.props.items]).filter(i=>i);
+        let items: any = (!(this.props.items && this.props.items.length > 0) ? defaultItems : [...this.props.items]).filter(i => i);
         // console.log('this.props.items',items)
         items = Array.from(items, (item: any, index: number) => {
             // console.log(item)
@@ -319,6 +329,8 @@ class ChatBotTalks extends React.Component {
             <Content
                 ref={this.contentDom}
                 translate="no"
+                className="chatbot-talks"
+                style={{ overflowY: 'scroll' }}
             // height={this.state.fullscreen ? 'calc(70vh - 44px)' : ''}
             >
                 {

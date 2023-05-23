@@ -187,6 +187,7 @@ const sendMessageToBackground = {
 
 
 class Main extends React.Component<{
+    className:string,
     appName: string,
     agents: any,
     readability: any,
@@ -792,41 +793,32 @@ class Main extends React.Component<{
 
                 if (data.type == 'done') {
 
-                    let PromptIndex = this.state.PromptIndex,
-                        isNextUse = false;
+                    let PromptIndex = this.state.PromptIndex;
                     console.log('done', this.state.currentPrompt.combo, PromptIndex)
 
+                    // 上一个节点
+                    let prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
 
                     // 无限循环功能
                     if (this.state.currentPrompt.combo && this.state.currentPrompt.isInfinite && this.state.currentPrompt.combo > 1) {
                         if (this.state.currentPrompt.combo <= PromptIndex) {
                             // 结束的时候，循环起来
-                            // 当前的prompt
-                            const currentPrompt = this.state.currentPrompt[`prompt${this.state.currentPrompt.combo}`]
-                            isNextUse = currentPrompt.output == 'isNextUse';
+                            prePrompt = this.state.currentPrompt[`prompt${this.state.currentPrompt.combo}`]
                             PromptIndex = 0;
                         }
                     }
-                    // console.log('1无限循环功能', isNextUse, PromptIndex);
-
-
-                    const prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
-
-                    // 如果有isNextUse
-                    if (prePrompt && prePrompt.output) isNextUse = prePrompt.output == 'isNextUse';
+                    // console.log('1无限循环功能', isNextUse, PromptIndex)
 
                     if (this.state.currentPrompt.combo > PromptIndex) {
 
                         PromptIndex = PromptIndex + 1;
                         const prompt = JSON.parse(JSON.stringify(this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]));
 
-                        // if (isNextUse) {
-                        //     prompt.text = this._promptOutput('isNextUse', prompt.text, laskTalk);
-                        // }
                         // console.log('prompt', prompt,PromptIndex);
-                        // 下一个prompt
+                        // 下一个节点
                         let data: any = {
                             prompt,
+                            index: PromptIndex,
                             prePrompt,
                             newTalk: true,
                             from: 'combo'
@@ -1326,11 +1318,24 @@ class Main extends React.Component<{
         const { tabList, datas, activeIndex } = this._doChatBotData();
         return (<>
             <FlexColumn
+                className={this.props.className}
                 translate="no"
                 display={
                     this.state.initIsOpen ?
                         (this.state.loading ? 'none' : 'flex')
                         : 'none'}
+                // 修复qq邮箱里不显示的问题
+                style={{
+                    display: this.state.initIsOpen ?
+                    (this.state.loading ? 'none' : 'flex')
+                    : 'none',
+                    position: 'fixed',
+                    top: 0,
+                    right: 0,
+                    zIndex: 999,
+                    background: 'white',
+                    height: '100vh'
+                }}
             >
                 {/* <PDF name='pdf'/> */}
                 {!this.state.showEdit && !this.state.loadingChatBot && this.state.openMyPrompts ?

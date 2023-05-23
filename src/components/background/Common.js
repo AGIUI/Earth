@@ -48,8 +48,8 @@ class Common {
 
         chrome.action.onClicked.addListener(async tab => {
             // 当点击扩展图标时，执行...
-            //   chrome.action.disable(tab.id)
-            // let available = await chatBot.getAvailable(chatBot.currentName)
+            console.log('当点击扩展图标时，执行...')
+                // let available = await chatBot.getAvailable(chatBot.currentName)
             this.sendMessage('toggle-insight', true, true, tab.id)
                 // if (!available) chatBot.init(chatBot.currentName)
                 // 检查newtab有没有打开，没有的话打开

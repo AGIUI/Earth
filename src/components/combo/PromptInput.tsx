@@ -51,8 +51,14 @@ const promptBindUserClipboard = async (prompt: string) => {
 
 
 const extractArticle = () => {
-    const documentClone: any = document.cloneNode(true);
+    let documentClone: any = document.cloneNode(true);
     documentClone.querySelector('._agi_ui')?.remove();
+
+    if (window.location.hostname === 'mail.qq.com') {
+        const doc: any = document.querySelector('#mainFrameContainer iframe');
+        if (doc) documentClone = doc.contentDocument.cloneNode(true)
+        // console.log(doc.contentDocument.body)
+    }
 
     let article: any = {};
 

@@ -110,16 +110,17 @@ class ChatBotBackground {
         return chatBotAvailable
     }
 
-    getInit(type) {
+    // 从缓存获取有效性
+    getAvailableFromStorage(type) {
         return new Promise((res, rej) => {
             let id = this.createKeyIdForInit(type, {})
             chrome.storage.sync.get(id).then(data => {
                 let chatBotAvailable = data[id]
-                    //3s 缓存
+                    // 24h 缓存
                 if (
                     chatBotAvailable &&
                     chatBotAvailable.available && chatBotAvailable.available.success &&
-                    new Date().getTime() - chatBotAvailable.time < 1 * 1 * 3 * 1000
+                    new Date().getTime() - chatBotAvailable.time < 24 * 60 * 60 * 1000
                 ) {
                     res(chatBotAvailable)
                 }
@@ -134,7 +135,7 @@ class ChatBotBackground {
     async getAvailable(type) {
         this.currentType = type
 
-        let chatBotAvailable = await this.getInit(type)
+        let chatBotAvailable = await this.getAvailableFromStorage(type)
 
         if (chatBotAvailable) {
             return chatBotAvailable
