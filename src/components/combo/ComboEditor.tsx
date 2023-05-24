@@ -42,6 +42,10 @@ const Base: any = styled.div`
     & .ant-list-item{
         width:100%;
     }
+    & .ant-btn-primary{
+        color: #fff !important;
+        background-color: #1677ff !important;
+    }
   `
 
 type PropType = {

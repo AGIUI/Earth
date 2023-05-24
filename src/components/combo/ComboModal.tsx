@@ -26,6 +26,10 @@ const Form1 = styled(Form)`
     &.ant-form-item-control-input-content{
         text-align: left!important;
     }
+    &.ant-btn-primary{
+        color: #fff !important;
+        background-color: #1677ff !important;
+    }
 `;
 
 
