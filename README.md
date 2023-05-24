@@ -1,5 +1,7 @@
 # Earth
 
+ [![](/public/icon-128.png)](http://player.bilibili.com/player.html?aid=271181111&bvid=BV1zc411P7vS&cid=1132599638&page=1)
+
 Artificial General Intelligence user interface
 普惠AGI交互界面，让更多人可以实现自己的AGI交互界面。
 
@@ -8,13 +10,13 @@ AGI-UI的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人�
 > 作为AGIUI的首个开源项目，Earth是一个浏览器插件，支持常见的浏览器：Chrome, Firefox, Safari, Edge, Brave等。
 
 
- [![](/public/icon-128.png)](http://player.bilibili.com/player.html?aid=271181111&bvid=BV1zc411P7vS&cid=1132599638&page=1)
+ [![](/examples/demo01.png)](/examples/demo01.mp4)
 🔝演示视频
 
 
 ## 如何使用？
 
-安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.2.2
+安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.3.1
 
 Chrome：
 
@@ -61,31 +63,29 @@ npm run build [browser]
 ## combo的数据示例
 ```
 [{
-    "checked": true,
+    "interfaces": [],
     "combo": 3,
     "id": "1881e7d386e",
     "isInfinite": false,
     "owner": "user",
     "prompt": {
-        "bindCurrentPage": false,
-        "isApi": false,
-        "isNextUse": true,
+        "input":'default',
+        "output": 'default',
+        "agent":'default'
+        "api": {},
         "queryObj": {
             "isQuery": false,
             "query": "",
             "url": ""
         },
         "text": "给我一个科幻故事，和植物、机器人、爱情有关",
-        "url": ""
-    },
-    "prompt2": {
-        "bindCurrentPage": false,
-        "isApi": false,
-        "isNextUse": false,
-        "text": "总结下"
+        temperature: 0.6,
+        model: 'ChatGPT',
     },
     "prompt3": {
-        "text": "嗯"
+        "text": "嗯",
+        temperature: 0.6,
+        model: 'ChatGPT',
     },
     "role": "",
     "tag": "科幻故事"
@@ -98,6 +98,26 @@ v0.2.0
 
 新增绑定当前网页、输出格式，combo编辑器导入导出，提供示例
 
+v0.3.1
+- combo数据结构调整及编辑器，新增：interfaces（home、contextMenus、showInChat）、input、output
+
+- combo支持单个导出
+
+- API节点
+
+
+
+## TODO
+
+- PDF节点:读取、创建、阅读器
+
+- PPT节点:读取、创建
+
+- 高亮网页信息节点（实验功能）
+
+
+## 社区
+[discord](https://discord.gg/7YVVhEQExu)
 
 
 ## 相关资料：

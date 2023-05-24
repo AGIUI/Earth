@@ -4,7 +4,7 @@ import {
     Button,
     Typography,
     Tag,
-    List,Empty, 
+    List, Empty,
 } from 'antd';
 
 const { Text } = Typography;
@@ -13,13 +13,37 @@ import {
     CloseOutlined
 } from '@ant-design/icons';
 
-import { chromeStorageGet, chromeStorageSet, md5 } from "@components/Utils"
+import { chromeStorageGet, chromeStorageSet, md5, getConfig } from "@components/Utils"
 import { defaultCombo } from '@components/combo/ComboData'
 
 import DownloadButton from '@components/buttons/DownloadButton';
 import { FlexRow } from "@components/Style";
 import OpenFileButton from "@components/buttons/OpenFileButton";
- 
+
+import styled from 'styled-components';
+
+const Base: any = styled.div`
+    & .ant-card-body::-webkit-scrollbar{
+        width:2px;
+    }
+    & .ant-card-body::-webkit-scrollbar{
+        width:2px;
+    }
+    & .ant-card-body::-webkit-scrollbar-track{
+        border-radius:25px;
+        -webkit-box-shadow:inset 0 0 5px rgba(255,255,255, 0.5);
+        background:rgba(255,255,255, 0.5);
+    }
+    & .ant-card-body::-webkit-scrollbar-thumb{
+        border-radius:15px;
+        -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
+        background:rgba(0, 0,0, 0.2);
+    }
+    & .ant-list-item{
+        width:100%;
+    }
+  `
+
 type PropType = {
     myPrompts: any;
     callback: any;
@@ -31,6 +55,8 @@ type StateType = {
     secondTitle: string;
     myPrompts: any,
     showImportModal: boolean;
+    version: string;
+    app: string;
 }
 
 interface ComboEditor {
@@ -46,7 +72,13 @@ class ComboEditor extends React.Component {
             secondTitle: '我的Prompts',
             myPrompts: this.props.myPrompts,
             showImportModal: false,
+            version: '',
+            app: ''
         }
+        getConfig().then(json => this.setState({
+            app: json.app,
+            version: json.version
+        }))
     }
 
     componentDidMount() {
@@ -102,25 +134,31 @@ class ComboEditor extends React.Component {
         })
     };
 
-   
+    _downloadMyCombo(combos: any = []) {
+        const data: any = [];
+        for (const combo of combos) {
+            combo.version = this.state.version;
+            combo.app = this.state.app;
+            // combo.id = "";
+            if (!combo.id) combo.id = md5(JSON.stringify(combo));
+            data.push(combo)
+        }
 
-    _downloadMyCombo() {
-        const prompts = this.state.myPrompts.filter((p: any) => p.owner != 'official')
-
-        const data = JSON.stringify(prompts)
+        const name = combos[0].tag;
+        const id = md5(JSON.stringify(data));
 
         //通过创建a标签实现
         const link = document.createElement('a')
         //encodeURIComponent解决中文乱码
-        link.href = `data:application/json;charset=utf-8,\ufeff${encodeURIComponent(data)}`
+        link.href = `data:application/json;charset=utf-8,\ufeff${encodeURIComponent(JSON.stringify(data))}`
 
-        //对下载的文件命名
-        const jsonName = `my-combo-${(new Date()).getTime()}`
-        link.download = jsonName
+        //下载文件命名
+        link.download = `${name}_${id}`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link);
     }
+
     _importMyCombo() {
         console.log(this.state.myPrompts)
         const input = document.createElement('input');
@@ -143,7 +181,7 @@ class ComboEditor extends React.Component {
 
                     chromeStorageGet(['user']).then((items: any) => {
                         let myPrompts = [...that.state.myPrompts];
-                        let newUser:any = []
+                        let newUser: any = []
 
                         if (items && items.user) {
                             newUser = [...items.user]
@@ -155,7 +193,8 @@ class ComboEditor extends React.Component {
                             if (isNew) {
                                 newUser.push(n);
                                 myPrompts.push(n)
-                            };
+                            }
+                            ;
                         }
 
                         chromeStorageSet({ 'user': newUser });
@@ -171,8 +210,9 @@ class ComboEditor extends React.Component {
         }, false)
         input.click();
     }
+
     render() {
-        return (
+        return (<Base>
             <Card
                 title={'Combo'}
                 bordered={true}
@@ -219,15 +259,15 @@ class ComboEditor extends React.Component {
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
-                   
+
 
                     <FlexRow display="flex">
                         <Text style={{ fontSize: 20, fontWeight: "bold" }}>{this.state.secondTitle}</Text>
-                        <div >
+                        <div>
 
                             <DownloadButton
                                 disabled={false}
-                                callback={() => this._downloadMyCombo()} />
+                                callback={() => this._downloadMyCombo(this.state.myPrompts.filter((p: any) => p.owner != 'official'))} />
                             <OpenFileButton
                                 disabled={false}
                                 callback={() => this._importMyCombo()} />
@@ -284,13 +324,13 @@ class ComboEditor extends React.Component {
                 </div>
                 <Button size={"large"} type={"primary"}
                     style={{ position: "absolute", bottom: 30, width: 450, left: 25 }}
-                    onClick={(event: any) => this._showModal(event, { owner: 'user' })}>
+                    onClick={(event: any) => this._showModal(event, { owner: 'user',id:(new Date()).getTime() })}>
                     新建我的Prompts
                 </Button>
 
                 {/* {this.state.showEdit && ReactDOM.createPortal(showEditModal(), document.body as HTMLElement)} */}
 
-            </Card>
+            </Card></Base>
         );
     }
 }

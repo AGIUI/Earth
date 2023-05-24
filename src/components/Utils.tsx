@@ -12,7 +12,14 @@ function chromeStorageGet(k: any) {
 
 function chromeStorageSet(json: any) {
     return new Promise<void>((res, rej) => {
-        chrome.storage.local.set(json).then(() => res())
+        chrome.storage.local.set(json).then(
+            () => {
+                chrome.runtime.sendMessage({
+                    cmd: 'update-chromeStorage-data',
+                })
+                res();
+            }
+        )
     });
 }
 
@@ -52,8 +59,8 @@ const parseUrl = () => {
 // from Bing,ChatGPT 初始化对话框 采用哪个引擎
 // const {  reader, fullscreen, userInput, from } = parseUrl();
 const getConfigFromUrl = () => {
-    const {  reader, fullscreen, userInput, from, agents } = parseUrl();
-    return { reader, fullscreen, userInput, from, agents }
+    const { reader, fullscreen, userInput, from, agents,databaseId, blockId } = parseUrl();
+    return { reader, fullscreen, userInput, from, agents,databaseId, blockId }
 }
 
 const getConfig = async () => {
@@ -67,6 +74,52 @@ const getConfig = async () => {
 
 }
 
+
+const textSplitByLength = (text: string, length: number) => {
+    var tt = /\n/;
+    var arr = [];
+    var tmpstr = "";
+    var ass = text.split('');
+    if (text.length >= length) {
+        for (var i = 0; i < ass.length; i++) {
+            var curr = ass[i];
+            if (curr != "") {
+                tmpstr += curr;
+                if (tt.test(curr)) {
+                    arr.push(tmpstr);
+                    tmpstr = "";
+                }
+                if (tmpstr.length >= length) {
+                    arr.push(tmpstr);
+                    tmpstr = "";
+                } else if (i == ass.length - 1) {
+                    arr.push(tmpstr);
+                    tmpstr = "";
+                }
+            }
+        }
+    } else {
+        for (var i = 0; i < ass.length; i++) {
+            var curr = ass[i];
+            if (curr != "") {
+                tmpstr += curr;
+                if (tt.test(curr)) {
+                    arr.push(tmpstr);
+                    tmpstr = "";
+                }
+                if (tmpstr.length >= length) {
+                    arr.push(tmpstr);
+                    tmpstr = "";
+                } else if (i == ass.length - 1) {
+                    arr.push(tmpstr);
+                    tmpstr = "";
+                }
+            }
+        }
+    }
+    return arr;
+}
+
 export {
     chromeStorageGet,
     chromeStorageSet,
@@ -75,5 +128,6 @@ export {
     md5,
     parseUrl,
     getConfig,
-    getConfigFromUrl
+    getConfigFromUrl,
+    textSplitByLength
 }

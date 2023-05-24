@@ -1,8 +1,11 @@
 import * as React from "react";
-import { Card, Button, Input, Checkbox, Radio, message } from 'antd';
-import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Card, Button, Input, Collapse, Radio, message } from 'antd';
+import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
-import { defaultCombo, defaultPrompt } from "../combo/ComboData";
+const { Panel } = Collapse;
+import { defaultCombo, defaultPrompt } from "@components/combo/ComboData";
+import ChatBotConfig from "@components/chatbot/ChatBotConfig";
+import ChatBotSelect from "@components/chatbot/ChatBotSelect"
 
 /**
  * <ChatBotInput callback={({data,cmd})=>{console.log(cmd,data)}} isLoading={false} leftButton={label:'My Prompts'}/>
@@ -40,10 +43,11 @@ type StateType = {
         tag: string
     },
     placeholder: string;
-    userSelected: boolean;
-    bindCurrentPage: boolean;
-    bindCurrentPageTooltip: string;
-    output: any
+    input: any;
+    output: any;
+    agent: any;
+    chatBotType: string;
+    chatBotStyle: any;
 }
 
 interface ChatBotInput {
@@ -70,6 +74,14 @@ const buttonStyle = {
 class ChatBotInput extends React.Component {
     constructor(props: any) {
         super(props);
+
+        const input: any = ChatBotConfig.getInput(),
+            output: any = ChatBotConfig.getOutput(),
+            agent: any = ChatBotConfig.getAgentOpts();
+
+
+        const config = this.props.config.filter((c: any) => c.checked)[0]
+
         this.state = {
             name: 'ChatBotInput',
             isLoading: this.props.isLoading,
@@ -78,22 +90,16 @@ class ChatBotInput extends React.Component {
                 tag: ''
             },
             placeholder: 'Ask or search anything',
-            userSelected: false,
-            bindCurrentPage: false,
-            bindCurrentPageTooltip: '绑定当前网页',
+
+            // 输入
+            input,
             // 输出格式
-            output: [{ label: 'JSON格式', value: 'json' }, { label: 'MarkDown格式', value: 'markdown' }, { label: '默认', value: 'defalut', checked: true }]
+            output,
+            // agent
+            agent,
+            chatBotType: config.type,
+            chatBotStyle: config.style
         }
-
-        document.addEventListener("selectionchange", () => {
-            const text = this._userSelection();
-
-            this.setState({
-                placeholder: text.length > 0 ? this._userSelection() : 'Ask or search anything',
-                userSelected: text.length > 0
-            })
-
-        });
 
     }
 
@@ -113,13 +119,6 @@ class ChatBotInput extends React.Component {
         // this.destroyConnection();
     }
 
-    _userSelection() {
-        const selObj: any = window.getSelection();
-        // let textContent = selObj.type !== 'None' ? (selObj.getRangeAt(0)).startContainer.textContent : '';
-        let textContent = selObj.toString();
-        return textContent.trim();
-    }
-
     _newTalk() {
         this.props.callback({
             cmd: "new-talk"
@@ -128,15 +127,19 @@ class ChatBotInput extends React.Component {
 
     _sendTalk(userInput: any = {}) {
         // console.log(userInput)
-        const prompt = (userInput && userInput.prompt ? userInput.prompt : '').trim();
+        let prompt = (userInput && userInput.prompt ? userInput.prompt : '').trim();
         const tag = (userInput && userInput.tag ? userInput.tag : '').trim();
-
+        if (this.state.output.filter((ot: any) => ot.checked)[0].value !== 'defalut' && !prompt) prompt = "."
         if (prompt) {
+            const output = this.state.output.filter((oup: any) => oup.checked)[0].value;
             const combo = {
                 ...defaultCombo,
                 prompt: {
                     ...defaultPrompt,
-                    text: prompt
+                    text: prompt,
+                    input: this.state.input.filter((inp: any) => inp.checked)[0].value,
+                    output,
+                    type:this.state.agent.filter((a: any) => a.checked)[0].value,
                 },
                 combo: -1
             }
@@ -145,6 +148,10 @@ class ChatBotInput extends React.Component {
                 data: {
                     prompt: combo.prompt,
                     tag,
+                    from: 'chatbot-input',
+                    prePrompt: {
+                        output
+                    },
                     _combo: combo,
                 }
             });
@@ -157,17 +164,6 @@ class ChatBotInput extends React.Component {
             })
         }
     }
-
-
-    _userSelectionAdd() {
-        if (this.state.placeholder != 'Ask or search anything') this.setState({
-            userInput: {
-                prompt: this.state.placeholder,
-                tag: this.state.placeholder
-            }
-        })
-    }
-
 
     _leftBtnClick() {
         this.props.callback({
@@ -197,41 +193,53 @@ class ChatBotInput extends React.Component {
     _toast() {
         message.open({
             type: 'warning',
-            content: '绑定当前网页可能会消耗大量Token，建议在需要时绑定',
+            content: '可能会消耗大量Token，建议在需要时绑定',
         });
     }
 
-    _bindCurrentPage(b: boolean) {
-        this.setState({
-            bindCurrentPage: b,
-            bindCurrentPageTooltip: b ? '绑定当前网页，将消耗大量token' : '绑定当前网页'
-        })
-        if (b) this._toast();
-        this.props.callback({
-            cmd: "bind-current-page", data: {
-                bindCurrentPage: b
-            }
-        })
-    }
+    _change(t: string, key: string) {
 
-    _outputChange(t: string) {
-        let output = Array.from(this.state.output, (o: any) => {
+        if (t.match('bindCurrentPage')) this._toast();
+
+        const state: any = this.state;
+        let items: any = {};
+        items[key] = Array.from(state[key], (o: any) => {
             return {
                 ...o, checked: t == o.value
             }
         });
+
         this.setState({
-            output
-        })
-        this.props.callback({
-            cmd: "output-change", data: {
-                output: t
-            }
+            ...items
         })
 
     }
 
+    _changeChatbot(res: any) {
+        const { cmd, data } = res;
+        const { type, style } = data;
+        // const { label, value } = style;
+        this.setState({
+            chatBotType: type,
+            chatBotStyle: style
+        })
+        // console.log(type, value)
+        this.props.callback(res)
+    }
+
     render() {
+        // console.log(this.state, this.props.config)
+        const flexStyle = {
+            display: 'flex', justifyContent: 'flex-start',
+            alignItems: 'center', padding: '8px'
+        }
+
+        const { input, output, agent, chatBotType, chatBotStyle } = this.state;
+        const node = `In-${input.filter(
+            (i: any) => i.checked)[0].label} Agent-${agent.filter(
+                (i: any) => i.checked)[0].label} Out-${output.filter(
+                    (i: any) => i.checked)[0].label}  Model-${chatBotType} ${chatBotStyle.label}-${chatBotStyle.value}`
+
         return (
             <Card
                 type="inner"
@@ -270,16 +278,6 @@ class ChatBotInput extends React.Component {
                     }}
                     >
 
-                        {/* {
-                            this.state.userSelected ? <Button
-                                style={buttonStyle}
-                                type="dashed"
-                                icon={<PlusOutlined />}
-                                onClick={() => this._userSelectionAdd()}
-                            >已选 {this.state.placeholder.length}</Button> : ''
-                        } */}
-
-
                         <Button
                             style={{
                                 ...buttonStyle, marginRight: '12px'
@@ -302,44 +300,47 @@ class ChatBotInput extends React.Component {
                 ]}
             >
 
-                <Button type="text"
-                    onClick={() => this._userSelectionAdd()}
-                >
-                    使用划选内容
-                </Button>
+                <Collapse expandIconPosition={'start'} size="small">
+                    <Panel header={node} key="node" >
+                        <div style={flexStyle}>
+                            <LoginOutlined style={{ marginRight: '12px' }} />
+                            <Radio.Group
+                                options={this.state.input}
+                                onChange={(e) => this._change(e.target.value, 'input')}
+                                value={this.state.input.filter((m: any) => m.checked)[0].value}
+                                optionType="button"
+                                buttonStyle="solid"
+                                size="small"
+                            />
+                        </div>
+                        <div style={flexStyle}>
+                            <RobotOutlined style={{ marginRight: '12px' }} />
+                            <Radio.Group
+                                options={this.state.agent}
+                                onChange={(e) => this._change(e.target.value, 'agent')}
+                                value={this.state.agent.filter((m: any) => m.checked)[0].value}
+                                optionType="button"
+                                buttonStyle="solid"
+                                size="small"
+                            />
+                        </div>
+                        <div style={flexStyle}><LogoutOutlined style={{ marginRight: '12px' }} /><Radio.Group
+                            options={this.state.output}
+                            onChange={(e) => this._change(e.target.value, 'output')}
+                            value={this.state.output.filter((m: any) => m.checked)[0].value}
+                            optionType="button"
+                            buttonStyle="solid"
+                            size="small"
+                        /></div>
 
-                <Checkbox.Group
-                    style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'baseline'
-                    }}
-                    options={[{
-                        label: this.state.bindCurrentPageTooltip, value: 'bindCurrentPage'
-                    }]}
+                        <ChatBotSelect
+                            callback={(res: any) => this._changeChatbot(res)}
+                            isLoading={this.state.isLoading}
+                            config={this.props.config}
+                            name={''} />
 
-                    defaultValue={this.state.bindCurrentPage ? ['bindCurrentPage'] : []}
-                    onChange={(e) => this._bindCurrentPage(e[0] == 'bindCurrentPage')} />
-
-                {/* <Checkbox.Group
-                    style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'baseline'
-                    }}
-                    options={this.state.output}
-                    defaultValue={this.state.bindCurrentPage ? ['bindCurrentPage'] : []}
-                    onChange={(e) => this._bindCurrentPage(e[0] == 'bindCurrentPage')} /> */}
-
-
-                <Radio.Group
-                    options={this.state.output}
-                    onChange={(e) => this._outputChange(e.target.value)}
-                    value={this.state.output.filter((m: any) => m.checked)[0].value}
-                    optionType="button"
-                    buttonStyle="solid"
-                    size="small"
-                />
+                    </Panel>
+                </Collapse>
 
 
 

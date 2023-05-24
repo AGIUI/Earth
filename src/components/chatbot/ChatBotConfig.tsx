@@ -1,10 +1,10 @@
+import { workflow } from '@components/Workflow'
 import { getConfig } from '@components/Utils';
 
 let discord: any;
 getConfig().then(json => {
     discord = json.discord
 })
-
 
 
 function get() {
@@ -30,6 +30,39 @@ function get() {
     }]
 
 }
+
+
+
+function getInput() {
+    return Array.from(workflow.inputs, inp => {
+        return {
+            ...inp, checked: inp.value == 'default'
+        }
+    })
+}
+
+function getOutput() {
+    return Array.from(workflow.outputs, out => {
+        return {
+            ...out, checked: out.value == 'default'
+        }
+    })
+}
+
+
+
+function getAgentOpts() {
+    return Array.from(workflow.agents, (agent: any) => {
+        if (!agent.disabled) return {
+            value: agent.key,
+            label: agent.label,
+            checked: agent.key == 'prompt'
+        }
+    }).filter(a => a)
+}
+
+
+
 
 /**
  * 
@@ -137,5 +170,5 @@ function createTalkData(type: string, json: any) {
 }
 
 export default {
-    get, createTalkData
+    get, createTalkData, getOutput, getInput, getAgentOpts
 }
