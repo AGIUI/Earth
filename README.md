@@ -1,5 +1,7 @@
 # Earth
 
+ [![](/public/icon-128.png)](http://player.bilibili.com/player.html?aid=271181111&bvid=BV1zc411P7vS&cid=1132599638&page=1)
+
 Artificial General Intelligence user interface
 普惠AGI交互界面，让更多人可以实现自己的AGI交互界面。
 
@@ -8,7 +10,7 @@ AGI-UI的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人�
 > 作为AGIUI的首个开源项目，Earth是一个浏览器插件，支持常见的浏览器：Chrome, Firefox, Safari, Edge, Brave等。
 
 
- [![](/public/icon-128.png)](http://player.bilibili.com/player.html?aid=271181111&bvid=BV1zc411P7vS&cid=1132599638&page=1)
+ [![](/examples/demo01.png)](/examples/demo01.mp4)
 🔝演示视频
 
 
@@ -103,7 +105,6 @@ v0.3.1
 
 - API节点
 
-- 高亮网页信息节点（实验功能）
 
 
 ## TODO
@@ -112,7 +113,12 @@ v0.3.1
 
 - PPT节点:读取、创建
 
-- 
+- 高亮网页信息节点（实验功能）
+
+
+## 社区
+[discord](https://discord.gg/7YVVhEQExu)
+
 
 ## 相关资料：
 
