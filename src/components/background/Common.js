@@ -193,8 +193,9 @@ class Common {
                         type: data.type
                     }, data.combo)
                 } else if (cmd == "api-run") {
-                    const { url, init } = data;
+                    const { url, init, combo } = data;
 
+                    // Agent.apiRun(url,init,data.combo)
 
                     if (init.method === 'GET') delete init.body;
 
@@ -227,7 +228,8 @@ class Common {
                         const result = {
                             data: apiResult,
                             responseExtract: responseExtract || { key: '', type: 'text' },
-                            responseType
+                            responseType,
+                            combo
                         }
                         this.sendMessage(
                             'api-run-result',

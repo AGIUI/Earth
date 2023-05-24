@@ -1,16 +1,20 @@
 import * as React from "react";
 import { Button, Card, message } from 'antd';
 import {
-    CopyOutlined  
+    CopyOutlined, FilePptOutlined
 } from '@ant-design/icons';
 
 import styled from 'styled-components';
 import ChatBotConfig from "./ChatBotConfig";
 
+import PPT from "@components/files/PPT"
+
 /** < ChatBotTalks  callback={} items={}/>
  * 
+ * export 是否允许导出
+ * 
  * items:[{
-            type, user, html, buttons,
+            type, user, html, buttons,export
         }] 
 
  * items=  [
@@ -160,7 +164,12 @@ const suggestBtn = (i: string, name: string, callback: any) => <Button key={i}
     className="chatbot-suggest"
 >{name}</Button>
 
-const copy = async (copyText: string) => {
+const copy = async (data: any) => {
+    console.log('copy', data)
+    const div = document.createElement('div');
+    div.innerHTML = data.html;
+    const copyText = div.innerText;
+
     let type = "text/plain"
     try {
         const blob: any = new Blob([copyText], { type });
@@ -173,10 +182,45 @@ const copy = async (copyText: string) => {
     }
 }
 
+const createPPT = (data: any) => {
+    console.log('createPPT', data)
+    const { type, html } = data;
+    let div = document.createElement('div');
+    div.innerHTML = html;
+
+    let items: any = [];
+
+    if (type === 'markdown') {
+
+        items.push(
+            {
+                title: div.innerText,
+
+            }
+        );
+
+    } else if (type == 'images') {
+        items.push(
+            {
+                title: type,
+                images: Array.from(div.querySelectorAll('img'), im => {
+                    return {
+                        title: type,
+                        base64: im.src
+                    }
+                })
+            }
+        );
+    }
+
+
+    const p = new PPT();
+    p.create('test-by-shadow', items)
+
+}
+
 const createListItem = (data: any, index: number) => {
-    const div = document.createElement('div');
-    div.innerHTML = data.html;
-    const text = div.innerText;
+
     return <div style={{ margin: '2px 0' }}>{
         // 状态判断：思考、建议选项、对话
         data.type == 'thinking' ? thinkingBtn(data.hi) : (
@@ -201,17 +245,24 @@ const createListItem = (data: any, index: number) => {
                     dangerouslySetInnerHTML={{ __html: data.html }}>
                 </p> : <Card title={""}
                     headStyle={{
-                        minHeight: '12px',backgroundColor:'white'
+                        minHeight: '12px', backgroundColor: 'white'
                     }}
                     bordered={false}
                     size={'small'}
-                    extra={
-                    <Button type="dashed"
-                        style={{margin:'4px 0'}}
-                        icon={<CopyOutlined />}
-                        size={'small'}
-                        onClick={() => copy(text)} />}
-                        
+                    extra={data.export ?
+                        <><Button type="dashed"
+                            style={{ margin: '4px 0' }}
+                            icon={<CopyOutlined />}
+                            size={'small'}
+                            onClick={() => copy(data)} />
+                            <Button type="dashed"
+                                style={{ margin: '4px 0' }}
+                                icon={<FilePptOutlined />}
+                                size={'small'}
+                                onClick={() => createPPT(data)} />
+                        </> : ''
+                    }
+
                     style={{
                         width: '100%', background: 'rgba(70, 70, 70, 0.04)', marginTop: '12px',
                         marginBottom: '12px'
@@ -273,9 +324,11 @@ class ChatBotTalks extends React.Component {
             this.setState({
                 items: this._updateItems()
             })
+        }
+        if (
+            this.props.items.length !== prevProps.items.length
+        ) {
             this._go2Bottom();
-            // this.destroyConnection();
-            // this.setupConnection();
         }
     }
 

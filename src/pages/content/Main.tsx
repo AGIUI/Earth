@@ -22,10 +22,9 @@ import { highlightText } from "@components/combo/Agent"
 
 import Setup from "@components/Setup"
 
-import * as _ from "lodash"
 
 //@ts-ignore
-import PDF from '@components/PDF'
+import PDF from '@components/files/PDF'
 
 
 import { chromeStorageGet, chromeStorageSet } from "@components/Utils"
@@ -187,7 +186,7 @@ const sendMessageToBackground = {
 
 
 class Main extends React.Component<{
-    className:string,
+    className: string,
     appName: string,
     agents: any,
     readability: any,
@@ -321,7 +320,8 @@ class Main extends React.Component<{
                 const items: any = [{
                     type: 'done',
                     markdown: `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`,
-                    tId: (new Date()).getTime()
+                    tId: (new Date()).getTime(),
+                    export:false
                 }];
 
                 if (ttype == 'images') {
@@ -373,7 +373,8 @@ class Main extends React.Component<{
                     type: 'done',
                     html: '自动化执行任务ing',
                     user: false,
-                    tId: (new Date()).getTime() + '02'
+                    tId: (new Date()).getTime() + '02',
+                    export:false
                 })
             }
 
@@ -417,7 +418,8 @@ class Main extends React.Component<{
                     this._updateChatBotTalksResult([{
                         type: 'done',
                         markdown: res['run-agents-result'].markdown,
-                        tId: (new Date()).getTime()
+                        tId: (new Date()).getTime(),
+                        export:false
                     }]);
                     chromeStorageSet({ 'run-agents-result': null })
                 }, 1000)
@@ -589,7 +591,7 @@ class Main extends React.Component<{
     //     return promptParse(prompt, type)
     // }
 
-    _agentApiRun(api: any, prePromptText: string) {
+    _agentApiRun(api: any, prePromptText: string, combo: any) {
         let { url, init, isApi, protocol } = api;
         if (isApi == false) return;
 
@@ -607,7 +609,7 @@ class Main extends React.Component<{
         }
 
         sendMessageToBackground['api-run']({
-            url, init
+            url, init, combo
         })
     }
 
@@ -784,7 +786,11 @@ class Main extends React.Component<{
 
                 if ((isNew || data.from == 'local') && data.markdown) {
                     // 新对话
-                    let d = { ...data, ...Talks.createTalkBubble(data.markdown) };
+                    let d = {
+                        ...data,
+                        ...Talks.createTalkBubble(data.markdown),
+                        export: data.export === undefined ? true : data.export
+                    };
                     nTalks.push(d);
                     // 对话状态开启
                     // console.log('对话状态开启')
@@ -882,7 +888,8 @@ class Main extends React.Component<{
             } else if (data.type === 'images') {
                 // 图像
                 const talk = {
-                    html: Array.from(data.images, url => `<img src='${url}' />`).join('')
+                    html: Array.from(data.images, url => `<img src='${url}' />`).join(''),
+                    export: true
                 }
                 delete data.images;
                 let d = { ...data, ...talk };
@@ -1039,11 +1046,14 @@ class Main extends React.Component<{
                     this._agentHighlightTextRun(lastTalk)
                 }
 
-                if (prompt.type === 'query') this._agentQueryRun(prompt.queryObj, { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex });
+                // 标记当前执行状态，以及下一条
+                const currentCombo = { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex }
 
-                if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex })
+                if (prompt.type === 'query') this._agentQueryRun(prompt.queryObj, currentCombo);
 
-                if (prompt.type === 'api') this._agentApiRun(prompt.api, prompt.text);
+                if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, currentCombo)
+
+                if (prompt.type === 'api') this._agentApiRun(prompt.api, prompt.text, currentCombo);
 
             }
 
@@ -1327,8 +1337,8 @@ class Main extends React.Component<{
                 // 修复qq邮箱里不显示的问题
                 style={{
                     display: this.state.initIsOpen ?
-                    (this.state.loading ? 'none' : 'flex')
-                    : 'none',
+                        (this.state.loading ? 'none' : 'flex')
+                        : 'none',
                     position: 'fixed',
                     top: 0,
                     right: 0,

@@ -39,6 +39,9 @@ const Base: any = styled.div`
         -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
         background:rgba(0, 0,0, 0.2);
     }
+    & .ant-list-item{
+        width:100%;
+    }
   `
 
 type PropType = {

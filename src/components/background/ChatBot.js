@@ -1,7 +1,7 @@
 // 通用的chatbot入口
 // TODO ： 逐步支持 bing、gpt4、chatgpt等；
 // 提供了初始化、结果回调、缓存机制
-import * as _ from 'lodash'
+
 
 import { md5 } from "@components/Utils"
 
@@ -104,7 +104,7 @@ class ChatBotBackground {
             let id = this.createKeyIdForInit(type, available || {})
             json[id] = chatBotAvailable
             chrome.storage.sync.set(json)
-                // _.throttle(() => chrome.storage.sync.set(json), 3000)
+
             return chatBotAvailable
         }
         return chatBotAvailable

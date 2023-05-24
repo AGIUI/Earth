@@ -14,7 +14,7 @@ AGI-UI的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人�
 
 ## 如何使用？
 
-安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.3.0
+安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.3.1
 
 Chrome：
 
@@ -96,17 +96,23 @@ v0.2.0
 
 新增绑定当前网页、输出格式，combo编辑器导入导出，提供示例
 
-v0.3.0
+v0.3.1
 - combo数据结构调整及编辑器，新增：interfaces（home、contextMenus、showInChat）、input、output
 
 - combo支持单个导出
 
 - API节点
 
-- PDF阅读器、pdf读取节点
-
 - 高亮网页信息节点（实验功能）
 
+
+## TODO
+
+- PDF节点:读取、创建、阅读器
+
+- PPT节点:读取、创建
+
+- 
 
 ## 相关资料：
 
