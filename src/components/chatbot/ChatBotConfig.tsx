@@ -1,10 +1,8 @@
 import { workflow } from '@components/Workflow'
 import { getConfig } from '@components/Utils';
 
-let discord: any;
-getConfig().then(json => {
-    discord = json.discord
-})
+const json:any=getConfig();
+let discord= json.discord 
 
 
 function get() {

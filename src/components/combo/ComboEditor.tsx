@@ -79,10 +79,11 @@ class ComboEditor extends React.Component {
             version: '',
             app: ''
         }
-        getConfig().then(json => this.setState({
+        const json: any = getConfig()
+        this.setState({
             app: json.app,
             version: json.version
-        }))
+        })
     }
 
     componentDidMount() {
@@ -328,7 +329,7 @@ class ComboEditor extends React.Component {
                 </div>
                 <Button size={"large"} type={"primary"}
                     style={{ position: "absolute", bottom: 30, width: 450, left: 25 }}
-                    onClick={(event: any) => this._showModal(event, { owner: 'user',id:(new Date()).getTime() })}>
+                    onClick={(event: any) => this._showModal(event, { owner: 'user', id: (new Date()).getTime() })}>
                     新建我的Prompts
                 </Button>
 

@@ -620,7 +620,7 @@ async function Init() {
 
     const p = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
 
-    const config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
+    const config = JSON.parse(fs.readFileSync('src/config/app.json', 'utf-8'));
 
 
     const json = {
@@ -631,7 +631,7 @@ async function Init() {
     }
 
     try {
-      await fs.writeJson('public/config.json',
+      await fs.writeJson('src/config/app.json',
         json
       );
     } catch (err) {

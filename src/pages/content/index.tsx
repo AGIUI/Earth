@@ -76,7 +76,7 @@ const Base: any = styled.div`
 
 async function init() {
 
-  let json: any = await getConfig() || {};
+  let json: any =   getConfig() || {};
 
   // from Bing,ChatGPT 初始化对话框 采用哪个引擎
   const { reader, fullscreen, userInput, from, agents } = getConfigFromUrl();

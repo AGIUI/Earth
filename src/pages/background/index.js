@@ -1,30 +1,24 @@
-import {chromeStorageGet} from "../../components/Utils.js";
-
-console.log('Service Worker')
-
 import NewBing from '@components/background/NewBing'
 import ChatGPT from '@components/background/ChatGPT'
 import ChatBot from '@components/background/ChatBot'
 import Agent from "@components/background/Agent";
 import Credit from "@components/background/Credit"
 import Common from '@components/background/Common'
-import {getConfig} from '@components/Utils';
+import { getConfig, chromeStorageGet } from '@components/Utils';
+import commonsConfig from '@src/config/commonsConfig.json'
+import editableConfig from '@src/config/editableConfig.json'
+import selectionConfig from '@src/config/selectionConfig.json'
+// console.log(commonsConfig)
+
+console.log('Service Worker', getConfig())
 
 async function loadContextMenuData() {
-    let json = await getConfig();
+    let json = getConfig();
     let Menu = [];
 
-    let Commons = await fetch(chrome.runtime.getURL('public/Common.json'));
-    Commons = await Commons.json();
-    Menu.push(...Commons);
-
-    let Editable = await fetch(chrome.runtime.getURL('public/Editable.json'));
-    Editable = await Editable.json();
-    Menu.push(...Editable);
-
-    let Selection = await fetch(chrome.runtime.getURL('public/Selection.json'));
-    Selection = await Selection.json();
-    Menu.push(...Selection);
+    Menu.push(...commonsConfig);
+    Menu.push(...editableConfig);
+    Menu.push(...selectionConfig);
 
     const res = await chromeStorageGet(['user', 'official']);
     let Workflow = [];
@@ -59,21 +53,21 @@ async function loadContextMenuData() {
         contexts: ['page']
     })
 
-    if (Commons.length !== 0) {
+    if (commonsConfig.length !== 0) {
         chrome.contextMenus.create({
-            id: 'Commons',
+            id: 'commonsConfig',
             title: '常用功能',
             type: 'normal',
             parentId: json.app,
             contexts: ['page']
         });
 
-        for (let i in Commons) {
+        for (let i in commonsConfig) {
             chrome.contextMenus.create({
-                id: String(Commons[i].id),
-                title: Commons[i].tag,
+                id: String(commonsConfig[i].id),
+                title: commonsConfig[i].tag,
                 type: 'normal',
-                parentId: 'Commons'
+                parentId: 'commonsConfig'
             })
         }
     }
@@ -96,21 +90,21 @@ async function loadContextMenuData() {
         }
     }
 
-    if (Selection.length !== 0) {
-        for (let i in Selection) {
+    if (selectionConfig.length !== 0) {
+        for (let i in selectionConfig) {
             chrome.contextMenus.create({
-                id: String(Selection[i].id),
-                title: Selection[i].tag,
+                id: String(selectionConfig[i].id),
+                title: selectionConfig[i].tag,
                 contexts: ['selection']
             })
         }
     }
 
-    if (Editable.length !== 0) {
-        for (let i in Editable) {
+    if (editableConfig.length !== 0) {
+        for (let i in editableConfig) {
             chrome.contextMenus.create({
-                id: String(Editable[i].id),
-                title: Editable[i].tag,
+                id: String(editableConfig[i].id),
+                title: editableConfig[i].tag,
                 contexts: ['editable'],
             })
         }
@@ -120,8 +114,8 @@ async function loadContextMenuData() {
 
 }
 
-(async () => {
-    let json = await getConfig()
+(async() => {
+    let json = getConfig()
     let Menu = await loadContextMenuData();
 
     // chrome.commands.getAll().then(commands => {
@@ -159,13 +153,13 @@ async function loadContextMenuData() {
     //   return true
     // });
 
-    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener(async(request, sender, sendResponse) => {
         if (request.cmd === 'update-chromeStorage-data') {
             Menu = await loadContextMenuData();
         }
     })
 
-    chrome.contextMenus.onClicked.addListener(async (item, tab) => {
+    chrome.contextMenus.onClicked.addListener(async(item, tab) => {
         const from = 'contextMenus';
         const tabId = tab.id;
         const id = item.menuItemId
@@ -178,7 +172,7 @@ async function loadContextMenuData() {
                     success: true,
                     data: true
                 },
-                function (response) {
+                function(response) {
                     // console.log(response)
                 }
             )
@@ -189,7 +183,7 @@ async function loadContextMenuData() {
                     success: true,
                     data: true
                 },
-                function (response) {
+                function(response) {
                     // console.log(response)
                 }
             )
@@ -197,10 +191,10 @@ async function loadContextMenuData() {
             for (let i in Menu) {
                 if (id == Menu[i].id) {
                     let PromptJson = Menu[i];
-                    if(PromptJson.input==="userSelection"){
+                    if (PromptJson.input === "userSelection") {
                         const context = item.selectionText;
-                        if(context){
-                            PromptJson.text = "###相关内容###\n"+context+"\n"+PromptJson.text
+                        if (context) {
+                            PromptJson.text = "###相关内容###\n" + context + "\n" + PromptJson.text
                         }
                     }
                     chrome.tabs.sendMessage(
@@ -218,7 +212,7 @@ async function loadContextMenuData() {
                                 }
                             }
                         },
-                        function (response) {
+                        function(response) {
                             // console.log(response)
                         }
                     )
@@ -235,7 +229,7 @@ async function loadContextMenuData() {
     const bingBot = new NewBing()
     chatBot.add(bingBot)
     chatBot.add(chatGPT)
-    // 初始化
+        // 初始化
     chatBot.getAvailables()
 
     new Common(json, chatBot, Agent, Credit)

@@ -1,0 +1,84 @@
+[
+  {
+    "tag": "介绍更多",
+    "role": "",
+    "combo": 1,
+    "interfaces": [],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+      "api": {
+        "init": {
+          "body": {},
+          "cache": "default",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "method": "POST",
+          "mode": "cors",
+          "responseType": "text"
+        },
+        "isApi": false,
+        "protocol": "https://",
+        "url": ""
+      },
+      "input": "userSelection",
+      "model": "Bing",
+      "output": "default",
+      "queryObj": {
+        "isQuery": false,
+        "protocol": "https://",
+        "query": "",
+        "url": ""
+      },
+      "temperature": 0.5,
+      "text": "###相关任务###\n帮我找到相关内容中的核心信息，并查询相关百科介绍和相关资讯的链接，你需要用以下格式输出：\n<百科>\nxxxx\n<相关资讯>\n1.xxxx\n2.xxxx",
+      "type": "markdown",
+      "url": ""
+    },
+    "version": "0.3.1",
+    "app": "Earth",
+    "id": "9d7f7c47eed2b0a5360412873bb909bc"
+  },
+  {
+    "tag": "内容扩写",
+    "role": "",
+    "combo": 1,
+    "interfaces": [],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+      "api": {
+        "init": {
+          "body": {},
+          "cache": "default",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "method": "POST",
+          "mode": "cors",
+          "responseType": "text"
+        },
+        "isApi": false,
+        "protocol": "https://",
+        "url": ""
+      },
+      "input": "userSelection",
+      "model": "ChatGPT",
+      "output": "default",
+      "queryObj": {
+        "isQuery": false,
+        "protocol": "https://",
+        "query": "",
+        "url": ""
+      },
+      "temperature": 0.7,
+      "text": "###相关任务###\n帮我将相关内容进行中文扩写，你需要用以下格式输出：\n<内容扩写>\nxxxx",
+      "type": "markdown",
+      "url": ""
+    },
+    "version": "0.3.1",
+    "app": "Earth",
+    "id": "cd115955d15fcadf0f37fc0cfe24446e"
+  }
+]

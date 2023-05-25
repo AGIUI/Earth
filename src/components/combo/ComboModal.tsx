@@ -82,12 +82,13 @@ class ComboModal extends React.Component {
             version: ''
         }
         console.log('currentPrompt', this.props.currentPrompt)
-        getConfig().then(json => {
-            this.setState({
-                app: json.app,
-                version: json.version
-            })
+        const json: any = getConfig()
+
+        this.setState({
+            app: json.app,
+            version: json.version
         })
+
     }
 
     componentDidMount() {

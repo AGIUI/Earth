@@ -1,0 +1,90 @@
+[
+  {
+    "tag": "正文总结",
+    "role": "",
+    "combo": 1,
+    "interfaces": [
+      "showInChat",
+      "contextMenus"
+    ],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+      "api": {
+        "init": {
+          "body": {},
+          "cache": "default",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "method": "POST",
+          "mode": "cors",
+          "responseType": "text"
+        },
+        "isApi": false,
+        "protocol": "https://",
+        "url": ""
+      },
+      "input": "bindCurrentPage",
+      "model": "ChatGPT",
+      "output": "default",
+      "queryObj": {
+        "isQuery": false,
+        "protocol": "https://",
+        "query": "",
+        "url": ""
+      },
+      "temperature": 0.7,
+      "text": "请帮我用中文完成以下任务的输出，它们分别是总结摘要和要点，你需要用以下格式输出：\n<摘要>\nxxxx\n<要点>\n1.xxxx\n2.xxxx",
+      "type": "markdown",
+      "url": ""
+    },
+    "version": "0.3.1",
+    "app": "Earth",
+    "id": "11111"
+  },
+  {
+    "tag": "正文总结1",
+    "role": "",
+    "combo": 1,
+    "interfaces": [
+      "showInChat",
+      "contextMenus"
+    ],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+      "api": {
+        "init": {
+          "body": {},
+          "cache": "default",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "method": "POST",
+          "mode": "cors",
+          "responseType": "text"
+        },
+        "isApi": false,
+        "protocol": "https://",
+        "url": ""
+      },
+      "input": "bindCurrentPage",
+      "model": "ChatGPT",
+      "output": "default",
+      "queryObj": {
+        "isQuery": false,
+        "protocol": "https://",
+        "query": "",
+        "url": ""
+      },
+      "temperature": 0.7,
+      "text": "请帮我用中文完成以下任务的输出，它们分别是总结摘要和要点，你需要用以下格式输出：\n<摘要>\nxxxx\n<要点>\n1.xxxx\n2.xxxx",
+      "type": "markdown",
+      "url": ""
+    },
+    "version": "0.3.1",
+    "app": "Earth",
+    "id": "111111111111111111"
+  }
+]
