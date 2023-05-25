@@ -247,10 +247,12 @@ class ChatBotInput extends React.Component {
                 translate="no"
                 style={{ boxShadow: 'none' }}
                 bodyStyle={{
-                    padding: '4px',
-                    background: 'rgb(238, 238, 238)',
-                    marginBottom: '16px',
-                    border: 'none'
+                    padding: '8px',
+                    paddingBottom: '24px',
+                    background: 'rgb(245, 245, 245)',
+                    marginBottom: '8px',
+                    border: 'none',
+                    borderRadius: '8px'
                 }}
                 actions={[
                     <div style={flexStyle} >
@@ -361,7 +363,7 @@ class ChatBotInput extends React.Component {
                     placeholder={this.state.placeholder}
                     autoSize={{ minRows: 2, maxRows: 15 }}
                     disabled={this.state.isLoading}
-                    style={this.state.userInput.prompt ? { height: 'auto' } : {}}
+                    style={this.state.userInput.prompt ? { height: 'auto',marginTop:2 } : {marginTop:2}}
                 />
 
             </Card>

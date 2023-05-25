@@ -245,18 +245,18 @@ const createListItem = (data: any, index: number) => {
                     dangerouslySetInnerHTML={{ __html: data.html }}>
                 </p> : <Card title={""}
                     headStyle={{
-                        minHeight: '12px', backgroundColor: 'white'
+                        minHeight: '12px', backgroundColor: 'white',border:"none",marginBottom:-20
                     }}
                     bordered={false}
                     size={'small'}
                     extra={data.export ?
-                        <><Button type="dashed"
+                        <><Button type="text"
                             style={{ margin: '4px 0' }}
                             icon={<CopyOutlined />}
                             size={'small'}
                             onClick={() => copy(data)} />
-                            <Button type="dashed"
-                                style={{ margin: '4px 0' }}
+                            <Button type="text"
+                                style={{ margin: '4px 0'}}
                                 icon={<FilePptOutlined />}
                                 size={'small'}
                                 onClick={() => createPPT(data)} />
@@ -264,8 +264,8 @@ const createListItem = (data: any, index: number) => {
                     }
 
                     style={{
-                        width: '100%', background: 'rgba(70, 70, 70, 0.04)', marginTop: '12px',
-                        marginBottom: '12px'
+                        width: '100%', background: 'rgba(255, 255, 255, 0.00)', marginTop: '12px',
+                        marginBottom: '12px', padding: '0px', boxShadow: 'none',
                     }}>
                     <p
                         style={createTalkBubbleStyle(data.user)}

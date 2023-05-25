@@ -1,4 +1,4 @@
-import { chromeStorageGet } from "../../components/Utils.js";
+import {chromeStorageGet} from "../../components/Utils.js";
 
 console.log('Service Worker')
 
@@ -8,55 +8,119 @@ import ChatBot from '@components/background/ChatBot'
 import Agent from "@components/background/Agent";
 import Credit from "@components/background/Credit"
 import Common from '@components/background/Common'
-
-import { getConfig } from '@components/Utils';
+import {getConfig} from '@components/Utils';
 
 async function loadContextMenuData() {
-    let json = await getConfig()
-    const res = await chromeStorageGet(['user', 'official']);
+    let json = await getConfig();
     let Menu = [];
+
+    let Commons = await fetch(chrome.runtime.getURL('public/Common.json'));
+    Commons = await Commons.json();
+    Menu.push(...Commons);
+
+    let Editable = await fetch(chrome.runtime.getURL('public/Editable.json'));
+    Editable = await Editable.json();
+    Menu.push(...Editable);
+
+    let Selection = await fetch(chrome.runtime.getURL('public/Selection.json'));
+    Selection = await Selection.json();
+    Menu.push(...Selection);
+
+    const res = await chromeStorageGet(['user', 'official']);
+    let Workflow = [];
+
     if (res['user'] && res['user'].length > 0)
         for (let i in res['user']) {
             if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus')) {
-                Menu.push(res['user'][i])
+                Workflow.push(res['user'][i])
             }
         }
     if (res['official'] && res['official'].length > 0)
         for (let i in res['official']) {
             if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus')) {
-                Menu.push(res['official'][i])
+                Workflow.push(res['official'][i])
             }
         }
 
+    Menu.push(...Workflow);
+
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
-        "id": json.app,
-        "title": json.app,
-        "contexts": ['page']
+        id: json.app,
+        title: json.app,
+        contexts: ['page']
     });
 
     chrome.contextMenus.create({
         id: 'toggle-insight',
         title: "打开面板",
         type: 'normal',
-        "parentId": json.app,
+        parentId: json.app,
         contexts: ['page']
     })
 
-    for (let i in Menu) {
+    if (Commons.length !== 0) {
         chrome.contextMenus.create({
-            id: Menu[i].tag,
-            title: Menu[i].tag,
+            id: 'Commons',
+            title: '常用功能',
             type: 'normal',
-            "parentId": json.app,
+            parentId: json.app,
             contexts: ['page']
-        })
+        });
+
+        for (let i in Commons) {
+            chrome.contextMenus.create({
+                id: String(Commons[i].id),
+                title: Commons[i].tag,
+                type: 'normal',
+                parentId: 'Commons'
+            })
+        }
     }
+
+    if (Workflow.length !== 0) {
+        chrome.contextMenus.create({
+            id: 'Workflow',
+            title: '工作流',
+            type: 'normal',
+            parentId: json.app,
+            contexts: ['page']
+        });
+        for (let i in Workflow) {
+            chrome.contextMenus.create({
+                id: String(Workflow[i].id),
+                title: Workflow[i].tag,
+                type: 'normal',
+                parentId: 'Workflow'
+            })
+        }
+    }
+
+    if (Selection.length !== 0) {
+        for (let i in Selection) {
+            chrome.contextMenus.create({
+                id: String(Selection[i].id),
+                title: Selection[i].tag,
+                contexts: ['selection']
+            })
+        }
+    }
+
+    if (Editable.length !== 0) {
+        for (let i in Editable) {
+            chrome.contextMenus.create({
+                id: String(Editable[i].id),
+                title: Editable[i].tag,
+                contexts: ['editable'],
+            })
+        }
+    }
+
     return Menu;
 
 }
 
-(async() => {
+(async () => {
     let json = await getConfig()
     let Menu = await loadContextMenuData();
 
@@ -95,13 +159,13 @@ async function loadContextMenuData() {
     //   return true
     // });
 
-    chrome.runtime.onMessage.addListener(async(request, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         if (request.cmd === 'update-chromeStorage-data') {
             Menu = await loadContextMenuData();
         }
     })
 
-    chrome.contextMenus.onClicked.addListener(async(item, tab) => {
+    chrome.contextMenus.onClicked.addListener(async (item, tab) => {
         const from = 'contextMenus';
         const tabId = tab.id;
         const id = item.menuItemId
@@ -114,7 +178,7 @@ async function loadContextMenuData() {
                     success: true,
                     data: true
                 },
-                function(response) {
+                function (response) {
                     // console.log(response)
                 }
             )
@@ -125,13 +189,20 @@ async function loadContextMenuData() {
                     success: true,
                     data: true
                 },
-                function(response) {
+                function (response) {
                     // console.log(response)
                 }
             )
 
             for (let i in Menu) {
-                if (id === Menu[i].tag) {
+                if (id == Menu[i].id) {
+                    let PromptJson = Menu[i];
+                    if(PromptJson.input==="userSelection"){
+                        const context = item.selectionText;
+                        if(context){
+                            PromptJson.text = "###相关内容###\n"+context+"\n"+PromptJson.text
+                        }
+                    }
                     chrome.tabs.sendMessage(
                         tabId, {
                             cmd: 'contextMenus',
@@ -139,15 +210,15 @@ async function loadContextMenuData() {
                             data: {
                                 cmd: 'combo',
                                 data: {
-                                    '_combo': Menu[i],
+                                    '_combo': PromptJson,
                                     from,
-                                    prompt: Menu[i].prompt,
-                                    tag: Menu[i].tag,
+                                    prompt: PromptJson.prompt,
+                                    tag: PromptJson.tag,
                                     newTalk: true
                                 }
                             }
                         },
-                        function(response) {
+                        function (response) {
                             // console.log(response)
                         }
                     )
@@ -164,7 +235,7 @@ async function loadContextMenuData() {
     const bingBot = new NewBing()
     chatBot.add(bingBot)
     chatBot.add(chatGPT)
-        // 初始化
+    // 初始化
     chatBot.getAvailables()
 
     new Common(json, chatBot, Agent, Credit)

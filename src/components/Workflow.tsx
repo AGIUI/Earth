@@ -8,7 +8,7 @@ const workflow = {
         {
             "label": "发散程度",
             "value": "temperature",
-            "defaultValue":0.6
+            "defaultValue":0.7
         },
         {
             "label": "模型",
