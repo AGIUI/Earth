@@ -76,7 +76,7 @@ function createTalkData(type: string, json: any) {
                 type: 'suggest',
                 hi: `hi,当前AI:${json.hi},服务异常`,
                 buttons: [{
-                    from: 'setup',
+                    from: 'open-setup',
                     data: {
                         tag: '配置or切换AI',
                         prompt: '配置or切换AI',

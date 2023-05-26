@@ -9,11 +9,12 @@ import commonsConfig from '@src/config/commonsConfig.json'
 import editableConfig from '@src/config/editableConfig.json'
 import selectionConfig from '@src/config/selectionConfig.json'
 // console.log(commonsConfig)
+const _CONFIG_JSON = getConfig()
+console.log('Service Worker', _CONFIG_JSON)
 
-console.log('Service Worker', getConfig())
 
 async function loadContextMenuData() {
-    let json = getConfig();
+
     let Menu = [];
 
     Menu.push(...commonsConfig);
@@ -40,8 +41,8 @@ async function loadContextMenuData() {
 
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
-        id: json.app,
-        title: json.app,
+        id: _CONFIG_JSON.app,
+        title: _CONFIG_JSON.app,
         contexts: ['page']
     });
 
@@ -49,7 +50,7 @@ async function loadContextMenuData() {
         id: 'toggle-insight',
         title: "打开面板",
         type: 'normal',
-        parentId: json.app,
+        parentId: _CONFIG_JSON.app,
         contexts: ['page']
     })
 
@@ -58,7 +59,7 @@ async function loadContextMenuData() {
             id: 'commonsConfig',
             title: '常用功能',
             type: 'normal',
-            parentId: json.app,
+            parentId: _CONFIG_JSON.app,
             contexts: ['page']
         });
 
@@ -77,7 +78,7 @@ async function loadContextMenuData() {
             id: 'Workflow',
             title: '工作流',
             type: 'normal',
-            parentId: json.app,
+            parentId: _CONFIG_JSON.app,
             contexts: ['page']
         });
         for (let i in Workflow) {
@@ -115,7 +116,7 @@ async function loadContextMenuData() {
 }
 
 (async() => {
-    let json = getConfig()
+
     let Menu = await loadContextMenuData();
 
     // chrome.commands.getAll().then(commands => {
@@ -143,7 +144,7 @@ async function loadContextMenuData() {
             )}`
         )
         if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-            chrome.runtime.setUninstallURL(json.discord)
+            chrome.runtime.setUninstallURL(_CONFIG_JSON.discord)
         }
         return true
     })
@@ -232,5 +233,5 @@ async function loadContextMenuData() {
         // 初始化
     chatBot.getAvailables()
 
-    new Common(json, chatBot, Agent, Credit)
+    new Common(_CONFIG_JSON, chatBot, Agent, Credit)
 })()
