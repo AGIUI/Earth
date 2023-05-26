@@ -53,20 +53,20 @@ class Common {
             this.sendMessage('toggle-insight', true, true, tab.id)
                 // if (!available) chatBot.init(chatBot.currentName)
                 // 检查newtab有没有打开，没有的话打开
-            const newTabUrl = `${chrome.runtime.getURL('')}/${chrome.runtime.getManifest().chrome_url_overrides.newtab}`
-            chrome.tabs.query({}, tabs => {
-                // console.log(tabs)
-                if (!tabs.filter(t => t.url == newTabUrl)[0] &&
-                    !tabs.filter(t => t.title == this.appName)[0]
-                ) {
-                    // 没打开
-                    chrome.tabs.create({
-                        active: false,
-                        url: newTabUrl
-                    })
-                }
-                return true
-            })
+                // const newTabUrl = `${chrome.runtime.getURL('')}/${chrome.runtime.getManifest().chrome_url_overrides.newtab}`
+                // chrome.tabs.query({}, tabs => {
+                //     // console.log(tabs)
+                //     if (!tabs.filter(t => t.url == newTabUrl)[0] &&
+                //         !tabs.filter(t => t.title == this.appName)[0]
+                //     ) {
+                //         // 没打开
+                //         chrome.tabs.create({
+                //             active: false,
+                //             url: newTabUrl
+                //         })
+                //     }
+                //     return true
+                // })
         })
 
         // chrome.contextMenus.onClicked.addListener(async(item, tab) => {
@@ -87,6 +87,8 @@ class Common {
             async(request, sender, sendResponse) => {
                 const { cmd, data } = request,
                 tabId = sender.tab.id
+
+                if (cmd == 'hi') sendResponse({ cmd: 'hi-result', data: true })
 
                 if (cmd == 'chat-bot-init') {
 

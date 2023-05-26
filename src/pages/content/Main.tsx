@@ -9,15 +9,15 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
 
-import { promptParse, promptUseLastTalk } from '@components/combo/PromptOutput'
 import {
     promptBindCurrentSite,
     promptBindUserSelection,
     promptBindTasks,
     promptBindUserClipboard,
     userSelectionInit,
-    extractDomElement
-} from '@components/combo/PromptInput'
+    extractDomElement,promptParse, promptUseLastTalk
+} from '@src/components/combo/Prompt'
+
 import { highlightText } from "@components/combo/Agent"
 
 import Setup from "@components/Setup"
@@ -463,6 +463,12 @@ class Main extends React.Component<{
         });
 
         userSelectionInit();
+
+
+        chrome.runtime.sendMessage({
+           cmd: 'hi'
+        }, res =>console.log('hi status', res))
+
     }
 
     async show(loading: boolean) {
@@ -697,7 +703,7 @@ class Main extends React.Component<{
         if (type === 'tasks') {
             newText = promptBindTasks(text);
         } else {
-            // console.log('_llmRun:',type)
+            console.log('_llmRun:',type)
             newText = promptParse(text, type)
         }
 
@@ -998,7 +1004,7 @@ class Main extends React.Component<{
                     openMyPrompts: false
                 })
 
-                console.log(`prompt`, JSON.stringify(prompt, null, 2), JSON.stringify(prePrompt, null, 2), combo, prompt.input)
+                // console.log(`prompt`, JSON.stringify(prompt, null, 2), JSON.stringify(prePrompt, null, 2), combo, prompt.input)
 
                 // combo>0从comboor对话流里运行
                 // combo==-1 用户对话框里的输入
