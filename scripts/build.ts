@@ -607,7 +607,7 @@ function DevBrowserExt(browsers: string[]) {
 
 async function Init() {
   const { browsers, dev } = GetArgs();
-
+  await writeJsonAsync();
   if (dev) {
     DevBrowserExt(browsers);
   } else {
@@ -624,10 +624,10 @@ async function Init() {
 
 
     const json = {
+      ...config,
       app: p.displayName,
       version: p.version,
       browsers,
-      ...config
     }
 
     try {
@@ -638,7 +638,7 @@ async function Init() {
       console.error(err)
     }
   }
-  await writeJsonAsync();
+  
 
 
 }
