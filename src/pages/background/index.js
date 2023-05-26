@@ -9,45 +9,62 @@ import Agent from "@components/background/Agent";
 import Credit from "@components/background/Credit"
 import Common from '@components/background/Common'
 import {getConfig} from '@components/Utils';
+import commonsConfig from '@src/config/commonsConfig.json'
+import editableConfig from '@src/config/editableConfig.json'
+import selectionConfig from '@src/config/selectionConfig.json'
 
 async function loadContextMenuData() {
-    let json = await getConfig();
+
     let Menu = [];
-
-    let Commons = await fetch(chrome.runtime.getURL('public/Common.json'));
-    Commons = await Commons.json();
-    Menu.push(...Commons);
-
-    let Editable = await fetch(chrome.runtime.getURL('public/Editable.json'));
-    Editable = await Editable.json();
-    Menu.push(...Editable);
-
-    let Selection = await fetch(chrome.runtime.getURL('public/Selection.json'));
-    Selection = await Selection.json();
-    Menu.push(...Selection);
+    let pdfConfig = [];
+    let linkConfig = [];
 
     const res = await chromeStorageGet(['user', 'official']);
     let Workflow = [];
 
-    if (res['user'] && res['user'].length > 0)
+    if (res['user'] && res['user'].length > 0){
         for (let i in res['user']) {
             if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus')) {
                 Workflow.push(res['user'][i])
+            } else if(res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Selection')){
+                selectionConfig.push(res['user'][i]);
+            } else if(res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Editable')){
+                editableConfig.push(res['user'][i]);
+            } else if(res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_PDF')){
+                pdfConfig.push(res['user'][i])
+            } else if(res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Link')){
+                linkConfig.push(res['user'][i])
             }
         }
-    if (res['official'] && res['official'].length > 0)
+    }
+
+    if (res['official'] && res['official'].length > 0){
         for (let i in res['official']) {
             if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus')) {
                 Workflow.push(res['official'][i])
+            } else if(res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Selection')){
+                selectionConfig.push(res['official'][i]);
+            } else if(res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Editable')){
+                editableConfig.push(res['official'][i]);
+            } else if(res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_PDF')){
+                pdfConfig.push(res['official'][i])
+            } else if(res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Link')){
+                linkConfig.push(res['official'][i])
             }
         }
+    }
 
+    Menu.push(...commonsConfig);
+    Menu.push(...editableConfig);
+    Menu.push(...selectionConfig);
     Menu.push(...Workflow);
+    Menu.push(...pdfConfig);
+    Menu.push(...linkConfig);
 
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
-        id: json.app,
-        title: json.app,
+        id: 'Earth',
+        title: 'Earth',
         contexts: ['page']
     });
 
@@ -55,25 +72,25 @@ async function loadContextMenuData() {
         id: 'toggle-insight',
         title: "打开面板",
         type: 'normal',
-        parentId: json.app,
+        parentId: 'Earth',
         contexts: ['page']
     })
 
-    if (Commons.length !== 0) {
+    if (commonsConfig.length !== 0) {
         chrome.contextMenus.create({
-            id: 'Commons',
+            id: 'commonsConfig',
             title: '常用功能',
             type: 'normal',
-            parentId: json.app,
+            parentId: 'Earth',
             contexts: ['page']
         });
 
-        for (let i in Commons) {
+        for (let i in commonsConfig) {
             chrome.contextMenus.create({
-                id: String(Commons[i].id),
-                title: Commons[i].tag,
+                id: String(commonsConfig[i].id),
+                title: commonsConfig[i].tag,
                 type: 'normal',
-                parentId: 'Commons'
+                parentId: 'commonsConfig'
             })
         }
     }
@@ -83,7 +100,7 @@ async function loadContextMenuData() {
             id: 'Workflow',
             title: '工作流',
             type: 'normal',
-            parentId: json.app,
+            parentId: 'Earth',
             contexts: ['page']
         });
         for (let i in Workflow) {
@@ -96,22 +113,43 @@ async function loadContextMenuData() {
         }
     }
 
-    if (Selection.length !== 0) {
-        for (let i in Selection) {
+    if (selectionConfig.length !== 0) {
+        for (let i in selectionConfig) {
             chrome.contextMenus.create({
-                id: String(Selection[i].id),
-                title: Selection[i].tag,
+                id: String(selectionConfig[i].id),
+                title: selectionConfig[i].tag,
                 contexts: ['selection']
             })
         }
     }
 
-    if (Editable.length !== 0) {
-        for (let i in Editable) {
+    if (editableConfig.length !== 0) {
+        for (let i in editableConfig) {
             chrome.contextMenus.create({
-                id: String(Editable[i].id),
-                title: Editable[i].tag,
+                id: String(editableConfig[i].id),
+                title: editableConfig[i].tag,
                 contexts: ['editable'],
+            })
+        }
+    }
+
+    if (pdfConfig.length !== 0) {
+        for (let i in pdfConfig) {
+            chrome.contextMenus.create({
+                id: String(pdfConfig[i].id),
+                title: pdfConfig[i].tag,
+                contexts: ["all"],
+                targetUrlPatterns: ["*://*/*.pdf"]
+            })
+        }
+    }
+
+    if (linkConfig.length !== 0) {
+        for (let i in linkConfig) {
+            chrome.contextMenus.create({
+                id: String(linkConfig[i].id),
+                title: linkConfig[i].tag,
+                contexts: ['link'],
             })
         }
     }
