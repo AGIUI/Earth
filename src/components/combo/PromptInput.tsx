@@ -1,7 +1,7 @@
 import { Readability } from '@mozilla/readability'
 import { md5, textSplitByLength } from '@components/Utils'
 
-const MAX_LENGTH = 2000;
+const MAX_LENGTH = 1800;
 
 const userSelectionInit = () => {
     document.addEventListener("selectionchange", () => {
@@ -51,10 +51,18 @@ const promptBindUserClipboard = async (prompt: string) => {
 
 
 const extractArticle = () => {
-    const documentClone: any = document.cloneNode(true);
+    let documentClone: any = document.cloneNode(true);
+    documentClone.querySelector('._agi_ui')?.remove();
+
+    if (window.location.hostname === 'mail.qq.com') {
+        const doc: any = document.querySelector('#mainFrameContainer iframe');
+        if (doc) documentClone = doc.contentDocument.cloneNode(true)
+        // console.log(doc.contentDocument.body)
+    }
+
     let article: any = {};
 
-    let divs: any = [...document.body.children]
+    let divs: any = [...documentClone.body.children]
     divs = divs.filter((d: any) => d.className != '_agi_ui')
 
     let elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p'), ...div.querySelectorAll('span'), ...div.querySelectorAll('h1'), ...div.querySelectorAll('section')].flat()).flat().filter((f: any) => f);

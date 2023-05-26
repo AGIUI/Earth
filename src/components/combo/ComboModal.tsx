@@ -23,8 +23,12 @@ const Form1 = styled(Form)`
     &.ant-form{
         display: block!important;
     }
-    .ant-form-item-control-input-content{
+    &.ant-form-item-control-input-content{
         text-align: left!important;
+    }
+    &.ant-btn-primary{
+        color: #fff !important;
+        background-color: #1677ff !important;
     }
 `;
 
@@ -78,12 +82,13 @@ class ComboModal extends React.Component {
             version: ''
         }
         console.log('currentPrompt', this.props.currentPrompt)
-        getConfig().then(json => {
-            this.setState({
-                app: json.app,
-                version: json.version
-            })
+        const json: any = getConfig()
+
+        this.setState({
+            app: json.app,
+            version: json.version
         })
+
     }
 
     componentDidMount() {
@@ -190,6 +195,36 @@ class ComboModal extends React.Component {
     /**
      * 结果
      */
+
+
+    _downloadMyCombo() {
+        const savedCombo = this._saveMyCombo(); // 保存当前的组合数据
+        const combos = [savedCombo];
+        console.log(combos);
+
+        const data = [];
+        for (const combo of combos) {
+            const comboCopy = { ...combo }; // 创建副本以保持组合数据不变
+            comboCopy.version = this.state.version;
+            comboCopy.app = this.state.app;
+            if (!comboCopy.id || comboCopy.id === "") {
+                comboCopy.id = md5(JSON.stringify(comboCopy));
+            }
+            data.push(comboCopy);
+        }
+
+        const name = combos[0].tag;
+        const id = md5(JSON.stringify(data));
+
+        const link = document.createElement('a');
+        link.href = `data:application/json;charset=utf-8,\ufeff${encodeURIComponent(JSON.stringify(data))}`;
+        link.download = `${name}_${id}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+
     _onFinish() {
         const combo = this._saveMyCombo();
         console.log('_onFinish', combo)
@@ -201,36 +236,6 @@ class ComboModal extends React.Component {
             cmd: 'edit-combo-finish', data
         })
     }
-
-    _downloadMyCombo() {
-        const combos = [this._saveMyCombo()];
-
-        const data: any = [];
-        for (const combo of combos) {
-            combo.version = this.state.version;
-            combo.app = this.state.app;
-            combo.id = "";
-            combo.id = md5(JSON.stringify(combo));
-            data.push(combo)
-        }
-
-        const name = combos[0].tag;
-        const id = md5(JSON.stringify(data));
-
-        //通过创建a标签实现
-        const link = document.createElement('a')
-        //encodeURIComponent解决中文乱码
-        link.href = `data:application/json;charset=utf-8,\ufeff${encodeURIComponent(JSON.stringify(data))}`
-
-        //下载文件命名
-        link.download = `${name}_${id}`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link);
-
-    }
-
-
 
     _handleCancel() {
         this.setState({
@@ -508,7 +513,7 @@ class ComboModal extends React.Component {
             </Form.Item>
             <Form.Item
                 name={`Prompt${index}EditOptionsForTemperature`}
-                label="严谨程度 Temperature"
+                label="发散程度 Temperature"
             >
                 <Slider
                     style={{ width: '120px' }}
@@ -687,14 +692,14 @@ class ComboModal extends React.Component {
                     },
                 ]}>
                 <Input addonBefore={
-                    <Select defaultValue="https://" onChange={(e:string)=>{
+                    <Select defaultValue="https://" onChange={(e: string) => {
                         const data: any = {};
                         const i = index > 1 ? index : '';
                         data[`prompt${i}`] = {
                             ...defaultPrompt,
                             ...this.state.currentPrompt[`prompt${i}`]
                         };
-                        data[`prompt${i}`].api.protocol=e;
+                        data[`prompt${i}`].api.protocol = e;
                         this._updateCurrentPrompt(data)
                     }}>
                         <Option value="http://">http://</Option>
@@ -711,8 +716,9 @@ class ComboModal extends React.Component {
                             ...defaultPrompt,
                             ...this.state.currentPrompt[`prompt${i}`]
                         }
-                        data[`prompt${i}`].api.url=e.currentTarget.value.trim();
-                        data[`prompt${i}`].url=e.currentTarget.value.trim();
+                        data[`prompt${i}`].api.url = e.currentTarget.value.trim();
+                        data[`prompt${i}`].url = e.currentTarget.value.trim();
+                        data[`prompt${i}`].api.protocol = data[`prompt${i}`].api.protocol || 'https://';
                         this._updateCurrentPrompt(data)
                     }}
                 />

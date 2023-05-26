@@ -1,5 +1,5 @@
 import { Md5 } from 'ts-md5'
-
+import app from '@src/config/app.json'
 
 function chromeStorageGet(k: any) {
     return new Promise((res, rej) => {
@@ -12,7 +12,14 @@ function chromeStorageGet(k: any) {
 
 function chromeStorageSet(json: any) {
     return new Promise<void>((res, rej) => {
-        chrome.storage.local.set(json).then(() => res())
+        chrome.storage.local.set(json).then(
+            () => {
+                chrome.runtime.sendMessage({
+                    cmd: 'update-chromeStorage-data',
+                })
+                res();
+            }
+        )
     });
 }
 
@@ -52,20 +59,11 @@ const parseUrl = () => {
 // from Bing,ChatGPT 初始化对话框 采用哪个引擎
 // const {  reader, fullscreen, userInput, from } = parseUrl();
 const getConfigFromUrl = () => {
-    const { reader, fullscreen, userInput, from, agents } = parseUrl();
-    return { reader, fullscreen, userInput, from, agents }
+    const { reader, fullscreen, userInput, from, agents,databaseId, blockId } = parseUrl();
+    return { reader, fullscreen, userInput, from, agents,databaseId, blockId }
 }
 
-const getConfig = async () => {
-    try {
-        let json: any = await fetch(chrome.runtime.getURL('public/config.json'));
-        json = await json.json();
-        return json;
-    } catch (error) {
-
-    }
-
-}
+const getConfig = () =>app
 
 
 const textSplitByLength = (text: string, length: number) => {

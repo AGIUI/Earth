@@ -6,8 +6,9 @@
 const workflow = {
     "models": [
         {
-            "label": "温度",
-            "value": "temperature"
+            "label": "发散程度",
+            "value": "temperature",
+            "defaultValue":0.7
         },
         {
             "label": "模型",
@@ -54,6 +55,9 @@ const workflow = {
         "label": "作为上下文",
         "value": "isNextUse"
 
+    },{
+        "label":"条件判断",
+        "value":"isMatch"
     }],
     "agents": [{
         "key": "prompt",
@@ -102,7 +106,8 @@ const workflow = {
     },
     {
         "label": "提取结构化数据",
-        "key": "extract"
+        "key": "extract",
+        "temperature":0
     }
     ]
 }
