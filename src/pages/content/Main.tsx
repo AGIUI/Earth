@@ -9,15 +9,15 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
 
-import { promptParse, promptUseLastTalk } from '@components/combo/PromptOutput'
 import {
     promptBindCurrentSite,
     promptBindUserSelection,
     promptBindTasks,
     promptBindUserClipboard,
     userSelectionInit,
-    extractDomElement
-} from '@components/combo/PromptInput'
+    extractDomElement, promptParse, promptUseLastTalk
+} from '@src/components/combo/Prompt'
+
 import { highlightText } from "@components/combo/Agent"
 
 import Setup from "@components/Setup"
@@ -128,7 +128,7 @@ const Talks = {
         const buttons = Array.from(
             await getPromptsData(),
             d => {
-                return d.interfaces.includes('showInChat') ? {
+                if (d && d.interfaces) return d.interfaces.includes('showInChat') ? {
                     from: 'combo',
                     data: {
                         combo: d.combo,
@@ -321,7 +321,7 @@ class Main extends React.Component<{
                     type: 'done',
                     markdown: `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`,
                     tId: (new Date()).getTime(),
-                    export:false
+                    export: false
                 }];
 
                 if (ttype == 'images') {
@@ -374,7 +374,7 @@ class Main extends React.Component<{
                     html: '自动化执行任务ing',
                     user: false,
                     tId: (new Date()).getTime() + '02',
-                    export:false
+                    export: false
                 })
             }
 
@@ -419,7 +419,7 @@ class Main extends React.Component<{
                         type: 'done',
                         markdown: res['run-agents-result'].markdown,
                         tId: (new Date()).getTime(),
-                        export:false
+                        export: false
                     }]);
                     chromeStorageSet({ 'run-agents-result': null })
                 }, 1000)
@@ -463,6 +463,12 @@ class Main extends React.Component<{
         });
 
         userSelectionInit();
+
+
+        chrome.runtime.sendMessage({
+            cmd: 'hi'
+        }, res => console.log('hi status', res))
+
     }
 
     async show(loading: boolean) {
@@ -686,6 +692,7 @@ class Main extends React.Component<{
 
     /**
      * 'prompt' ||   'tasks'  
+     * TODO:bug 用户输入的prompt ，
      */
 
     _llmRun(prompt: any, newTalk: boolean) {
@@ -697,20 +704,20 @@ class Main extends React.Component<{
         if (type === 'tasks') {
             newText = promptBindTasks(text);
         } else {
-            // console.log('_llmRun:',type)
+            console.log('_llmRun:', type)
             newText = promptParse(text, type)
         }
 
         let chatBotType = this.state.chatBotType,
-            style: any = 0;
+            style: any = temperature;
 
         if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
 
-        if (temperature > -1) style = temperature;
+        // if (temperature > -1) style = temperature;
         if (model) chatBotType = model;
 
         // 增加一个Bing的转化
-        if (model == "Bing" && temperature > -1) style = this._temperature2BingStyle(temperature);
+        if (model == "Bing" && typeof (temperature) == 'number' && temperature > -1) style = this._temperature2BingStyle(temperature);
 
         console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, newText)
 
@@ -979,7 +986,7 @@ class Main extends React.Component<{
             const sendTalk = async () => {
                 let combo = data._combo ? data._combo.combo : -1;
                 let { prompt, tag, lastTalk, newTalk, from, prePrompt } = data;
-                // from : combo ,chatbot-input
+                // from : combo ,chatbot-input,getPromptPage
 
                 prompt = JSON.parse(JSON.stringify(prompt))
 
@@ -998,7 +1005,7 @@ class Main extends React.Component<{
                     openMyPrompts: false
                 })
 
-                console.log(`prompt`, JSON.stringify(prompt, null, 2), JSON.stringify(prePrompt, null, 2), combo, prompt.input)
+                // console.log(`prompt`, JSON.stringify(prompt, null, 2), JSON.stringify(prePrompt, null, 2), combo, prompt.input)
 
                 // combo>0从comboor对话流里运行
                 // combo==-1 用户对话框里的输入
@@ -1030,8 +1037,13 @@ class Main extends React.Component<{
 
 
                 // 运行时
-                console.log('prompt.type------', prompt.type, prompt.text)
+                console.log('prompt.type------', prompt.type, prompt.text, from)
 
+                // 如果是用户输入的，from==chatbot-input
+                if (from === "chatbot-input") {
+                    prompt.model = this.state.chatBotType;
+                    if (this.state.chatBotStyle && this.state.chatBotStyle.value) prompt.temperature = this.state.chatBotStyle.value;
+                }
 
                 if (['prompt',
                     'tasks',
