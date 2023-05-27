@@ -70,6 +70,9 @@ class Setup extends React.Component<{
 }> {
     constructor(props: any) {
         super(props)
+
+        const json: any = getConfig();
+
         this.state = {
             os: 'win',
             chatGPTConfig: {
@@ -89,7 +92,7 @@ class Setup extends React.Component<{
             loading: false,
             checked: false,
             credit: '',
-            name: '',
+            name:`${json.app} _版本: ${json.version}`,
             isChange: false
         }
 
@@ -109,12 +112,6 @@ class Setup extends React.Component<{
         }
 
         this._load();
-
-        getConfig().then(json => {
-            this.setState({
-                name: `${json.app} _版本: ${json.version}`
-            })
-        });
 
     }
 
@@ -156,17 +153,18 @@ class Setup extends React.Component<{
                 // console.log(chatGPTConfig)
                 this.setState({ chatGPTConfig })
             } else {
-                getConfig().then(json => {
-                    if (json.chatGPT) {
-                        this.setState({
-                            chatGPTConfig: json.chatGPT
-                        })
-                        if (json.chatGPT.creditUrl) {
-                            this._getCredit(json.chatGPT.creditUrl, json.chatGPT.token)
-                        }
-                    }
+                const json: any = getConfig()
 
-                })
+                if (json.chatGPT) {
+                    this.setState({
+                        chatGPTConfig: json.chatGPT
+                    })
+                    if (json.chatGPT.creditUrl) {
+                        this._getCredit(json.chatGPT.creditUrl, json.chatGPT.token)
+                    }
+                }
+
+
             }
         })
     }
@@ -325,7 +323,7 @@ class Setup extends React.Component<{
     }
 
     render(): JSX.Element {
-        // console.log(this.state.chatGPTConfig, 'chatGPTConfigchatGPTConfig')
+        console.log(this.state.name)
         return (
             <Content>
                 <Space direction="vertical" size="small"
@@ -409,11 +407,11 @@ class Setup extends React.Component<{
 
                         </Title>
                         {(() => {
-                            if (this.state.status['ChatGPT'] == 'OK'&&this.state.isChange==false) {
+                            if (this.state.status['ChatGPT'] == 'OK' && this.state.isChange == false) {
                                 return <Tag color="#87d068">当前可用</Tag>
                             } else {
                                 return <Space direction={"horizontal"} size={0}>
-                                    <Tag color={"#cd201f"}>{this.state.isChange?'待更新':'暂不可用'}</Tag>
+                                    <Tag color={"#cd201f"}>{this.state.isChange ? '待更新' : '暂不可用'}</Tag>
                                     <Popover zIndex={1200} content={
                                         <div>{this.state.status['ChatGPT']}</div>
                                     } title="详情">

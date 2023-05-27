@@ -41,6 +41,7 @@
     "id": "9d7f7c47eed2b0a5360412873bb909bc"
   },
   {
+
     "tag": "翻译成中文",
     "role": "",
     "combo": 1,
@@ -86,6 +87,7 @@
     "role": "",
     "combo": 1,
     "interfaces": ["contextMenus_Selection"],
+
     "isInfinite": false,
     "owner": "user",
     "prompt": {
@@ -104,7 +106,9 @@
         "protocol": "https://",
         "url": ""
       },
+
       "input": "default",
+
       "model": "ChatGPT",
       "output": "default",
       "queryObj": {
@@ -114,13 +118,16 @@
         "url": ""
       },
       "temperature": 0.7,
+
       "text": "###相关任务###\n帮我将相关内容进行扩写，重点内容不能发生变化。",
+
       "type": "markdown",
       "url": ""
     },
     "version": "0.3.1",
     "app": "Earth",
     "id": "cd115955d15fcadf0f37fc0cfe24446e"
+
   },
   {
     "tag": "内容缩写",
@@ -203,5 +210,6 @@
     "version": "",
     "app": "",
     "id": 1685085359057
+
   }
 ]

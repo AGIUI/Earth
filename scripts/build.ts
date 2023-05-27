@@ -607,7 +607,7 @@ function DevBrowserExt(browsers: string[]) {
 
 async function Init() {
   const { browsers, dev } = GetArgs();
-
+  await writeJsonAsync();
   if (dev) {
     DevBrowserExt(browsers);
   } else {
@@ -620,25 +620,25 @@ async function Init() {
 
     const p = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
 
-    const config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
+    const config = JSON.parse(fs.readFileSync('src/config/app.json', 'utf-8'));
 
 
     const json = {
+      ...config,
       app: p.displayName,
       version: p.version,
       browsers,
-      ...config
     }
 
     try {
-      await fs.writeJson('public/config.json',
+      await fs.writeJson('src/config/app.json',
         json
       );
     } catch (err) {
       console.error(err)
     }
   }
-  await writeJsonAsync();
+  
 
 
 }

@@ -1,13 +1,10 @@
-import {chromeStorageGet} from "../../components/Utils.js";
-
-console.log('Service Worker')
-
 import NewBing from '@components/background/NewBing'
 import ChatGPT from '@components/background/ChatGPT'
 import ChatBot from '@components/background/ChatBot'
 import Agent from "@components/background/Agent";
 import Credit from "@components/background/Credit"
 import Common from '@components/background/Common'
+
 import {getConfig} from '@components/Utils';
 import commonsConfig from '@src/config/commonsConfig.json'
 import editableConfig from '@src/config/editableConfig.json'
@@ -63,8 +60,10 @@ async function loadContextMenuData() {
 
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
+
         id: 'Earth',
         title: 'Earth',
+
         contexts: ['page']
     });
 
@@ -72,7 +71,9 @@ async function loadContextMenuData() {
         id: 'toggle-insight',
         title: "打开面板",
         type: 'normal',
+
         parentId: 'Earth',
+
         contexts: ['page']
     })
 
@@ -81,7 +82,9 @@ async function loadContextMenuData() {
             id: 'commonsConfig',
             title: '常用功能',
             type: 'normal',
+
             parentId: 'Earth',
+
             contexts: ['page']
         });
 
@@ -100,7 +103,9 @@ async function loadContextMenuData() {
             id: 'Workflow',
             title: '工作流',
             type: 'normal',
+
             parentId: 'Earth',
+
             contexts: ['page']
         });
         for (let i in Workflow) {
@@ -158,8 +163,8 @@ async function loadContextMenuData() {
 
 }
 
-(async () => {
-    let json = await getConfig()
+(async() => {
+
     let Menu = await loadContextMenuData();
 
     // chrome.commands.getAll().then(commands => {
@@ -187,7 +192,7 @@ async function loadContextMenuData() {
             )}`
         )
         if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-            chrome.runtime.setUninstallURL(json.discord)
+            chrome.runtime.setUninstallURL(_CONFIG_JSON.discord)
         }
         return true
     })
@@ -197,13 +202,13 @@ async function loadContextMenuData() {
     //   return true
     // });
 
-    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener(async(request, sender, sendResponse) => {
         if (request.cmd === 'update-chromeStorage-data') {
             Menu = await loadContextMenuData();
         }
     })
 
-    chrome.contextMenus.onClicked.addListener(async (item, tab) => {
+    chrome.contextMenus.onClicked.addListener(async(item, tab) => {
         const from = 'contextMenus';
         const tabId = tab.id;
         const id = item.menuItemId
@@ -216,7 +221,7 @@ async function loadContextMenuData() {
                     success: true,
                     data: true
                 },
-                function (response) {
+                function(response) {
                     // console.log(response)
                 }
             )
@@ -227,7 +232,7 @@ async function loadContextMenuData() {
                     success: true,
                     data: true
                 },
-                function (response) {
+                function(response) {
                     // console.log(response)
                 }
             )
@@ -235,10 +240,10 @@ async function loadContextMenuData() {
             for (let i in Menu) {
                 if (id == Menu[i].id) {
                     let PromptJson = Menu[i];
-                    if(PromptJson.input==="userSelection"){
+                    if (PromptJson.input === "userSelection") {
                         const context = item.selectionText;
-                        if(context){
-                            PromptJson.text = "###相关内容###\n"+context+"\n"+PromptJson.text
+                        if (context) {
+                            PromptJson.text = "###相关内容###\n" + context + "\n" + PromptJson.text
                         }
                     }
                     chrome.tabs.sendMessage(
@@ -256,7 +261,7 @@ async function loadContextMenuData() {
                                 }
                             }
                         },
-                        function (response) {
+                        function(response) {
                             // console.log(response)
                         }
                     )
@@ -273,8 +278,8 @@ async function loadContextMenuData() {
     const bingBot = new NewBing()
     chatBot.add(bingBot)
     chatBot.add(chatGPT)
-    // 初始化
+        // 初始化
     chatBot.getAvailables()
 
-    new Common(json, chatBot, Agent, Credit)
+    new Common(_CONFIG_JSON, chatBot, Agent, Credit)
 })()
