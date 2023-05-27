@@ -4,7 +4,6 @@
     "role": "",
     "combo": 1,
     "interfaces": [
-      "showInChat",
       "contextMenus"
     ],
     "isInfinite": false,
@@ -44,47 +43,46 @@
     "id": "11111"
   },
   {
-    "tag": "正文总结1",
+    "tag": "重点知识介绍",
     "role": "",
     "combo": 1,
     "interfaces": [
-      "showInChat",
       "contextMenus"
     ],
     "isInfinite": false,
     "owner": "user",
     "prompt": {
       "api": {
+        "url": "",
+        "protocol": "https://",
         "init": {
-          "body": {},
-          "cache": "default",
+          "method": "POST",
           "headers": {
             "Content-Type": "application/json"
           },
-          "method": "POST",
+          "body": {},
           "mode": "cors",
+          "cache": "default",
           "responseType": "text"
         },
-        "isApi": false,
-        "protocol": "https://",
-        "url": ""
+        "isApi": false
       },
       "input": "bindCurrentPage",
       "model": "ChatGPT",
       "output": "default",
       "queryObj": {
-        "isQuery": false,
-        "protocol": "https://",
         "query": "",
-        "url": ""
+        "url": "",
+        "protocol": "https://",
+        "isQuery": false
       },
-      "temperature": 0.7,
-      "text": "请帮我用中文完成以下任务的输出，它们分别是总结摘要和要点，你需要用以下格式输出：\n<摘要>\nxxxx\n<要点>\n1.xxxx\n2.xxxx",
-      "type": "markdown",
+      "temperature": 0.5,
+      "text": "请找出文章中出现频率最多的10个关键词，并用中文解释这些关键词是什么意思。",
+      "type": "prompt",
       "url": ""
     },
-    "version": "0.3.1",
-    "app": "Earth",
-    "id": "111111111111111111"
+    "version": "",
+    "app": "",
+    "id": 1685084379144
   }
 ]

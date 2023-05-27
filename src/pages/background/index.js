@@ -4,45 +4,66 @@ import ChatBot from '@components/background/ChatBot'
 import Agent from "@components/background/Agent";
 import Credit from "@components/background/Credit"
 import Common from '@components/background/Common'
-import { getConfig, chromeStorageGet } from '@components/Utils';
+
+import {getConfig} from '@components/Utils';
 import commonsConfig from '@src/config/commonsConfig.json'
 import editableConfig from '@src/config/editableConfig.json'
 import selectionConfig from '@src/config/selectionConfig.json'
-// console.log(commonsConfig)
-const _CONFIG_JSON = getConfig()
-console.log('Service Worker', _CONFIG_JSON)
-
 
 async function loadContextMenuData() {
 
     let Menu = [];
-
-    Menu.push(...commonsConfig);
-    Menu.push(...editableConfig);
-    Menu.push(...selectionConfig);
+    let pdfConfig = [];
+    let linkConfig = [];
 
     const res = await chromeStorageGet(['user', 'official']);
     let Workflow = [];
 
-    if (res['user'] && res['user'].length > 0)
+    if (res['user'] && res['user'].length > 0){
         for (let i in res['user']) {
             if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus')) {
                 Workflow.push(res['user'][i])
+            } else if(res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Selection')){
+                selectionConfig.push(res['user'][i]);
+            } else if(res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Editable')){
+                editableConfig.push(res['user'][i]);
+            } else if(res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_PDF')){
+                pdfConfig.push(res['user'][i])
+            } else if(res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Link')){
+                linkConfig.push(res['user'][i])
             }
         }
-    if (res['official'] && res['official'].length > 0)
+    }
+
+    if (res['official'] && res['official'].length > 0){
         for (let i in res['official']) {
             if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus')) {
                 Workflow.push(res['official'][i])
+            } else if(res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Selection')){
+                selectionConfig.push(res['official'][i]);
+            } else if(res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Editable')){
+                editableConfig.push(res['official'][i]);
+            } else if(res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_PDF')){
+                pdfConfig.push(res['official'][i])
+            } else if(res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Link')){
+                linkConfig.push(res['official'][i])
             }
         }
+    }
 
+    Menu.push(...commonsConfig);
+    Menu.push(...editableConfig);
+    Menu.push(...selectionConfig);
     Menu.push(...Workflow);
+    Menu.push(...pdfConfig);
+    Menu.push(...linkConfig);
 
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
-        id: _CONFIG_JSON.app,
-        title: _CONFIG_JSON.app,
+
+        id: 'Earth',
+        title: 'Earth',
+
         contexts: ['page']
     });
 
@@ -50,7 +71,9 @@ async function loadContextMenuData() {
         id: 'toggle-insight',
         title: "打开面板",
         type: 'normal',
-        parentId: _CONFIG_JSON.app,
+
+        parentId: 'Earth',
+
         contexts: ['page']
     })
 
@@ -59,7 +82,9 @@ async function loadContextMenuData() {
             id: 'commonsConfig',
             title: '常用功能',
             type: 'normal',
-            parentId: _CONFIG_JSON.app,
+
+            parentId: 'Earth',
+
             contexts: ['page']
         });
 
@@ -78,7 +103,9 @@ async function loadContextMenuData() {
             id: 'Workflow',
             title: '工作流',
             type: 'normal',
-            parentId: _CONFIG_JSON.app,
+
+            parentId: 'Earth',
+
             contexts: ['page']
         });
         for (let i in Workflow) {
@@ -107,6 +134,27 @@ async function loadContextMenuData() {
                 id: String(editableConfig[i].id),
                 title: editableConfig[i].tag,
                 contexts: ['editable'],
+            })
+        }
+    }
+
+    if (pdfConfig.length !== 0) {
+        for (let i in pdfConfig) {
+            chrome.contextMenus.create({
+                id: String(pdfConfig[i].id),
+                title: pdfConfig[i].tag,
+                contexts: ["all"],
+                targetUrlPatterns: ["*://*/*.pdf"]
+            })
+        }
+    }
+
+    if (linkConfig.length !== 0) {
+        for (let i in linkConfig) {
+            chrome.contextMenus.create({
+                id: String(linkConfig[i].id),
+                title: linkConfig[i].tag,
+                contexts: ['link'],
             })
         }
     }
