@@ -1,4 +1,5 @@
-/**
+/** ! 与earth的同名文件一致
+ * 
  * ask 等待用户输入，TODO待处理
  */
 
@@ -8,7 +9,7 @@ const workflow = {
         {
             "label": "发散程度",
             "value": "temperature",
-            "defaultValue":0.7
+            "defaultValue": 0.7
         },
         {
             "label": "模型",
@@ -22,21 +23,20 @@ const workflow = {
     "inputs": [{
         "label": "默认",
         "value": "default"
-    },{
-        "label": "当前工作流节点",
-        "value": "bindCurrentWorkflowNode",
-        "disabled":true
-    },{
+    }, {
         "label": "绑定网页正文",
         "value": "bindCurrentPage"
+
     },
     {
         "label": "绑定网页HTML",
         "value": "bindCurrentPageHTML"
+
     },
     {
         "label": "绑定网页URL",
         "value": "bindCurrentPageURL"
+
     },
     {
         "ask": true,
@@ -56,13 +56,14 @@ const workflow = {
         "label": "作为上下文",
         "value": "isNextUse"
 
-    },{
-        "label":"条件判断",
-        "value":"isMatch"
+    }, {
+        "label": "条件判断",
+        "value": "isMatch"
     }],
     "agents": [{
         "key": "prompt",
-        "label": "Prompt"
+        "label": "Prompt",
+        "checked": true
     },
     {
         "key": "tasks",
@@ -79,7 +80,7 @@ const workflow = {
     {
         "key": "highlight",
         "label": "高亮网页内容",
-        "disabled":true
+        "disabled": true
     },
     {
         "key": "api",
@@ -108,12 +109,61 @@ const workflow = {
     {
         "label": "提取结构化数据",
         "key": "extract",
-        "temperature":0
+        "temperature": 0
     }
     ]
+    
 }
 
+const comboOptions = [
+    {
+        label: '作为对话流选项',
+        value: 'showInChat',
+    },
+    {
+        label: '作为右键菜单选项',
+        value: 'contextMenus',
+    },
+    {
+        label: '首页',
+        value: 'home',
+    }
+];
+
+const defaultNode = {
+    text: '',
+    url: '',
+    api: {
+      url: '',
+      protocol: 'https://',
+      init: {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: "{}",
+        mode: 'cors',
+        cache: 'default',
+        responseType: 'text'
+      },
+      isApi: false
+    },
+    queryObj: {
+      query: '', url: '', protocol: 'https://', isQuery: false
+    },
+    temperature: 0.6,
+    model: 'ChatGPT',
+    input: 'default',
+    output: 'default',
+    type: 'prompt',
+    // 以下是选项
+    opts: {
+      ...workflow
+    },
+  
+  }
+  
 
 export {
-    workflow
+    workflow,defaultNode,comboOptions
 }

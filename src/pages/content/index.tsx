@@ -76,7 +76,7 @@ const Base: any = styled.div`
 
 async function init() {
 
-  let json: any =   getConfig() || {};
+  let json: any = getConfig() || {};
 
   // from Bing,ChatGPT 初始化对话框 采用哪个引擎
   const { reader, fullscreen, userInput, from, agents } = getConfigFromUrl();
@@ -94,28 +94,30 @@ async function init() {
   // rootContainer.className = "_agi_ui"
 
   root.render(<Base>
-  <Main
-    className="_agi_ui"
-    appName={json.app}
-    // 代理器
-    agents={agents === "1"}
+    <Main
+      className="_agi_ui"
+      appName={json.app}
+      // 代理器
+      agents={agents === "1"}
 
-    // 阅读模式
-    readability={readerHack(!!reader)}
-    // 是否全屏
-    fullscreen={fullscreen === "1"}
-    // 默认传参
-    userInput={{
-      prompt: decodeURI(userInput || ''),
-      tag: decodeURI(userInput || '')
-    }}
-    // 默认是否开启
-    initIsOpen={!!(reader || userInput)}
-    // 初始引擎
-    initChatBotType={
-      from
-    }
-  />
+      // 阅读模式
+      readability={readerHack(!!reader)}
+      // 是否全屏
+      fullscreen={fullscreen === "1"}
+      // 默认传参
+      userInput={{
+        prompt: decodeURI(userInput || ''),
+        tag: decodeURI(userInput || '')
+      }}
+      // 默认是否开启
+      initIsOpen={!!(reader || userInput)}
+      // 初始引擎
+      initChatBotType={
+        from
+      }
+      debug={{}}
+      callback={(e: any) => console.log(e)}
+    />
   </Base>
   );
 

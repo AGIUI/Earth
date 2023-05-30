@@ -30,6 +30,16 @@ import PDF from '@components/files/PDF'
 import { chromeStorageGet, chromeStorageSet } from "@components/Utils"
 import { message } from 'antd';
 
+declare const window: Window &
+    typeof globalThis & {
+        _brainwave_import: any,
+        _brainwave_get_current_node_for_workflow: any,
+        _brainwave_get_workflow_data: any,
+        _brainwave_save_callback: any,
+        _brainwave_save_callback_init: any,
+        _brainwave_debug_callback: any
+    }
+
 
 const defaultChatbots: any = ChatBotConfig.get();
 
@@ -193,7 +203,9 @@ class Main extends React.Component<{
     fullscreen: boolean,
     initIsOpen: boolean,
     userInput: any,
-    initChatBotType: string
+    initChatBotType: string,
+    debug: any,
+    callback: any
 }, {
     appName: string,
     title: string,
@@ -400,6 +412,16 @@ class Main extends React.Component<{
         if (prevState.chatBotType != this.state.chatBotType) {
             this.initChatBot();
         }
+        if (prevProps.debug) {
+            // console.log(prevProps.debug, this.props.debug)
+            if (this.props.debug.id != prevProps.debug.id) {
+                const { autoRun } = this.props.debug;
+                if (autoRun) this._control({
+                    cmd: 'combo',
+                    data: this.props.debug
+                })
+            }
+        }
 
     }
 
@@ -455,6 +477,9 @@ class Main extends React.Component<{
             } else if (cmd == 'toggle-insight') {
                 this.setState({ initIsOpen: true });
                 this.show(false);
+                this.props.callback({
+                    cmd: 'open-insight',
+                })
             } else if (cmd == 'chat-bot-init-result') {
                 this.initChatBot(false);
             }
@@ -1103,6 +1128,9 @@ class Main extends React.Component<{
                     return;
                 case "close-chatbot-panel":
                     this.show(!this.state.loading)
+                    this.props.callback({
+                        cmd:'close-insight'
+                    })
                     return;
                 // case "toggle-fullscreen":
                 //     this.setState({
@@ -1113,7 +1141,10 @@ class Main extends React.Component<{
                     console.log('activate-chatbot')
                     return
                 case "show-combo-modal":
-                    this._promptControl({ cmd, data })
+                    // this._promptControl({ cmd, data })
+                    // 修改为新的编辑器brainwave ,data.prompt - combo
+                    if (window._brainwave_import) window._brainwave_import([data.prompt])
+
                     return
                 case "close-combo-editor":
                     this._promptControl({ cmd })
@@ -1265,7 +1296,6 @@ class Main extends React.Component<{
             if (prompt) {
                 this.setState({
                     showEdit: true,
-
                     openMyPrompts: true,
                     currentPrompt: prompt
                 })
