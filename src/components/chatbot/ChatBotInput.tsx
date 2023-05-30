@@ -32,6 +32,9 @@ type PropType = {
         label: string
     };
 
+    // debug状态
+    debug: boolean;
+
     [propName: string]: any;
 }
 
@@ -48,6 +51,7 @@ type StateType = {
     agent: any;
     chatBotType: string;
     chatBotStyle: any;
+    debug:boolean
 }
 
 interface ChatBotInput {
@@ -98,7 +102,9 @@ class ChatBotInput extends React.Component {
             // agent
             agent,
             chatBotType: config.type,
-            chatBotStyle: config.style
+            chatBotStyle: config.style,
+
+            debug:this.props.debug
         }
 
     }
@@ -139,7 +145,7 @@ class ChatBotInput extends React.Component {
                     text: prompt,
                     input: this.state.input.filter((inp: any) => inp.checked)[0].value,
                     output,
-                    type:this.state.agent.filter((a: any) => a.checked)[0].value,
+                    type: this.state.agent.filter((a: any) => a.checked)[0].value,
                 },
                 combo: -1
             }
@@ -258,7 +264,7 @@ class ChatBotInput extends React.Component {
                     <div style={flexStyle} >
 
                         {
-                            this.props.leftButton && this.props.leftButton.label ? <Button
+                            !this.props.debug && this.props.leftButton && this.props.leftButton.label ? <Button
                                 style={buttonStyle}
                                 type="dashed"
                                 icon={<SettingOutlined />}
@@ -363,7 +369,7 @@ class ChatBotInput extends React.Component {
                     placeholder={this.state.placeholder}
                     autoSize={{ minRows: 2, maxRows: 15 }}
                     disabled={this.state.isLoading}
-                    style={this.state.userInput.prompt ? { height: 'auto',marginTop:2 } : {marginTop:2}}
+                    style={this.state.userInput.prompt ? { height: 'auto', marginTop: 2 } : { marginTop: 2 }}
                 />
 
             </Card>

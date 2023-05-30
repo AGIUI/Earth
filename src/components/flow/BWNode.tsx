@@ -1,7 +1,9 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
-import { Input, Card, Select, Radio, InputNumber, Dropdown, Space, Button } from 'antd';
+import { Input, Card, Select, Radio, InputNumber, Dropdown, Divider, Space, Button } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -20,67 +22,37 @@ export type NodeData = {
   onChange: any
 };
 
-
-
-// const items: any = [
-//   {
-//     key: '1',
-//     type: 'group',
-//     label: 'Group title',
-//     children: [
-//       {
-//         key: '1-1',
-//         label: '1st menu item',
-//       },
-//       {
-//         key: '1-2',
-//         label: '2nd menu item',
-//       },
-//     ],
-//   },
-//   {
-//     key: '2',
-//     label: 'sub menu',
-//     children: [
-//       {
-//         key: '2-1',
-//         label: '3rd menu item',
-//       },
-//       {
-//         key: '2-2',
-//         label: '4th menu item',
-//       },
-//     ],
-//   },
-//   {
-//     key: '3',
-//     label: 'disabled sub menu',
-//     disabled: true,
-//     children: [
-//       {
-//         key: '3-1',
-//         label: '5d menu item',
-//       },
-//       {
-//         key: '3-2',
-//         label: '6th menu item',
-//       },
-//     ],
-//   },
-// ];
-
-
-
 const createType = (type: string, agents: any, onChange: any) => {
   const label = agents.filter((a: any) => a.key == type)[0]?.label || '-';
-  return <Dropdown menu={{
-    items: agents, onClick: (e) => {
-      onChange({
-        data: e.key,
-        key: 'type'
-      })
+
+  const parents: any = {};
+  for (const agent of agents) {
+    if (!parents[agent.parent]) parents[agent.parent] = {
+      key: agent.parent,
+      type: 'group',
+      label: agent.parent,
+      children: []
     }
-  }}>
+    parents[agent.parent].children.push(agent)
+  }
+
+  const items = [];
+  for (const key in parents) {
+    items.push(parents[key])
+  }
+
+  return <Dropdown
+    trigger={['click']}
+    menu={{
+      items,
+      onClick: (e) => {
+        // console.log(e)
+        onChange({
+          data: e.key,
+          key: 'type'
+        })
+      }
+    }}>
     <Space>
       {label}
       <DownOutlined rev={undefined} />
@@ -93,7 +65,8 @@ const createText = (title: string, text: string, onChange: any) => <>
   <p>{title}</p>
   <TextArea
     defaultValue={text}
-    rows={4}
+    showCount
+    allowClear
     autoSize
     placeholder="maxLength is 6"
     // maxLength={6}
@@ -111,20 +84,20 @@ const createText = (title: string, text: string, onChange: any) => <>
  * @param title 
  * @param protocol 
  * @param url 
- * @param text init / query
+ * @param json init / query
  * @returns 
  */
-const createUrl = (title: string, api: any, onChange: any) => {
-  const { protocol, url, init, query, isApi, isQuery } = api;
+const createUrl = (key: string, title: string, json: any, onChange: any) => {
+  const { protocol, url, init, query, isApi, isQuery } = json;
 
   return <>
     <p>{title}</p>
     <Input addonBefore={
       <Select defaultValue={protocol} onChange={(e: string) => {
         onChange({
-          key: isApi ? 'api' : 'query',
+          key,
           data: {
-            ...api, protocol: e
+            ...json, protocol: e
           }
         })
 
@@ -137,32 +110,35 @@ const createUrl = (title: string, api: any, onChange: any) => {
       defaultValue={url}
       onChange={(e: any) => {
         onChange({
-          key: isApi ? 'api' : 'query',
+          key,
           data: {
-            ...api, url: e
+            ...json, url: e
           }
         })
       }}
     />
-    <TextArea
-      defaultValue={JSON.stringify(init, null, 2)}
-      rows={4}
-      placeholder="maxLength is 6"
-      autoSize
-      onChange={(e) => {
-        const data = {
-          ...api
-        }
-        isApi ? data['init'] = JSON.parse(e.target.value) : data['query'] = e.target.value
-        onChange({
-          key: isApi ? 'api' : 'query',
-          data: {
-            ...api, init: JSON.parse(e.target.value)
+    {json && (json.init || json.query) ? <>
+      <p>-</p>
+      <TextArea
+        defaultValue={key == 'api' ? JSON.stringify(init, null, 2) : query}
+        rows={4}
+        placeholder="xxxx"
+        autoSize
+        onChange={(e) => {
+          const data = {
+            ...json
           }
-        })
+          key == 'api' ? data['init'] = JSON.parse(e.target.value) : data['query'] = e.target.value;
 
-      }}
-    /></>
+          onChange({
+            key,
+            data
+          })
+
+        }}
+      />
+    </> : ''}
+  </>
 }
 
 const createModel = (model: string, temperature: number, opts: any, onChange: any) => <>
@@ -318,15 +294,25 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
       node.push(createInputAndOutput('Input', 'input', input, inputs, updateInput))
       node.push(createText('Prompt', text, updateText))
       node.push(createModel(model, temperature, models, updateModel))
-      node.push(createInputAndOutput('Output', 'output', output, outputs, updateOutput))
+
     } else {
-      api.isApi && node.push(createUrl('API', api, updateApi))
-      queryObj.isQuery && node.push(createUrl('query', queryObj, updateQueryObj))
+      ['api'].includes(type) && node.push(createUrl('api', 'URL', api, updateApi));
+      ['query'].includes(type) && node.push(createUrl('query', 'URL', queryObj, updateQueryObj));
+      ['send-to-zsxq'].includes(type) && node.push(
+        createUrl('query', 'URL',
+          {
+            protocol: queryObj.protocol,
+            url: queryObj.url
+          },
+          updateQueryObj));
     }
+
+    node.push(createInputAndOutput('Output', 'output', output, outputs, updateOutput))
 
 
     if (data.debug) {
-      node.push(<Button onClick={(e) => data.debug?data.debug():''} >调试</Button>)
+      node.push(<Divider dashed />)
+      node.push(<Button onClick={(e) => data.debug ? data.debug() : ''} >调试</Button>)
     }
 
     return <Card
@@ -348,15 +334,28 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
     padding: '2px 5px'
   };
 
+
+  const items: MenuProps['items'] = [
+    {
+      label: '调试',
+      key: 'debug',
+
+    }
+  ];
+
+
   return (
-    <div style={nodeStyle}>
+    <Dropdown menu={{ items, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
 
-      {createNode()}
-      <Handle type="target" position={Position.Left} />
+      <div style={nodeStyle}>
 
-      <Handle type="source" position={Position.Right} />
+        {createNode()}
+        <Handle type="target" position={Position.Left} />
 
-    </div>
+        <Handle type="source" position={Position.Right} />
+
+      </div>
+    </Dropdown>
   );
 }
 

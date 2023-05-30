@@ -1,4 +1,4 @@
-import { workflow } from '@components/Workflow'
+import { workflow } from '@components/flow/Workflow'
 import { getConfig } from '@components/Utils';
 
 const json:any=getConfig();

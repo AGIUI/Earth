@@ -56,63 +56,91 @@ const workflow = {
         "label": "作为上下文",
         "value": "isNextUse"
 
-    }, {
-        "label": "条件判断",
-        "value": "isMatch"
     }],
     "agents": [{
         "key": "prompt",
         "label": "Prompt",
-        "checked": true
+        "checked": true,
+        "parent": "prompt"
     },
     {
         "key": "tasks",
-        "label": "目标拆解"
+        "label": "目标拆解",
+        "parent": "prompt",
+        "disabled": true,
     },
     {
         "key": "query",
-        "label": "根据选择器获取网页信息"
+        "label": "根据选择器获取网页信息",
+        "parent": "query"
+    },
+    {
+        "key": "query-click",
+        "label": "模拟点击",
+        "disabled": true,
+        "parent": "query"
     },
     {
         "key": "send-to-zsxq",
-        "label": "发布内容至知识星球"
+        "label": "发布内容至知识星球",
+        "parent": "query"
     },
     {
         "key": "highlight",
         "label": "高亮网页内容",
-        "disabled": true
+        "disabled": true,
+        "parent": "query"
     },
     {
         "key": "api",
-        "label": "API"
+        "label": "API",
+        "parent": "api"
     },
     {
         "label": "JSON格式",
-        "key": "json"
+        "key": "json",
+        "parent": "formatter"
     },
     {
         "label": "列表",
-        "key": "list"
+        "key": "list",
+        "parent": "formatter",
+        "disabled": true,
     },
     {
         "label": "MarkDown格式",
-        "key": "markdown"
+        "key": "markdown",
+        "parent": "formatter"
     },
     {
         "label": "中文",
-        "key": "translate-zh"
+        "key": "translate-zh",
+        "parent": "translate"
     },
     {
         "label": "英文",
-        "key": "translate-en"
+        "key": "translate-en",
+        "parent": "translate"
+    },
+    // {
+    //     "label": "提取结构化数据",
+    //     "key": "extract",
+    //     "temperature": 0
+    // },
+    {
+        "label": "条件判断",
+        "key": "if-else",
+        "parent": "logic",
+        "disabled": true,
     },
     {
-        "label": "提取结构化数据",
-        "key": "extract",
-        "temperature": 0
+        "label": "循环",
+        "key": "for-of",
+        "parent": "logic",
+        "disabled": true,
     }
     ]
-    
+
 }
 
 const comboOptions = [
@@ -127,6 +155,10 @@ const comboOptions = [
     {
         label: '首页',
         value: 'home',
+    },
+    {
+        label: '无限循环',
+        value: 'infinite',
     }
 ];
 
@@ -134,22 +166,22 @@ const defaultNode = {
     text: '',
     url: '',
     api: {
-      url: '',
-      protocol: 'https://',
-      init: {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
+        url: '',
+        protocol: 'https://',
+        init: {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: "{}",
+            mode: 'cors',
+            cache: 'default',
+            responseType: 'text'
         },
-        body: "{}",
-        mode: 'cors',
-        cache: 'default',
-        responseType: 'text'
-      },
-      isApi: false
+        isApi: false
     },
     queryObj: {
-      query: '', url: '', protocol: 'https://', isQuery: false
+        query: '', url: '', protocol: 'https://', isQuery: false
     },
     temperature: 0.6,
     model: 'ChatGPT',
@@ -158,12 +190,12 @@ const defaultNode = {
     type: 'prompt',
     // 以下是选项
     opts: {
-      ...workflow
+        ...workflow
     },
-  
-  }
-  
+
+}
+
 
 export {
-    workflow,defaultNode,comboOptions
+    workflow, defaultNode, comboOptions
 }

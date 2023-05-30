@@ -15,7 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 
-import { Button, Input, Checkbox } from 'antd';
+import { Button, Input, Checkbox, Card, Divider } from 'antd';
 const { TextArea } = Input;
 import { nanoid } from 'nanoid/non-secure';
 
@@ -67,6 +67,7 @@ const selector = (state: RFState) => ({
   onEdgesChange: state.onEdgesChange,
   newCombo: state.newCombo,
   addChildNode: state.addChildNode,
+
 });
 
 const nodeTypes = {
@@ -135,7 +136,7 @@ function Flow() {
         if (parentNode && childNodePosition) {
           addChildNode(parentNode, childNodePosition);
         }
-      }
+      };
     },
     [getChildNodePosition]
   );
@@ -287,7 +288,7 @@ function Flow() {
 
         }
       }
-      
+
       newCombo(nodes, edges);
 
     }
@@ -336,15 +337,41 @@ function Flow() {
     }, 200);
   }
 
+  const onSave = useCallback(() => {
+    if (reactFlowInstance) {
+      const flow = reactFlowInstance.toObject();
+      localStorage.setItem('flowKey', JSON.stringify(flow));
+    }
+  }, [reactFlowInstance]);
+
+  const onRestore = useCallback(() => {
+    const restoreFlow = async () => {
+      const flow = JSON.parse(localStorage.getItem('flowKey') || '{}');
+      if (flow) {
+        newCombo(flow.nodes || [], flow.edges || []);
+      }
+    };
+
+    restoreFlow();
+  }, [newCombo]);
+
+
+  // onRestore()
 
   return (
     <ReactFlow
       nodes={nodes}
       edges={edges}
-      onNodesChange={onNodesChange}
+      onNodesChange={(e)=>{
+        onNodesChange(e);
+        onSave()
+      }}
       onEdgesChange={onEdgesChange}
       onConnectStart={onConnectStart}
-      onConnectEnd={onConnectEnd}
+      onConnectEnd={(e)=>{
+        onConnectEnd(e);
+        onSave()
+      }}
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
       nodeOrigin={nodeOrigin}
@@ -352,7 +379,8 @@ function Flow() {
       connectionLineStyle={connectionLineStyle}
       connectionLineType={ConnectionLineType.Straight}
       fitView
-
+      fitViewOptions={{ maxZoom: 0.8 }}
+      // defaultViewport={{ x: 0, y: 0, zoom: 1 }}
       panOnScroll
       selectionOnDrag
       panOnDrag={panOnDrag}
@@ -363,38 +391,44 @@ function Flow() {
       <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable inversePan={false} ariaLabel={null} />
       <Background variant={variant} />
 
-      <Panel position="top-left">
+      {/* <Panel position="top-left">
         NODES
-      </Panel>
+      </Panel> */}
 
       <Panel position="top-right">
-        <TextArea placeholder="Autosize height based on content lines"
-          autoSize
-          value={tag}
-          onChange={(e: any) => {
-            onTagChange(e.target.value)
-          }}
-        />
-        <Checkbox.Group
-          options={comboOptions}
-          value={
-            Array.from(comboOptions,
-              (c: any) => c.checked ? c.value : null)
-              .filter(f => f)}
-          onChange={onComboOptionsChange}
-        />
-        <Button onClick={() => download()}>导出</Button>
-        <Button onClick={() => openMyCombo()}>打开文件</Button>
-        {
-          isSaveCallback ? <Button onClick={() => save()}>保存</Button> : ''
-        }
+        <Card style={{ width: '300px' }}>
+          <p>名称</p>
+          <TextArea placeholder="Autosize height based on content lines"
+            autoSize
+            value={tag}
+            onChange={(e: any) => {
+              onTagChange(e.target.value)
+            }}
+          />
+          <p>Interfaces</p>
+          <Checkbox.Group
+            options={comboOptions}
+            value={
+              Array.from(comboOptions,
+                (c: any) => c.checked ? c.value : null)
+                .filter(f => f)}
+            onChange={onComboOptionsChange}
+          />
+          <Divider dashed />
+          <p>文件</p>
+          {
+            isSaveCallback ? <Button onClick={() => save()} style={{ marginRight: '24px' }}>保存</Button> : ''
+          }
+          <Button onClick={() => download()} style={{ marginRight: '24px' }}>导出</Button>
+          <Button onClick={() => openMyCombo()} style={{ marginRight: '24px' }}>打开</Button>
+          </Card>
       </Panel>
     </ReactFlow>
   );
 }
 
 export default () => (
-  <ReactFlowProvider>
+  <ReactFlowProvider >
     <Flow />
   </ReactFlowProvider>
 );

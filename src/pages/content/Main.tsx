@@ -191,7 +191,8 @@ const sendMessageToBackground = {
     'chat-bot-talk-stop': (data: any) => sendMessageCanRetry('chat-bot-talk-stop', data),
     'run-agents': (data: any) => sendMessageCanRetry('run-agents', data),
     'open-url': (data: any) => sendMessageCanRetry('open-url', data),
-    'api-run': (data: any) => sendMessageCanRetry('api-run', data)
+    'api-run': (data: any) => sendMessageCanRetry('api-run', data),
+    'open-options-page': (data: any) => sendMessageCanRetry('open-options-page', data),
 }
 
 
@@ -204,7 +205,8 @@ class Main extends React.Component<{
     initIsOpen: boolean,
     userInput: any,
     initChatBotType: string,
-    debug: any,
+    debug: boolean,
+    debugData: any,
     callback: any
 }, {
     appName: string,
@@ -412,16 +414,21 @@ class Main extends React.Component<{
         if (prevState.chatBotType != this.state.chatBotType) {
             this.initChatBot();
         }
-        if (prevProps.debug) {
-            // console.log(prevProps.debug, this.props.debug)
-            if (this.props.debug.id != prevProps.debug.id) {
-                const { autoRun } = this.props.debug;
+        if (prevProps.debugData) {
+            // console.log(prevProps.debugData, this.props.debugData)
+            if (this.props.debugData.id != prevProps.debugData.id) {
+                const { autoRun } = this.props.debugData;
                 if (autoRun) this._control({
                     cmd: 'combo',
-                    data: this.props.debug
+                    data: this.props.debugData
                 })
             }
         }
+        // console.log('this.props.show', this.props.show)
+        // if (this.props.show!=prevProps.show&&this.state.loading) {
+        //     this.setState({ initIsOpen: true });
+        //     this.show(false);
+        // }
 
     }
 
@@ -474,7 +481,7 @@ class Main extends React.Component<{
             } = request;
             if (cmd == 'open-readability') {
                 window.location.href = window.location.origin + window.location.pathname + window.location.search + '&reader=1'
-            } else if (cmd == 'toggle-insight') {
+            } else if (cmd == 'open-insight') {
                 this.setState({ initIsOpen: true });
                 this.show(false);
                 this.props.callback({
@@ -505,8 +512,11 @@ class Main extends React.Component<{
     _updateCurrentTalks() {
         if (this.state.disabledAll) return
         Talks.get().then(async talks => {
-            let talk = await Talks.createShowInChatInterfaces()
-            talks.push(talk);
+            if (!this.props.debug) {
+                let talk = await Talks.createShowInChatInterfaces()
+                talks.push(talk);
+            }
+
             talks = talks.filter((t: any) => t)
             if (talks.length > 0) this.setState({
                 talks
@@ -1129,7 +1139,7 @@ class Main extends React.Component<{
                 case "close-chatbot-panel":
                     this.show(!this.state.loading)
                     this.props.callback({
-                        cmd:'close-insight'
+                        cmd: 'close-insight'
                     })
                     return;
                 // case "toggle-fullscreen":
@@ -1142,9 +1152,15 @@ class Main extends React.Component<{
                     return
                 case "show-combo-modal":
                     // this._promptControl({ cmd, data })
+                    const { from, isNew } = data;
+                    // console.log(isNew,from)
                     // 修改为新的编辑器brainwave ,data.prompt - combo
-                    if (window._brainwave_import) window._brainwave_import([data.prompt])
-
+                    if (isNew) {
+                        chromeStorageSet({ '_brainwave_import': null })
+                    } else {
+                        chromeStorageSet({ '_brainwave_import': [data.prompt] })
+                    }
+                    sendMessageToBackground['open-options-page']({})
                     return
                 case "close-combo-editor":
                     this._promptControl({ cmd })
@@ -1189,8 +1205,12 @@ class Main extends React.Component<{
                 case "new-talk":
                     nTalks = []
 
-                    let talk = await Talks.createShowInChatInterfaces()
-                    if (talk) nTalks.push(talk);
+                    // 如果是debug模式，则不显示
+                    if (!this.props.debug) {
+                        let talk = await Talks.createShowInChatInterfaces()
+                        if (talk) nTalks.push(talk);
+                    }
+
                     Talks.clear();
                     sendMessageToBackground['chat-bot-talk-new']({ type: this.state.chatBotType, newTalk: true });
 
@@ -1368,6 +1388,7 @@ class Main extends React.Component<{
 
     render() {
         const { tabList, datas, activeIndex } = this._doChatBotData();
+        console.log('this.state.loading', this.state.loading, this.state.initIsOpen)
         return (<>
             <FlexColumn
                 className={this.props.className}
@@ -1420,6 +1441,7 @@ class Main extends React.Component<{
                                     c.checked = (c.type == this.state.chatBotType);
                                     return c
                                 })}
+                            debug={this.props.debug}
                         />
                         : ''
                 }

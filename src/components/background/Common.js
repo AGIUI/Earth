@@ -32,8 +32,8 @@ class Common {
          *
          */
         chrome.commands.onCommand.addListener(async command => {
-            if (command == 'toggle-insight') {
-                sendMessage('toggle-insight', true, true, null)
+            if (command == 'open-insight') {
+                sendMessage('open-insight', true, true, null)
             }
             // chrome.tabs.create({ url: "https://developer.mozilla.org" });
         })
@@ -50,7 +50,7 @@ class Common {
             // 当点击扩展图标时，执行...
             console.log('当点击扩展图标时，执行...')
                 // let available = await chatBot.getAvailable(chatBot.currentName)
-            this.sendMessage('toggle-insight', true, true, tab.id)
+            this.sendMessage('open-insight', true, true, tab.id)
                 // if (!available) chatBot.init(chatBot.currentName)
                 // 检查newtab有没有打开，没有的话打开
                 // const newTabUrl = `${chrome.runtime.getURL('')}/${chrome.runtime.getManifest().chrome_url_overrides.newtab}`
@@ -87,8 +87,10 @@ class Common {
             async(request, sender, sendResponse) => {
                 const { cmd, data } = request,
                 tabId = sender.tab.id
+                console.log(cmd)
+                if (cmd == 'hi') sendResponse({ cmd: 'hi-result', data: true });
 
-                if (cmd == 'hi') sendResponse({ cmd: 'hi-result', data: true })
+                if (cmd == 'open-options-page') chrome.runtime.openOptionsPage();
 
                 if (cmd == 'chat-bot-init') {
 
@@ -162,6 +164,14 @@ class Common {
                 } else if (cmd == 'close-insight') {
                     this.sendMessage(
                         'close-insight',
+                        true, {
+                            tabId: data.tabId
+                        },
+                        tabId
+                    )
+                } else if (cmd == 'open-insight') {
+                    this.sendMessage(
+                        'open-insight',
                         true, {
                             tabId: data.tabId
                         },

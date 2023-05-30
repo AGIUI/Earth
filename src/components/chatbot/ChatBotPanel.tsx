@@ -58,7 +58,7 @@ class ChatBotPanel extends React.Component {
         this.state = {
             name: this.props.name || 'ChatBotPanel',
             fullscreen: this.props.fullscreen || false,
-            loading:false,
+            loading: false,
             disabled: this.props.disabled,
             tabList: this.props.tabList || [],
             activeIndex: this.props.activeIndex,
@@ -69,17 +69,17 @@ class ChatBotPanel extends React.Component {
 
     componentDidMount() {
         // this.setupConnection();
-        
+
     }
 
     componentDidUpdate(prevProps: {
-        disabled: boolean; 
-        datas: any; 
-        tabList: any; 
+        disabled: boolean;
+        datas: any;
+        tabList: any;
         config: any;
-        activeIndex:number
+        activeIndex: number
     }, prevState: any) {
-       
+
         if (
             this.props.disabled !== prevProps.disabled
         ) {
@@ -99,9 +99,9 @@ class ChatBotPanel extends React.Component {
             })
         }
 
-        if(this.props.activeIndex!=prevProps.activeIndex){
+        if (this.props.activeIndex != prevProps.activeIndex) {
             this.setState({
-                activeIndex:this.props.activeIndex
+                activeIndex: this.props.activeIndex
             })
         }
 
@@ -148,19 +148,21 @@ class ChatBotPanel extends React.Component {
                     justifyContent: 'space-between',
                     paddingTop: '20px'
                 }}>
-                    
+
                     <ChatBotTalks callback={(e: any) => this.props.callback(e)}
-                        items={datas[subject.index+1]} />
-                    
+                        items={datas[subject.index + 1]} />
+
                     <ChatBotInput
                         callback={(e: any) => this.props.callback(e)}
                         isLoading={this.state.disabled}
                         config={this.state.config}
-                        leftButton={{ label: 'Combo' }} />
+                        leftButton={{ label: 'Combo' }}
+                        debug={this.props.debug}
+                    />
                 </div>
 
             } else {
-                let nds = Array.from(datas[subject.index+1], (data: any, i) => {
+                let nds = Array.from(datas[subject.index + 1], (data: any, i) => {
                     if (data && data.html) return { html: data.html, i }
                 }).filter(n => n)
                 const listItem = nds.map((data: any) => <div key={data.i}
@@ -180,7 +182,7 @@ class ChatBotPanel extends React.Component {
         const { contentList, activeTabKey } = this._createContentList(this.state.activeIndex)
         // console.log('chatbot-pane-datas',contentList,activeTabKey)
 
-        const btns=[
+        const btns = [
             // <CopyButton
             //     disabled={this.state.disabled}
             //     data={this.props.datas}
@@ -197,14 +199,15 @@ class ChatBotPanel extends React.Component {
                 fullscreen={this.state.fullscreen}
                 disabled={false}
                 callback={() => this.setState({
-                    fullscreen:!this.state.fullscreen
-                })} />,
-            <CloseButton
-                disabled={false}
-                callback={() => this.props.callback({
-                    cmd: 'close-chatbot-panel'
+                    fullscreen: !this.state.fullscreen
                 })} />
-            ]
+        ];
+
+        if (!this.props.debug) btns.push(<CloseButton
+            disabled={false}
+            callback={() => this.props.callback({
+                cmd: 'close-chatbot-panel'
+            })} />)
 
         return (
             <Card

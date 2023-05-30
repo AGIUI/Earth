@@ -115,7 +115,9 @@ async function init() {
       initChatBotType={
         from
       }
-      debug={{}}
+    
+      debug={false}
+      debugData={{}}
       callback={(e: any) => console.log(e)}
     />
   </Base>

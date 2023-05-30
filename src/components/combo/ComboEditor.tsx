@@ -124,12 +124,14 @@ class ComboEditor extends React.Component {
     }
 
     _showModal(event: React.MouseEvent<HTMLButtonElement>, prompt: any) {
+        const isNew=!!prompt.isNew;
         const data = {
             prompt: {
                 ...defaultCombo,
                 ...prompt
             },
-            from: 'combo-editor'
+            from: 'combo-editor',
+            isNew
         }
         // console.log('_showModal', data)
         event.stopPropagation();
@@ -329,7 +331,11 @@ class ComboEditor extends React.Component {
                 </div>
                 <Button size={"large"} type={"primary"}
                     style={{ position: "absolute", bottom: 30, width: 450, left: 25 }}
-                    onClick={(event: any) => this._showModal(event, { owner: 'user', id: (new Date()).getTime() })}>
+                    onClick={(event: any) => this._showModal(event, { 
+                        owner: 'user', 
+                    id: (new Date()).getTime(),
+                    isNew:true
+                     })}>
                     新建我的Prompts
                 </Button>
 

@@ -41,10 +41,31 @@ function saveCombos(combos: any = []) {
 
 
 
-function newtab() {
+function options() {
 
   const [debugData, setDebugData] = React.useState({});
-  const [flowWidth, setFlowWidth] = React.useState('100%');
+  const [flowWidth, setFlowWidth] = React.useState('calc(100% - 500px)');
+
+  chrome.storage.local.onChanged.addListener((changes) => {
+    // console.log(changes)
+    if (changes['_brainwave_import'] && changes['_brainwave_import'].newValue) {
+      if (window._brainwave_import) window._brainwave_import(changes['_brainwave_import'].newValue)
+    }
+  });
+
+  chromeStorageGet('_brainwave_import').then((res: any) => {
+    console.log(res)
+    if (res['_brainwave_import']) {
+      setTimeout(() => {
+        if (window._brainwave_import) {
+          window._brainwave_import(res['_brainwave_import'])
+        };
+        chromeStorageSet({
+          '_brainwave_import': null
+        })
+      }, 1000)
+    }
+  })
 
   if (typeof (window) !== 'undefined') {
     var timer = setTimeout(function () {
@@ -55,19 +76,26 @@ function newtab() {
         })
       };
       window._brainwave_debug_callback = () => {
-        const combo = window._brainwave_get_current_node_for_workflow();
-        const d = {
-          '_combo': combo,
-          from: 'brainwave',
-          prompt: combo.prompt,
-          tag: combo.tag,
-          newTalk: true,
-          autoRun: true,
-          id: (new Date()).getTime()
-        }
-        setDebugData(d)
+
+        // chrome.runtime.sendMessage({
+        //   cmd: 'open-insight'
+        // }, res => console.log('open-insight', res))
+        setTimeout(() => {
+          const combo = window._brainwave_get_current_node_for_workflow();
+          const d = {
+            '_combo': combo,
+            from: 'brainwave',
+            prompt: combo.prompt,
+            tag: combo.tag,
+            newTalk: true,
+            autoRun: true,
+            id: (new Date()).getTime()
+          }
+          setDebugData(d)
+        }, 500)
+
       }
-    }, 1500);
+    }, 1000);
   }
 
   const chatbotCallbacks = (event: any) => {
@@ -98,12 +126,13 @@ function newtab() {
         tag: ''
       }}
       // 默认是否开启
-      initIsOpen={false}
+      initIsOpen={true}
       // 初始引擎
       initChatBotType={
         'ChatGPT'
       }
-      debug={debugData}
+      debug={true}
+      debugData={debugData}
       callback={(e: any) => chatbotCallbacks(e)}
     />
   </div>)
@@ -114,7 +143,7 @@ async function init() {
   if (!rootContainer) throw new Error("Can't find page root element");
   const root = createRoot(rootContainer);
   const renderRoot = () => {
-    const page = React.createElement(newtab, {});
+    const page = React.createElement(options, {});
     root.render(page);
   };
   renderRoot()
