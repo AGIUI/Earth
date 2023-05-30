@@ -766,7 +766,7 @@ class Main extends React.Component<{
             if (data.type == "start") {
                 // 需补充此状态
                 // 对话状态开启
-                console.log('对话状态开启')
+                console.log(i18n.t('chatStatusEnabled'))
                 this.updateChatBotStatus(true);
 
             } else if ((data.type == 'markdown' || data.type == 'done')) {
@@ -919,7 +919,7 @@ class Main extends React.Component<{
 
             nTalks.push(ChatBotConfig.createTalkData('send-talk-refresh', {
                 data: {
-                    tag: '刷新',
+                    tag: i18n.t('refresh'),
                     prompt: {
                         text: promptFromLocal,
                         type: 'prompt',
@@ -1199,7 +1199,7 @@ class Main extends React.Component<{
             if (type === 'add') newData.push(data);
 
             if (newData.length > 5) {
-                message.info('已达到最大存储数量')
+                message.info(i18n.t('maximumStorageLimitReached'))
                 // message.error('已达到最大存储数量');
             };
 

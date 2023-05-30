@@ -1,5 +1,6 @@
 {
   "Chat": "Chat",
+
   "hiCurrentAI": "hi, Current AI: {{hi}}, Service Exception",
   "configOrSwitchAI": "Configure or Switch AI",
   "historyConversation": "Current is the history conversation",
@@ -10,6 +11,10 @@
   "fetching": "Fetching",
   "howCanIHelp": "How can I help you?",
   "goToCommunity": "Go to Community",
+  "styleLabel": "Style",
+  "creativeStyleLabel": "Creative",
+  "balancedStyleLabel": "Balanced",
+  "preciseStyleLabel": "Precise",
 
   "divergenceDegree": "Divergence Degree",
   "model": "Model",
@@ -33,6 +38,38 @@
   "english": "English",
   "extractStructuredData": "Extract Structured Data",
 
-  "RemainingPoints":"Remaining Points",
-  "NotSet":"Not set"
+  "tokenConsumptionWarning": "Token consumption warning",
+  "send": "Send",
+  "stop": "Stop",
+  "chatStatusEnabled": "Chat status enabled",
+  "refresh": "Refresh",
+  "customPrompt": "Custom prompt",
+  "maximumStorageLimitReached": "Maximum storage limit reached",
+
+  "create":"Create",
+
+  "RemainingPoints": "Remaining Points",
+  "NotSet": "Not set",
+  "setTitle": "Settings",
+  "shortcutSettings": "Shortcut Settings",
+  "bingChatSettings": "Bing Chat Settings",
+  "available": "Available",
+  "bingUnauthorized": "Bing Unauthorized",
+  "bingUnauthorizedDetails": "Bing Chat is not available. Please log in to your Bing account again.",
+  "loginBingAccount": "Log in to Bing Account",
+  "environmentException": "Environment Exception",
+  "chatGPTSettings": "Chat GPT Settings",
+  "chatGPTAvailable": "Available",
+  "tutorial": "Tutorial",
+  "toUpdate": "To Update",
+  "unavailable": "Unavailable",
+  "apiTeamSettings": "API Team Settings",
+  "apiKeySettings": "API Key Settings",
+  "apiHostSettings": "API Host Settings",
+  "apiModelSettings": "API Model Settings",
+  "updating": "Updating",
+  "updateStatus": "Update Status",
+  "modify":"Modify",
+  "versionNow":"版本"
+
 }

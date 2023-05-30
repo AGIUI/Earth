@@ -1,5 +1,6 @@
 {
   "Chat": "聊天",
+
   "hiCurrentAI": "你好，当前AI: {{hi}}，服务异常",
   "configOrSwitchAI": "配置或切换AI",
   "historyConversation": "当前为历史对话记录",
@@ -10,6 +11,10 @@
   "fetching": "获取中",
   "howCanIHelp": "我可以怎么帮到你？",
   "goToCommunity": "前往社区",
+  "styleLabel": "风格",
+  "creativeStyleLabel": "创造力",
+  "balancedStyleLabel": "平衡",
+  "preciseStyleLabel": "严谨",
 
   "divergenceDegree": "发散程度",
   "model": "模型",
@@ -33,6 +38,38 @@
   "english": "英文",
   "extractStructuredData": "提取结构化数据",
 
+  
+  "tokenConsumptionWarning": "可能会消耗大量 Token，建议在需要时绑定",
+  "send": "发送",
+  "stop": "停止",
+  "chatStatusEnabled": "对话状态开启",
+  "refresh": "刷新",
+  "customPrompt": "自定义提示",
+  "maximumStorageLimitReached": "已达到最大存储数量",
+  
+  "create":"新建",
+
   "RemainingPoints": "剩余点数",
-  "NotSet": "暂未设置"
+  "NotSet": "暂未设置",
+  "setTitle": "设置",
+  "shortcutSettings": "快捷键设置",
+  "bingChatSettings": "Bing Chat设置",
+  "available": "当前可用",
+  "bingUnauthorized": "Bing未授权",
+  "bingUnauthorizedDetails": "Bing Chat无法使用，请重新登录Bing账号",
+  "loginBingAccount": "登录Bing账号",
+  "environmentException": "环境异常",
+  "chatGPTSettings": "ChatGPT设置",
+  "chatGPTAvailable": "当前可用",
+  "tutorial": "使用教程",
+  "toUpdate": "待更新",
+  "unavailable": "暂不可用",
+  "apiTeamSettings": "API Team设置",
+  "apiKeySettings": "API Key设置",
+  "apiHostSettings": "API Host设置",
+  "apiModelSettings": "API Model设置",
+  "updating": "更新中",
+  "updateStatus": "更新状态",
+  "modify":"修改",
+  "versionNow":"版本"
 }
