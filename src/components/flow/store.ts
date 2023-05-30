@@ -117,8 +117,8 @@ const useStore = create<RFState>((set, get) => ({
     })]
 
     // console.log(nodes)
-
-    set({ nodes, edges })
+   
+    setTimeout(()=>set({ nodes, edges}),500)
 
   },
   onNodesChange: (changes: any) => {

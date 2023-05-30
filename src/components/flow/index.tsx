@@ -221,7 +221,7 @@ function Flow() {
   }
 
   const download = () => {
-    exportDataToEarth.then((combo: any) => {
+    exportDataToEarth().then((combo: any) => {
       console.log(combo)
       const fileName = `${combo.tag}_${combo.id}`
       const data = [combo]
