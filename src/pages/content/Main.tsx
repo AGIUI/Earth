@@ -22,6 +22,8 @@ import { highlightText } from "@components/combo/Agent"
 
 import Setup from "@components/Setup"
 
+import '@src/locales/i18nConfig';
+import i18n from 'i18next'
 
 //@ts-ignore
 import PDF from '@components/files/PDF'
@@ -1232,7 +1234,7 @@ class Main extends React.Component<{
     /*
     bind: false,checked: true,combo:2,id:"187a3184aab",owner:"user",prompt: "1",prompt2: "2",tag:"test"
     */
-
+  
     _promptControl = (event: any) => {
         const { cmd, data } = event;
 
@@ -1289,12 +1291,12 @@ class Main extends React.Component<{
             this.updateChatBotStatus(false)
         }
     }
-
+        
 
     _doChatBotData() {
 
         let subjects = [{
-            type: 'chatbot', text: '聊天', index: -1
+            type: 'chatbot', text: i18n.t("Chat"), index: -1
         }];
 
         let activeIndex = -1;
@@ -1326,6 +1328,9 @@ class Main extends React.Component<{
 
     render() {
         const { tabList, datas, activeIndex } = this._doChatBotData();
+        
+        console.log(`总面板开关${this.state.initIsOpen}`);
+        
         return (<>
             <FlexColumn
                 className={this.props.className}

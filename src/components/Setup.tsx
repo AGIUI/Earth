@@ -13,6 +13,9 @@ import OpenFileButton from "@components/buttons/OpenFileButton";
 import HelpButton from "@components/buttons/HelpButton";
 import styled from 'styled-components';
 
+import i18n from "i18next";
+import '@src/locales/i18nConfig';
+
 
 // user-select: none !important;
 const Base: any = styled.div`
@@ -235,11 +238,11 @@ class Setup extends React.Component<{
                     status, loading: false
                 })
             };
-            let credit = `剩余点数：0 P`
+            let credit = `${i18n.t('RemainingPoints')}:0 P`
             if (res.myPoints) {
                 // api2d
                 console.log(res.myPoints)
-                if (res.myPoints.points) credit = `剩余点数：${res.myPoints.points}P`
+                if (res.myPoints.points) credit = `${i18n.t('RemainingPoints')}:${res.myPoints.points}P`
             }
             this.setState({
                 credit
@@ -306,7 +309,7 @@ class Setup extends React.Component<{
                     })
                 } else {
                     this.setState({
-                        shortcut: '暂未设置'
+                        shortcut: i18n.t('NotSet')
                     })
                 }
             } else if (request.cmd == 'chat-bot-init-result') {
