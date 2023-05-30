@@ -103,7 +103,7 @@ const Content: any = styled(Flex)`
     flex-direction: column;
     overflow-y: scroll;
     overflow-x: hidden;
-    margin: 4px 0;
+    margin: 5px 0;
     &::-webkit-scrollbar
     {
       width:2px;
@@ -125,7 +125,7 @@ const Content: any = styled(Flex)`
 const customizeRenderEmpty = (text = 'Data Not Found') => (
     <div style={{ textAlign: 'left', marginTop: '10px' }}>
         <img src={chrome.runtime.getURL('public/icon-34.png')} className="logo" style={{
-            width: '34px !important',
+            width: '35px !important',
             height: 'fit-content!important'
         }} />
         {/* <SmileOutlined style={{ fontSize: 20 }} /> */}
@@ -136,13 +136,13 @@ const customizeRenderEmpty = (text = 'Data Not Found') => (
 const createTalkBubbleStyle = (user = false) => {
     let r: any = {
         background: user == true ? '#D1DBFA' : '#4646460d',
-        padding: user == true ? '8px' : '16px',
-        borderRadius: '8px',
+        padding: 10,
+        borderRadius: 10,
         cursor: 'text',
         width: user == true ? 'fit-content' : 'inherit',
         maxWidth: user == true ? '80%' : '100%',
         textAlign: 'left',
-        minWidth: '72px'
+        minWidth: '70px'
     }
     user == true ? r['float'] = 'right' : ''
     return r
@@ -152,13 +152,13 @@ const thinkingBtn = (name = '思考中') => <Button type="dashed"
     className="chatbot-thinking"
     loading disabled
 >{name}</Button>
-const suggestBtn = (i: string, name: string, callback: any) => <Button key={i}
+const suggestBtn = (i: string, name: string, callback: any) => <Button key={i} type="primary"
     style={{
         background: '#1677ff',
-        border: 'none',
-        margin: '0px 12px 12px 0px',
-        color: 'white',
-        fontWeight: '500', height: 'fit-content'
+        // border: 'none',
+        // margin: '0px 10px 10px 0px',
+        // color: 'white',
+        // fontWeight: '500', height: 'fit-content'
     }}
     onClick={() => callback()}
     className="chatbot-suggest"
@@ -221,7 +221,7 @@ const createPPT = (data: any) => {
 
 const createListItem = (data: any, index: number) => {
 
-    return <div style={{ margin: '2px 0' }}>{
+    return <div style={{ margin: '5px 0' }}>{
         // 状态判断：思考、建议选项、对话
         data.type == 'thinking' ? thinkingBtn(data.hi) : (
             data.type == 'suggest' ? <>
@@ -245,18 +245,18 @@ const createListItem = (data: any, index: number) => {
                     dangerouslySetInnerHTML={{ __html: data.html }}>
                 </p> : <Card title={""}
                     headStyle={{
-                        minHeight: '12px', backgroundColor: 'white',border:"none",marginBottom:-20
+                        minHeight: '10px', backgroundColor: 'white',border:"none",marginBottom:-20
                     }}
                     bordered={false}
                     size={'small'}
                     extra={data.export ?
                         <><Button type="text"
-                            style={{ margin: '4px 0' }}
+                            style={{ margin: '5px 0' }}
                             icon={<CopyOutlined />}
                             size={'small'}
                             onClick={() => copy(data)} />
                             <Button type="text"
-                                style={{ margin: '4px 0'}}
+                                style={{ margin: '5px 0'}}
                                 icon={<FilePptOutlined />}
                                 size={'small'}
                                 onClick={() => createPPT(data)} />
@@ -264,8 +264,8 @@ const createListItem = (data: any, index: number) => {
                     }
 
                     style={{
-                        width: '100%', background: 'rgba(255, 255, 255, 0.00)', marginTop: '12px',
-                        marginBottom: '12px', padding: '0px', boxShadow: 'none',
+                        width: '100%', background: 'rgba(255, 255, 255, 0.00)', marginTop: '10px',
+                        marginBottom: '10px', padding: '0px', boxShadow: 'none',
                     }}>
                     <p
                         style={createTalkBubbleStyle(data.user)}

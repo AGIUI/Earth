@@ -146,7 +146,7 @@ class ChatBotPanel extends React.Component {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    paddingTop: '20px'
+                    paddingTop: '10px'
                 }}>
                     
                     <ChatBotTalks callback={(e: any) => this.props.callback(e)}
@@ -213,20 +213,20 @@ class ChatBotPanel extends React.Component {
                 bordered={true}
                 headStyle={{
                     userSelect: 'none',
-                    height: '88px',
+                    height: '80px',
                     border: 'none',
-                    display: 'block',
+                    //display: 'block',
                     fontSize: 24,
                     fontWeight: "bold"
                 }}
                 bodyStyle={{
-                    padding: '18px 24px 10px 24px',
-                    display: 'flex',
-                    height: 'calc(100% - 88px)',
-                    flexDirection: 'column',
-                    justifyContent: 'space-around',
+                    //display: 'flex',
+                    height: 'calc(100% - 80px)',
+                    //flexDirection: 'column',
+                    //justifyContent: 'space-around',
                     cursor: 'auto',
-
+                    paddingTop:0,
+                    paddingBottom:20
                 }}
                 style={{
                     width: this.state.fullscreen ? '100vw' : '500px',
@@ -239,19 +239,15 @@ class ChatBotPanel extends React.Component {
                 }}
                 title={this.state.name}
                 extra={btns}
-
-                tabList={this.state.tabList}
-                activeTabKey={activeTabKey}
-                onTabChange={(key: string) => {
-                    this._switchSubject(this.state.tabList.filter((s: any) => s.key == key)[0].index)
-                }}
+                // tabList={this.state.tabList}
+                // activeTabKey={activeTabKey}
+                // onTabChange={(key: string) => {
+                //     this._switchSubject(this.state.tabList.filter((s: any) => s.key == key)[0].index)
+                // }}
             >
-
                 {this.state.loading ? <Spin tip="Loading" size="large">
                     <div className="content" />
                 </Spin> : contentList[activeTabKey]}
-
-
             </Card>
         );
     }

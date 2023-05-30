@@ -71,6 +71,8 @@ const buttonStyle = {
     marginTop: '4px'
 }
 
+
+
 class ChatBotInput extends React.Component {
     constructor(props: any) {
         super(props);
@@ -231,7 +233,7 @@ class ChatBotInput extends React.Component {
         // console.log(this.state, this.props.config)
         const flexStyle = {
             display: 'flex', justifyContent: 'flex-start',
-            alignItems: 'center', padding: '8px'
+            alignItems: 'center', padding: '10px'
         }
 
         const { input, output, agent, chatBotType, chatBotStyle } = this.state;
@@ -247,12 +249,12 @@ class ChatBotInput extends React.Component {
                 translate="no"
                 style={{ boxShadow: 'none' }}
                 bodyStyle={{
-                    padding: '8px',
-                    paddingBottom: '24px',
+                    padding: '10px',
+                    paddingBottom: '25px',
                     background: 'rgb(245, 245, 245)',
-                    marginBottom: '8px',
+                    marginBottom: '10px',
                     border: 'none',
-                    borderRadius: '8px'
+                    borderRadius: '10px'
                 }}
                 actions={[
                     <div style={flexStyle} >
@@ -275,14 +277,17 @@ class ChatBotInput extends React.Component {
                     </div>
                     ,
                     <div style={{
-                        ...flexStyle,
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '10px',
+                        paddingRight:'0px',
                         justifyContent: 'flex-end'
                     }}
                     >
 
                         <Button
                             style={{
-                                ...buttonStyle, marginRight: '12px'
+                                ...buttonStyle, marginRight: '10px'
                             }}
                             icon={<PlusOutlined />}
                             onClick={() => this._newTalk()}
@@ -305,7 +310,7 @@ class ChatBotInput extends React.Component {
                 <Collapse expandIconPosition={'start'} size="small">
                     <Panel header={node} key="node" >
                         <div style={flexStyle}>
-                            <LoginOutlined style={{ marginRight: '12px' }} />
+                            <LoginOutlined style={{ marginRight: '10px' }} />
                             <Radio.Group
                                 options={this.state.input}
                                 onChange={(e) => this._change(e.target.value, 'input')}
@@ -316,7 +321,7 @@ class ChatBotInput extends React.Component {
                             />
                         </div>
                         <div style={flexStyle}>
-                            <RobotOutlined style={{ marginRight: '12px' }} />
+                            <RobotOutlined style={{ marginRight: '10px' }} />
                             <Radio.Group
                                 options={this.state.agent}
                                 onChange={(e) => this._change(e.target.value, 'agent')}
@@ -326,7 +331,7 @@ class ChatBotInput extends React.Component {
                                 size="small"
                             />
                         </div>
-                        <div style={flexStyle}><LogoutOutlined style={{ marginRight: '12px' }} /><Radio.Group
+                        <div style={flexStyle}><LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
                             options={this.state.output}
                             onChange={(e) => this._change(e.target.value, 'output')}
                             value={this.state.output.filter((m: any) => m.checked)[0].value}
@@ -363,7 +368,7 @@ class ChatBotInput extends React.Component {
                     placeholder={this.state.placeholder}
                     autoSize={{ minRows: 2, maxRows: 15 }}
                     disabled={this.state.isLoading}
-                    style={this.state.userInput.prompt ? { height: 'auto',marginTop:2 } : {marginTop:2}}
+                    style={this.state.userInput.prompt ? { height: 'auto',marginTop:5 } : {marginTop:5}}
                 />
 
             </Card>

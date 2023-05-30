@@ -1354,7 +1354,7 @@ class Main extends React.Component<{
                     position: 'fixed',
                     top: 0,
                     right: 0,
-                    zIndex: 999,
+                    zIndex: 99999998,
                     background: 'white',
                     height: '100vh'
                 }}

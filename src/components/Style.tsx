@@ -25,7 +25,7 @@ justify-content: space-between;
 flex-direction: row;
 height:100%;
 position:fixed;
-z-index:1050;
+z-index:99999999;
 /*2147483600*/
 top :0;
 right:0;
