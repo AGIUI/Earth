@@ -67,7 +67,8 @@ class Setup extends React.Component<{
     checked: boolean,
     credit: string,
     name: string,
-    isChange: boolean
+    isChange: boolean,
+    issues:string
 }> {
     constructor(props: any) {
         super(props)
@@ -93,8 +94,9 @@ class Setup extends React.Component<{
             loading: false,
             checked: false,
             credit: '',
-            name:`${json.app} _版本: ${json.version}`,
-            isChange: false
+            name:`${json.app}_${json.version}`,
+            isChange: false,
+            issues:json.issues
         }
 
         chrome.storage.sync.onChanged.addListener(() => {
@@ -362,7 +364,18 @@ class Setup extends React.Component<{
             >
                     <Spin spinning={this.state.loading}>
                         {/*TODO  清空缓存 ，显示缓存的prompt数量 */}
-                        <p style={{ fontSize: '14px' }}>{this.state.name}</p>
+                        <Title level={4} style={{ marginTop: 0 }}>版本号</Title>
+                        <Space direction={"horizontal"} align={"center"}>
+                        <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.name}</Text>
+                            <Button
+                                style={{
+                                    marginTop: 0
+                                }} onClick={() => this._openUrl(this.state.issues)}>
+                                问题反馈
+                            </Button>
+                        </Space>
+
+                        <Divider style={{ marginTop: 15, marginBottom: 15 }} />
                         <Title level={4} style={{ marginTop: 0 }}>快捷键设置</Title>
                         <Space direction={"horizontal"} align={"center"}>
                             <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.shortcut}</Text>

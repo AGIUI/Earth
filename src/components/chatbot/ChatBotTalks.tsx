@@ -156,8 +156,8 @@ const suggestBtn = (i: string, name: string, callback: any) => <Button key={i} t
     style={{
         background: '#1677ff',
         // border: 'none',
-        // margin: '0px 10px 10px 0px',
-        // color: 'white',
+        margin: '0px 10px 10px 0px',
+        color: 'white',
         // fontWeight: '500', height: 'fit-content'
     }}
     onClick={() => callback()}

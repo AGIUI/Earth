@@ -179,11 +179,12 @@ class ChatBotSelect extends React.Component {
                     value={this.state.type}
                     onChange={(e) => this._onChange(e)}>
                     {
-                        Array.from(this.state.config, (t: any) => <Option value={t.type}>
-                            <img style={{
-                                width: '26px', height: '26px'
-                            }} src={t.icon} alt={`${t.name} logo`} />
-                        </Option>
+                        Array.from(this.state.config, (t: any) =>
+                                <Option value={t.type}>
+                                    <img style={{
+                                        width: '26px', height: '26px'
+                                    }} src={t.icon} alt={`${t.name} logo`} />
+                                </Option>
                         )
                     }
                 </Select>

@@ -71,10 +71,10 @@ const workflow = {
         "key": "query",
         "label": "根据选择器获取网页信息"
     },
-    {
-        "key": "send-to-zsxq",
-        "label": "发布内容至知识星球"
-    },
+    // {
+    //     "key": "send-to-zsxq",
+    //     "label": "发布内容至知识星球"
+    // },
     {
         "key": "highlight",
         "label": "高亮网页内容",

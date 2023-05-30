@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Card, Button, Input, Collapse, Radio, message } from 'antd';
-import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
+import { PlusOutlined, SendOutlined, BranchesOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Panel } = Collapse;
 import { defaultCombo, defaultPrompt } from "@components/combo/ComboData";
@@ -263,13 +263,11 @@ class ChatBotInput extends React.Component {
                             this.props.leftButton && this.props.leftButton.label ? <Button
                                 style={buttonStyle}
                                 type="dashed"
-                                icon={<SettingOutlined />}
+                                icon={<BranchesOutlined />}
                                 onClick={() => this._leftBtnClick()}
                                 disabled={this.state.isLoading}
                             >
-                                {
-                                    this.props.leftButton.label
-                                }
+                            工作流
                             </Button> : ''
                         }
 
