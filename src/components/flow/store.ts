@@ -116,7 +116,7 @@ const useStore = create<RFState>((set, get) => ({
       return nd
     })]
 
-    console.log(nodes)
+    // console.log(nodes)
 
     set({ nodes, edges })
 
