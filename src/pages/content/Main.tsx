@@ -22,6 +22,8 @@ import { highlightText } from "@components/combo/Agent"
 
 import Setup from "@components/Setup"
 
+import '@src/locales/i18nConfig';
+import i18n from 'i18next'
 
 //@ts-ignore
 import PDF from '@components/files/PDF'
@@ -161,10 +163,10 @@ const sendMessageCanRetry = (cmd: any, data: any) => {
 
         setTimeout(() => {
             if (start === false) {
-                console.log('出错了，重试ing')
+                console.log(i18n.t('retryError'))
                 count++;
                 if (count > 10) {
-                    message.info('出错了，请重试')
+                    message.info(i18n.t('retryError'))
                 } else {
                     //TODO 把上一条的对话输入，传过来
                     r();
@@ -771,7 +773,7 @@ class Main extends React.Component<{
             if (data.type == "start") {
                 // 需补充此状态
                 // 对话状态开启
-                console.log('对话状态开启')
+                console.log(i18n.t('chatStatusEnabled'))
                 this.updateChatBotStatus(true);
 
             } else if ((data.type == 'markdown' || data.type == 'done')) {
@@ -924,7 +926,7 @@ class Main extends React.Component<{
 
             nTalks.push(ChatBotConfig.createTalkData('send-talk-refresh', {
                 data: {
-                    tag: '刷新',
+                    tag: i18n.t('refresh'),
                     prompt: {
                         text: promptFromLocal,
                         type: 'prompt',
@@ -1209,7 +1211,7 @@ class Main extends React.Component<{
             if (type === 'add') newData.push(data);
 
             if (newData.length > 5) {
-                message.info('已达到最大存储数量')
+                message.info(i18n.t('maximumStorageLimitReached'))
                 // message.error('已达到最大存储数量');
             };
 
@@ -1244,7 +1246,7 @@ class Main extends React.Component<{
     /*
     bind: false,checked: true,combo:2,id:"187a3184aab",owner:"user",prompt: "1",prompt2: "2",tag:"test"
     */
-
+  
     _promptControl = (event: any) => {
         const { cmd, data } = event;
 
@@ -1301,12 +1303,12 @@ class Main extends React.Component<{
             this.updateChatBotStatus(false)
         }
     }
-
+        
 
     _doChatBotData() {
 
         let subjects = [{
-            type: 'chatbot', text: '聊天', index: -1
+            type: 'chatbot', text: i18n.t("Chat"), index: -1
         }];
 
         let activeIndex = -1;
@@ -1338,6 +1340,9 @@ class Main extends React.Component<{
 
     render() {
         const { tabList, datas, activeIndex } = this._doChatBotData();
+        
+        console.log(`总面板开关${this.state.initIsOpen}`);
+        
         return (<>
             <FlexColumn
                 className={this.props.className}

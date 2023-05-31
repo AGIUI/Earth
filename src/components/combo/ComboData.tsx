@@ -1,5 +1,5 @@
 import { workflow } from '@components/Workflow'
-
+import i18n from 'i18next';
 
 const PROMPT_MAX_LENGTH = 720
 
@@ -55,23 +55,23 @@ const defaultCombo = {
 
 const comboOptions = [
     {
-        label: '开启Prompts Combo',
+        label: i18n.t('openPromptsCombo'),
         value: 'combo',
     },
     {
-        label: '作为对话流选项',
+        label: i18n.t('showInChatOption'),
         value: 'showInChat',
     },
     {
-        label: '作为右键菜单选项',
+        label: i18n.t('contextMenusOption'),
         value: 'contextMenus',
     },
     {
-        label: '首页',
+        label: i18n.t('homeOption'),
         value: 'home',
     },
     {
-        label: '无限循环',
+        label:  i18n.t('infiniteLoopOption'),
         value: 'infinite',
     }
 ];
