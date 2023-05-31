@@ -47,7 +47,7 @@
   "customPrompt": "自定义提示",
   "maximumStorageLimitReached": "已达到最大存储数量",
   
-  "create":"新建",
+  "reset":"新建",
 
   "RemainingPoints": "剩余点数",
   "NotSet": "暂未设置",
@@ -71,5 +71,49 @@
   "updating": "更新中",
   "updateStatus": "更新状态",
   "modify":"修改",
-  "versionNow":"版本"
+  "versionNow":"版本",
+  "detail":"详情",
+
+  "createMyPrompts": "新建我的Prompts",
+  "myPrompts": "我的Prompts",
+  "backgroundMessage": "我是后台，已收到消息：{message}",
+  "retryError": "出错了，请重试",
+
+  "addPrompts": "添加Prompts",
+  "title": "标题",
+  "fillTitle": "请填写标题",
+  "fillTitlePlaceholder": "必填，请填写标题",
+  "role": "角色",
+  "fillRole": "请填写角色",
+  "fillRolePlaceholder": "请填写角色",
+  "download": "下载",
+  "confirmDeletePrompt": "确定删除Prompt？",
+  "yes": "是的",
+  "cancel": "取消",
+  "delete": "删除",
+  "save": "保存",
+
+  "fillTarget": "目标",
+  "fillPrompt": "提示词组合",
+  "fillTasks": "任务",
+  "pleaseFillIn":"请填写",
+
+  "fillTargetOrPrompt": "请填写目标或Prompt",
+  "required": "必填",
+  "fillUrlMessage": "请填写url",
+  "fillTextMessage": "请填写Text",
+  "fillQueryMessage": "请填写Query",
+  "fillInitMessage": "请填写init",
+
+  "openPromptsCombo": "开启Prompts Combo",
+  "showInChatOption": "作为对话流选项",
+  "contextMenusOption": "作为右键菜单选项",
+  "homeOption": "首页",
+  "infiniteLoopOption": "无限循环",
+
+  "inputTitle":"输入",
+  "outputTitle":"输出",
+
+  "introduceMore": "介绍更多",
+  "contentExpansion": "内容扩写"
 }

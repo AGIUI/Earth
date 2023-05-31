@@ -95,7 +95,6 @@ class Setup extends React.Component<{
             loading: false,
             checked: false,
             credit: '',
-            //为什么这个版本文字不显示呢？
             name:`${json.app} _${i18n.t('versionNow')}: ${json.version}`,
             isChange: false
         }
@@ -393,7 +392,7 @@ class Setup extends React.Component<{
                                         <Tag color={"#cd201f"}>{i18n.t('environmentException')}</Tag>
                                         <Popover zIndex={1200} content={
                                             <div>{this.state.status['Bing']}</div>
-                                        } title="详情">
+                                        } title={i18n.t('detail')}>
                                             <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                         </Popover>
                                     </Space>
@@ -412,13 +411,13 @@ class Setup extends React.Component<{
                         </Title>
                         {(() => {
                             if (this.state.status['ChatGPT'] == 'OK' && this.state.isChange == false) {
-                                return <Tag color="#87d068">当前可用</Tag>
+                                return <Tag color="#87d068">{i18n.t('available')}</Tag>
                             } else {
                                 return <Space direction={"horizontal"} size={0}>
                                     <Tag color={"#cd201f"}>{this.state.isChange ? i18n.t('toUpdate') : i18n.t('unavailable')}</Tag>
                                     <Popover zIndex={1200} content={
                                         <div>{this.state.status['ChatGPT']}</div>
-                                    } title="详情">
+                                    } title={i18n.t('detail')}>
                                         <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                     </Popover>
                                 </Space>

@@ -8,6 +8,7 @@ import { getConfig, chromeStorageGet } from '@components/Utils';
 import commonsConfig from '@src/config/commonsConfig.json'
 import editableConfig from '@src/config/editableConfig.json'
 import selectionConfig from '@src/config/selectionConfig.json'
+import i18n from 'i18next';
 // console.log(commonsConfig)
 const _CONFIG_JSON = getConfig()
 console.log('Service Worker', _CONFIG_JSON)

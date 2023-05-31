@@ -163,10 +163,10 @@ const sendMessageCanRetry = (cmd: any, data: any) => {
 
         setTimeout(() => {
             if (start === false) {
-                console.log('出错了，重试ing')
+                console.log(i18n.t('retryError'))
                 count++;
                 if (count > 10) {
-                    message.info('出错了，请重试')
+                    message.info(i18n.t('retryError'))
                 } else {
                     //TODO 把上一条的对话输入，传过来
                     r();

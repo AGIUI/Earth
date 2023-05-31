@@ -289,7 +289,7 @@ class ChatBotInput extends React.Component {
                             icon={<PlusOutlined />}
                             onClick={() => this._newTalk()}
                             disabled={this.state.isLoading}
-                        >{i18n.t('create')}</Button>
+                        >{i18n.t('reset')}</Button>
 
                         <Button
                             style={buttonMainStyle}

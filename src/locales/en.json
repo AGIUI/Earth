@@ -38,7 +38,7 @@
   "english": "English",
   "extractStructuredData": "Extract Structured Data",
 
-  "tokenConsumptionWarning": "Token consumption warning",
+  "tokenConsumptionWarning": "May consume a large number of tokens, it is recommended to bind them when needed",
   "send": "Send",
   "stop": "Stop",
   "chatStatusEnabled": "Chat status enabled",
@@ -46,7 +46,7 @@
   "customPrompt": "Custom prompt",
   "maximumStorageLimitReached": "Maximum storage limit reached",
 
-  "create":"Create",
+  "reset":"Reset",
 
   "RemainingPoints": "Remaining Points",
   "NotSet": "Not set",
@@ -70,6 +70,49 @@
   "updating": "Updating",
   "updateStatus": "Update Status",
   "modify":"Modify",
-  "versionNow":"版本"
+  "versionNow":"Version",
+
+  "createMyPrompts": "Create My Prompts",
+  "myPrompts": "My Prompts",
+  "backgroundMessage": "I am the background, received message: {message}",
+  "retryError": "An error occurred, please try again",
+
+  "addPrompts": "Add Prompts",
+  "title": "Title",
+  "fillTitle": "Please fill in the title",
+  "fillTitlePlaceholder": "Required, please fill in the title",
+  "role": "Role",
+  "fillRole": "Please fill in the role",
+  "fillRolePlaceholder": "Please fill in the role",
+  "download": "Download",
+  "confirmDeletePrompt": "Are you sure you want to delete the prompt?",
+  "yes": "Yes",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "save": "Save",
+
+  "fillTarget": "Target",
+  "fillPrompt": "Prompt Combo",
+  "fillTasks": "Tasks",
+  "pleaseFillIn":"Please Fill in",
+  
+  "fillTargetOrPrompt": "Please fill in the target or Prompt",
+  "required": "Required",
+  "fillUrlMessage": "Please fill in url",
+  "fillTextMessage": "Please fill in Text",
+  "fillQueryMessage": "Please fill in Query",
+  "fillInitMessage": "Please fill in init",
+
+  "openPromptsCombo": "Open Prompts Combo",
+  "showInChatOption": "As a conversation flow option",
+  "contextMenusOption": "As a right-click menu option",
+  "homeOption": "Homepage",
+  "infiniteLoopOption": "Infinite Loop Option",
+
+  "inputTitle":"InputTitle",
+  "outputTitle":"OutputTitle",
+
+  "introduceMore": "Introduce More",
+  "contentExpansion": "Content Expansion"
 
 }

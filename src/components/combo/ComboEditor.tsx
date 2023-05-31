@@ -21,6 +21,8 @@ import { FlexRow } from "@components/Style";
 import OpenFileButton from "@components/buttons/OpenFileButton";
 
 import styled from 'styled-components';
+import i18n from 'i18next';
+
 
 const Base: any = styled.div`
     & .ant-card-body::-webkit-scrollbar{
@@ -73,7 +75,7 @@ class ComboEditor extends React.Component {
         super(props);
         this.state = {
             name: 'comboEditor',
-            secondTitle: '我的Prompts',
+            secondTitle: i18n.t('myPrompts'),
             myPrompts: this.props.myPrompts,
             showImportModal: false,
             version: '',
@@ -330,7 +332,7 @@ class ComboEditor extends React.Component {
                 <Button size={"large"} type={"primary"}
                     style={{ position: "absolute", bottom: 30, width: 450, left: 25 }}
                     onClick={(event: any) => this._showModal(event, { owner: 'user', id: (new Date()).getTime() })}>
-                    新建我的Prompts
+                    {i18n.t('createMyPrompts')}
                 </Button>
 
                 {/* {this.state.showEdit && ReactDOM.createPortal(showEditModal(), document.body as HTMLElement)} */}
