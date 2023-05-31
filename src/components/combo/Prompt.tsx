@@ -1,7 +1,79 @@
 import { Readability } from '@mozilla/readability'
+import { encode, decode } from '@nem035/gpt-3-encoder'
+
+
+// const str = '这是什么句子？'
+// const encoded = encode(str)
+// console.log('Encoded this string looks like: ', encoded)
+// console.log('We can look at each token and what it represents')
+// for(let token of encoded){
+//   console.log({token, string: decode([token])})
+// }
+// const decoded = decode(encoded)
+// console.log('We can decode it back into:\n', decoded)
+
+
+
 import { md5, textSplitByLength } from '@components/Utils'
 
-const MAX_LENGTH = 1800;
+const MAX_LENGTH = 2800;
+
+const cropText = (
+    text: string,
+    startLength = 400,
+    endLength = 300,
+    tiktoken = true,
+) => {
+    const splits = text.split(/[,，。?？!！;；]/).map((s) => s.trim())
+    const splitsLength = splits.map((s) => (tiktoken ? encode(s).length : s.length))
+    const length = splitsLength.reduce((sum, length) => sum + length, 0)
+
+    const cropLength = length - startLength - endLength
+    const cropTargetLength = MAX_LENGTH - startLength - endLength
+    const cropPercentage = cropTargetLength / cropLength
+    const cropStep = Math.max(0, 1 / cropPercentage - 1)
+
+    if (cropStep === 0) return text
+
+    let croppedText = ''
+    let currentLength = 0
+    let currentStep = 0
+
+    for (let currentIndex = 0; currentIndex < splits.length; currentIndex++) {
+        if (currentLength + splitsLength[currentIndex] + 1 <= startLength) {
+            croppedText += splits[currentIndex] + ','
+            currentLength += splitsLength[currentIndex] + 1
+        } else if (currentLength + splitsLength[currentIndex] + 1 + endLength <= MAX_LENGTH) {
+            if (currentStep < cropStep) {
+                currentStep++
+            } else {
+                croppedText += splits[currentIndex] + ','
+                currentLength += splitsLength[currentIndex] + 1
+                currentStep = currentStep - cropStep
+            }
+        } else {
+            break
+        }
+    }
+
+    let endPart = ''
+    let endPartLength = 0
+    for (let i = splits.length - 1; endPartLength + splitsLength[i] <= endLength; i--) {
+        endPart = splits[i] + ',' + endPart
+        endPartLength += splitsLength[i] + 1
+    }
+    currentLength += endPartLength
+    croppedText += endPart
+
+    console.log(
+        `maxLength: ${MAX_LENGTH}\n`,
+        `desiredLength: ${currentLength}\n`,
+        `content: ${croppedText}`,
+    )
+    return croppedText
+}
+
+
 
 const userSelectionInit = () => {
     document.addEventListener("selectionchange", () => {
@@ -22,33 +94,22 @@ const userSelection = () => {
 const promptBindText = (userText: string, prompt: string) => {
     const text = userText.replace(/\s+/ig, ' ');
     prompt = prompt.trim();
-    const count = prompt.length;
-    prompt = `'''${MAX_LENGTH - count > 0 ? text.slice(0, MAX_LENGTH - count) : ''}''',` + prompt;
+    prompt = `'''${cropText(text)}''',` + prompt;
     return prompt
 }
 
 const promptBindUserSelection = (prompt: string) => {
     const userText = localStorage.getItem('___userSelection') || ''
-    if (prompt && userText) {
-        prompt = promptBindText(userText, prompt)
-    }
+    prompt = promptBindText(userText, prompt)
     return prompt
 }
-
 
 const promptBindUserClipboard = async (prompt: string) => {
     let text = await navigator.clipboard.readText()
     // console.log('navigator.clipboard.readText()', text)
-    if (text && prompt) {
-        let texts = textSplitByLength(text, MAX_LENGTH);
-        texts = Array.from(texts, t => t.trim());
-        text = texts.join('')
-        console.log(texts)
-        prompt = promptBindText(text, prompt)
-    }
+    prompt = promptBindText(text, prompt)
     return prompt
 }
-
 
 const extractArticle = () => {
     let documentClone: any = document.cloneNode(true);
@@ -100,19 +161,18 @@ const promptBindCurrentSite = (prompt: string, type = 'text') => {
     if (type == 'text') {
         const text = textContent.trim().replace(/\s+/ig, ' ');
         const t = `'''title:${title},url:${href}'''`
-        const count = prompt.length + t.length;
         if (prompt) {
-            prompt = `'''${t}${MAX_LENGTH - count > 0 ? `,content:${text.slice(0, MAX_LENGTH - count)}` : ''}''',` + prompt;
+            prompt = `'''${t},content:${cropText(text)}''',` + prompt;
         } else {
-            prompt = `'''${t}${MAX_LENGTH - count > 0 ? `,content:${text.slice(0, MAX_LENGTH - count)}` : ''}'''`;
+            prompt = `'''${t},content:${cropText(text)}'''`;
         }
 
     } else if (type == 'html') {
         const htmls = Array.from(elements, (t: any) => t.html)
         if (prompt) {
-            prompt = `'''${JSON.stringify(htmls)}''',` + prompt;
+            prompt = `'''${cropText(JSON.stringify(htmls))}''',` + prompt;
         } else {
-            prompt = `'''${JSON.stringify(htmls)}'''`;
+            prompt = `'''${cropText(JSON.stringify(htmls))}'''`;
         }
 
     } else if (type == 'url') {
@@ -148,6 +208,36 @@ const extractDomElement = () => {
     return Array.from(elements, (t: any) => t.element)
 }
 
+
+const promptUseLastTalk = (prompt: string, lastTalk: string) => {
+    prompt = prompt.trim()
+    lastTalk = lastTalk.trim()
+    if (lastTalk && prompt) {
+        prompt = `<${lastTalk}>,[USER INPUT]${prompt}`
+    } else if (lastTalk) {
+        prompt = lastTalk;
+    }
+    return prompt
+}
+
+// type markdown/json
+const promptParse = (prompt: string, type: string) => {
+    prompt = cropText(prompt)
+    if (type == 'markdown') {
+        prompt = `${prompt},完成任务并按照markdown格式输出`
+    } else if (type == 'json') {
+        prompt = `${prompt},完成任务并按照json格式输出`
+    } else if (type == 'translate-zh') {
+        prompt = `${prompt},完成任务,翻译成中文`
+    } else if (type == 'translate-en') {
+        prompt = `${prompt},完成任务,翻译成英文`
+    } else if (type == 'extract') {
+        prompt = `完成这个任务：分析实体词，并分类。[USER INPUT]${prompt}`
+    }
+    return prompt
+}
+
+
 export {
     promptBindCurrentSite,
     promptBindUserSelection,
@@ -155,5 +245,6 @@ export {
     promptBindUserClipboard,
     extractDomElement,
     promptBindTasks,
-    promptBindHighlight
+    promptBindHighlight,
+    cropText, promptParse, promptUseLastTalk
 }

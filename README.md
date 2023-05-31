@@ -16,7 +16,7 @@ AGI-UI的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人�
 
 ## 如何使用？
 
-安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.3.2
+安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.3.3
 
 Chrome：
 
@@ -114,7 +114,13 @@ v0.3.2
 
 - 解决prompt下载的bug
 
-- 已支持本地LLM的接入
+- 已支持本地LLM的接入(openai官方标准)
+
+v0.3.3
+- 去除newtab
+
+- 裁剪文本长度的优化（感谢[@nem035/gpt-3-encoder](https://www.npmjs.com/package/@nem035/gpt-3-encoder)）
+
 
 
 ## TODO
