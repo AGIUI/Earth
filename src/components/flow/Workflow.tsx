@@ -3,6 +3,7 @@
  * ask 等待用户输入，TODO待处理
  */
 
+const display=["editor","debug",""];
 
 const workflow = {
     "models": [
@@ -83,7 +84,8 @@ const workflow = {
     {
         "key": "send-to-zsxq",
         "label": "发布内容至知识星球",
-        "parent": "query"
+        "parent": "query",
+        "display":['editor',]
     },
     {
         "key": "highlight",

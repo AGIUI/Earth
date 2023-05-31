@@ -11,11 +11,9 @@ const Base: any = styled.div`
       position: fixed !important;
       top: 0 !important;
       right: 0 !important;
-      z-index: 99999998 !important;
+      z-index: 99999997 !important;
       width: auto !important;
     }
-  
-  
     & .ant-card{
       background-color: white;
     }
@@ -123,7 +121,7 @@ async function init() {
       initChatBotType={
         from
       }
-    
+
       debug={false}
       debugData={{}}
       callback={(e: any) => console.log(e)}
@@ -133,6 +131,13 @@ async function init() {
 
 
   dom.appendChild(rootContainer);
+
+  // ant的bug z-index修正
+  const s = document.createElement('style');
+  s.innerHTML = `.ant-select-dropdown-placement-bottomLeft{
+    z-index: 99999999 !important;
+  }`
+  dom.appendChild(s);
 
 }
 

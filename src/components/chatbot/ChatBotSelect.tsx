@@ -165,7 +165,7 @@ class ChatBotSelect extends React.Component {
 
 
     render() {
-        // console.log(this.state.style)
+        // console.log('config::::',this.state.config)
         return (
             <div style={{
                 display: 'flex',
