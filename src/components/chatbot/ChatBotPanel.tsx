@@ -149,7 +149,9 @@ class ChatBotPanel extends React.Component {
                     paddingTop: '10px'
                 }}>
 
-                    <ChatBotTalks callback={(e: any) => this.props.callback(e)}
+                    <ChatBotTalks 
+                    debug={this.props.debug}
+                    callback={(e: any) => this.props.callback(e)}
                         items={datas[subject.index + 1]} />
 
                     <ChatBotInput

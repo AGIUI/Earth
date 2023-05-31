@@ -3,14 +3,25 @@
  * ask 等待用户输入，TODO待处理
  */
 
-const display=["editor","debug",""];
+
+/**
+ * workflow的开关
+ * chatbot - 在对话框
+ * editor - 编辑器
+ * debug - 调试框
+ * */
+const display = [
+    "chatbot", "editor", "debug"
+]
+
 
 const workflow = {
     "models": [
         {
             "label": "发散程度",
             "value": "temperature",
-            "defaultValue": 0.7
+            "defaultValue": 0.7,
+            "display": ["chatbot", "editor", "debug"]
         },
         {
             "label": "模型",
@@ -18,111 +29,129 @@ const workflow = {
             "options": [
                 { "value": "ChatGPT", "label": "ChatGPT" },
                 { "value": "Bing", "label": "Bing" }
-            ]
+            ],
+            "display": ["chatbot", "editor", "debug"]
         }
     ],
     "inputs": [{
         "label": "默认",
-        "value": "default"
+        "value": "default",
+        "display": ["chatbot", "editor", "debug"]
     }, {
         "label": "绑定网页正文",
-        "value": "bindCurrentPage"
-
+        "value": "bindCurrentPage",
+        "display": ["chatbot", "editor"]
     },
     {
         "label": "绑定网页HTML",
-        "value": "bindCurrentPageHTML"
+        "value": "bindCurrentPageHTML",
+        "display": ["chatbot", "editor"]
 
     },
     {
         "label": "绑定网页URL",
-        "value": "bindCurrentPageURL"
+        "value": "bindCurrentPageURL",
+        "display": ["chatbot", "editor"]
 
     },
     {
         "ask": true,
         "label": "用户划选",
-        "value": "userSelection"
+        "value": "userSelection",
+        "display": ["chatbot", "editor"]
     },
     {
         "label": "剪切板",
-        "value": "clipboard"
+        "value": "clipboard",
+        "display": ["chatbot", "editor"]
     }
     ],
     "outputs": [{
         "label": "默认",
-        "value": "default"
+        "value": "default",
+        "display": ["chatbot", "editor", "debug"]
 
     }, {
         "label": "作为上下文",
-        "value": "isNextUse"
-
+        "value": "isNextUse",
+        "display": ["editor"]
     }],
     "agents": [{
         "key": "prompt",
         "label": "Prompt",
         "checked": true,
-        "parent": "prompt"
+        "parent": "prompt",
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "key": "tasks",
         "label": "目标拆解",
         "parent": "prompt",
         "disabled": true,
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "key": "query",
         "label": "根据选择器获取网页信息",
-        "parent": "query"
+        "parent": "query",
+        "display": ["editor"]
     },
     {
         "key": "query-click",
         "label": "模拟点击",
         "disabled": true,
-        "parent": "query"
+        "parent": "query",
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "key": "send-to-zsxq",
         "label": "发布内容至知识星球",
         "parent": "query",
-        "display":['editor',]
+        "display": ["editor"]
     },
     {
         "key": "highlight",
         "label": "高亮网页内容",
         "disabled": true,
-        "parent": "query"
+        "parent": "query",
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "key": "api",
         "label": "API",
-        "parent": "api"
+        "parent": "api",
+        "display": ["editor"]
     },
     {
         "label": "JSON格式",
         "key": "json",
-        "parent": "formatter"
+        "parent": "formatter",
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "label": "列表",
         "key": "list",
         "parent": "formatter",
         "disabled": true,
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "label": "MarkDown格式",
         "key": "markdown",
-        "parent": "formatter"
+        "parent": "formatter",
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "label": "中文",
         "key": "translate-zh",
-        "parent": "translate"
+        "parent": "translate",
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "label": "英文",
         "key": "translate-en",
-        "parent": "translate"
+        "parent": "translate",
+        "display": ["chatbot", "editor", "debug"]
     },
     // {
     //     "label": "提取结构化数据",
@@ -134,12 +163,14 @@ const workflow = {
         "key": "if-else",
         "parent": "logic",
         "disabled": true,
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "label": "循环",
         "key": "for-of",
         "parent": "logic",
         "disabled": true,
+        "display": ["chatbot", "editor", "debug"]
     }
     ]
 

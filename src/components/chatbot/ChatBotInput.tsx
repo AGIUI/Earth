@@ -12,13 +12,7 @@ import ChatBotSelect from "@components/chatbot/ChatBotSelect"
  * 
  */
 
-/**
- * :where(.css-mxhywb).ant-input-affix-wrapper::before {
-    width: 0;
-    visibility: hidden;
-    content: "" !important;
-}
- */
+
 
 type PropType = {
     /** 回调

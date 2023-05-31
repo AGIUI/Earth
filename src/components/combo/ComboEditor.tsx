@@ -332,7 +332,7 @@ class ComboEditor extends React.Component {
                     id: (new Date()).getTime(),
                     isNew:true
                      })}>
-                    新建我的Prompts
+                    新建
                 </Button>
 
                 {/* {this.state.showEdit && ReactDOM.createPortal(showEditModal(), document.body as HTMLElement)} */}

@@ -122,9 +122,9 @@ const Content: any = styled(Flex)`
     }
 `
 
-const customizeRenderEmpty = (text = 'Data Not Found') => (
+const createAvatar = (avatar: string, text = 'Data Not Found') => (
     <div style={{ textAlign: 'left', marginTop: '10px' }}>
-        <img src={chrome.runtime.getURL('public/icon-34.png')} className="logo" style={{
+        <img src={avatar} className="logo" style={{
             width: '35px !important',
             height: 'fit-content!important'
         }} />
@@ -152,6 +152,7 @@ const thinkingBtn = (name = '思考中') => <Button type="dashed"
     className="chatbot-thinking"
     loading disabled
 >{name}</Button>
+
 const suggestBtn = (i: string, name: string, callback: any) => <Button key={i} type="primary"
     style={{
         background: '#1677ff',
@@ -219,7 +220,7 @@ const createPPT = (data: any) => {
 
 }
 
-const createListItem = (data: any, index: number) => {
+const createListItem = (data: any, index: number, debug: boolean) => {
 
     return <div style={{ margin: '5px 0' }}>{
         // 状态判断：思考、建议选项、对话
@@ -229,12 +230,15 @@ const createListItem = (data: any, index: number) => {
                     data.buttons
                         && data.buttons.length > 0
                         && data.hi ?
-                        customizeRenderEmpty(data.hi) : ''
+                        createAvatar(data.avatar || chrome.runtime.getURL('public/icon-34.png'), data.hi) : ''
                 }
                 {
                     data.buttons && data.buttons.length > 0 ? Array.from(
                         data.buttons,
-                        (button: any, i) => suggestBtn(i + '', button.name, () => button.callback && button.callback())
+                        (button: any, i) => {
+                            // console.log('button',button)
+                            return suggestBtn(i + '', button.name, () => button.callback && button.callback())
+                        }
                     ) : ''
                 }
             </> : (data.html ?
@@ -245,21 +249,22 @@ const createListItem = (data: any, index: number) => {
                     dangerouslySetInnerHTML={{ __html: data.html }}>
                 </p> : <Card title={""}
                     headStyle={{
-                        minHeight: '10px', backgroundColor: 'white',border:"none",marginBottom:-20
+                        minHeight: '10px', backgroundColor: 'white', border: "none", marginBottom: -20
                     }}
                     bordered={false}
                     size={'small'}
                     extra={data.export ?
-                        <><Button type="text"
-                            style={{ margin: '5px 0' }}
-                            icon={<CopyOutlined />}
-                            size={'small'}
-                            onClick={() => copy(data)} />
+                        <>
                             <Button type="text"
-                                style={{ margin: '5px 0'}}
+                                style={{ margin: '5px 0' }}
+                                icon={<CopyOutlined />}
+                                size={'small'}
+                                onClick={() => copy(data)} />
+                            {!debug ? <Button type="text"
+                                style={{ margin: '5px 0' }}
                                 icon={<FilePptOutlined />}
                                 size={'small'}
-                                onClick={() => createPPT(data)} />
+                                onClick={() => createPPT(data)} /> : ''}
                         </> : ''
                     }
 
@@ -387,7 +392,9 @@ class ChatBotTalks extends React.Component {
             // height={this.state.fullscreen ? 'calc(70vh - 44px)' : ''}
             >
                 {
-                    (this.state.items && this.state.items.length > 0) && Array.from(this.state.items, (item, index) => createListItem(item, index))}
+                    (this.state.items && this.state.items.length > 0) && Array.from(
+                        this.state.items,
+                        (item, index) => createListItem(item, index, !!this.props.debug))}
             </Content>
         );
     }

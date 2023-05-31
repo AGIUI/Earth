@@ -56,18 +56,20 @@ const defaultCombo = {
 
 
 const models: any = Array.from(workflow.models, model => {
-    if (model.value === 'temperature') return {
-        ...model, type: 'range'
-    }
-    if (model.value === 'model') return {
-        ...model, type: 'select'
+    if (model.display.includes('editor')) {
+        if (model.value === 'temperature') return {
+            ...model, type: 'range'
+        }
+        if (model.value === 'model') return {
+            ...model, type: 'select'
+        }
     }
 })
 
 
 
 const inputs: any = Array.from(workflow.inputs, (inp: any) => {
-    if (!inp.disabled) return {
+    if (!inp.disabled && inp.display.includes('editor')) return {
         ...inp, input: true, type: 'checkbox'
     }
 }).filter(a => a)
@@ -76,13 +78,13 @@ const inputs: any = Array.from(workflow.inputs, (inp: any) => {
  * 默认 - 不传递
  */
 const outputs: any = Array.from(workflow.outputs, (out: any) => {
-    if (!out.disabled) return {
+    if (!out.disabled && out.display.includes('editor')) return {
         ...out, output: true, type: 'checkbox'
     }
 }).filter(a => a)
 
 const promptOptions: any = Array.from(workflow.agents, (agent: any) => {
-    if (!agent.disabled) return {
+    if (!agent.disabled && agent.display.includes('editor')) return {
         ...agent,
         children: [],
         inputs: inputs.filter((f: any) => f.value),

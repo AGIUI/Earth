@@ -538,8 +538,10 @@ class Main extends React.Component<{
                             return `${a.available.success} ${a.type}`
                         }
                     }).join('\n'))
+
                     if (isHas) {
-                        let type = chatBotAvailables[0].type, available = chatBotAvailables[0].available;
+                        let type = chatBotAvailables[0].type,
+                            available = chatBotAvailables[0].available;
                         // if (availables.length > 0) {
                         //     type = availables[0].type;
                         //     available = availables[0].available;
@@ -566,6 +568,7 @@ class Main extends React.Component<{
         return new Promise((res: any, rej) => {
             this._getChatBotFromLocal().then((data: any) => {
                 if (data) {
+                    console.log('_getChatBotFromLocal', data)
                     this.setState({
                         // 先获取第一个
                         chatBotType: data.type,
@@ -731,7 +734,7 @@ class Main extends React.Component<{
      */
 
     _llmRun(prompt: any, newTalk: boolean) {
-
+        console.log('this.state.chatBotStyle', this.state.chatBotStyle)
         const { temperature, model, text, type } = prompt;
 
         let newText = text;
@@ -801,7 +804,6 @@ class Main extends React.Component<{
                 isCanClearThinking = true;
                 setTimeout(() => this.updateChatBotStatus(false), 100);
             }
-
 
             if (data.type == "start") {
                 // 需补充此状态
@@ -901,7 +903,7 @@ class Main extends React.Component<{
                 nTalks.push(ChatBotConfig.createTalkData('urls', {
                     buttons: Array.from(data.urls, (url: any) => {
                         return {
-                            from: url.from,
+                            from: 'open-url',
                             data: {
                                 ...url
                             }
@@ -920,7 +922,12 @@ class Main extends React.Component<{
                         return {
                             from: prompt.from,
                             data: {
-                                ...prompt
+                                ...prompt,
+                                prompt: {
+                                    type: 'prompt',
+                                    text: prompt.prompt,
+                                    tag: prompt.tag
+                                }
                             }
                         }
                     })
@@ -948,6 +955,20 @@ class Main extends React.Component<{
                 this.updateChatBotStatus(false);
 
             }
+
+            //TODO 检查
+            //  let urls=[{tag:'xxx',url:'https://www.baidu.com'}]
+            // nTalks.push(ChatBotConfig.createTalkData('urls', {
+            //     buttons: Array.from(  urls, (url: any) => {
+            //         return {
+            //             from:'open-url',
+            //             data: {
+            //                 ...url
+            //             }
+            //         }
+            //     }),
+            // }))
+
 
             // 清空type thinking 的状态
             if (isCanClearThinking) nTalks = Talks.clearThinking(nTalks)
@@ -982,6 +1003,7 @@ class Main extends React.Component<{
 
     _chatBotSelect(res: any) {
         if (res.type == 'ChatGPT' || res.type == 'Bing') {
+            // console.log('_chatBotSelect:',res)
             const data = {
                 chatBotType: res.type,
                 chatBotStyle: res.style
@@ -1032,14 +1054,24 @@ class Main extends React.Component<{
                 // 增加思考状态
                 nTalks.push(ChatBotConfig.createTalkData('thinking', {}));
 
+
+                nTalks = nTalks.filter(t => t)
+                // console.log("nTalks filter", nTalks);
+
+                // 把对话内容保存到本地
+                Talks.save(nTalks)
+
+
                 this.setState({
                     userInput: {
                         prompt: '', tag: ''
                     },
                     chatbotInitPrompt: '',
-                    openMyPrompts: false
+                    openMyPrompts: false,
+                    talks: nTalks  // 保存对话内容 一句话也可以是按钮
                 })
 
+                // console.log('nTalks', nTalks)
                 // console.log(`prompt`, JSON.stringify(prompt, null, 2), JSON.stringify(prePrompt, null, 2), combo, prompt.input)
 
                 // combo>0从comboor对话流里运行
@@ -1171,7 +1203,7 @@ class Main extends React.Component<{
                     if (data.url) {
                         sendMessageToBackground['open-url']({ url: data.url })
                     } else if (data.prompt) {
-
+                        sendTalk()
                     }
                     return;
                 // 用户点击建议
@@ -1200,6 +1232,14 @@ class Main extends React.Component<{
                     this.updateChatBotStatus(false)
                     // 清空type thinking 的状态
                     nTalks = Talks.clearThinking(nTalks)
+                    nTalks = nTalks.filter(t => t)
+                    console.log("nTalks filter", nTalks);
+                    this.setState({
+                        talks: nTalks  // 保存对话内容 一句话也可以是按钮
+                    });
+
+                    // 把对话内容保存到本地
+                    Talks.save(nTalks)
                     break;
                 // 新建对话
                 case "new-talk":
@@ -1213,6 +1253,15 @@ class Main extends React.Component<{
 
                     Talks.clear();
                     sendMessageToBackground['chat-bot-talk-new']({ type: this.state.chatBotType, newTalk: true });
+
+                    nTalks = nTalks.filter(t => t)
+                    console.log("nTalks filter", nTalks);
+                    this.setState({
+                        talks: nTalks  // 保存对话内容 一句话也可以是按钮
+                    });
+
+                    // 把对话内容保存到本地
+                    Talks.save(nTalks)
 
                     break;
                 // case "input-change":
@@ -1231,14 +1280,14 @@ class Main extends React.Component<{
             }
 
 
-            nTalks = nTalks.filter(t => t)
+            // nTalks = nTalks.filter(t => t)
+            // console.log("nTalks filter", nTalks);
+            // this.setState({
+            //     talks: nTalks  // 保存对话内容 一句话也可以是按钮
+            // });
 
-            this.setState({
-                talks: nTalks  // 保存对话内容 一句话也可以是按钮
-            });
-
-            // 把对话内容保存到本地
-            Talks.save(nTalks)
+            // // 把对话内容保存到本地
+            // Talks.save(nTalks)
 
         }
 
