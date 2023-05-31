@@ -1,13 +1,5 @@
 import * as React from "react";
-
-import {
-    Button
-} from 'antd';
-
-
-import {
-    FullscreenExitOutlined,FullscreenOutlined
-} from '@ant-design/icons';
+import { FullscreenExitOutlined, FullscreenOutlined } from '@ant-design/icons';
 
 type PropType = {
     disabled: boolean;
@@ -17,60 +9,75 @@ type PropType = {
 
 type StateType = {
     disabled: boolean;
-    fullscreen:boolean;
+    fullscreen: boolean;
+    isHovered: boolean; // 新增 isHovered 状态
 }
 
-interface FullscreenButton {
-    state: StateType;
-    props: PropType
-}
-
-class FullscreenButton extends React.Component {
-    constructor(props: any) {
+class FullscreenButton extends React.Component<PropType, StateType> {
+    constructor(props: PropType) {
         super(props);
         this.state = {
-            disabled: this.props.disabled,
-            fullscreen:this.props.fullscreen
+            disabled: props.disabled,
+            fullscreen: props.fullscreen,
+            isHovered: false, // 初始化 isHovered 为 false
         }
     }
 
-    componentDidMount() {
-        // this.setupConnection();
-    }
-
-    componentDidUpdate(prevProps: { disabled: boolean; fullscreen:boolean}, prevState: any) {
-        if (
-            this.props.disabled !== prevProps.disabled
-        ) {
+    componentDidUpdate(prevProps: PropType) {
+        if (this.props.disabled !== prevProps.disabled) {
             this.setState({ disabled: this.props.disabled })
         }
 
-        if (
-            this.props.fullscreen !== prevProps.fullscreen
-        ) {
+        if (this.props.fullscreen !== prevProps.fullscreen) {
             this.setState({ fullscreen: this.props.fullscreen })
         }
     }
 
-    componentWillUnmount() {
-        // this.destroyConnection();
+    handleMouseEnter = () => {
+        this.setState({ isHovered: true });
+    }
+
+    handleMouseLeave = () => {
+        this.setState({ isHovered: false });
     }
 
     render() {
+        const { disabled, fullscreen, isHovered } = this.state;
+
         return (
-            <Button
-            style={{
-                outline: 'none',
-                border: 'none',
-                margin: '0px 5px',
-                boxShadow: 'none'
-            }}
-            icon={this.state.fullscreen ?
-                <FullscreenExitOutlined style={{ fontSize: 20 }} /> :
-                <FullscreenOutlined style={{ fontSize: 20 }} />}
-            disabled={this.state.disabled}
-            onClick={
-                () => this.props.callback({ cmd: 'toggle-fullcreen' })} />
+            <>
+                {fullscreen ? (
+                    <FullscreenExitOutlined
+                        style={{
+                            color: isHovered ? 'rgb(22, 119, 255)' : 'black', // 根据 isHovered 设置颜色
+                            outline: 'none',
+                            border: 'none',
+                            margin: '0px 5px',
+                            boxShadow: 'none',
+                            cursor: 'pointer',
+                            fontSize: 24
+                        }}
+                        onClick={() => this.props.callback({ cmd: 'toggle-fullscreen' })}
+                        onMouseEnter={this.handleMouseEnter} // 绑定 onMouseEnter 事件处理程序
+                        onMouseLeave={this.handleMouseLeave} // 绑定 onMouseLeave 事件处理程序
+                    />
+                ) : (
+                    <FullscreenOutlined
+                        style={{
+                            color: isHovered ? 'rgb(22, 119, 255)' : 'black', // 根据 isHovered 设置颜色
+                            outline: 'none',
+                            border: 'none',
+                            margin: '0px 5px',
+                            boxShadow: 'none',
+                            cursor: 'pointer',
+                            fontSize: 24
+                        }}
+                        onClick={() => this.props.callback({ cmd: 'toggle-fullscreen' })}
+                        onMouseEnter={this.handleMouseEnter} // 绑定 onMouseEnter 事件处理程序
+                        onMouseLeave={this.handleMouseLeave} // 绑定 onMouseLeave 事件处理程序
+                    />
+                )}
+            </>
         );
     }
 }

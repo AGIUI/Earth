@@ -1,10 +1,4 @@
 import * as React from "react";
-
-import {
-    Button
-} from 'antd';
-
-
 import {
     DownloadOutlined
 } from '@ant-design/icons';
@@ -16,7 +10,8 @@ type PropType = {
 }
 
 type StateType = {
-    disabled: boolean
+    disabled: boolean;
+    isHovered: boolean; // 新增 isHovered 状态
 }
 
 interface DownloadButton {
@@ -25,10 +20,11 @@ interface DownloadButton {
 }
 
 class DownloadButton extends React.Component {
-    constructor(props: any) {
+    constructor(props: PropType) {
         super(props);
         this.state = {
-            disabled: this.props.disabled
+            disabled: props.disabled,
+            isHovered: false, // 初始化 isHovered 为 false
         }
     }
 
@@ -44,22 +40,37 @@ class DownloadButton extends React.Component {
         }
     }
 
+    handleMouseEnter = () => {
+        this.setState({ isHovered: true });
+    }
+
+    handleMouseLeave = () => {
+        this.setState({ isHovered: false });
+    }
+
     componentWillUnmount() {
         // this.destroyConnection();
     }
 
     render() {
+        const { disabled, isHovered } = this.state;
+
         return (
-            <Button
+            <DownloadOutlined
                 style={{
+                    color: isHovered ? 'rgb(22, 119, 255)' : 'black', // 根据 isHovered 设置颜色
                     outline: 'none',
                     border: 'none',
-                    margin: '0px 5px 0px 10px',
-                    boxShadow: 'none'
+                    margin: '0px 5px',
+                    boxShadow: 'none',
+                    cursor: 'pointer',
+                    fontSize: 24
                 }}
-                icon={<DownloadOutlined style={{ fontSize: 20 }} />}
                 disabled={this.state.disabled}
-                onClick={() => this.props.callback({ cmd: 'download-file' })} />
+                onClick={() => this.props.callback({ cmd: 'download-file' })}
+                onMouseEnter={this.handleMouseEnter} // 绑定 onMouseEnter 事件处理程序
+                onMouseLeave={this.handleMouseLeave} // 绑定 onMouseLeave 事件处理程序
+            />
         );
     }
 }

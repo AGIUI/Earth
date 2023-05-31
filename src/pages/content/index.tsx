@@ -5,59 +5,67 @@ import styled from 'styled-components';
 
 // user-select: none !important;
 const Base: any = styled.div`
-    font-family: fantasy!important;
-    letter-spacing: 1px!important;
-  & ._agi_ui{
-    position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 4;
-    width: auto;
-  }
-
-  & .ant-card{
-   
-  }
-
-  & .ant-btn-primary span{
-    color:white!important
-  }
-  & .ant-btn-primary:hover{
-    background: rgb(113 172 255) !important;
-    box-shadow: rgb(113 172 255) 2px 2px 12px;
-  }
- 
+      font-family: fantasy!important;
+      letter-spacing: 1px!important;
+    & ._agi_ui{
+      position: fixed !important;
+      top: 0 !important;
+      right: 0 !important;
+      z-index: 99999998 !important;
+      width: auto !important;
+    }
+  
+  
+    & .ant-card{
+      background-color: white;
+    }
     
+    & .ant-btn{
+      background-color: white;
+      :hover{
+        background-color: white;
+        opacity: 0.8;
+      }
+    }
+  
+    & .ant-btn-primary{
+      background-color:rgb(22, 119, 255) !important;
+      color:white;
+      :hover{
+        background-color:rgb(22, 119, 255) !important;
+        opacity: 0.8;
+      }
+    }
+  
     & h1,h2{
       margin: 12px 0;
       font-weight: 800;
+      color: black;
     }
     & p,li{
       margin: 6px 0;
+      color: black;
     }
-
-
+  
     & .chatbot-text-bubble p{
         margin: 8px 4px!important;
         line-height: 24px!important; 
     }
-    & .chatbot-suggest{
-        background: rgb(22, 119, 255)!important;
-        border: none!important;
-        margin: 0px 12px 12px 0px!important;
-        color: white!important;
-        font-weight: 500!important;
-        height: fit-content!important;
-    }
-    & .chatbot-suggest:hover{
-      background: rgb(113 172 255) !important;
-      box-shadow: rgb(113 172 255) 2px 2px 12px;
-    }
+    //& .chatbot-suggest{
+    //    background: rgb(22, 119, 255)!important;
+    //    border: none!important;
+    //    margin: 0px 12px 12px 0px!important;
+    //    color: white!important;
+    //    height: fit-content!important;
+    //    :hover{
+    //      background-color:rgb(22, 119, 255) !important;
+    //      opacity: 0.8;
+    //    }
+    //}
     & .chatbot-suggest span{
         color: white!important;
     }
     & .chatbot-error{
-        border: 1px solid red !important;
     }
     & .chatbot-text-bubble-user{
       background: #d8e7fd!important;
