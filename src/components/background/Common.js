@@ -87,7 +87,7 @@ class Common {
             async(request, sender, sendResponse) => {
                 const { cmd, data } = request,
                 tabId = sender.tab.id
-                console.log(cmd)
+                    // console.log(cmd)
                 if (cmd == 'hi') sendResponse({ cmd: 'hi-result', data: true });
 
                 if (cmd == 'open-options-page') chrome.runtime.openOptionsPage();

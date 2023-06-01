@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 
 import ReactFlow, {
   Controls,
@@ -11,17 +11,20 @@ import ReactFlow, {
   ReactFlowProvider,
   NodeOrigin,
   ConnectionLineType,
-  SelectionMode, MiniMap, Background
+  SelectionMode, MiniMap, Background, ReactFlowInstance
 } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 
-import { Button, Input, Checkbox, Card, Divider } from 'antd';
+import { Button, Input, Checkbox, Card, Divider, Collapse } from 'antd';
+
+const { Panel: Panel0 } = Collapse;
 const { TextArea } = Input;
 import { nanoid } from 'nanoid/non-secure';
 
 import useStore, { RFState } from './store';
 import BWNode from './BWNode';
 import BWEdge from './BWEdge';
+import RoleNode from './RoleNode';
 
 // we need to import the React Flow styles to make it work
 import 'reactflow/dist/style.css';
@@ -33,7 +36,6 @@ const _VERVISON = '0.1.0',
 
 const _DEFAULTCOMBO = {
   tag: '',
-  role: '',
   combo: 1,
   interfaces: [],
   isInfinite: false,
@@ -58,7 +60,9 @@ declare const window: Window &
 
 const selector = (state: RFState) => ({
   comboOptions: state.comboOptions,
+  id: state.id,
   tag: state.tag,
+  defaultNode: state.defaultNode,
   nodes: state.nodes,
   edges: state.edges,
   onComboOptionsChange: state.onComboOptionsChange,
@@ -67,10 +71,10 @@ const selector = (state: RFState) => ({
   onEdgesChange: state.onEdgesChange,
   newCombo: state.newCombo,
   addChildNode: state.addChildNode,
-
 });
 
 const nodeTypes = {
+  role: RoleNode,
   brainwave: BWNode,
 };
 
@@ -82,11 +86,30 @@ const nodeOrigin: NodeOrigin = [0.5, 0.5];
 const connectionLineStyle = { stroke: '#F6AD55', strokeWidth: 3 };
 const defaultEdgeOptions = { style: connectionLineStyle, type: 'brainwave' };
 
-function Flow() {
+function Flow(props: any) {
+
+  const { debug, loadData, isNew } = props;
+  // console.log('Flow isNew', isNew)
+  if (typeof (localStorage) !== 'undefined') localStorage.setItem('isNew', isNew ? '1' : '');
+
   const reactFlowInstance = useReactFlow();
   const [isSaveCallback, setIsSaveCallback] = React.useState(false)
   // whenever you use multiple values, you should use shallow for making sure that the component only re-renders when one of the values change
-  const { comboOptions, tag, nodes, edges, onTagChange, onComboOptionsChange, onNodesChange, onEdgesChange, newCombo, addChildNode } = useStore(selector, shallow);
+  const {
+    comboOptions,
+    id,
+    tag,
+    defaultNode,
+    nodes,
+    edges,
+    onTagChange,
+    onComboOptionsChange,
+    onNodesChange,
+    onEdgesChange,
+    newCombo,
+    addChildNode
+  } = useStore(selector, shallow);
+
   const connectingNodeId = useRef<string | null>(null);
   const store = useStoreApi();
   const { project } = useReactFlow();
@@ -137,6 +160,7 @@ function Flow() {
           addChildNode(parentNode, childNodePosition);
         }
       };
+      // setTimeout(() => onSave(), 200)
     },
     [getChildNodePosition]
   );
@@ -156,8 +180,8 @@ function Flow() {
 
   const variant: any = 'dots';
 
+  // 导出
   const exportDataToEarth: any = () => {
-
     const defaultCombo = {
       ..._DEFAULTCOMBO,
       createDate: (new Date()).getTime()
@@ -167,12 +191,17 @@ function Flow() {
     const { edges, nodes } = reactFlowInstance.toObject();
     if (edges.length == 0 && nodes.length == 1) {
       // 只有一个，则导出
-      workflow[nodes[0].id] = nodes[0].data
+      const id = nodes[0].id.match('root_') ? 'root' : nodes[0].id
+      workflow[id] = nodes[0].data
     }
+    // console.log(nodes)
     for (const edge of edges) {
-      const { source, target } = edge;
-      const sourceNode: any = nodes.filter(node => node.id === source)[0];
-      const targetNode: any = nodes.filter(node => node.id === target)[0];
+      let { source, target } = edge;
+      source = source.match('root_') ? 'root' : source;
+      target = target.match('root_') ? 'root' : target;
+
+      const sourceNode: any = nodes.filter(node => (node.id.match('root_') ? 'root' : node.id) === source)[0];
+      const targetNode: any = nodes.filter(node => (node.id.match('root_') ? 'root' : node.id) === target)[0];
       if (sourceNode && targetNode) {
         workflow[source] = { ...sourceNode.data, nextId: target };
         workflow[target] = targetNode.data;
@@ -183,7 +212,6 @@ function Flow() {
     // 按顺序从到尾
     const getItems = (id: string, callback: any) => {
       if (workflow[id]) {
-        console.log(items)
         items.push(workflow[id]);
         let nextId = workflow[id].nextId;
         if (nextId) {
@@ -198,7 +226,7 @@ function Flow() {
       getItems('root', (result: any) => {
         const items = JSON.parse(JSON.stringify(result))
         // 按照combo的格式输出
-        const combo: any = { ...defaultCombo, tag, id: nanoid() }
+        const combo: any = { ...defaultCombo, tag, id: id }
         for (let index = 0; index < items.length; index++) {
           const prompt = items[index];
           delete prompt.onChange;
@@ -223,7 +251,7 @@ function Flow() {
 
   const download = () => {
     exportDataToEarth().then((combo: any) => {
-      console.log(combo)
+      console.log('download', combo)
       const fileName = `${combo.tag}_${combo.id}`
       const data = [combo]
       const link = document.createElement('a');
@@ -252,22 +280,19 @@ function Flow() {
       // 导入
       const combo = json[0];
 
-      onComboOptionsChange(combo.interfaces);
-      onTagChange(combo.tag);
-
       let nodes: any = [],
-        source = 'root',
+        source = 'root_' + nanoid(),
         edges = [];
       for (let index = 0; index < combo.combo; index++) {
         const key = `prompt${index > 0 ? index + 1 : ''}`
         if (combo[key]) {
-          const id = index == 0 ? "root" : key;
+          const id = index == 0 ? source : key + combo.id;
           nodes.push({
             data: combo[key],
             height: 597,
             id,
             position: { x: (312 + 100) * index, y: 0 },
-            type: "brainwave",
+            type: combo[key].type == 'role' ? 'role' : "brainwave",
             width: 312,
             deletable: index > 0
           });
@@ -289,10 +314,14 @@ function Flow() {
         }
       }
 
-      newCombo(nodes, edges);
+      console.log('newCombo', combo)
+      newCombo(combo.id, combo.tag, combo.interfaces, nodes, edges, debug);
+
+      clearLocalStore()
 
     }
   }
+
 
   const openMyCombo = () => {
     const currentNodes = nodes;
@@ -339,39 +368,69 @@ function Flow() {
 
   const onSave = useCallback(() => {
     if (reactFlowInstance) {
-      const flow = reactFlowInstance.toObject();
-      localStorage.setItem('flowKey', JSON.stringify(flow));
+      const flow: any = reactFlowInstance.toObject();
+
+      // interfaces
+      flow.interfaces = Array.from(comboOptions, (c: any) => {
+        if (c.checked) return c.value
+      }).filter(f => f);
+
+      flow.tag = tag;
+
+      localStorage.setItem('flowKey', JSON.stringify({ ...flow, isNew: false }));
     }
-  }, [reactFlowInstance]);
+  }, [reactFlowInstance, tag, comboOptions]);
 
   const onRestore = useCallback(() => {
-    const restoreFlow = async () => {
-      const flow = JSON.parse(localStorage.getItem('flowKey') || '{}');
-      if (flow) {
-        newCombo(flow.nodes || [], flow.edges || []);
-      }
-    };
+    // const restoreFlow = async () => {
+    //   const flow = JSON.parse(localStorage.getItem('flowKey') || '{}');
+    //   if (flow) {
+    //     // console.log('flow', flow)
+    //     newCombo(flow.tag || '', flow.interfaces || [], flow.nodes || [defaultNode], flow.edges || [], debug);
+    //   }
+    // };
+    // restoreFlow();
+  }, [newCombo, debug]);
 
-    restoreFlow();
-  }, [newCombo]);
+  const newWorkflow = () => {
+    newCombo(nanoid(), 'new', [], [defaultNode], [], debug);
+  }
+
+  const clearLocalStore = () => localStorage.setItem('flowKey', '{}');
+
+  const onInit = (reactFlowInstance: ReactFlowInstance) => {
+    const isNew = localStorage.getItem('isNew');
+    // console.log('flow - - - - onInit', isNew)
+    // isNew == "1" ? newWorkflow() : onRestore()
+    // newWorkflow()
+  }
+
+  const onChange = () => {
+    console.log('change')
+    // setInterval(()=>onSave(),3000)
+    // setTimeout(() => onSave(), 200)
+  };
+
+  useEffect(() => {
+    if (isNew) {
+      newWorkflow()
+    } else {
+      loadData && load(loadData)
+    }
+  }, [loadData, isNew])
 
 
-  // onRestore()
+  // console.log('loadData',loadData)
+
 
   return (
     <ReactFlow
       nodes={nodes}
       edges={edges}
-      onNodesChange={(e)=>{
-        onNodesChange(e);
-        onSave()
-      }}
+      onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnectStart={onConnectStart}
-      onConnectEnd={(e)=>{
-        onConnectEnd(e);
-        onSave()
-      }}
+      onConnectEnd={onConnectEnd}
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
       nodeOrigin={nodeOrigin}
@@ -385,7 +444,8 @@ function Flow() {
       selectionOnDrag
       panOnDrag={panOnDrag}
       selectionMode={SelectionMode.Partial}
-
+      onInit={onInit}
+      onChange={onChange}
     >
       <Controls position={'bottom-left'} />
       <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable inversePan={false} ariaLabel={null} />
@@ -395,41 +455,53 @@ function Flow() {
         NODES
       </Panel> */}
 
+
+
       <Panel position="top-right">
-        <Card style={{ width: '300px' }}>
-          <p>名称</p>
-          <TextArea placeholder="Autosize height based on content lines"
-            autoSize
-            value={tag}
-            onChange={(e: any) => {
-              onTagChange(e.target.value)
-            }}
-          />
-          <p>Interfaces</p>
-          <Checkbox.Group
-            options={comboOptions}
-            value={
-              Array.from(comboOptions,
-                (c: any) => c.checked ? c.value : null)
-                .filter(f => f)}
-            onChange={onComboOptionsChange}
-          />
-          <Divider dashed />
-          <p>文件</p>
-          {
-            isSaveCallback ? <Button onClick={() => save()} style={{ marginRight: '24px' }}>保存</Button> : ''
-          }
-          <Button onClick={() => download()} style={{ marginRight: '24px' }}>导出</Button>
-          <Button onClick={() => openMyCombo()} style={{ marginRight: '24px' }}>打开</Button>
-          </Card>
+        
+
+          <Collapse defaultActiveKey={['1']}   size="small">
+            <Panel0 header="菜单" key="1">
+            <Card style={{ width: '300px' }}>
+              <p>名称</p>
+              <TextArea placeholder="输入名称..."
+                autoSize
+                value={tag}
+                onChange={(e: any) => onTagChange(e.target.value)}
+              />
+              <p>Interfaces</p>
+              <Checkbox.Group
+                options={comboOptions}
+                value={
+                  Array.from(comboOptions,
+                    (c: any) => c.checked ? c.value : null)
+                    .filter(f => f)}
+                onChange={onComboOptionsChange}
+              />
+              <Divider dashed />
+              <p>文件</p>
+              {
+                isSaveCallback ? <Button onClick={() => save()} style={{ marginRight: '24px' }}>保存</Button> : ''
+              }
+              <Button onClick={() => download()} style={{ marginRight: '24px' }}>导出</Button>
+              <Button onClick={() => openMyCombo()} style={{ marginRight: '24px' }}>打开</Button>
+              </Card>
+            </Panel0>
+          </Collapse>
+
+
+        
       </Panel>
     </ReactFlow>
   );
 }
 
-export default () => (
-  <ReactFlowProvider >
-    <Flow />
-  </ReactFlowProvider>
-);
+export default (props: any) => {
+  const { debug, loadData, isNew } = props;
+  return (<ReactFlowProvider >
+    <Flow debug={debug} loadData={loadData} isNew={isNew} />
+  </ReactFlowProvider>)
+};
+
+
 

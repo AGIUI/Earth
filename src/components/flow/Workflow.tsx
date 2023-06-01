@@ -196,6 +196,10 @@ const comboOptions = [
 ];
 
 const defaultNode = {
+    role: {
+        name: '',
+        text: ''
+    },
     text: '',
     url: '',
     api: {

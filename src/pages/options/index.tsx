@@ -30,6 +30,14 @@ function saveCombos(combos: any = []) {
       if (newUser.filter((u: any) => u.id == n.id).length > 0) isNew = false;
       if (isNew) {
         newUser.push(n);
+      } else {
+        // 替换
+        newUser = Array.from(newUser, (u: any) => {
+          if (u.id == n.id) {
+            u = { ...n }
+          }
+          return u
+        })
       }
       ;
     }
@@ -46,24 +54,37 @@ function options() {
   const [debugData, setDebugData] = React.useState({});
   const [flowWidth, setFlowWidth] = React.useState('calc(100% - 500px)');
 
+  const [loadData, setLoadData] = React.useState({});
+  const [isNew, setIsNew] = React.useState(true);
+
+
   chrome.storage.local.onChanged.addListener((changes) => {
-    // console.log(changes)
+    // console.log('changes')
     if (changes['_brainwave_import'] && changes['_brainwave_import'].newValue) {
-      if (window._brainwave_import) window._brainwave_import(changes['_brainwave_import'].newValue)
+      // if (window._brainwave_import) window._brainwave_import(changes['_brainwave_import'].newValue)
+      const { isNew, data } = changes['_brainwave_import'].newValue;
+      if (data) setLoadData(data)
+      if (isNew) setIsNew(!!isNew)
+      chromeStorageSet({
+        '_brainwave_import': {}
+      })
+
     }
   });
 
   chromeStorageGet('_brainwave_import').then((res: any) => {
-    console.log(res)
     if (res['_brainwave_import']) {
-      setTimeout(() => {
-        if (window._brainwave_import) {
-          window._brainwave_import(res['_brainwave_import'])
-        };
-        chromeStorageSet({
-          '_brainwave_import': null
-        })
-      }, 1000)
+      const { data, isNew } = res['_brainwave_import'];
+      // console.log('chromeStorageGet',data, isNew)
+      if (!isNew && data) {
+        setLoadData(data);
+      }
+      setIsNew(!!isNew)
+      chromeStorageSet({
+        '_brainwave_import': {}
+      })
+      // console.log('_brainwave_import', data)
+
     }
   })
 
@@ -110,7 +131,29 @@ function options() {
   return (<div style={{
     width: flowWidth, height: '100%'
   }}>
-    <Flow />
+    <Flow
+      loadData={loadData}
+      debug={{
+        callback: (res:any) => {
+          console.log('debug-callback-from-parent',res)
+          setTimeout(() => {
+            const combo = window._brainwave_get_current_node_for_workflow();
+            const d = {
+              '_combo': combo,
+              from: 'brainwave',
+              prompt: combo.prompt,
+              tag: combo.tag,
+              newTalk: true,
+              autoRun: true,
+              id: (new Date()).getTime()
+            }
+            setDebugData(d)
+          }, 500)
+        },
+        open: true
+      }}
+      isNew={isNew}
+    />
     <Main
       className="_agi_ui"
       appName={config.app}

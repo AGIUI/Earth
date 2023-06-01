@@ -25,6 +25,9 @@ declare const window: Window &
 import { defaultNode, comboOptions } from './Workflow'
 
 export type RFState = {
+  defaultNode: any;
+  id: string;
+  debug: any;
   newCombo: any;
   comboOptions: any;
   tag: string;
@@ -43,36 +46,20 @@ export type RFState = {
  */
 const useStore = create<RFState>((set, get) => ({
   comboOptions,
+  id: '',
+  debug: { open: false },
   tag: 'combo',
-  nodes: [
-    {
-      id: 'root',
-      type: 'brainwave',
-      data: {
-        ...defaultNode,
-        onChange: (e: any) => {
-          const nodes = [];
-          for (const node of get().nodes) {
-            if (node.id === e.id) {
-              nodes.push({
-                ...node, data: {
-                  ...node.data, ...e.data
-                }
-              })
-            } else {
-              nodes.push(node)
-            }
-          }
-          set({
-            nodes
-          });
-        },
-        debug: () => { console.log('debug-click'); if (window._brainwave_debug_callback) window._brainwave_debug_callback() }
-      },
-      position: { x: 0, y: 0 },
-      deletable: false
+  defaultNode: {
+    id: 'root',
+    type: 'role',
+    data: {
+      ...defaultNode,
+      type: 'role',
     },
-  ],
+    position: { x: 0, y: 0 },
+    deletable: false
+  },
+  nodes: [],
   edges: [],
   onComboOptionsChange: (changes: any) => {
     let comboOptions = get().comboOptions;
@@ -84,17 +71,21 @@ const useStore = create<RFState>((set, get) => ({
     set({ comboOptions })
   },
   onTagChange: (tag: string) => {
-    set({ tag: tag })
+    set({ tag })
   },
-  newCombo: (ns: any, edges: any) => {
-
-    set({ nodes: [], edges: [] })
+  // 完成调试状态和节点的导入、初始化等
+  newCombo: (id: string, tag: string, interfaces: any, ns: any, edges: any, debug: any) => {
+    set({
+      nodes: [], edges: []
+    });
+    console.log('newCombo - tag', tag, interfaces)
 
     const nodes = [...Array.from(ns, (nd: any) => {
       nd.data = {
         ...defaultNode,
         ...nd.data,
         onChange: (e: any) => {
+          console.log('store-onchange', e)
           const nodes = [];
           for (const node of get().nodes) {
             if (node.id === e.id) {
@@ -111,26 +102,41 @@ const useStore = create<RFState>((set, get) => ({
             nodes
           });
         },
-        debug: () => { console.log('debug-click'); if (window._brainwave_debug_callback) window._brainwave_debug_callback() }
+      }
+
+      if (nd.data.type == 'role') {
+        nd.type = 'role';
+      } else {
+        nd.type = 'brainwave'
+      }
+
+      if (debug && debug.open && debug.callback) {
+        nd.data['debug'] = () => { debug.callback() }
       }
       return nd
     })]
 
-    // console.log(nodes)
-   
-    setTimeout(()=>set({ nodes, edges}),500)
+    let comboOptions = get().comboOptions;
+    comboOptions = Array.from(comboOptions, (c: any) => {
+      c.checked = interfaces.includes(c.value);
+      return c
+    })
+    // console.log(changes, comboOptions)
+    console.log('newCombo - nodes', id, tag, nodes, debug, comboOptions)
+
+
+
+    setTimeout(() => set({ 
+      id, 
+      nodes, 
+      edges, 
+      debug, 
+      tag, 
+      comboOptions }), 800)
 
   },
   onNodesChange: (changes: any) => {
-    // const n=applyNodeChanges(changes, get().nodes)
     const nodes = get().nodes;
-    if (changes.length == 1) {
-      const id = changes[0].id;
-      const node = nodes.filter(n => n.id == id)[0];
-      if (node.selected) {
-
-      }
-    }
     // console.log('onNodesChange', changes,nodes)
     set({
       nodes: applyNodeChanges(changes, nodes),
@@ -151,7 +157,7 @@ const useStore = create<RFState>((set, get) => ({
 
     // 可根据 parentNode 判断下一个节点类型
 
-    const newNode = {
+    const newNode: any = {
       id: nanoid(),
       type: 'brainwave',
       data: {
@@ -172,13 +178,18 @@ const useStore = create<RFState>((set, get) => ({
           set({
             nodes
           });
-        },
-        debug: () => { console.log('debug-click'); if (window._brainwave_debug_callback) window._brainwave_debug_callback() }
+        }
       },
       position,
       parentNode: parentNode.id,
       deletable: true
     };
+
+    const debug = get().debug;
+    if (debug && debug.open && debug.callback) {
+      newNode.data['debug'] = () => { debug.callback() }
+    }
+
     // console.log('addChildNode', parentNode)
     const newEdge = {
       id: nanoid(),

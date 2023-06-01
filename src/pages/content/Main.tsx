@@ -1188,9 +1188,15 @@ class Main extends React.Component<{
                     // console.log(isNew,from)
                     // 修改为新的编辑器brainwave ,data.prompt - combo
                     if (isNew) {
-                        chromeStorageSet({ '_brainwave_import': null })
+                        chromeStorageSet({
+                            '_brainwave_import': {
+                                isNew
+                            }
+                        })
                     } else {
-                        chromeStorageSet({ '_brainwave_import': [data.prompt] })
+                        chromeStorageSet({
+                            '_brainwave_import': { data: [data.prompt] }
+                        })
                     }
                     sendMessageToBackground['open-options-page']({})
                     return
