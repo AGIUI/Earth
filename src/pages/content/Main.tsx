@@ -606,6 +606,12 @@ class Main extends React.Component<{
         })
     }
 
+
+    // role 的功能
+    _promptBindRole(prompt:string,){
+        
+    }
+
     // 用户剪切板
     async _promptBindUserClipboard(prompt: string) {
         return await promptBindUserClipboard(prompt);
@@ -1042,7 +1048,7 @@ class Main extends React.Component<{
 
             const sendTalk = async () => {
                 let combo = data._combo ? data._combo.combo : -1;
-                let { prompt, tag, lastTalk, newTalk, from, prePrompt } = data;
+                let {prompt, tag, lastTalk, newTalk, from, prePrompt } = data;
                 // from : combo ,chatbot-input,getPromptPage
 
                 prompt = JSON.parse(JSON.stringify(prompt))
@@ -1077,6 +1083,10 @@ class Main extends React.Component<{
                 // combo>0从comboor对话流里运行
                 // combo==-1 用户对话框里的输入
 
+                // role的处理
+                if(prompt.role&&(prompt.role.name||prompt.role.text)){
+                    prompt.text = this._promptBindRole(prompt.text,prompt.role)
+                }
 
                 // input的处理
                 if (prompt.input == 'bindCurrentPage') {
