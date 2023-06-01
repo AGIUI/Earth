@@ -121,7 +121,7 @@ class NewBing {
 
         this.available = {
             success: true,
-            style: 'Creative',
+            style: { label: 'Creative', value: 'Creative' },
             styles: [
                 { en: 'Creative', zh: '创造力', value: 'Creative', label: 'Creative' },
                 { en: 'Balanced', zh: '平衡', value: 'Balanced', label: 'Balanced' },

@@ -154,7 +154,7 @@ function Flow() {
     }
   };
 
-  const variant: any = 'lines';
+  const variant: any = 'dots';
 
   const exportDataToEarth: any = () => {
 

@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { Space, Divider, Tag, Typography, Input, Button, Select, Popover, Spin } from 'antd';
+import { Space, Divider, Tag, Typography, Input, Button, Select, Popover, Spin,Card } from 'antd';
 import { QuestionCircleOutlined, CloseOutlined, FileTextOutlined } from '@ant-design/icons';
 const { Title, Text } = Typography;
 import { chromeStorageGet, chromeStorageSet } from '@src/components/Utils';
@@ -12,47 +12,48 @@ import { getConfig } from '@components/Utils';
 import OpenFileButton from "@components/buttons/OpenFileButton";
 import HelpButton from "@components/buttons/HelpButton";
 import styled from 'styled-components';
+import CloseButton from "@components/buttons/CloseButton";
 
 
 // user-select: none !important;
-const Base: any = styled.div`
-box-sizing: border-box;`
+// const Base: any = styled.div`
+// box-sizing: border-box;`
 
-const Flex: any = styled(Base)`
-display:${(props: any) => props.display || 'none'};
-`
+// const Flex: any = styled(Base)`
+// display:${(props: any) => props.display || 'none'};
+// `
 
-const Content: any = styled(Flex)`
-    display:flex;
-    height:100%; 
-    flex-direction: column;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    background-color: white;
-    &::-webkit-scrollbar
-    {
-      width:2px;
-    }
-    &::-webkit-scrollbar-track
-    {
-      border-radius:25px;
-      -webkit-box-shadow:inset 0 0 5px rgba(255,255,255, 0.5);
-      background:rgba(255,255,255, 0.5);
-    }
-    &::-webkit-scrollbar-thumb
-    {
-      border-radius:15px;
-      -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
-      background:rgba(0, 0,0, 0.2);
-    }
-    & h1,h2{
-      margin: 12px 0;
-      font-weight: 800;
-    }
-    & p,li{
-      margin: 6px 0;
-    }
-`
+// const Content: any = styled(Flex)`
+//     display:flex;
+//     height:100%;
+//     flex-direction: column;
+//     overflow-y: scroll;
+//     overflow-x: hidden;
+//     background-color: white;
+//     &::-webkit-scrollbar
+//     {
+//       width:2px;
+//     }
+//     &::-webkit-scrollbar-track
+//     {
+//       border-radius:25px;
+//       -webkit-box-shadow:inset 0 0 5px rgba(255,255,255, 0.5);
+//       background:rgba(255,255,255, 0.5);
+//     }
+//     &::-webkit-scrollbar-thumb
+//     {
+//       border-radius:15px;
+//       -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
+//       background:rgba(0, 0,0, 0.2);
+//     }
+//     & h1,h2{
+//       margin: 12px 0;
+//       font-weight: 800;
+//     }
+//     & p,li{
+//       margin: 6px 0;
+//     }
+// `
 
 
 class Setup extends React.Component<{
@@ -66,7 +67,8 @@ class Setup extends React.Component<{
     checked: boolean,
     credit: string,
     name: string,
-    isChange: boolean
+    isChange: boolean,
+    issues:string
 }> {
     constructor(props: any) {
         super(props)
@@ -92,8 +94,9 @@ class Setup extends React.Component<{
             loading: false,
             checked: false,
             credit: '',
-            name:`${json.app} _版本: ${json.version}`,
-            isChange: false
+            name:`${json.app}_${json.version}`,
+            isChange: false,
+            issues:json.issues
         }
 
         chrome.storage.sync.onChanged.addListener(() => {
@@ -294,8 +297,6 @@ class Setup extends React.Component<{
     }
 
     componentDidMount() {
-
-
         chrome.runtime.sendMessage({ cmd: 'get-shortcuts' });
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             // console.log('send-shortcuts-result', request)
@@ -325,26 +326,56 @@ class Setup extends React.Component<{
     render(): JSX.Element {
         console.log(this.state.name)
         return (
-            <Content>
-                <Space direction="vertical" size="small"
-                    style={{ width: 500, padding: 20, display: 'flex' }}>
+            <Card
+                title={'设置'}
+                bordered={true}
+                headStyle={{
+                    userSelect: 'none',
+                    height: '80px',
+                    border: 'none',
+                    fontSize: 24,
+                    fontWeight: "bold",
+                    // paddingTop: 16
+                }}
+                bodyStyle={{
+                    // flex: 1,
+                    padding: '25px',
+                    height: 'calc(100% - 80px)',
+                    // overflowY: 'scroll',
+                    // paddingBottom: '100px'
+                }}
 
+                extra={<div>
+                    <CloseButton
+                        disabled={false}
+                        callback={() => this.props.callback({
+                            cmd: 'close-setup'
+                        })} />
+                </div>}
+
+                style={{
+                    width: '500px',
+                    padding: '0px',
+                    borderRadius: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100vh'
+                }}
+            >
                     <Spin spinning={this.state.loading}>
                         {/*TODO  清空缓存 ，显示缓存的prompt数量 */}
-                        <Title level={3}>设置 <p style={{ fontSize: '14px' }}>{this.state.name}</p></Title>
-                        <Button icon={<CloseOutlined style={{ fontSize: 20 }} />} style={{
-                            position: 'absolute',
-                            top: 10,
-                            right: 20,
-                            border: 0,
-                            boxShadow: 'none'
-                        }}
-                            onClick={() => {
-                                if (this.props.callback) this.props.callback({
-                                    cmd: 'close-setup'
-                                })
-                            }} />
+                        <Title level={4} style={{ marginTop: 0 }}>版本号</Title>
+                        <Space direction={"horizontal"} align={"center"}>
+                        <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.name}</Text>
+                            <Button
+                                style={{
+                                    marginTop: 0
+                                }} onClick={() => this._openUrl(this.state.issues)}>
+                                问题反馈
+                            </Button>
+                        </Space>
 
+                        <Divider style={{ marginTop: 15, marginBottom: 15 }} />
                         <Title level={4} style={{ marginTop: 0 }}>快捷键设置</Title>
                         <Space direction={"horizontal"} align={"center"}>
                             <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.shortcut}</Text>
@@ -356,7 +387,7 @@ class Setup extends React.Component<{
                             </Button>
                         </Space>
 
-                        <Divider style={{ marginTop: 16, marginBottom: 16 }} />
+                        <Divider style={{ marginTop: 15, marginBottom: 15 }} />
                         <Title level={4} style={{ marginTop: 0 }}>Bing Chat设置</Title>
                         {(() => {
                             if (this.state.status['Bing'] == 'OK') {
@@ -366,7 +397,7 @@ class Setup extends React.Component<{
                                     <Space direction={"vertical"}>
                                         <Space direction={"horizontal"} size={0} style={{ marginBottom: 10 }}>
                                             <Tag color={"#cd201f"}>Bing未授权</Tag>
-                                            <Popover zIndex={1200} content={
+                                            <Popover zIndex={99999999} content={
                                                 <div>Bing Chat无法使用，请重新登录Bing账号</div>
                                             } title="详情">
                                                 <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
@@ -387,7 +418,7 @@ class Setup extends React.Component<{
                                 return (
                                     <Space direction={"horizontal"} size={0} style={{ marginBottom: 0 }}>
                                         <Tag color={"#cd201f"}>环境异常</Tag>
-                                        <Popover zIndex={1200} content={
+                                        <Popover zIndex={99999999} content={
                                             <div>{this.state.status['Bing']}</div>
                                         } title="详情">
                                             <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
@@ -396,7 +427,7 @@ class Setup extends React.Component<{
                                 )
                             }
                         })()}
-                        <Divider style={{ marginTop: 16, marginBottom: 16 }} />
+                        <Divider style={{ marginTop: 15, marginBottom: 15 }} />
                         <Title level={4} style={{ marginTop: 0 }}>ChatGPT设置
                             {this.state.chatGPTConfig.canImport ? <OpenFileButton
                                 callback={(e: any) => this._importConfig()}
@@ -412,7 +443,7 @@ class Setup extends React.Component<{
                             } else {
                                 return <Space direction={"horizontal"} size={0}>
                                     <Tag color={"#cd201f"}>{this.state.isChange ? '待更新' : '暂不可用'}</Tag>
-                                    <Popover zIndex={1200} content={
+                                    <Popover zIndex={99999999} content={
                                         <div>{this.state.status['ChatGPT']}</div>
                                     } title="详情">
                                         <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
@@ -546,7 +577,7 @@ class Setup extends React.Component<{
                             {this.state.loading ? '更新中' : '更新状态'}
                         </Button>
                     </Space>
-                </Space></Content>
+            </Card>
         )
     }
 }

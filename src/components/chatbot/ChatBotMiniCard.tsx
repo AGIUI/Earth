@@ -35,8 +35,8 @@ class ChatBotMiniCard extends React.Component<{
                 bordered={false}
                 style={{
                     position: 'fixed',
-                    bottom: '44px',
-                    right: '44px',
+                    bottom: '45px',
+                    right: '45px',
                     zIndex: 9999,
                     width: 200,
                     height: 132
@@ -48,12 +48,12 @@ class ChatBotMiniCard extends React.Component<{
             >
                 <div style={{
                     display: 'flex',
-                    marginBottom: '12px'
+                    marginBottom: '10px'
                 }}>
                     <img style={{
-                        width: '36px',
+                        width: '35px',
                         height: 'fit-content',
-                        marginRight: '12px'
+                        marginRight: '10px'
                     }} src={chrome.runtime.getURL('public/logo.png')} />
                     <Meta title={this.props.title}
                         description="" />
@@ -62,8 +62,8 @@ class ChatBotMiniCard extends React.Component<{
                 <div style={{
                     display: 'flex'
                 }}><Button style={{
-                    marginRight: '32px',
-                    'minWidth': '66px'
+                    marginRight: '30px',
+                    'minWidth': '65px'
                 }} type="primary"
                     onClick={() => {
                         if (this.props.yes) this.props.yes();

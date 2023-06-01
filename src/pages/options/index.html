@@ -8,6 +8,19 @@
         /* this gets exported as style.css and can be used for the default theming */
         /* these are the necessary styles for React Flow, they get used by base.css and style.css */
         
+        html,
+        body {
+            height: 100%;
+            color: white;
+            background: #000000;
+        }
+        
+        .ant-checkbox-group {
+            display: inline-flex;
+            flex-wrap: wrap;
+            column-gap: 8px;
+        }
+        
         .react-flow__container {
             position: absolute;
             width: 100%;
@@ -164,10 +177,10 @@
             pointer-events: none;
             min-width: 5px;
             min-height: 5px;
-            width: 6px;
-            height: 6px;
-            background: #1a192b;
-            border: 1px solid white;
+            width: 16px;
+            height: 16px;
+            background: #09d9cf;
+            border: 2px solid white;
             border-radius: 100%;
         }
         

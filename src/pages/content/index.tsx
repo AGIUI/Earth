@@ -1,77 +1,6 @@
 import { createRoot } from "react-dom/client";
 import Main from "@pages/content/Main";
 import { getConfigFromUrl, getConfig } from "@components/Utils"
-import styled from 'styled-components';
-
-// user-select: none !important;
-const Base: any = styled.div`
-    font-family: fantasy!important;
-    letter-spacing: 1px!important;
-  & ._agi_ui{
-    position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 4;
-    width: auto;
-  }
-
-  & .ant-card{
-   
-  }
-
-  & .ant-btn-primary span{
-    color:white!important
-  }
-  & .ant-btn-primary:hover{
-    background: rgb(113 172 255) !important;
-    box-shadow: rgb(113 172 255) 2px 2px 12px;
-  }
- 
-    
-    & h1,h2{
-      margin: 12px 0;
-      font-weight: 800;
-    }
-    & p,li{
-      margin: 6px 0;
-    }
-
-
-    & .chatbot-text-bubble p{
-        margin: 8px 4px!important;
-        line-height: 24px!important; 
-    }
-    & .chatbot-suggest{
-        background: rgb(22, 119, 255)!important;
-        border: none!important;
-        margin: 0px 12px 12px 0px!important;
-        color: white!important;
-        font-weight: 500!important;
-        height: fit-content!important;
-    }
-    & .chatbot-suggest:hover{
-      background: rgb(113 172 255) !important;
-      box-shadow: rgb(113 172 255) 2px 2px 12px;
-    }
-    & .chatbot-suggest span{
-        color: white!important;
-    }
-    & .chatbot-error{
-        border: 1px solid red !important;
-    }
-    & .chatbot-text-bubble-user{
-      background: #d8e7fd!important;
-    }
-    & .chatbot-talks img{
-        width: 200px;
-        height: fit-content;
-    }
-    & .logo{
-        width: 34px!important;
-        height: fit-content!important;
-    }
-`
-
 
 
 async function init() {
@@ -93,7 +22,7 @@ async function init() {
   rootContainer.id = id;
   // rootContainer.className = "_agi_ui"
 
-  root.render(<Base>
+  root.render(
     <Main
       className="_agi_ui"
       appName={json.app}
@@ -115,16 +44,98 @@ async function init() {
       initChatBotType={
         from
       }
-    
+
       debug={false}
       debugData={{}}
       callback={(e: any) => console.log(e)}
     />
-  </Base>
   );
 
 
   dom.appendChild(rootContainer);
+
+  addCss();
+
+}
+
+function addCss() {
+  let dom = document.body;
+  // ant的bug z-index修正
+  const s = document.createElement('style');
+  s.innerHTML = `
+  ._agi_ui{
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    z-index: 99999997 !important;
+    width: auto !important;
+    font-family: fantasy!important;
+    letter-spacing: 1px!important;
+  }
+ .ant-card{
+    background-color: white;
+  }
+
+ .ant-btn{
+    background-color: white;
+  }
+
+  .ant-btn:hover{
+    background-color: white;
+    opacity: 0.8;
+  }
+
+ .ant-btn-primary{
+    background-color:rgb(22, 119, 255) !important;
+    color:white;
+  }
+
+.ant-btn-primary:hover{
+  background-color:rgb(22, 119, 255) !important;
+  opacity: 0.8;
+}
+
+._agi_ui h1,h2{
+  margin: 12px 0;
+  font-weight: 800;
+  color: black;
+}
+._agi_ui p,li{
+  margin: 6px 0;
+  color: black;
+}
+
+.chatbot-text-bubble p{
+    margin: 8px 4px!important;
+    line-height: 24px!important; 
+}
+ 
+ .chatbot-suggest span{
+    color: white!important;
+}
+ .chatbot-error{
+}
+ .chatbot-text-bubble-user{
+  background: #d8e7fd!important;
+}
+ .chatbot-talks img{
+    width: 200px;
+    height: fit-content;
+}
+._agi_ui .logo{
+    width: 34px!important;
+    height: fit-content!important;
+}
+  .ant-select-dropdown-placement-bottomLeft{
+    z-index: 99999999 !important;
+  }
+
+  .ant-input-affix-wrapper::before {
+    width: 0;
+    content: "" !important;
+  }
+  `
+  dom.appendChild(s);
 
 }
 

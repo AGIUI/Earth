@@ -208,7 +208,7 @@ export default class ChatGPT {
             success,
             info,
             data: res,
-            style: 0.6,
+            style: { label: 'temperature', value: 0.6 },
             temperature: 0.6
         }
 

@@ -1,8 +1,8 @@
 import { workflow } from '@components/flow/Workflow'
 import { getConfig } from '@components/Utils';
 
-const json:any=getConfig();
-let discord= json.discord 
+const json: any = getConfig();
+let discord = json.discord
 
 
 function get() {
@@ -24,7 +24,8 @@ function get() {
                 { label: '严谨', value: 'Precise', }
             ],
             value: 'Creative'
-        }, checked: true
+        },
+        checked: true
     }]
 
 }
@@ -33,25 +34,25 @@ function get() {
 
 function getInput() {
     return Array.from(workflow.inputs, inp => {
-        return {
+        if (inp.display.includes('chatbot')) return {
             ...inp, checked: inp.value == 'default'
         }
-    })
+    }).filter(i => i)
 }
 
 function getOutput() {
     return Array.from(workflow.outputs, out => {
-        return {
+        if (out.display.includes('chatbot')) return {
             ...out, checked: out.value == 'default'
         }
-    })
+    }).filter(i => i)
 }
 
 
 
 function getAgentOpts() {
     return Array.from(workflow.agents, (agent: any) => {
-        if (!agent.disabled) return {
+        if (!agent.disabled && agent.display.includes('chatbot')) return {
             value: agent.key,
             label: agent.label,
             checked: agent.key == 'prompt'
