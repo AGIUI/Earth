@@ -6,6 +6,8 @@ const { Panel } = Collapse;
 import { defaultCombo, defaultPrompt } from "@components/combo/ComboData";
 import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ChatBotSelect from "@components/chatbot/ChatBotSelect"
+import i18n from 'i18next';
+
 
 /**
  * <ChatBotInput callback={({data,cmd})=>{console.log(cmd,data)}} isLoading={false} leftButton={label:'My Prompts'}/>
@@ -193,7 +195,7 @@ class ChatBotInput extends React.Component {
     _toast() {
         message.open({
             type: 'warning',
-            content: '可能会消耗大量Token，建议在需要时绑定',
+            content: i18n.t('tokenConsumptionWarning'),
         });
     }
 
@@ -247,10 +249,12 @@ class ChatBotInput extends React.Component {
                 translate="no"
                 style={{ boxShadow: 'none' }}
                 bodyStyle={{
-                    padding: '4px',
-                    background: 'rgb(238, 238, 238)',
-                    marginBottom: '16px',
-                    border: 'none'
+                    padding: '8px',
+                    paddingBottom: '24px',
+                    background: 'rgb(245, 245, 245)',
+                    marginBottom: '8px',
+                    border: 'none',
+                    borderRadius: '8px'
                 }}
                 actions={[
                     <div style={flexStyle} >
@@ -285,7 +289,7 @@ class ChatBotInput extends React.Component {
                             icon={<PlusOutlined />}
                             onClick={() => this._newTalk()}
                             disabled={this.state.isLoading}
-                        >新建</Button>
+                        >{i18n.t('reset')}</Button>
 
                         <Button
                             style={buttonMainStyle}
@@ -293,7 +297,7 @@ class ChatBotInput extends React.Component {
                             icon={this.state.isLoading ? <LoadingOutlined /> : <SendOutlined key="ellipsis" />}
                             onClick={() => this._sendBtnClick()}
                         >
-                            {!this.state.isLoading ? '发送' : '停止'}
+                            {!this.state.isLoading ? i18n.t('send') : i18n.t('stop')}
                         </Button>
                     </div>
 
@@ -361,7 +365,7 @@ class ChatBotInput extends React.Component {
                     placeholder={this.state.placeholder}
                     autoSize={{ minRows: 2, maxRows: 15 }}
                     disabled={this.state.isLoading}
-                    style={this.state.userInput.prompt ? { height: 'auto' } : {}}
+                    style={this.state.userInput.prompt ? { height: 'auto',marginTop:2 } : {marginTop:2}}
                 />
 
             </Card>

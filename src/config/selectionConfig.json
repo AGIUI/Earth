@@ -1,0 +1,215 @@
+[
+  {
+    "tag": "introduceMore",
+    "role": "",
+    "combo": 1,
+    "interfaces": ["contextMenus_Selection"],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+      "api": {
+        "init": {
+          "body": {},
+          "cache": "default",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "method": "POST",
+          "mode": "cors",
+          "responseType": "text"
+        },
+        "isApi": false,
+        "protocol": "https://",
+        "url": ""
+      },
+      "input": "default",
+      "model": "Bing",
+      "output": "default",
+      "queryObj": {
+        "isQuery": false,
+        "protocol": "https://",
+        "query": "",
+        "url": ""
+      },
+      "temperature": 0.5,
+      "text": "findCoreInfoAndQueryLinks",
+      "type": "markdown",
+      "url": ""
+    },
+    "version": "0.3.1",
+    "app": "Earth",
+    "id": "9d7f7c47eed2b0a5360412873bb909bc"
+  },
+  {
+
+    "tag": "translateChinese",
+    "role": "",
+    "combo": 1,
+    "interfaces": ["contextMenus_Selection"],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+      "api": {
+        "url": "",
+        "protocol": "https://",
+        "init": {
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {},
+          "mode": "cors",
+          "cache": "default",
+          "responseType": "text"
+        },
+        "isApi": false
+      },
+      "input": "default",
+      "model": "ChatGPT",
+      "output": "default",
+      "queryObj": {
+        "query": "",
+        "url": "",
+        "protocol": "https://",
+        "isQuery": false
+      },
+      "temperature": 0.3,
+      "text": "translateToUnderstandableLanguage",
+      "type": "prompt",
+      "url": ""
+    },
+    "version": "",
+    "app": "",
+    "id": 1685086230450
+  },
+  {
+    "tag": "contentExpansion",
+    "role": "",
+    "combo": 1,
+    "interfaces": ["contextMenus_Selection"],
+
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+      "api": {
+        "init": {
+          "body": {},
+          "cache": "default",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "method": "POST",
+          "mode": "cors",
+          "responseType": "text"
+        },
+        "isApi": false,
+        "protocol": "https://",
+        "url": ""
+      },
+
+      "input": "default",
+
+      "model": "ChatGPT",
+      "output": "default",
+      "queryObj": {
+        "isQuery": false,
+        "protocol": "https://",
+        "query": "",
+        "url": ""
+      },
+      "temperature": 0.7,
+
+      "text": "expandRelatedContent",
+
+      "type": "markdown",
+      "url": ""
+    },
+    "version": "0.3.1",
+    "app": "Earth",
+    "id": "cd115955d15fcadf0f37fc0cfe24446e"
+
+  },
+  {
+    "tag": "abbreviations",
+    "role": "",
+    "combo": 1,
+    "interfaces": ["contextMenus_Selection"],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+      "api": {
+        "url": "",
+        "protocol": "https://",
+        "init": {
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {},
+          "mode": "cors",
+          "cache": "default",
+          "responseType": "text"
+        },
+        "isApi": false
+      },
+      "input": "default",
+      "model": "ChatGPT",
+      "output": "default",
+      "queryObj": {
+        "query": "",
+        "url": "",
+        "protocol": "https://",
+        "isQuery": false
+      },
+      "temperature": 0.7,
+      "text": "abbreviateRelatedContent",
+      "type": "prompt",
+      "url": ""
+    },
+    "version": "",
+    "app": "",
+    "id": 1685085978795
+  },
+  {
+    "tag": "rewriteContent",
+    "role": "",
+    "combo": 1,
+    "interfaces": ["contextMenus_Selection"],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+      "api": {
+        "url": "",
+        "protocol": "https://",
+        "init": {
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {},
+          "mode": "cors",
+          "cache": "default",
+          "responseType": "text"
+        },
+        "isApi": false
+      },
+      "input": "default",
+      "model": "ChatGPT",
+      "output": "default",
+      "queryObj": {
+        "query": "",
+        "url": "",
+        "protocol": "https://",
+        "isQuery": false
+      },
+      "temperature": 0.3,
+      "text": "optimizeWritingStyle",
+      "type": "prompt",
+      "url": ""
+    },
+    "version": "",
+    "app": "",
+    "id": 1685085359057
+
+  }
+]

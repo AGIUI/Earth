@@ -9,23 +9,24 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ComboEditor from '@components/combo/ComboEditor';
 import ComboModal from '@components/combo/ComboModal'
 
-import { promptParse, promptUseLastTalk } from '@components/combo/PromptOutput'
 import {
     promptBindCurrentSite,
     promptBindUserSelection,
     promptBindTasks,
     promptBindUserClipboard,
     userSelectionInit,
-    extractDomElement
-} from '@components/combo/PromptInput'
+    extractDomElement, promptParse, promptUseLastTalk
+} from '@src/components/combo/Prompt'
+
 import { highlightText } from "@components/combo/Agent"
 
 import Setup from "@components/Setup"
 
-import * as _ from "lodash"
+import '@src/locales/i18nConfig';
+import i18n from 'i18next'
 
 //@ts-ignore
-import PDF from '@components/PDF'
+import PDF from '@components/files/PDF'
 
 
 import { chromeStorageGet, chromeStorageSet } from "@components/Utils"
@@ -83,7 +84,7 @@ const Talks = {
         let data: any = await chromeStorageGet(['_currentTalks'])
         if (data && data['_currentTalks'] && data['_currentTalks'].talks) {
             // 只保留type==markdown talk
-            const talks = data['_currentTalks'].talks.filter((t: any) => t.type == 'talk' || t.type == 'markdown' || t.type == 'done')
+            const talks = data['_currentTalks'].talks.filter((t: any) => t.type == 'talk' || t.type == 'markdown' || t.type == 'done' || t.type == 'images')
             return talks
         };
         return []
@@ -129,7 +130,7 @@ const Talks = {
         const buttons = Array.from(
             await getPromptsData(),
             d => {
-                return d.interfaces.includes('showInChat') ? {
+                if (d && d.interfaces) return d.interfaces.includes('showInChat') ? {
                     from: 'combo',
                     data: {
                         combo: d.combo,
@@ -162,10 +163,10 @@ const sendMessageCanRetry = (cmd: any, data: any) => {
 
         setTimeout(() => {
             if (start === false) {
-                console.log('出错了，重试ing')
+                console.log(i18n.t('retryError'))
                 count++;
                 if (count > 10) {
-                    message.info('出错了，请重试')
+                    message.info(i18n.t('retryError'))
                 } else {
                     //TODO 把上一条的对话输入，传过来
                     r();
@@ -187,6 +188,7 @@ const sendMessageToBackground = {
 
 
 class Main extends React.Component<{
+    className: string,
     appName: string,
     agents: any,
     readability: any,
@@ -312,13 +314,29 @@ class Main extends React.Component<{
                 this._updateChatBotTalksResult(data);
             } else if (cmd === "api-run-result") {
                 console.log('api-run-result', data)
-                this._updateChatBotTalksResult([{
+                // 解析数据格式
+                const { responseExtract,
+                    responseType, data: result } = data;
+                const ttype = responseExtract.type;
+
+                const items: any = [{
                     type: 'done',
-                    markdown: `API请求成功:<br>类型:${data.responseType}<br>内容:${data.data.slice(0, 100)}...`,
-                    tId: (new Date()).getTime()
-                }]);
-            } else if(cmd==='contextMenus'){
-                console.log(data);
+                    markdown: `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`,
+                    tId: (new Date()).getTime(),
+                    export: false
+                }];
+
+                if (ttype == 'images') {
+                    items.push({
+                        type: 'images',
+                        images: result,
+                        tId: (new Date()).getTime()
+                    })
+                }
+
+                this._updateChatBotTalksResult(items);
+
+            } else if (cmd === 'contextMenus') {
                 this._control(data);
             }
         });
@@ -343,7 +361,7 @@ class Main extends React.Component<{
 
     componentDidMount(): void {
         console.log('#### init #### ', this.state.appName)
-        if (this.props.initIsOpen) {
+        if (this.props.agents) {
             message.info('自动化执行任务ing')
         }
 
@@ -352,12 +370,13 @@ class Main extends React.Component<{
         // 打开任何网站都会初始化
 
         Talks.get().then(talks => {
-            if (this.props.initIsOpen) {
+            if (this.props.agents) {
                 talks.push({
                     type: 'done',
                     html: '自动化执行任务ing',
                     user: false,
-                    tId: (new Date()).getTime() + '02'
+                    tId: (new Date()).getTime() + '02',
+                    export: false
                 })
             }
 
@@ -401,7 +420,8 @@ class Main extends React.Component<{
                     this._updateChatBotTalksResult([{
                         type: 'done',
                         markdown: res['run-agents-result'].markdown,
-                        tId: (new Date()).getTime()
+                        tId: (new Date()).getTime(),
+                        export: false
                     }]);
                     chromeStorageSet({ 'run-agents-result': null })
                 }, 1000)
@@ -445,6 +465,12 @@ class Main extends React.Component<{
         });
 
         userSelectionInit();
+
+
+        chrome.runtime.sendMessage({
+            cmd: 'hi'
+        }, res => console.log('hi status', res))
+
     }
 
     async show(loading: boolean) {
@@ -573,15 +599,25 @@ class Main extends React.Component<{
     //     return promptParse(prompt, type)
     // }
 
-    _agentApiRun(api: any) {
-        let { url, init, isApi } = api;
+    _agentApiRun(api: any, prePromptText: string, combo: any) {
+        let { url, init, isApi, protocol } = api;
         if (isApi == false) return;
 
-        if (url && !url.match('https')) url = `https://${url}`;
+        if (url && !url.match('//')) url = `${protocol}${url}`;
+        console.log(api, init.body)
 
         if (init.body && typeof (init.body) == 'object') init.body = JSON.stringify(init.body);
+
+        if (init.body && typeof (init.body) == 'string' && prePromptText) {
+            // 替换${text} 表示从上一个节点传递来的text
+            prePromptText = prePromptText.replaceAll('"', '')
+            prePromptText = prePromptText.replaceAll("'", '')
+            prePromptText = prePromptText.replace(/\n/ig, '')
+            init.body = init.body.replaceAll('${text}', prePromptText)
+        }
+
         sendMessageToBackground['api-run']({
-            url, init
+            url, init, combo
         })
     }
 
@@ -595,7 +631,7 @@ class Main extends React.Component<{
             let { url, query, isQuery } = queryObj;
 
             // 对url进行处理
-            if (url && !url.match('https')) url = `https://${url}`
+            if (url && !url.match('//')) url = `https://${url}`
             if (url.match(/\?/)) {
                 url = url + url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')
             }
@@ -625,7 +661,7 @@ class Main extends React.Component<{
 
 
             // 对url进行处理
-            if (url && !url.match('https')) url = `https://${url}${url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')}`
+            if (url && !url.match('//')) url = `https://${url}${url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')}`
 
             // text = text.replaceAll('<br><br>', '\n\n')
             // console.log(text)
@@ -658,6 +694,7 @@ class Main extends React.Component<{
 
     /**
      * 'prompt' ||   'tasks'  
+     * TODO:bug 用户输入的prompt ，
      */
 
     _llmRun(prompt: any, newTalk: boolean) {
@@ -669,20 +706,20 @@ class Main extends React.Component<{
         if (type === 'tasks') {
             newText = promptBindTasks(text);
         } else {
-            // console.log('_llmRun:',type)
+            console.log('_llmRun:', type)
             newText = promptParse(text, type)
         }
 
         let chatBotType = this.state.chatBotType,
-            style: any = 0;
+            style: any = temperature;
 
         if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
 
-        if (temperature > -1) style = temperature;
+        // if (temperature > -1) style = temperature;
         if (model) chatBotType = model;
 
         // 增加一个Bing的转化
-        if (model == "Bing" && temperature > -1) style = this._temperature2BingStyle(temperature);
+        if (model == "Bing" && typeof (temperature) == 'number' && temperature > -1) style = this._temperature2BingStyle(temperature);
 
         console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, newText)
 
@@ -736,7 +773,7 @@ class Main extends React.Component<{
             if (data.type == "start") {
                 // 需补充此状态
                 // 对话状态开启
-                console.log('对话状态开启')
+                console.log(i18n.t('chatStatusEnabled'))
                 this.updateChatBotStatus(true);
 
             } else if ((data.type == 'markdown' || data.type == 'done')) {
@@ -758,7 +795,11 @@ class Main extends React.Component<{
 
                 if ((isNew || data.from == 'local') && data.markdown) {
                     // 新对话
-                    let d = { ...data, ...Talks.createTalkBubble(data.markdown) };
+                    let d = {
+                        ...data,
+                        ...Talks.createTalkBubble(data.markdown),
+                        export: data.export === undefined ? true : data.export
+                    };
                     nTalks.push(d);
                     // 对话状态开启
                     // console.log('对话状态开启')
@@ -767,41 +808,32 @@ class Main extends React.Component<{
 
                 if (data.type == 'done') {
 
-                    let PromptIndex = this.state.PromptIndex,
-                        isNextUse = false;
+                    let PromptIndex = this.state.PromptIndex;
                     console.log('done', this.state.currentPrompt.combo, PromptIndex)
 
+                    // 上一个节点
+                    let prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
 
                     // 无限循环功能
                     if (this.state.currentPrompt.combo && this.state.currentPrompt.isInfinite && this.state.currentPrompt.combo > 1) {
                         if (this.state.currentPrompt.combo <= PromptIndex) {
                             // 结束的时候，循环起来
-                            // 当前的prompt
-                            const currentPrompt = this.state.currentPrompt[`prompt${this.state.currentPrompt.combo}`]
-                            isNextUse = currentPrompt.output == 'isNextUse';
+                            prePrompt = this.state.currentPrompt[`prompt${this.state.currentPrompt.combo}`]
                             PromptIndex = 0;
                         }
                     }
-                    // console.log('1无限循环功能', isNextUse, PromptIndex);
-
-
-                    const prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
-
-                    // 如果有isNextUse
-                    if (prePrompt && prePrompt.output) isNextUse = prePrompt.output == 'isNextUse';
+                    // console.log('1无限循环功能', isNextUse, PromptIndex)
 
                     if (this.state.currentPrompt.combo > PromptIndex) {
 
                         PromptIndex = PromptIndex + 1;
                         const prompt = JSON.parse(JSON.stringify(this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]));
 
-                        // if (isNextUse) {
-                        //     prompt.text = this._promptOutput('isNextUse', prompt.text, laskTalk);
-                        // }
                         // console.log('prompt', prompt,PromptIndex);
-                        // 下一个prompt
+                        // 下一个节点
                         let data: any = {
                             prompt,
+                            index: PromptIndex,
                             prePrompt,
                             newTalk: true,
                             from: 'combo'
@@ -862,6 +894,16 @@ class Main extends React.Component<{
                 }))
 
 
+            } else if (data.type === 'images') {
+                // 图像
+                const talk = {
+                    html: Array.from(data.images, url => `<img src='${url}' />`).join(''),
+                    export: true
+                }
+                delete data.images;
+                let d = { ...data, ...talk };
+                nTalks.push(d);
+
             } else if (data.type == 'error') {
                 const talk = Talks.createTalkBubble(data.markdown)
                 talk.html = `<div class="chatbot-error">${talk.html}</div>`
@@ -884,7 +926,7 @@ class Main extends React.Component<{
 
             nTalks.push(ChatBotConfig.createTalkData('send-talk-refresh', {
                 data: {
-                    tag: '刷新',
+                    tag: i18n.t('refresh'),
                     prompt: {
                         text: promptFromLocal,
                         type: 'prompt',
@@ -946,12 +988,12 @@ class Main extends React.Component<{
             const sendTalk = async () => {
                 let combo = data._combo ? data._combo.combo : -1;
                 let { prompt, tag, lastTalk, newTalk, from, prePrompt } = data;
-                // from : combo ,chatbot-input
+                // from : combo ,chatbot-input,getPromptPage
 
                 prompt = JSON.parse(JSON.stringify(prompt))
 
                 // 清空type thinking && suggest 的状态
-                nTalks = nTalks.filter(n => n && (n.type == 'talk' || n.type == 'markdown' || n.type == 'done'))
+                nTalks = nTalks.filter(n => n && (n.type == 'talk' || n.type == 'markdown' || n.type == 'done' || n.type == 'images'))
                 this.updateChatBotStatus(true)
                 if (tag) nTalks.push(ChatBotConfig.createTalkData('tag', { html: tag, user: true }));
                 // 增加思考状态
@@ -965,7 +1007,7 @@ class Main extends React.Component<{
                     openMyPrompts: false
                 })
 
-                console.log(`prompt`, JSON.stringify(prompt, null, 2), JSON.stringify(prePrompt, null, 2), combo, prompt.input)
+                // console.log(`prompt`, JSON.stringify(prompt, null, 2), JSON.stringify(prePrompt, null, 2), combo, prompt.input)
 
                 // combo>0从comboor对话流里运行
                 // combo==-1 用户对话框里的输入
@@ -997,8 +1039,13 @@ class Main extends React.Component<{
 
 
                 // 运行时
-                console.log('prompt.type------', prompt.type, prompt.text)
+                console.log('prompt.type------', prompt.type, prompt.text, from)
 
+                // 如果是用户输入的，from==chatbot-input
+                if (from === "chatbot-input") {
+                    prompt.model = this.state.chatBotType;
+                    if (this.state.chatBotStyle && this.state.chatBotStyle.value) prompt.temperature = this.state.chatBotStyle.value;
+                }
 
                 if (['prompt',
                     'tasks',
@@ -1013,11 +1060,14 @@ class Main extends React.Component<{
                     this._agentHighlightTextRun(lastTalk)
                 }
 
-                if (prompt.type === 'query') this._agentQueryRun(prompt.queryObj, { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex });
+                // 标记当前执行状态，以及下一条
+                const currentCombo = { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex }
 
-                if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex })
+                if (prompt.type === 'query') this._agentQueryRun(prompt.queryObj, currentCombo);
 
-                if (prompt.type === 'api') this._agentApiRun(prompt.api);
+                if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, currentCombo)
+
+                if (prompt.type === 'api') this._agentApiRun(prompt.api, prompt.text, currentCombo);
 
             }
 
@@ -1161,7 +1211,7 @@ class Main extends React.Component<{
             if (type === 'add') newData.push(data);
 
             if (newData.length > 5) {
-                message.info('已达到最大存储数量')
+                message.info(i18n.t('maximumStorageLimitReached'))
                 // message.error('已达到最大存储数量');
             };
 
@@ -1196,7 +1246,7 @@ class Main extends React.Component<{
     /*
     bind: false,checked: true,combo:2,id:"187a3184aab",owner:"user",prompt: "1",prompt2: "2",tag:"test"
     */
-
+  
     _promptControl = (event: any) => {
         const { cmd, data } = event;
 
@@ -1225,10 +1275,6 @@ class Main extends React.Component<{
 
         } else if (cmd == "edit-combo-finish") {
             console.log('edit-on-finish', data)
-            chrome.runtime.sendMessage({
-                cmd: 'save-combo',
-                data: data.prompt
-            }, res => console.log(res))
             const { prompt, from } = data;
             if (data) this._promptUpdateUserData('add', prompt);
 
@@ -1257,12 +1303,12 @@ class Main extends React.Component<{
             this.updateChatBotStatus(false)
         }
     }
-
+        
 
     _doChatBotData() {
 
         let subjects = [{
-            type: 'chatbot', text: '聊天', index: -1
+            type: 'chatbot', text: i18n.t("Chat"), index: -1
         }];
 
         let activeIndex = -1;
@@ -1271,7 +1317,7 @@ class Main extends React.Component<{
 
         // 聊天服务无效,补充提示
         if (!this.state.chatBotIsAvailable && activeIndex == -1) {
-            talks = talks.filter((d: any) => d.type == 'markdown' || d.type == 'talk' || d.type == 'done');
+            talks = talks.filter((d: any) => d.type == 'markdown' || d.type == 'talk' || d.type == 'done' || d.type == 'images');
             talks.push(ChatBotConfig.createTalkData('chatbot-is-available-false', {
                 hi: this.state.chatBotType
             }))
@@ -1293,14 +1339,27 @@ class Main extends React.Component<{
     }
 
     render() {
-        const { tabList, datas, activeIndex } = this._doChatBotData();
+        const { tabList, datas, activeIndex } = this._doChatBotData();        
         return (<>
             <FlexColumn
+                className={this.props.className}
                 translate="no"
                 display={
                     this.state.initIsOpen ?
                         (this.state.loading ? 'none' : 'flex')
                         : 'none'}
+                // 修复qq邮箱里不显示的问题
+                style={{
+                    display: this.state.initIsOpen ?
+                        (this.state.loading ? 'none' : 'flex')
+                        : 'none',
+                    position: 'fixed',
+                    top: 0,
+                    right: 0,
+                    zIndex: 999,
+                    background: 'white',
+                    height: '100vh'
+                }}
             >
                 {/* <PDF name='pdf'/> */}
                 {!this.state.showEdit && !this.state.loadingChatBot && this.state.openMyPrompts ?

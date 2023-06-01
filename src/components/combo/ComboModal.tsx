@@ -18,13 +18,19 @@ import { md5, getConfig } from '@components/Utils'
 import { PROMPT_MAX_LENGTH, promptOptions, inputs, outputs, models, comboOptions, defaultCombo, defaultPrompt } from "@components/combo/ComboData"
 
 import styled from 'styled-components';
+import i18n from 'i18next';
+
 
 const Form1 = styled(Form)`
     &.ant-form{
         display: block!important;
     }
-    .ant-form-item-control-input-content{
+    &.ant-form-item-control-input-content{
         text-align: left!important;
+    }
+    &.ant-btn-primary{
+        color: #fff !important;
+        background-color: #1677ff !important;
     }
 `;
 
@@ -78,12 +84,13 @@ class ComboModal extends React.Component {
             version: ''
         }
         console.log('currentPrompt', this.props.currentPrompt)
-        getConfig().then(json => {
-            this.setState({
-                app: json.app,
-                version: json.version
-            })
+        const json: any = getConfig()
+
+        this.setState({
+            app: json.app,
+            version: json.version
         })
+
     }
 
     componentDidMount() {
@@ -190,6 +197,36 @@ class ComboModal extends React.Component {
     /**
      * 结果
      */
+
+
+    _downloadMyCombo() {
+        const savedCombo = this._saveMyCombo(); // 保存当前的组合数据
+        const combos = [savedCombo];
+        console.log(combos);
+
+        const data = [];
+        for (const combo of combos) {
+            const comboCopy = { ...combo }; // 创建副本以保持组合数据不变
+            comboCopy.version = this.state.version;
+            comboCopy.app = this.state.app;
+            if (!comboCopy.id || comboCopy.id === "") {
+                comboCopy.id = md5(JSON.stringify(comboCopy));
+            }
+            data.push(comboCopy);
+        }
+
+        const name = combos[0].tag;
+        const id = md5(JSON.stringify(data));
+
+        const link = document.createElement('a');
+        link.href = `data:application/json;charset=utf-8,\ufeff${encodeURIComponent(JSON.stringify(data))}`;
+        link.download = `${name}_${id}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+
     _onFinish() {
         const combo = this._saveMyCombo();
         console.log('_onFinish', combo)
@@ -201,36 +238,6 @@ class ComboModal extends React.Component {
             cmd: 'edit-combo-finish', data
         })
     }
-
-    _downloadMyCombo() {
-        const combos = [this._saveMyCombo()];
-
-        const data: any = [];
-        for (const combo of combos) {
-            combo.version = this.state.version;
-            combo.app = this.state.app;
-            combo.id = "";
-            combo.id = md5(JSON.stringify(combo));
-            data.push(combo)
-        }
-
-        const name = combos[0].tag;
-        const id = md5(JSON.stringify(data));
-
-        //通过创建a标签实现
-        const link = document.createElement('a')
-        //encodeURIComponent解决中文乱码
-        link.href = `data:application/json;charset=utf-8,\ufeff${encodeURIComponent(JSON.stringify(data))}`
-
-        //下载文件命名
-        link.download = `${name}_${id}`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link);
-
-    }
-
-
 
     _handleCancel() {
         this.setState({
@@ -441,7 +448,7 @@ class ComboModal extends React.Component {
     _createInputsForOpts(index = 1, inputs: any = []) {
         return <Form.Item
             name={`Prompt${index}EditOptionsForInput`}
-            label="输入"
+            label={i18n.t('inputTitle')}
         >
             <Radio.Group
                 style={{
@@ -461,7 +468,7 @@ class ComboModal extends React.Component {
         // console.log(d)
         return <Form.Item
             name={`Prompt${index}EditOptionsForOutput`}
-            label="输出"
+            label={i18n.t('outputTitle')}
         // initialValue={d}
         >
             {/* <Select
@@ -486,7 +493,7 @@ class ComboModal extends React.Component {
         return <>
             <Form.Item
                 name={`Prompt${index}EditOptionsForModel`}
-                label="模型"
+                label={i18n.t('model')}
                 rules={[
                     {
                         required: false,
@@ -508,7 +515,7 @@ class ComboModal extends React.Component {
             </Form.Item>
             <Form.Item
                 name={`Prompt${index}EditOptionsForTemperature`}
-                label="严谨程度 Temperature"
+                label={i18n.t('divergenceDegree')}
             >
                 <Slider
                     style={{ width: '120px' }}
@@ -526,15 +533,15 @@ class ComboModal extends React.Component {
         // 'prompt' || 'tasks' ||   'highlight'
         return <Form.Item
             name={`Prompt${index}Text`}
-            label={`${type == 'tasks' ? '目标' : 'Prompt Combo'} ${index}`}
+            label={`${type == 'tasks' ? i18n.t('fillTarget') : i18n.t('fillPrompt')} ${index}`}
             rules={[
                 {
                     required: index == 1,
-                    message: `请填写${type == 'tasks' ? '目标' : 'Prompt'}`,
+                    message: `${i18n.t('pleaseFillIn')}${type == 'tasks' ? i18n.t('fillTarget') : i18n.t('fillPrompt')}`,
                 },
             ]}>
             <TextArea
-                placeholder={index == 1 ? `必填，${type == 'tasks' ? '目标' : 'Prompt Combo'} ${index}` : ''}
+                placeholder={index == 1 ? `${i18n.t('required')}, ${type == 'tasks' ? i18n.t('fillTarget') : i18n.t('fillPrompt')} ${index}` : ''}
                 showCount
                 maxLength={PROMPT_MAX_LENGTH}
                 onChange={(e: any) => {
@@ -561,11 +568,11 @@ class ComboModal extends React.Component {
             rules={[
                 {
                     required: true,
-                    message: '请填写url',
+                    message: i18n.t('fillUrlMessage').toString(),
                 },
             ]}>
                 <Input addonBefore="https://"
-                    placeholder={`请填写url`}
+                    placeholder={i18n.t('fillUrlMessage').toString()}
                     defaultValue=""
                     onChange={(e: any) => {
                         const data: any = {};
@@ -587,12 +594,12 @@ class ComboModal extends React.Component {
                 rules={[
                     {
                         required: false,
-                        message: '请填写Text',
+                        message: i18n.t('fillTextMessage').toString(),
                     },
                 ]}>
 
                 <TextArea
-                    placeholder={'请填写Text'}
+                    placeholder={i18n.t('fillTextMessage').toString()}
                     showCount
                     maxLength={PROMPT_MAX_LENGTH}
                     onChange={(e: any) => {
@@ -620,11 +627,11 @@ class ComboModal extends React.Component {
             rules={[
                 {
                     required: true,
-                    message: '请填写url',
+                    message: i18n.t('fillUrlMessage').toString(),
                 },
             ]}>
                 <Input addonBefore="https://"
-                    placeholder={`请填写url`}
+                    placeholder={i18n.t('fillUrlMessage').toString()}
                     defaultValue=""
                     onChange={(e: any) => {
                         const data: any = {};
@@ -646,11 +653,11 @@ class ComboModal extends React.Component {
                 rules={[
                     {
                         required: true,
-                        message: '请填写Query',
+                        message: i18n.t('fillQueryMessage').toString(),
                     },
                 ]}>
                 <Input
-                    placeholder={`请填写Query`}
+                    placeholder={i18n.t('fillQueryMessage').toString()}
 
                     onChange={(e: any) => {
                         const data: any = {};
@@ -683,25 +690,25 @@ class ComboModal extends React.Component {
                 rules={[
                     {
                         required: true,
-                        message: '请填写url',
+                        message: i18n.t('fillUrlMessage').toString(),
                     },
                 ]}>
                 <Input addonBefore={
-                    <Select defaultValue="https://" onChange={(e:string)=>{
+                    <Select defaultValue="https://" onChange={(e: string) => {
                         const data: any = {};
                         const i = index > 1 ? index : '';
                         data[`prompt${i}`] = {
                             ...defaultPrompt,
                             ...this.state.currentPrompt[`prompt${i}`]
                         };
-                        data[`prompt${i}`].api.protocol=e;
+                        data[`prompt${i}`].api.protocol = e;
                         this._updateCurrentPrompt(data)
                     }}>
                         <Option value="http://">http://</Option>
                         <Option value="https://">https://</Option>
                     </Select>
                 }
-                    placeholder={`请填写url`}
+                    placeholder={i18n.t('fillUrlMessage').toString()}
                     defaultValue=""
                     onChange={(e: any) => {
                         // console.log(e)
@@ -711,8 +718,9 @@ class ComboModal extends React.Component {
                             ...defaultPrompt,
                             ...this.state.currentPrompt[`prompt${i}`]
                         }
-                        data[`prompt${i}`].api.url=e.currentTarget.value.trim();
-                        data[`prompt${i}`].url=e.currentTarget.value.trim();
+                        data[`prompt${i}`].api.url = e.currentTarget.value.trim();
+                        data[`prompt${i}`].url = e.currentTarget.value.trim();
+                        data[`prompt${i}`].api.protocol = data[`prompt${i}`].api.protocol || 'https://';
                         this._updateCurrentPrompt(data)
                     }}
                 />
@@ -726,11 +734,11 @@ class ComboModal extends React.Component {
                 rules={[
                     {
                         required: true,
-                        message: '请填写init',
+                        message: i18n.t('fillInitMessage').toString(),
                     },
                 ]}>
                 <TextArea rows={3}
-                    placeholder="请填写init"
+                    placeholder={i18n.t('fillInitMessage').toString()}
                     autoSize
                     onChange={(e: any) => {
                         const data: any = {};
@@ -912,7 +920,7 @@ class ComboModal extends React.Component {
                 width={720}
                 zIndex={900}
                 maskClosable={false}
-                title="添加Prompts"
+                title={i18n.t('addPrompts')}
                 open={true}
                 onOk={() => this._onFinish()}
                 onCancel={() => this._handleCancel()}
@@ -926,14 +934,14 @@ class ComboModal extends React.Component {
                     autoComplete="off"
                     initialValues={formData}
                 >
-                    < Form.Item name="tag" label={'标题'}
+                    < Form.Item name="tag" label={i18n.t('title')}
                         rules={[
                             {
                                 required: true,
-                                message: '请填写标题',
+                                message: i18n.t('fillTitle').toString(),
                             },
                         ]}>
-                        <Input placeholder={'必填，请填写标题'} showCount maxLength={48}
+                        <Input placeholder={i18n.t('fillRolePlaceholder').toString()} showCount maxLength={48}
                             onChange={(e) => this._updateCurrentPrompt({ 'tag': e.target.value.trim() })}
                         />
                     </Form.Item>
@@ -973,19 +981,19 @@ class ComboModal extends React.Component {
                     </Form.Item>
 
                     <Form.Item style={{ display: "flex", justifyContent: "flex-end" }}>
-                        <Button style={{ marginRight: 10 }} onClick={() => this._downloadMyCombo()}>下载</Button>
+                        <Button style={{ marginRight: 10 }} onClick={() => this._downloadMyCombo()}>{i18n.t('download')}</Button>
                         <Popconfirm
                             placement="bottomRight"
-                            title={'确定删除Prompt？'}
+                            title={i18n.t('confirmDeletePrompt')}
                             onConfirm={() => this._deleteConfirm(promptValue)}
-                            okText="是的"
-                            cancelText="取消"
+                            okText={i18n.t('yes')}
+                            cancelText={i18n.t('cancel')}
                             zIndex={1250}
                         >
-                            <Button danger>删除</Button>
+                            <Button danger>{i18n.t('delete')}</Button>
                         </Popconfirm>
                         <Button type="primary" htmlType="submit" style={{ marginLeft: 10 }}
-                        >保存</Button>
+                        >{i18n.t('save')}</Button>
                     </Form.Item>
                 </Form1>
             </Modal>

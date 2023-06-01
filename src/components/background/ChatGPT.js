@@ -176,7 +176,7 @@ export default class ChatGPT {
         this.available = null
             // console.log(v4())
 
-        if (!token) {
+        if (!this.token) {
             // console.log('OpenAI API key not set')
             return {
                 success: false,

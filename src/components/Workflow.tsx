@@ -2,112 +2,117 @@
  * ask 等待用户输入，TODO待处理
  */
 
-
+import i18n from "i18next";
+import "@src/locales/i18nConfig";
 const workflow = {
-    "models": [
-        {
-            "label": "温度",
-            "value": "temperature"
-        },
-        {
-            "label": "模型",
-            "value": "model",
-            "options": [
-                { "value": "ChatGPT", "label": "ChatGPT" },
-                { "value": "Bing", "label": "Bing" }
-            ]
-        }
-    ],
-    "inputs": [{
-        "label": "默认",
-        "value": "default"
-    }, {
-        "label": "绑定网页正文",
-        "value": "bindCurrentPage"
+  models: [
+    {
+      label: i18n.t("divergenceDegree"),
+      value: "temperature",
+      defaultValue: 0.7,
+    },
+    {
+      label: i18n.t("model"),
+      value: "model",
+      options: [
+        { value: "ChatGPT", label: "ChatGPT" },
+        { value: "Bing", label: "Bing" },
+      ],
+    },
+  ],
+  inputs: [
+    {
+      label: i18n.t("default"),
+      value: "default",
+    },
+    {
+      label: i18n.t("bindWebContent"),
+      value: "bindCurrentPage",
+    },
+    {
+      label: i18n.t("bindWebHTML"),
+      value: "bindCurrentPageHTML",
+    },
+    {
+      label: i18n.t("bindWebURL"),
+      value: "bindCurrentPageURL",
+    },
+    {
+      ask: true,
+      label: i18n.t("userSelection"),
+      value: "userSelection",
+    },
+    {
+      label: i18n.t("clipboard"),
+      value: "clipboard",
+    },
+  ],
+  outputs: [
+    {
+      label: i18n.t("default"),
+      value: "default",
+    },
+    {
+      label: i18n.t("asContext"),
+      value: "isNextUse",
+    },
+    {
+      label: i18n.t("conditional"),
+      value: "isMatch",
+    },
+  ],
+  agents: [
+    {
+      key: "prompt",
+      label: i18n.t("prompt"),
+    },
+    {
+      key: "tasks",
+      label: i18n.t("taskDecomposition"),
+    },
+    {
+      key: "query",
+      label: i18n.t("getWebInfoBySelector"),
+    },
+    {
+      key: "send-to-zsxq",
+      label: i18n.t("publishToZhiShiXingQiu"),
+    },
+    {
+      key: "highlight",
+      label: i18n.t("highlightWebContent"),
+      disabled: true,
+    },
+    {
+      key: "api",
+      label: "API",
+    },
+    {
+      label: i18n.t("jsonFormat"),
+      key: "json",
+    },
+    {
+      label: i18n.t("list"),
+      key: "list",
+    },
+    {
+      label: i18n.t("markdownFormat"),
+      key: "markdown",
+    },
+    {
+      label: i18n.t("chinese"),
+      key: "translate-zh",
+    },
+    {
+      label: i18n.t("english"),
+      key: "translate-en",
+    },
+    {
+      label: i18n.t("extractStructuredData"),
+      key: "extract",
+      temperature: 0,
+    },
+  ],
+};
 
-    },
-    {
-        "label": "绑定网页HTML",
-        "value": "bindCurrentPageHTML"
-
-    },
-    {
-        "label": "绑定网页URL",
-        "value": "bindCurrentPageURL"
-
-    },
-    {
-        "ask": true,
-        "label": "用户划选",
-        "value": "userSelection"
-    },
-    {
-        "label": "剪切板",
-        "value": "clipboard"
-    }
-    ],
-    "outputs": [{
-        "label": "默认",
-        "value": "default"
-
-    }, {
-        "label": "作为上下文",
-        "value": "isNextUse"
-
-    }],
-    "agents": [{
-        "key": "prompt",
-        "label": "Prompt"
-    },
-    {
-        "key": "tasks",
-        "label": "目标拆解"
-    },
-    {
-        "key": "query",
-        "label": "根据选择器获取网页信息"
-    },
-    {
-        "key": "send-to-zsxq",
-        "label": "发布内容至知识星球"
-    },
-    {
-        "key": "highlight",
-        "label": "高亮网页内容",
-        "disabled":true
-    },
-    {
-        "key": "api",
-        "label": "API"
-    },
-    {
-        "label": "JSON格式",
-        "key": "json"
-    },
-    {
-        "label": "列表",
-        "key": "list"
-    },
-    {
-        "label": "MarkDown格式",
-        "key": "markdown"
-    },
-    {
-        "label": "中文",
-        "key": "translate-zh"
-    },
-    {
-        "label": "英文",
-        "key": "translate-en"
-    },
-    {
-        "label": "提取结构化数据",
-        "key": "extract"
-    }
-    ]
-}
-
-
-export {
-    workflow
-}
+export { workflow };

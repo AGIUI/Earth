@@ -1,5 +1,7 @@
 # Earth
 
+ [![](/public/icon-128.png)](http://player.bilibili.com/player.html?aid=271181111&bvid=BV1zc411P7vS&cid=1132599638&page=1)
+
 Artificial General Intelligence user interface
 普惠AGI交互界面，让更多人可以实现自己的AGI交互界面。
 
@@ -8,13 +10,13 @@ AGI-UI的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人�
 > 作为AGIUI的首个开源项目，Earth是一个浏览器插件，支持常见的浏览器：Chrome, Firefox, Safari, Edge, Brave等。
 
 
- [![](/public/icon-128.png)](http://player.bilibili.com/player.html?aid=271181111&bvid=BV1zc411P7vS&cid=1132599638&page=1)
+ [![](/examples/demo01.png)](/examples/demo01.mp4)
 🔝演示视频
 
 
 ## 如何使用？
 
-安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.3.0
+安装步骤，先打开网址下载 https://github.com/AGIUI/Earth/releases/tag/v0.3.3
 
 Chrome：
 
@@ -51,11 +53,13 @@ npm run build [browser]
 
 ## Combo的一些示例
 
-[示例1：获取微博信息-创作科幻故事.json](/examples/example01.json)
+待更新
+
+<!-- [示例1：获取微博信息-创作科幻故事.json](/examples/example01.json)
 
 [示例2：获取微博最新消息，写一个访谈提纲](/examples/example02.json)
 
-[示例3：chirper上的shadowai行为解读](/examples/example03.json)
+[示例3：chirper上的shadowai行为解读](/examples/example03.json) -->
 
 
 ## combo的数据示例
@@ -96,16 +100,40 @@ v0.2.0
 
 新增绑定当前网页、输出格式，combo编辑器导入导出，提供示例
 
-v0.3.0
+v0.3.1
 - combo数据结构调整及编辑器，新增：interfaces（home、contextMenus、showInChat）、input、output
 
 - combo支持单个导出
 
 - API节点
 
-- PDF阅读器、pdf读取节点
+v0.3.2
+- 增加右键总结、选中内容交互
+
+- 优化对话框视觉
+
+- 解决prompt下载的bug
+
+- 已支持本地LLM的接入(openai官方标准)
+
+v0.3.3
+- 去除newtab
+
+- 裁剪文本长度的优化（感谢[@nem035/gpt-3-encoder](https://www.npmjs.com/package/@nem035/gpt-3-encoder)）
+
+
+
+## TODO
+
+- PDF节点:读取、创建、阅读器
+
+- PPT节点:读取、创建
 
 - 高亮网页信息节点（实验功能）
+
+
+## 社区
+[discord](https://discord.gg/7YVVhEQExu)
 
 
 ## 相关资料：
