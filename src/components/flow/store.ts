@@ -22,7 +22,8 @@ declare const window: Window &
     _brainwave_debug_callback: any
   }
 
-import { defaultNode, comboOptions } from './Workflow'
+import { defaultNode, comboOptions, _DEFAULTCOMBO, parsePrompt2ControlEvent } from './Workflow'
+
 
 export type RFState = {
   defaultNode: any;
@@ -85,7 +86,7 @@ const useStore = create<RFState>((set, get) => ({
         ...defaultNode,
         ...nd.data,
         onChange: (e: any) => {
-          console.log('store-onchange', e)
+          // console.log('store-onchange', e)
           const nodes = [];
           for (const node of get().nodes) {
             if (node.id === e.id) {
@@ -111,7 +112,10 @@ const useStore = create<RFState>((set, get) => ({
       }
 
       if (debug && debug.open && debug.callback) {
-        nd.data['debug'] = () => { debug.callback() }
+        nd.data['debug'] = (prompt: any) => {
+          const controlEvent = parsePrompt2ControlEvent(prompt)
+          debug.callback(controlEvent)
+        }
       }
       return nd
     })]
@@ -124,15 +128,14 @@ const useStore = create<RFState>((set, get) => ({
     // console.log(changes, comboOptions)
     console.log('newCombo - nodes', id, tag, nodes, debug, comboOptions)
 
-
-
-    setTimeout(() => set({ 
-      id, 
-      nodes, 
-      edges, 
-      debug, 
-      tag, 
-      comboOptions }), 800)
+    setTimeout(() => set({
+      id,
+      nodes,
+      edges,
+      debug,
+      tag,
+      comboOptions
+    }), 800)
 
   },
   onNodesChange: (changes: any) => {
@@ -187,7 +190,10 @@ const useStore = create<RFState>((set, get) => ({
 
     const debug = get().debug;
     if (debug && debug.open && debug.callback) {
-      newNode.data['debug'] = () => { debug.callback() }
+      newNode.data['debug'] = (prompt: any) => {
+        const controlEvent = parsePrompt2ControlEvent(prompt)
+        debug.callback(controlEvent)
+      }
     }
 
     // console.log('addChildNode', parentNode)

@@ -92,6 +92,7 @@ class Common {
 
                 if (cmd == 'open-options-page') chrome.runtime.openOptionsPage();
 
+                // 在设置页面，输入token后确认服务是否可用
                 if (cmd == 'chat-bot-init') {
 
                     chatBot.clearAvailables();
@@ -100,27 +101,29 @@ class Common {
                         // 初始化 chatbot
                     const { type, api, model, token, team } = data || {}
 
+                    const getAvailables = async(res) => {
+                        let availables = await chatBot.getAvailables()
+                        this.sendMessage(
+                            'chat-bot-init-result',
+                            availables && availables.length > 0,
+                            availables,
+                            tabId
+                        )
+                    }
+
                     if (api && model && token) {
-                        await chatBot.init(
+                        chatBot.init(
                             type || 'ChatGPT', {
                                 token,
                                 api,
                                 model,
                                 team
                             }
-                        )
+                        ).then((res) => getAvailables(res))
                     }
 
-                    await chatBot.init('Bing')
+                    chatBot.init('Bing').then((res) => getAvailables(res))
 
-                    let availables = await chatBot.getAvailables()
-
-                    this.sendMessage(
-                        'chat-bot-init-result',
-                        availables && availables.length > 0,
-                        availables,
-                        tabId
-                    )
                 } else if (cmd == 'chat-bot-init-by-type') {
                     let available = await chatBot.getAvailable(data.type)
                     sendResponse({ cmd: 'chat-bot-init-by-type-result', data: available })

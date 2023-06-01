@@ -29,23 +29,26 @@ import RoleNode from './RoleNode';
 // we need to import the React Flow styles to make it work
 import 'reactflow/dist/style.css';
 
+import { _DEFAULTCOMBO } from './Workflow'
 
 const _VERVISON = '0.1.0',
   _APP = 'brainwave';
 
+  _DEFAULTCOMBO.version=_VERVISON;
+  _DEFAULTCOMBO.app=_APP;
 
-const _DEFAULTCOMBO = {
-  tag: '',
-  combo: 1,
-  interfaces: [],
-  isInfinite: false,
-  owner: 'user',
-  prompt: {},
-  version: _VERVISON,
-  app: _APP,
-  id: '',
-  createDate: (new Date()).getTime()
-}
+// const _DEFAULTCOMBO = {
+//   tag: '',
+//   combo: 1,
+//   interfaces: [],
+//   isInfinite: false,
+//   owner: 'user',
+//   prompt: {},
+//   version: _VERVISON,
+//   app: _APP,
+//   id: '',
+//   createDate: (new Date()).getTime()
+// }
 
 
 declare const window: Window &
@@ -283,20 +286,59 @@ function Flow(props: any) {
       let nodes: any = [],
         source = 'root_' + nanoid(),
         edges = [];
+
+
+      const nodePosition = (index: number) => {
+        return {
+          height: 597,
+          position: { x: (312 + 100) * (index), y: 0 },
+          width: 312
+        }
+      }
+
+
+      // ----- 如果没有role，则在第一个新加一个role节点
+      const comboNew: any = { ...combo };
+      const prompts = [];
       for (let index = 0; index < combo.combo; index++) {
-        const key = `prompt${index > 0 ? index + 1 : ''}`
-        if (combo[key]) {
-          const id = index == 0 ? source : key + combo.id;
+        const key = `prompt${index > 0 ? index + 1 : ''}`;
+        // 如果没有role，则在第一个新加一个role节点
+        if (combo[key] && index == 0 && combo[key].type !== 'role') {
+          // const id = index == 0 ? source : key + combo.id;
+          // comboNew.combo++;
+          const p = { ...combo[key] };
+          p.type = 'role';
+          p.role = { name: '', text: '' }
+          p.input = 'default'
+          p.output = 'default'
+          prompts.push(p);
+        }
+        if (combo[key]) prompts.push(combo[key])
+      }
+      console.log('comboNew', comboNew, prompts)
+
+      comboNew.combo = prompts.length;
+      for (let index = 0; index < prompts.length; index++) {
+        const key = `prompt${index > 0 ? index + 1 : ''}`;
+        comboNew[key] = prompts[index];
+      }
+      // ----- 如果没有role，则在第一个新加一个role节点
+
+      // 
+      for (let index = 0; index < comboNew.combo; index++) {
+        const key = `prompt${index > 0 ? index + 1 : ''}`;
+        if (comboNew[key]) {
+          const id = index == 0 ? source : key + comboNew.id;
+          // node
           nodes.push({
-            data: combo[key],
-            height: 597,
+            data: comboNew[key],
             id,
-            position: { x: (312 + 100) * index, y: 0 },
-            type: combo[key].type == 'role' ? 'role' : "brainwave",
-            width: 312,
-            deletable: index > 0
+            type: comboNew[key].type == 'role' ? 'role' : "brainwave",
+            deletable: comboNew[key].type !== 'role',
+            ...nodePosition(index)
           });
 
+          // edge
           if (source != id) edges.push({
             source,
             target: id,
@@ -307,15 +349,13 @@ function Flow(props: any) {
             deletable: true,
           })
 
-          // console.log(nodes.filter((node: any) => node.id == source)[0])
-
           source = id;
 
         }
       }
 
-      console.log('newCombo', combo)
-      newCombo(combo.id, combo.tag, combo.interfaces, nodes, edges, debug);
+      console.log('newCombo', comboNew)
+      newCombo(comboNew.id, comboNew.tag, comboNew.interfaces, nodes, edges, debug);
 
       clearLocalStore()
 
@@ -406,7 +446,7 @@ function Flow(props: any) {
   }
 
   const onChange = () => {
-    console.log('change')
+    // console.log('change')
     // setInterval(()=>onSave(),3000)
     // setTimeout(() => onSave(), 200)
   };

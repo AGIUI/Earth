@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { Space, Divider, Tag, Typography, Input, Button, Select, Popover, Spin,Card } from 'antd';
+import { Space, Divider, Tag, Typography, Input, Button, Select, Popover, Spin, Card } from 'antd';
 import { QuestionCircleOutlined, CloseOutlined, FileTextOutlined } from '@ant-design/icons';
 const { Title, Text } = Typography;
 import { chromeStorageGet, chromeStorageSet } from '@src/components/Utils';
@@ -68,7 +68,7 @@ class Setup extends React.Component<{
     credit: string,
     name: string,
     isChange: boolean,
-    issues:string
+    issues: string
 }> {
     constructor(props: any) {
         super(props)
@@ -94,9 +94,9 @@ class Setup extends React.Component<{
             loading: false,
             checked: false,
             credit: '',
-            name:`${json.app}_${json.version}`,
+            name: `${json.app}_${json.version}`,
             isChange: false,
-            issues:json.issues
+            issues: json.issues
         }
 
         chrome.storage.sync.onChanged.addListener(() => {
@@ -123,7 +123,12 @@ class Setup extends React.Component<{
             chrome.runtime.sendMessage({
                 cmd: 'chat-bot-init',
                 data
-            }, res => console.log(res))
+            }, res => {
+
+                const { cmd, data } = res;
+                console.log(cmd)
+
+            })
 
             this.setState({
                 checked: true
@@ -299,8 +304,8 @@ class Setup extends React.Component<{
     componentDidMount() {
         chrome.runtime.sendMessage({ cmd: 'get-shortcuts' });
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            // console.log('send-shortcuts-result', request)
-            if (request.cmd === 'send-shortcuts-result') {
+            const { cmd, data } = request;
+            if (cmd === 'send-shortcuts-result') {
                 if (request.data != "") {
                     this.setState({
                         shortcut: request.data
@@ -310,8 +315,9 @@ class Setup extends React.Component<{
                         shortcut: '暂未设置'
                     })
                 }
-            } else if (request.cmd == 'chat-bot-init-result') {
+            } else if (cmd == 'chat-bot-init-result') {
                 // this._updateChatBotAvailables();
+                console.log(cmd, data)
             }
         });
 
@@ -362,221 +368,221 @@ class Setup extends React.Component<{
                     height: '100vh'
                 }}
             >
-                    <Spin spinning={this.state.loading}>
-                        {/*TODO  清空缓存 ，显示缓存的prompt数量 */}
-                        <Title level={4} style={{ marginTop: 0 }}>版本号</Title>
-                        <Space direction={"horizontal"} align={"center"}>
+                <Spin spinning={this.state.loading}>
+                    {/*TODO  清空缓存 ，显示缓存的prompt数量 */}
+                    <Title level={4} style={{ marginTop: 0 }}>版本号</Title>
+                    <Space direction={"horizontal"} align={"center"}>
                         <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.name}</Text>
-                            <Button
-                                style={{
-                                    marginTop: 0
-                                }} onClick={() => this._openUrl(this.state.issues)}>
-                                问题反馈
-                            </Button>
-                        </Space>
+                        <Button
+                            style={{
+                                marginTop: 0
+                            }} onClick={() => this._openUrl(this.state.issues)}>
+                            问题反馈
+                        </Button>
+                    </Space>
 
-                        <Divider style={{ marginTop: 15, marginBottom: 15 }} />
-                        <Title level={4} style={{ marginTop: 0 }}>快捷键设置</Title>
-                        <Space direction={"horizontal"} align={"center"}>
-                            <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.shortcut}</Text>
-                            <Button
-                                onClick={() => chrome.runtime.sendMessage({
-                                    cmd: 'set-shortcuts'
-                                })}>
-                                修改
-                            </Button>
-                        </Space>
+                    <Divider style={{ marginTop: 15, marginBottom: 15 }} />
+                    <Title level={4} style={{ marginTop: 0 }}>快捷键设置</Title>
+                    <Space direction={"horizontal"} align={"center"}>
+                        <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.shortcut}</Text>
+                        <Button
+                            onClick={() => chrome.runtime.sendMessage({
+                                cmd: 'set-shortcuts'
+                            })}>
+                            修改
+                        </Button>
+                    </Space>
 
-                        <Divider style={{ marginTop: 15, marginBottom: 15 }} />
-                        <Title level={4} style={{ marginTop: 0 }}>Bing Chat设置</Title>
-                        {(() => {
-                            if (this.state.status['Bing'] == 'OK') {
-                                return <Tag color="#87d068">当前可用</Tag>
-                            } else if (this.state.status['Bing'] == 'UnauthorizedRequest') {
-                                return (
-                                    <Space direction={"vertical"}>
-                                        <Space direction={"horizontal"} size={0} style={{ marginBottom: 10 }}>
-                                            <Tag color={"#cd201f"}>Bing未授权</Tag>
-                                            <Popover zIndex={99999999} content={
-                                                <div>Bing Chat无法使用，请重新登录Bing账号</div>
-                                            } title="详情">
-                                                <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
-                                            </Popover>
-                                        </Space>
-                                        <Button
-                                            onClick={() => {
-                                                chrome.runtime.sendMessage({
-                                                    cmd: 'open-url', data: { url: "https://www.bing.com" }
-                                                });
-                                                // setTimeout(() => chrome.runtime.sendMessage({
-                                                //     cmd: 'chat-bot-init'
-                                                // }), 2000)
-                                            }}>登录Bing账号</Button>
-                                    </Space>
-                                )
-                            } else {
-                                return (
-                                    <Space direction={"horizontal"} size={0} style={{ marginBottom: 0 }}>
-                                        <Tag color={"#cd201f"}>环境异常</Tag>
+                    <Divider style={{ marginTop: 15, marginBottom: 15 }} />
+                    <Title level={4} style={{ marginTop: 0 }}>Bing Chat设置</Title>
+                    {(() => {
+                        if (this.state.status['Bing'] == 'OK') {
+                            return <Tag color="#87d068">当前可用</Tag>
+                        } else if (this.state.status['Bing'] == 'UnauthorizedRequest') {
+                            return (
+                                <Space direction={"vertical"}>
+                                    <Space direction={"horizontal"} size={0} style={{ marginBottom: 10 }}>
+                                        <Tag color={"#cd201f"}>Bing未授权</Tag>
                                         <Popover zIndex={99999999} content={
-                                            <div>{this.state.status['Bing']}</div>
+                                            <div>Bing Chat无法使用，请重新登录Bing账号</div>
                                         } title="详情">
                                             <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                         </Popover>
                                     </Space>
-                                )
-                            }
-                        })()}
-                        <Divider style={{ marginTop: 15, marginBottom: 15 }} />
-                        <Title level={4} style={{ marginTop: 0 }}>ChatGPT设置
-                            {this.state.chatGPTConfig.canImport ? <OpenFileButton
-                                callback={(e: any) => this._importConfig()}
-                                disabled={false} /> : ''}
-
-                            {this.state.chatGPTConfig.helpUrl ? <FileTextOutlined alt={'使用教程'} style={{ marginLeft: 4 }} onClick={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}
-                                disabled={false} /> : ''}
-
-                        </Title>
-                        {(() => {
-                            if (this.state.status['ChatGPT'] == 'OK' && this.state.isChange == false) {
-                                return <Tag color="#87d068">当前可用</Tag>
-                            } else {
-                                return <Space direction={"horizontal"} size={0}>
-                                    <Tag color={"#cd201f"}>{this.state.isChange ? '待更新' : '暂不可用'}</Tag>
+                                    <Button
+                                        onClick={() => {
+                                            chrome.runtime.sendMessage({
+                                                cmd: 'open-url', data: { url: "https://www.bing.com" }
+                                            });
+                                            // setTimeout(() => chrome.runtime.sendMessage({
+                                            //     cmd: 'chat-bot-init'
+                                            // }), 2000)
+                                        }}>登录Bing账号</Button>
+                                </Space>
+                            )
+                        } else {
+                            return (
+                                <Space direction={"horizontal"} size={0} style={{ marginBottom: 0 }}>
+                                    <Tag color={"#cd201f"}>环境异常</Tag>
                                     <Popover zIndex={99999999} content={
-                                        <div>{this.state.status['ChatGPT']}</div>
+                                        <div>{this.state.status['Bing']}</div>
                                     } title="详情">
                                         <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                     </Popover>
                                 </Space>
-                            }
-                        })()}
-                        <Space direction="vertical" size={'small'} style={{ display: 'flex' }}>
+                            )
+                        }
+                    })()}
+                    <Divider style={{ marginTop: 15, marginBottom: 15 }} />
+                    <Title level={4} style={{ marginTop: 0 }}>ChatGPT设置
+                        {this.state.chatGPTConfig.canImport ? <OpenFileButton
+                            callback={(e: any) => this._importConfig()}
+                            disabled={false} /> : ''}
 
-                            {
-                                this.state.chatGPTConfig.helpUrl ? <div
-                                    style={{
-                                        display: 'flex', flexDirection: 'row',
-                                        alignItems: 'center'
-                                    }}
-                                >
-                                </div> : ''
-                            }
+                        {this.state.chatGPTConfig.helpUrl ? <FileTextOutlined alt={'使用教程'} style={{ marginLeft: 4 }} onClick={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}
+                            disabled={false} /> : ''}
 
-                            {
-                                this.state.chatGPTConfig.creditUrl && this.state.chatGPTConfig.api && this.state.chatGPTConfig.api.match('api2d') ? <div
-                                    style={{
-                                        display: 'flex', flexDirection: 'row',
-                                        alignItems: 'center'
+                    </Title>
+                    {(() => {
+                        if (this.state.status['ChatGPT'] == 'OK' && this.state.isChange == false) {
+                            return <Tag color="#87d068">当前可用</Tag>
+                        } else {
+                            return <Space direction={"horizontal"} size={0}>
+                                <Tag color={"#cd201f"}>{this.state.isChange ? '待更新' : '暂不可用'}</Tag>
+                                <Popover zIndex={99999999} content={
+                                    <div>{this.state.status['ChatGPT']}</div>
+                                } title="详情">
+                                    <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
+                                </Popover>
+                            </Space>
+                        }
+                    })()}
+                    <Space direction="vertical" size={'small'} style={{ display: 'flex' }}>
+
+                        {
+                            this.state.chatGPTConfig.helpUrl ? <div
+                                style={{
+                                    display: 'flex', flexDirection: 'row',
+                                    alignItems: 'center'
+                                }}
+                            >
+                            </div> : ''
+                        }
+
+                        {
+                            this.state.chatGPTConfig.creditUrl && this.state.chatGPTConfig.api && this.state.chatGPTConfig.api.match('api2d') ? <div
+                                style={{
+                                    display: 'flex', flexDirection: 'row',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                {
+                                    this.state.credit != "" ? <p style={{ marginRight: '12px' }}>{this.state.credit}</p> : ''
+                                }
+                                <Button style={{
+                                    marginTop: 0
+                                }} onClick={() => this._openUrl(this.state.chatGPTConfig.creditHelpUrl)}>购买Key</Button>
+
+                            </div> : ''
+                        }
+
+                        {
+                            this.state.chatGPTConfig.team ? <>
+                                <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>API Team设置</Title>
+                                <Input.Password placeholder="input team"
+                                    value={this.state.chatGPTConfig.team}
+                                    onChange={(e: any) => {
+                                        let chatGPTConfig = this.state.chatGPTConfig;
+                                        chatGPTConfig.team = e.target.value
+                                        this.setState({
+                                            chatGPTConfig,
+                                            credit: '',
+                                            isChange: true
+                                        })
+                                    }} />
+                            </> : ''
+                        }
+
+
+
+                        <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>API Key设置</Title>
+                        <Input.Password placeholder="input token"
+                            value={this.state.chatGPTConfig.token}
+                            onChange={(e: any) => {
+                                let chatGPTConfig = this.state.chatGPTConfig;
+                                chatGPTConfig.token = e.target.value
+                                this.setState({
+                                    chatGPTConfig,
+                                    credit: '',
+                                    isChange: true
+                                })
+                            }} />
+
+                        {
+                            this.state.chatGPTConfig.apisFreezed ? '' : <><Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Host设置</Title>
+                                <Select
+                                    maxTagCount={3}
+                                    mode="tags"
+                                    optionFilterProp="label"
+                                    style={{ width: '100%' }}
+                                    placeholder="https://api.openai.com"
+                                    value={this.state.chatGPTConfig.api}
+                                    onChange={(e: any) => {
+                                        console.log(e)
+                                        let chatGPTConfig = this.state.chatGPTConfig;
+                                        chatGPTConfig.api = e[0];
+                                        this.setState({
+                                            chatGPTConfig,
+                                            credit: '',
+                                            isChange: true
+                                        })
                                     }}
-                                >
-                                    {
-                                        this.state.credit != "" ? <p style={{ marginRight: '12px' }}>{this.state.credit}</p> : ''
+                                    options={this.state.chatGPTConfig.apis}
+                                /></>
+                        }
+
+                        {
+                            this.state.chatGPTConfig.modelsFreezed ? "" : <>
+                                <Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Model设置</Title>
+                                <Select
+                                    maxTagCount={3}
+                                    mode="tags"
+                                    optionFilterProp="label"
+                                    placeholder={this.state.chatGPTConfig.models[0]}
+                                    style={{ width: '100%' }}
+                                    value={this.state.chatGPTConfig.model}
+                                    onChange={(value: any) => {
+                                        // console.log(value);
+                                        let chatGPTConfig = this.state.chatGPTConfig;
+                                        chatGPTConfig.model = value[0];
+                                        this.setState({
+                                            chatGPTConfig,
+                                            credit: '',
+                                            isChange: true
+                                        })
+                                    }}
+                                    options={
+                                        Array.from(this.state.chatGPTConfig.models, c => {
+                                            return {
+                                                value: c,
+                                                label: c
+                                            }
+                                        })
                                     }
-                                    <Button style={{
-                                        marginTop: 0
-                                    }} onClick={() => this._openUrl(this.state.chatGPTConfig.creditHelpUrl)}>购买Key</Button>
-
-                                </div> : ''
-                            }
-
-                            {
-                                this.state.chatGPTConfig.team ? <>
-                                    <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>API Team设置</Title>
-                                    <Input.Password placeholder="input team"
-                                        value={this.state.chatGPTConfig.team}
-                                        onChange={(e: any) => {
-                                            let chatGPTConfig = this.state.chatGPTConfig;
-                                            chatGPTConfig.team = e.target.value
-                                            this.setState({
-                                                chatGPTConfig,
-                                                credit: '',
-                                                isChange: true
-                                            })
-                                        }} />
-                                </> : ''
-                            }
+                                /></>
+                        }
 
 
-
-                            <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>API Key设置</Title>
-                            <Input.Password placeholder="input token"
-                                value={this.state.chatGPTConfig.token}
-                                onChange={(e: any) => {
-                                    let chatGPTConfig = this.state.chatGPTConfig;
-                                    chatGPTConfig.token = e.target.value
-                                    this.setState({
-                                        chatGPTConfig,
-                                        credit: '',
-                                        isChange: true
-                                    })
-                                }} />
-
-                            {
-                                this.state.chatGPTConfig.apisFreezed ? '' : <><Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Host设置</Title>
-                                    <Select
-                                        maxTagCount={3}
-                                        mode="tags"
-                                        optionFilterProp="label"
-                                        style={{ width: '100%' }}
-                                        placeholder="https://api.openai.com"
-                                        value={this.state.chatGPTConfig.api}
-                                        onChange={(e: any) => {
-                                            console.log(e)
-                                            let chatGPTConfig = this.state.chatGPTConfig;
-                                            chatGPTConfig.api = e[0];
-                                            this.setState({
-                                                chatGPTConfig,
-                                                credit: '',
-                                                isChange: true
-                                            })
-                                        }}
-                                        options={this.state.chatGPTConfig.apis}
-                                    /></>
-                            }
-
-                            {
-                                this.state.chatGPTConfig.modelsFreezed ? "" : <>
-                                    <Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Model设置</Title>
-                                    <Select
-                                        maxTagCount={3}
-                                        mode="tags"
-                                        optionFilterProp="label"
-                                        placeholder={this.state.chatGPTConfig.models[0]}
-                                        style={{ width: '100%' }}
-                                        value={this.state.chatGPTConfig.model}
-                                        onChange={(value: any) => {
-                                            // console.log(value);
-                                            let chatGPTConfig = this.state.chatGPTConfig;
-                                            chatGPTConfig.model = value[0];
-                                            this.setState({
-                                                chatGPTConfig,
-                                                credit: '',
-                                                isChange: true
-                                            })
-                                        }}
-                                        options={
-                                            Array.from(this.state.chatGPTConfig.models, c => {
-                                                return {
-                                                    value: c,
-                                                    label: c
-                                                }
-                                            })
-                                        }
-                                    /></>
-                            }
-
-
-                        </Space>
-                    </Spin>
-                    <Space direction={"horizontal"}>
-                        <Button
-                            type={this.state.isChange ? 'primary' : 'default'}
-                            style={{ marginTop: 10 }}
-                            onClick={() => this._update()}>
-                            {this.state.loading ? '更新中' : '更新状态'}
-                        </Button>
                     </Space>
+                </Spin>
+                <Space direction={"horizontal"}>
+                    <Button
+                        type={this.state.isChange ? 'primary' : 'default'}
+                        style={{ marginTop: 10 }}
+                        onClick={() => this._update()}>
+                        {this.state.loading ? '更新中' : '更新状态'}
+                    </Button>
+                </Space>
             </Card>
         )
     }

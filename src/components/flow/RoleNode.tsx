@@ -146,7 +146,7 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
 
 
     const createNode = (role: any, updateRole: any) => {
-        console.log('createNode', role)
+        // console.log('createNode', role)
         const keys: any = {
             guide: '你的AI员工是个拥有情感、喜恶、过往、抱负、目标、梦想与恐惧的AI机器人，就和一个真人一样。编辑这个员工将重新生成它，赋予它新的简介与小传（除非已被锁定），也可能因此改变它的言论与行为。在编辑AI员工前，请确保您可以接受因此带来的后果。',
             name: '姓名',
@@ -207,6 +207,8 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
                 {createName(keys['name'], role.name, updateRole)}
 
                 {createText(keys['text'], role.text, updateRole)}
+
+                {createModel(model, temperature, models, updateModel)}
 
                 <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
                     {data.debug ? <Button onClick={(e) => data.debug ? data.debug() : ''} >调试</Button> : ''}

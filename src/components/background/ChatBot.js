@@ -120,7 +120,7 @@ class ChatBotBackground {
                 if (
                     chatBotAvailable &&
                     chatBotAvailable.available && chatBotAvailable.available.success &&
-                    new Date().getTime() - chatBotAvailable.time < 24 * 60 * 60 * 1000
+                    new Date().getTime() - chatBotAvailable.time < 48 * 60 * 60 * 1000
                 ) {
                     res(chatBotAvailable)
                 }
@@ -141,12 +141,12 @@ class ChatBotBackground {
             return chatBotAvailable
         }
 
-        const available = await (async() => {
+        const available = (() => {
             // if (this.dev) return this.devInit();
             if (this.items) {
                 // console.log(this.items, type)
                 let item = this.items.filter(item => item.type == type)[0]
-                return await item.getAvailable()
+                return item.getAvailable()
             }
         })()
 

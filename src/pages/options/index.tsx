@@ -134,21 +134,11 @@ function options() {
     <Flow
       loadData={loadData}
       debug={{
-        callback: (res:any) => {
-          console.log('debug-callback-from-parent',res)
-          setTimeout(() => {
-            const combo = window._brainwave_get_current_node_for_workflow();
-            const d = {
-              '_combo': combo,
-              from: 'brainwave',
-              prompt: combo.prompt,
-              tag: combo.tag,
-              newTalk: true,
-              autoRun: true,
-              id: (new Date()).getTime()
-            }
-            setDebugData(d)
-          }, 500)
+        callback: (event: any) => {
+          console.log('debug-callback-from-parent', event)
+          if(event)  setTimeout(() => {
+            setDebugData(event)
+          }, 100)
         },
         open: true
       }}
