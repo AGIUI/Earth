@@ -458,11 +458,9 @@ function Flow(props: any) {
 
 
       <Panel position="top-right">
-        
-
-          <Collapse defaultActiveKey={['1']}   size="small">
+        <Card style={{ width: '300px' }}>
+          <Collapse defaultActiveKey={['1']} ghost size="small">
             <Panel0 header="菜单" key="1">
-            <Card style={{ width: '300px' }}>
               <p>名称</p>
               <TextArea placeholder="输入名称..."
                 autoSize
@@ -485,12 +483,9 @@ function Flow(props: any) {
               }
               <Button onClick={() => download()} style={{ marginRight: '24px' }}>导出</Button>
               <Button onClick={() => openMyCombo()} style={{ marginRight: '24px' }}>打开</Button>
-              </Card>
             </Panel0>
           </Collapse>
-
-
-        
+        </Card>
       </Panel>
     </ReactFlow>
   );
