@@ -1,6 +1,6 @@
 [
   {
-    "tag": "正文总结",
+    "tag": "textSummary",
     "role": "",
     "combo": 1,
     "interfaces": [
@@ -43,7 +43,7 @@
     "id": "11111"
   },
   {
-    "tag": "重点知识介绍",
+    "tag": "keyKnowledgeIntro",
     "role": "",
     "combo": 1,
     "interfaces": [

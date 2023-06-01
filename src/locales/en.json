@@ -113,6 +113,16 @@
   "outputTitle":"OutputTitle",
 
   "introduceMore": "Introduce More",
-  "contentExpansion": "Content Expansion"
+  "contentExpansion": "Content Expansion",
+  "translateChinese":"Translate into Chinese",
+  "abbreviations":"Abbreviations",
+  "rewriteContent":"Rewrite Content",
+
+  "openPanel": "Open Panel",
+  "commonFeatures": "Common Features",
+  "workflow": "Workflow",
+  "textSummary": "Text Summary",
+  "keyKnowledgeIntro": "Key Knowledge Introduction"
+
 
 }

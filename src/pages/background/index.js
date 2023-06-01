@@ -11,6 +11,7 @@ import editableConfig from '@src/config/editableConfig.json'
 import selectionConfig from '@src/config/selectionConfig.json'
 
 import i18n from 'i18next';
+import '../../locales/i18nConfig'
 
 const _CONFIG_JSON = getConfig()
 
@@ -73,7 +74,7 @@ async function loadContextMenuData() {
 
     chrome.contextMenus.create({
         id: 'toggle-insight',
-        title: "打开面板",
+        title: i18n.t('openPanel'),
         type: 'normal',
 
         parentId: 'Earth',
@@ -84,7 +85,7 @@ async function loadContextMenuData() {
     if (commonsConfig.length !== 0) {
         chrome.contextMenus.create({
             id: 'commonsConfig',
-            title: '常用功能',
+            title: i18n.t('commonFeatures'),
             type: 'normal',
 
             parentId: 'Earth',
@@ -95,7 +96,7 @@ async function loadContextMenuData() {
         for (let i in commonsConfig) {
             chrome.contextMenus.create({
                 id: String(commonsConfig[i].id),
-                title: commonsConfig[i].tag,
+                title: i18n.t(commonsConfig[i].tag),
                 type: 'normal',
                 parentId: 'commonsConfig'
             })
@@ -105,7 +106,7 @@ async function loadContextMenuData() {
     if (Workflow.length !== 0) {
         chrome.contextMenus.create({
             id: 'Workflow',
-            title: '工作流',
+            title: i18n.t('workflow'),
             type: 'normal',
 
             parentId: 'Earth',
@@ -126,7 +127,7 @@ async function loadContextMenuData() {
         for (let i in selectionConfig) {
             chrome.contextMenus.create({
                 id: String(selectionConfig[i].id),
-                title: selectionConfig[i].tag,
+                title: i18n.t(selectionConfig[i].tag),
                 contexts: ['selection']
             })
         }

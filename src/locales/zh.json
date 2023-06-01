@@ -115,5 +115,15 @@
   "outputTitle":"输出",
 
   "introduceMore": "介绍更多",
-  "contentExpansion": "内容扩写"
+  "contentExpansion": "内容扩写",
+  "translateChinese":"翻译成中文",
+  "abbreviations":"内容缩写",
+  "rewriteContent":"内容重写",
+
+  "openPanel": "打开面板",
+  "commonFeatures": "常用功能",
+  "workflow": "工作流",
+  "textSummary": "正文总结",
+  "keyKnowledgeIntro": "重点知识介绍"
+
 }

@@ -1,6 +1,6 @@
 [
   {
-    "tag": "介绍更多",
+    "tag": "introduceMore",
     "role": "",
     "combo": 1,
     "interfaces": ["contextMenus_Selection"],
@@ -42,7 +42,7 @@
   },
   {
 
-    "tag": "翻译成中文",
+    "tag": "translateChinese",
     "role": "",
     "combo": 1,
     "interfaces": ["contextMenus_Selection"],
@@ -83,7 +83,7 @@
     "id": 1685086230450
   },
   {
-    "tag": "内容扩写",
+    "tag": "contentExpansion",
     "role": "",
     "combo": 1,
     "interfaces": ["contextMenus_Selection"],
@@ -130,7 +130,7 @@
 
   },
   {
-    "tag": "内容缩写",
+    "tag": "abbreviations",
     "role": "",
     "combo": 1,
     "interfaces": ["contextMenus_Selection"],
@@ -171,7 +171,7 @@
     "id": 1685085978795
   },
   {
-    "tag": "内容重写",
+    "tag": "rewriteContent",
     "role": "",
     "combo": 1,
     "interfaces": ["contextMenus_Selection"],
