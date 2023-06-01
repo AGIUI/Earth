@@ -104,11 +104,11 @@ class NewBing {
         if (!this.conversationContext) {
             const { resp: conversation, info } = await createConversation()
             if (conversation == null) {
-                this.available = null;
-                return {
+                this.available = {
                     success: false,
                     info: info
-                }
+                };
+                return this.available
             }
             this.conversationContext = {
                 conversationId: conversation.conversationId,
@@ -135,16 +135,17 @@ class NewBing {
     clearAvailable() {
         this.available = null;
     }
-    async getAvailable() {
-        let res = {
-            success: false,
-            info: ''
-        }
+    getAvailable() {
 
-        if (!this.available) res = await this.init()
-        if (this.available && this.available.success == false) res = await this.init()
-        if (this.available && this.available.success) res = this.available
-        return res
+        // let res = {
+        //     success: false,
+        //     info: ''
+        // }
+
+        // if (!this.available) res = await this.init()
+        // if (this.available && this.available.success == false) res = await this.init()
+        // if (this.available && this.available.success) res = this.available
+        return this.available;
     }
 
 

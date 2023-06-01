@@ -209,6 +209,16 @@ const extractDomElement = () => {
 }
 
 
+const promptBindRole = (prompt: string, role: any) => {
+    if (role.text) {
+        prompt = `<role>你的角色背景是${role.text}</role>,${prompt}`
+    }
+    if (role.name) {
+        prompt = `<>请牢记</><name>你的名字是${role.name}</name>,${prompt}`
+    };
+    return prompt
+}
+
 const promptUseLastTalk = (prompt: string, lastTalk: string) => {
     prompt = prompt.trim()
     lastTalk = lastTalk.trim()
@@ -246,5 +256,7 @@ export {
     extractDomElement,
     promptBindTasks,
     promptBindHighlight,
-    cropText, promptParse, promptUseLastTalk
+    cropText, promptParse,
+    promptUseLastTalk,
+    promptBindRole
 }

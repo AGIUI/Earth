@@ -4,7 +4,7 @@ import {
     Button,
     Typography,
     Tag,
-    List, Empty,
+    List, Empty, Popconfirm
 } from 'antd';
 
 const { Text } = Typography;
@@ -112,12 +112,20 @@ class ComboEditor extends React.Component {
         // this.destroyConnection();
     }
 
+    _delete(prompt: any) {
+        console.log('_delete', prompt)
+        this.props.callback({
+            cmd: 'delete-combo-confirm', data: { prompt, from: 'combo-editor' }
+        })
+    }
+
     _comboHandle(combo: any, from: string) {
         if (this.props.callback) this.props.callback({
-            cmd: '工作流',
+            cmd: 'combo',
             data: {
                 '_combo': combo,
-                from, prompt: combo.prompt,
+                from,
+                prompt: combo.prompt,
                 tag: combo.tag,
                 newTalk: true
             }
@@ -125,7 +133,7 @@ class ComboEditor extends React.Component {
     }
 
     _showModal(event: React.MouseEvent<HTMLButtonElement>, prompt: any) {
-        const isNew=!!prompt.isNew;
+        const isNew = !!prompt.isNew;
         const data = {
             prompt: {
                 ...defaultCombo,
@@ -234,7 +242,7 @@ class ComboEditor extends React.Component {
                 bodyStyle={{
                     // flex: 1,
                     height: 'calc(100% - 80px)',
-                    paddingTop:0,
+                    paddingTop: 0,
                 }}
 
                 extra={<div>
@@ -261,9 +269,9 @@ class ComboEditor extends React.Component {
 
 
                     <FlexRow display="flex"
-                        style={{"marginBottom": "10px"}}
+                        style={{ "marginBottom": "10px" }}
                     >
-                        <Text style={{ fontSize: 20, fontWeight: "bold", color:"black"}}>{this.state.secondTitle}</Text>
+                        <Text style={{ fontSize: 20, fontWeight: "bold", color: "black" }}>{this.state.secondTitle}</Text>
                         <div>
 
                             <DownloadButton
@@ -289,27 +297,43 @@ class ComboEditor extends React.Component {
                                             borderColor: '#d9d9d9',
                                             borderStyle: 'solid',
                                             borderRadius: 5,
-                                            padding:"5px 0 5px 10px",
+                                            padding: "5px 0 5px 10px",
                                             marginTop: 10,
                                             marginBottom: 10
                                         }}
                                         actions={[
+                                            <Popconfirm
+                                                placement="bottomRight"
+                                                title={'确定删除Prompt？'}
+                                                onConfirm={() => this._delete(p)}
+                                                okText="是的"
+                                                cancelText="取消"
+                                                zIndex={100000000}
+                                            >
+                                                <Button danger
+                                                    style={{ color: '#grey', border: "none", boxShadow: "none" }}
+                                                >
+                                                    删除
+                                                </Button>
+
+                                            </Popconfirm>
+                                            ,
                                             <Button
                                                 onClick={(event: any) => this._showModal(event, p)}
                                                 key={'edit'}
                                                 type={"text"}
-                                                style={{ color: '#grey',border:"none",boxShadow:"none" }}
+                                                style={{ color: '#grey', border: "none", boxShadow: "none" }}
                                             >
                                                 编辑
                                             </Button>,
                                             <Button
                                                 type={"primary"}
-                                                style={{background: '#1677ff'}}
-                                                onClick={() => this._comboHandle(p, "getPromptPage")}
+                                                style={{ background: '#1677ff' }}
+                                                onClick={() => this._comboHandle(p, "comboEditor")}
                                             >运行</Button>
                                         ]}
                                     >
-                                        <Text style={{ fontWeight: 'bold',color:"black" }}>
+                                        <Text style={{ fontWeight: 'bold', color: "black" }}>
                                             {p.tag}
                                             {
                                                 p.combo > 1 ? (
@@ -327,11 +351,11 @@ class ComboEditor extends React.Component {
                 </div>
                 <Button size={"large"} type={"primary"}
                     style={{ position: "absolute", bottom: 30, width: 450, left: 25 }}
-                    onClick={(event: any) => this._showModal(event, { 
-                        owner: 'user', 
-                    id: (new Date()).getTime(),
-                    isNew:true
-                     })}>
+                    onClick={(event: any) => this._showModal(event, {
+                        owner: 'user',
+                        id: (new Date()).getTime(),
+                        isNew: true
+                    })}>
                     新建
                 </Button>
 

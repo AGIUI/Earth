@@ -15,7 +15,10 @@ import {
     promptBindTasks,
     promptBindUserClipboard,
     userSelectionInit,
-    extractDomElement, promptParse, promptUseLastTalk
+    extractDomElement,
+    promptParse,
+    promptUseLastTalk,
+    promptBindRole
 } from '@src/components/combo/Prompt'
 
 import { highlightText } from "@components/combo/Agent"
@@ -606,6 +609,13 @@ class Main extends React.Component<{
         })
     }
 
+
+    // role 的功能
+    _promptBindRole(prompt: string, role: any) {
+        prompt = promptBindRole(prompt, role)
+        return prompt
+    }
+
     // 用户剪切板
     async _promptBindUserClipboard(prompt: string) {
         return await promptBindUserClipboard(prompt);
@@ -980,7 +990,7 @@ class Main extends React.Component<{
 
             nTalks.push(ChatBotConfig.createTalkData('send-talk-refresh', {
                 data: {
-                    tag: '刷新',
+                    tag: promptFromLocal,
                     prompt: {
                         text: promptFromLocal,
                         type: 'prompt',
@@ -1038,19 +1048,28 @@ class Main extends React.Component<{
             // 更新到这里
             let nTalks = [...talks].filter(t => t);
 
-            console.log('_control:', nTalks, data)
+            console.log('_control:', nTalks, cmd, data)
 
             const sendTalk = async () => {
                 let combo = data._combo ? data._combo.combo : -1;
-                let { prompt, tag, lastTalk, newTalk, from, prePrompt } = data;
-                // from : combo ,chatbot-input,getPromptPage
+                let { prompt, tag, newTalk, from, prePrompt, debugInfo } = data;
+                // from : combo ,chatbot-input,comboEditor,debug
 
                 prompt = JSON.parse(JSON.stringify(prompt))
 
                 // 清空type thinking && suggest 的状态
                 nTalks = nTalks.filter(n => n && (n.type == 'talk' || n.type == 'markdown' || n.type == 'done' || n.type == 'images'))
-                this.updateChatBotStatus(true)
-                if (tag) nTalks.push(ChatBotConfig.createTalkData('tag', { html: tag, user: true }));
+                this.updateChatBotStatus(true);
+
+                if (from !== 'debug') {
+                    // 用户输入的信息，显示tag
+                    if (tag) nTalks.push(ChatBotConfig.createTalkData('tag', { html: tag }));
+                } else {
+                    //  显示debug info
+                    nTalks.push(ChatBotConfig.createTalkData('debug', { html: debugInfo || '<p>debug</p>' }));
+                }
+
+
                 // 增加思考状态
                 nTalks.push(ChatBotConfig.createTalkData('thinking', {}));
 
@@ -1077,6 +1096,10 @@ class Main extends React.Component<{
                 // combo>0从comboor对话流里运行
                 // combo==-1 用户对话框里的输入
 
+                // role的处理
+                if (prompt.role && (prompt.role.name || prompt.role.text)) {
+                    prompt.text = this._promptBindRole(prompt.text, prompt.role)
+                }
 
                 // input的处理
                 if (prompt.input == 'bindCurrentPage') {
@@ -1119,10 +1142,10 @@ class Main extends React.Component<{
                     'list',
                     'markdown',
                     'translate-zh',
-                    'translate-en'].includes(prompt.type)) this._llmRun(prompt, newTalk);
+                    'translate-en', 'role'].includes(prompt.type)) this._llmRun(prompt, newTalk);
 
                 if (prompt.type === 'highlight') {
-                    this._agentHighlightTextRun(lastTalk)
+                    // this._agentHighlightTextRun(lastTalk)
                 }
 
                 // 标记当前执行状态，以及下一条
@@ -1188,11 +1211,20 @@ class Main extends React.Component<{
                     // console.log(isNew,from)
                     // 修改为新的编辑器brainwave ,data.prompt - combo
                     if (isNew) {
-                        chromeStorageSet({ '_brainwave_import': null })
+                        chromeStorageSet({
+                            '_brainwave_import': {
+                                isNew
+                            }
+                        })
                     } else {
-                        chromeStorageSet({ '_brainwave_import': [data.prompt] })
+                        chromeStorageSet({
+                            '_brainwave_import': { data: [data.prompt] }
+                        })
                     }
                     sendMessageToBackground['open-options-page']({})
+                    return
+                case "delete-combo-confirm":
+                    this._promptControl({ cmd, data })
                     return
                 case "close-combo-editor":
                     this._promptControl({ cmd })
@@ -1383,6 +1415,7 @@ class Main extends React.Component<{
             })
         } else if (cmd == "delete-combo-confirm") {
             const { prompt, from } = data;
+            console.log('_promptUpdateUserData', prompt)
             // 删除
             this._promptUpdateUserData('delete', prompt);
         } else if (cmd == "close-combo-editor") {

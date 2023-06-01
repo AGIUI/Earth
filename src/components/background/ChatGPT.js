@@ -147,16 +147,17 @@ export default class ChatGPT {
     clearAvailable() {
         this.available = null;
     }
-    async getAvailable() {
-        let res = {
-            success: false,
-            info: ''
-        }
+    getAvailable() {
 
-        if (!this.available) res = await this.init()
-        if (this.available && this.available.success == false) res = await this.init()
-        if (this.available && this.available.success) res = this.available
-        return res
+        // let res = {
+        //     success: false,
+        //     info: ''
+        // }
+
+        // if (!this.available) res = await this.init()
+        // if (this.available && this.available.success == false) res = await this.init()
+        // if (this.available && this.available.success) res = this.available
+        return this.available;
     }
 
     async init(token, baseUrl, model = 'gpt-3.5-turbo') {

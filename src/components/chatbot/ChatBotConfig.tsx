@@ -147,6 +147,13 @@ function createTalkData(type: string, json: any) {
                 html: json.html
             }
             break;
+        case 'debug':
+            data = {
+                type: 'talk',
+                user: false,
+                html: json.html
+            }
+            break;
         case 'help':
             data = {
                 type: 'suggest',

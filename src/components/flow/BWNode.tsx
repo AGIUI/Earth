@@ -55,7 +55,7 @@ const createType = (type: string, agents: any, onChange: any) => {
     }}>
     <Space>
       {label}
-      <DownOutlined rev={undefined} />
+      <DownOutlined/>
     </Space>
 
   </Dropdown>
@@ -294,7 +294,6 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
       node.push(createInputAndOutput('Input', 'input', input, inputs, updateInput))
       node.push(createText('Prompt', text, updateText))
       node.push(createModel(model, temperature, models, updateModel))
-
     } else {
       ['api'].includes(type) && node.push(createUrl('api', 'URL', api, updateApi));
       ['query'].includes(type) && node.push(createUrl('query', 'URL', queryObj, updateQueryObj));
@@ -309,10 +308,9 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
 
     node.push(createInputAndOutput('Output', 'output', output, outputs, updateOutput))
 
-
     if (data.debug) {
       node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug() : ''} >调试</Button>)
+      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button>)
     }
 
     return <Card
@@ -320,7 +318,7 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
       title="Agent"
       extra={createType(type, agents, updateType)}
       style={{ width: 300 }}>
-      {node}
+      {...node}
     </Card>
   }
 
@@ -347,7 +345,7 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
   return (
     <Dropdown menu={{ items, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
 
-      <div style={nodeStyle}>
+      <div style={nodeStyle} key={id}>
 
         {createNode()}
         <Handle type="target" position={Position.Left} />

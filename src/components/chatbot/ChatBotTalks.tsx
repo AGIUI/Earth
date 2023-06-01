@@ -388,7 +388,7 @@ class ChatBotTalks extends React.Component {
                 ref={this.contentDom}
                 translate="no"
                 className="chatbot-talks"
-                style={{ overflowY: 'scroll' }}
+                style={{ overflowY: 'scroll', paddingRight: '12px' }}
             // height={this.state.fullscreen ? 'calc(70vh - 44px)' : ''}
             >
                 {
