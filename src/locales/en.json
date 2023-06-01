@@ -114,7 +114,7 @@
 
   "introduceMore": "Introduce More",
   "contentExpansion": "Content Expansion",
-  "translateChinese":"Translate into Chinese",
+  "translateChinese":"Translate into English",
   "abbreviations":"Abbreviations",
   "rewriteContent":"Rewrite Content",
 
@@ -122,7 +122,20 @@
   "commonFeatures": "Common Features",
   "workflow": "Workflow",
   "textSummary": "Text Summary",
-  "keyKnowledgeIntro": "Key Knowledge Introduction"
+  "keyKnowledgeIntro": "Key Knowledge Introduction",
 
+  "edit": "Edit",
+  "run": "Run",
+
+  
+  "findCoreInfoAndQueryLinks": "### Relevant Tasks ###\nHelp me find the core information in the related content and provide links to relevant encyclopedic introductions and related news. Please use the following format for output:\n<Encyclopedia>\nxxxx\n<Related News>\n1.xxxx\n2.xxxx",
+  "translateToUnderstandableLanguage": "### Relevant Tasks ###\nHelp me translate the related content into English.",
+  "expandRelatedContent": "### Relevant Tasks ###\nHelp me expand the related content without changing the key information.",
+  "abbreviateRelatedContent": "### Relevant Tasks ###\nHelp me abbreviate the related content without changing the key information.",
+  "optimizeWritingStyle": "### Relevant Tasks ###\nHelp me optimize the writing style of the related content, keeping the word count similar and preserving the key information.",
+  "relatedContent":"Related Content",
+
+  "helpGenerateSummary": "Please help me generate the output for the following tasks in English. They are summary and key points. You should use the following format:\n<Summary>\nxxxx\n<Key Points>\n1.xxxx\n2.xxxx",
+  "findKeywords": "Please find the top 10 most frequently occurring keywords in the article and provide their Chinese explanations."
 
 }

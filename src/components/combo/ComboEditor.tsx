@@ -307,10 +307,10 @@ class ComboEditor extends React.Component {
                                                 key={'edit'}
                                                 type={'text'}
                                             >
-                                                编辑
+                                                {i18n.t('edit')}
                                             </Button>,
                                             <Button onClick={() => this._comboHandle(p, "getPromptPage")}
-                                            >运行</Button>
+                                            >{i18n.t('run')}</Button>
                                         ]}
                                     >
                                         <Text style={{ fontWeight: 'bold' }}>

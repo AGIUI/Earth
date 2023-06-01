@@ -32,7 +32,7 @@
         "url": ""
       },
       "temperature": 0.5,
-      "text": "###相关任务###\n帮我找到相关内容中的核心信息，并查询相关百科介绍和相关资讯的链接，你需要用以下格式输出：\n<百科>\nxxxx\n<相关资讯>\n1.xxxx\n2.xxxx",
+      "text": "findCoreInfoAndQueryLinks",
       "type": "markdown",
       "url": ""
     },
@@ -74,7 +74,7 @@
         "isQuery": false
       },
       "temperature": 0.3,
-      "text": "###相关任务###\n帮我将相关内容翻译成中文。",
+      "text": "translateToUnderstandableLanguage",
       "type": "prompt",
       "url": ""
     },
@@ -119,7 +119,7 @@
       },
       "temperature": 0.7,
 
-      "text": "###相关任务###\n帮我将相关内容进行扩写，重点内容不能发生变化。",
+      "text": "expandRelatedContent",
 
       "type": "markdown",
       "url": ""
@@ -162,7 +162,7 @@
         "isQuery": false
       },
       "temperature": 0.7,
-      "text": "###相关任务###\n帮我将相关内容进行缩写，重点内容不能发生变化。",
+      "text": "abbreviateRelatedContent",
       "type": "prompt",
       "url": ""
     },
@@ -203,7 +203,7 @@
         "isQuery": false
       },
       "temperature": 0.3,
-      "text": "###相关任务###\n帮我将相关内容进行文笔优化，字数差不多，重点内容不能发生变化。",
+      "text": "optimizeWritingStyle",
       "type": "prompt",
       "url": ""
     },

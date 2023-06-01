@@ -21,7 +21,7 @@ i18n
     resources,
     fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
     lng: navigator.language,
-    debug: true,
+    debug: false,
     interpolation: {
       escapeValue: false, // 不需要对翻译文本进行转义
     },

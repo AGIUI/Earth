@@ -1339,10 +1339,7 @@ class Main extends React.Component<{
     }
 
     render() {
-        const { tabList, datas, activeIndex } = this._doChatBotData();
-        
-        console.log(`总面板开关${this.state.initIsOpen}`);
-        
+        const { tabList, datas, activeIndex } = this._doChatBotData();        
         return (<>
             <FlexColumn
                 className={this.props.className}

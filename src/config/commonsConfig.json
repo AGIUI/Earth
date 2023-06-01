@@ -34,7 +34,7 @@
         "url": ""
       },
       "temperature": 0.7,
-      "text": "请帮我用中文完成以下任务的输出，它们分别是总结摘要和要点，你需要用以下格式输出：\n<摘要>\nxxxx\n<要点>\n1.xxxx\n2.xxxx",
+      "text": "helpGenerateSummary",
       "type": "markdown",
       "url": ""
     },
@@ -77,7 +77,7 @@
         "isQuery": false
       },
       "temperature": 0.5,
-      "text": "请找出文章中出现频率最多的10个关键词，并用中文解释这些关键词是什么意思。",
+      "text": "findKeywords",
       "type": "prompt",
       "url": ""
     },

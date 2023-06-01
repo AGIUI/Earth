@@ -248,9 +248,12 @@ async function loadContextMenuData() {
                     if (PromptJson.input === "userSelection") {
                         const context = item.selectionText;
                         if (context) {
-                            PromptJson.text = "###相关内容###\n" + context + "\n" + PromptJson.text
+                            PromptJson.text = `###${i18n.t('relatedContent')}###\n` + context + "\n" + PromptJson.text
                         }
                     }
+
+                    PromptJson.prompt.text = i18n.t(PromptJson.prompt.text);
+                    
                     chrome.tabs.sendMessage(
                         tabId, {
                             cmd: 'contextMenus',
@@ -261,7 +264,7 @@ async function loadContextMenuData() {
                                     '_combo': PromptJson,
                                     from,
                                     prompt: PromptJson.prompt,
-                                    tag: PromptJson.tag,
+                                    tag: i18n.t(PromptJson.tag),
                                     newTalk: true
                                 }
                             }

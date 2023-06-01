@@ -1,10 +1,10 @@
 {
   "Chat": "聊天",
 
-  "hiCurrentAI": "你好，当前AI: {{hi}}，服务异常",
+  "hiCurrentAI": "你好,当前AI: {{hi}},服务异常",
   "configOrSwitchAI": "配置或切换AI",
   "historyConversation": "当前为历史对话记录",
-  "hiWelcome": "你好，我可以为你梳理当前页面的知识",
+  "hiWelcome": "你好,我可以为你梳理当前页面的知识",
   "relatedRecommendations": "相关推荐",
   "otherMaterials": "其他资料",
   "thinking": "思考中",
@@ -39,7 +39,7 @@
   "extractStructuredData": "提取结构化数据",
 
   
-  "tokenConsumptionWarning": "可能会消耗大量 Token，建议在需要时绑定",
+  "tokenConsumptionWarning": "可能会消耗大量 Token,建议在需要时绑定",
   "send": "发送",
   "stop": "停止",
   "chatStatusEnabled": "对话状态开启",
@@ -56,7 +56,7 @@
   "bingChatSettings": "Bing Chat设置",
   "available": "当前可用",
   "bingUnauthorized": "Bing未授权",
-  "bingUnauthorizedDetails": "Bing Chat无法使用，请重新登录Bing账号",
+  "bingUnauthorizedDetails": "Bing Chat无法使用,请重新登录Bing账号",
   "loginBingAccount": "登录Bing账号",
   "environmentException": "环境异常",
   "chatGPTSettings": "ChatGPT设置",
@@ -76,13 +76,13 @@
 
   "createMyPrompts": "新建我的Prompts",
   "myPrompts": "我的Prompts",
-  "backgroundMessage": "我是后台，已收到消息：{message}",
-  "retryError": "出错了，请重试",
+  "backgroundMessage": "我是后台,已收到消息：{message}",
+  "retryError": "出错了,请重试",
 
   "addPrompts": "添加Prompts",
   "title": "标题",
   "fillTitle": "请填写标题",
-  "fillTitlePlaceholder": "必填，请填写标题",
+  "fillTitlePlaceholder": "必填,请填写标题",
   "role": "角色",
   "fillRole": "请填写角色",
   "fillRolePlaceholder": "请填写角色",
@@ -124,6 +124,20 @@
   "commonFeatures": "常用功能",
   "workflow": "工作流",
   "textSummary": "正文总结",
-  "keyKnowledgeIntro": "重点知识介绍"
+  "keyKnowledgeIntro": "重点知识介绍",
+
+  "edit": "编辑",
+  "run": "运行",
+
+  
+  "findCoreInfoAndQueryLinks": "###相关任务###\n帮我找到相关内容中的核心信息,并查询相关百科介绍和相关资讯的链接,你需要用以下格式输出：\n<百科>\nxxxx\n<相关资讯>\n1.xxxx\n2.xxxx",
+  "translateToUnderstandableLanguage": "###相关任务###\n帮我将相关内容翻译成中文。",
+  "expandRelatedContent": "###相关任务###\n帮我将相关内容进行扩写,重点内容不能发生变化。",
+  "abbreviateRelatedContent": "###相关任务###\n帮我将相关内容进行缩写,重点内容不能发生变化。",
+  "optimizeWritingStyle": "###相关任务###\n帮我将相关内容进行文笔优化,字数差不多,重点内容不能发生变化。",
+  "relatedContent":"相关内容",
+  
+  "helpGenerateSummary": "请帮我用中文完成以下任务的输出，它们分别是总结摘要和要点，你需要用以下格式输出：\n<摘要>\nxxxx\n<要点>\n1.xxxx\n2.xxxx",
+  "findKeywords": "请找出文章中出现频率最多的10个关键词，并用中文解释这些关键词是什么意思。"
 
 }
