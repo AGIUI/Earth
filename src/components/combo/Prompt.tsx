@@ -214,7 +214,7 @@ const promptBindRole = (prompt: string, role: any) => {
         prompt = `<role>你的角色背景是${role.text}</role>,${prompt}`
     }
     if (role.name) {
-        prompt = `<name>你的名字是${role.name}</name>,${prompt}`
+        prompt = `<>请牢记</><name>你的名字是${role.name}</name>,${prompt}`
     };
     return prompt
 }

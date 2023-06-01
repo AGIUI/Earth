@@ -211,9 +211,9 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
                 {createModel(model, temperature, models, updateModel)}
 
                 <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
-                    {data.debug ? <Button onClick={(e) => data.debug ? data.debug() : ''} >调试</Button> : ''}
+                    {data.debug ? <Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button> : ''}
 
-                    <Button onClick={(e) => console.log(role)} >开始</Button>
+                    {/* <Button onClick={(e) => console.log(role)} >开始</Button> */}
                 </Space>
 
             </Space>

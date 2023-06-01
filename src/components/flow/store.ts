@@ -79,7 +79,7 @@ const useStore = create<RFState>((set, get) => ({
     set({
       nodes: [], edges: []
     });
-    console.log('newCombo - tag', tag, interfaces)
+    console.log('newCombo - tag -debug', tag, interfaces,debug)
 
     const nodes = [...Array.from(ns, (nd: any) => {
       nd.data = {

@@ -113,7 +113,7 @@ class ComboEditor extends React.Component {
     }
 
     _delete(prompt: any) {
-        console.log('_delete',prompt)
+        console.log('_delete', prompt)
         this.props.callback({
             cmd: 'delete-combo-confirm', data: { prompt, from: 'combo-editor' }
         })
@@ -121,7 +121,7 @@ class ComboEditor extends React.Component {
 
     _comboHandle(combo: any, from: string) {
         if (this.props.callback) this.props.callback({
-            cmd: '工作流',
+            cmd: 'combo',
             data: {
                 '_combo': combo,
                 from,
@@ -329,7 +329,7 @@ class ComboEditor extends React.Component {
                                             <Button
                                                 type={"primary"}
                                                 style={{ background: '#1677ff' }}
-                                                onClick={() => this._comboHandle(p, "getPromptPage")}
+                                                onClick={() => this._comboHandle(p, "comboEditor")}
                                             >运行</Button>
                                         ]}
                                     >

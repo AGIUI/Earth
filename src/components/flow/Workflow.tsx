@@ -246,18 +246,19 @@ const _DEFAULTCOMBO = {
 }
 
 const debugInfo = (prompt: any) => {
+    console.log('debugInfo',prompt)
     let info = '';
     if (prompt.type == 'role') {
         info = `<p>${prompt.role.name}</p><br><p>${prompt.role.text}</p>`
     } else {
-        info = JSON.stringify({
+        info = `<p>${JSON.stringify({
             text: prompt.text,
             input: prompt.input,
             output: prompt.output,
             type: prompt.type,
             model: prompt.model,
             temperature: prompt.temperature
-        }, null, 2);
+        }, null, 2)}</p>`;
     }
     return info
 }
@@ -270,7 +271,7 @@ const parsePrompt2ControlEvent = (prompt: any) => {
             prompt,
             createDate: (new Date()).getTime()
         },
-        from: 'brainwave',
+        from: 'debug',
         prompt,
         // 调试状态的显示
         tag: debugInfo(prompt),

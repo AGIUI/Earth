@@ -990,7 +990,7 @@ class Main extends React.Component<{
 
             nTalks.push(ChatBotConfig.createTalkData('send-talk-refresh', {
                 data: {
-                    tag: '刷新',
+                    tag: promptFromLocal,
                     prompt: {
                         text: promptFromLocal,
                         type: 'prompt',
@@ -1052,8 +1052,8 @@ class Main extends React.Component<{
 
             const sendTalk = async () => {
                 let combo = data._combo ? data._combo.combo : -1;
-                let { prompt, tag, lastTalk, newTalk, from, prePrompt, debugInfo } = data;
-                // from : combo ,chatbot-input,getPromptPage
+                let { prompt, tag, newTalk, from, prePrompt, debugInfo } = data;
+                // from : combo ,chatbot-input,comboEditor,debug
 
                 prompt = JSON.parse(JSON.stringify(prompt))
 
@@ -1061,14 +1061,13 @@ class Main extends React.Component<{
                 nTalks = nTalks.filter(n => n && (n.type == 'talk' || n.type == 'markdown' || n.type == 'done' || n.type == 'images'))
                 this.updateChatBotStatus(true);
 
-                if (!debugInfo) {
+                if (from !== 'debug') {
                     // 用户输入的信息，显示tag
-                    if (tag) nTalks.push(ChatBotConfig.createTalkData('tag', { html: tag, user: true }));
+                    if (tag) nTalks.push(ChatBotConfig.createTalkData('tag', { html: tag }));
                 } else {
                     //  显示debug info
-                    nTalks.push(ChatBotConfig.createTalkData('tag', { html: debugInfo, user: false }));
+                    nTalks.push(ChatBotConfig.createTalkData('debug', { html: debugInfo || '<p>debug</p>' }));
                 }
-
 
 
                 // 增加思考状态
@@ -1143,10 +1142,10 @@ class Main extends React.Component<{
                     'list',
                     'markdown',
                     'translate-zh',
-                    'translate-en'].includes(prompt.type)) this._llmRun(prompt, newTalk);
+                    'translate-en', 'role'].includes(prompt.type)) this._llmRun(prompt, newTalk);
 
                 if (prompt.type === 'highlight') {
-                    this._agentHighlightTextRun(lastTalk)
+                    // this._agentHighlightTextRun(lastTalk)
                 }
 
                 // 标记当前执行状态，以及下一条

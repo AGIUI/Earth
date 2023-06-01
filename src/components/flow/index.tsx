@@ -34,8 +34,8 @@ import { _DEFAULTCOMBO } from './Workflow'
 const _VERVISON = '0.1.0',
   _APP = 'brainwave';
 
-  _DEFAULTCOMBO.version=_VERVISON;
-  _DEFAULTCOMBO.app=_APP;
+_DEFAULTCOMBO.version = _VERVISON;
+_DEFAULTCOMBO.app = _APP;
 
 // const _DEFAULTCOMBO = {
 //   tag: '',
@@ -227,13 +227,19 @@ function Flow(props: any) {
 
     return new Promise((res, rej) => {
       getItems('root', (result: any) => {
-        const items = JSON.parse(JSON.stringify(result))
+        const items = JSON.parse(JSON.stringify(result));
+
+        // role节点赋予全部节点的role字段
+        const rolePrompt = items.filter((item: any) => item.type == 'role')[0];
+
         // 按照combo的格式输出
         const combo: any = { ...defaultCombo, tag, id: id }
         for (let index = 0; index < items.length; index++) {
           const prompt = items[index];
+          prompt.role = { ...rolePrompt.role };
           delete prompt.onChange;
           delete prompt.opts;
+
           if (index === 0) {
             combo.prompt = prompt;
           }
@@ -274,7 +280,7 @@ function Flow(props: any) {
     }
   }
 
-  const load = (json: any) => {
+  const load = (json: any, debug: any) => {
     if (json && json.length == 1) {
 
       // 将覆盖
@@ -380,7 +386,7 @@ function Flow(props: any) {
           const data: any = this.result;
           const json = JSON.parse(data);
           if (json && json.length == 1) {
-            load(json)
+            load(json, debug)
           }
         }
       }
@@ -455,9 +461,9 @@ function Flow(props: any) {
     if (isNew) {
       newWorkflow()
     } else {
-      loadData && load(loadData)
+      loadData && load(loadData, debug)
     }
-  }, [loadData, isNew])
+  }, [loadData, isNew, debug])
 
 
   // console.log('loadData',loadData)
@@ -498,8 +504,13 @@ function Flow(props: any) {
 
 
       <Panel position="top-right">
-        <Card style={{ width: '300px' }}>
-          <Collapse defaultActiveKey={['1']} ghost size="small">
+        <Card style={{ width: '300px' }}
+          bodyStyle={{
+            paddingTop: '8px',
+            paddingBottom: '8px'
+          }}
+        >
+          <Collapse ghost size="small">
             <Panel0 header="菜单" key="1">
               <p>名称</p>
               <TextArea placeholder="输入名称..."
