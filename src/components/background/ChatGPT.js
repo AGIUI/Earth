@@ -62,8 +62,8 @@ function fetchStream(stream, callback) {
         // done  - 当 stream 传完所有数据时则变成 true
         // value - 数据片段。当 done 为 true 时始终为 undefined
         if (done) {
-            console.log('Stream complete', value)
-                // para.textContent = value;
+            // console.log('Stream complete', value)
+            // para.textContent = value;
             return
         }
         // value for fetch streams is a Uint8Array
@@ -295,7 +295,7 @@ export default class ChatGPT {
         const result = { role: 'assistant', content: '' }
             // console.log('params.stream', resp);
         await parseSSEResponse(resp, message => {
-            console.log('parseSSEResponse', message)
+            // console.log('parseSSEResponse', message)
             let isDone = false;
             if (message === '[DONE]') {
                 isDone = true;

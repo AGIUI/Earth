@@ -15,6 +15,29 @@ const display = [
 ]
 
 
+/**
+ * 角色库
+ */
+
+const roleAvatars = [
+    {
+        label: '工程师',
+        key: 'Engineer'
+    },
+    {
+        label: '设计师',
+        key: 'Designer'
+    }, {
+        label: '财务官',
+        key: 'Financial-Officer'
+    }, {
+        label: '执行官',
+        key: 'Executive-Officer'
+    }
+]
+
+
+
 const workflow = {
     "models": [
         {
@@ -246,7 +269,7 @@ const _DEFAULTCOMBO = {
 }
 
 const debugInfo = (prompt: any) => {
-    console.log('debugInfo',prompt)
+    console.log('debugInfo', prompt)
     let info = '';
     if (prompt.type == 'role') {
         info = `<p>${prompt.role.name}</p><br><p>${prompt.role.text}</p>`
@@ -284,5 +307,9 @@ const parsePrompt2ControlEvent = (prompt: any) => {
 }
 
 export {
-    workflow, defaultNode, comboOptions, _DEFAULTCOMBO, parsePrompt2ControlEvent
+    roleAvatars,
+    workflow, defaultNode,
+    comboOptions,
+    _DEFAULTCOMBO,
+    parsePrompt2ControlEvent
 }

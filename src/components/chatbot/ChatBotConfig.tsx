@@ -169,6 +169,16 @@ function createTalkData(type: string, json: any) {
                 html: ''
             }
             break;
+        case 'role-start':
+            const hi = json.name ? `hi我是${json.name}` : `hi，让我思考下`
+            data = {
+                type: 'suggest',
+                hi,
+                user: false,
+                html: json.html,
+                avatarUrl:json.avatarUrl
+            }
+            break;
         default:
             break;
     }

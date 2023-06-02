@@ -92,6 +92,8 @@ class Common {
 
                 if (cmd == 'open-options-page') chrome.runtime.openOptionsPage();
 
+                if (cmd == "combo-editor-refresh") this.sendMessage('combo-editor-refresh', true, {}, tabId)
+
                 // 在设置页面，输入token后确认服务是否可用
                 if (cmd == 'chat-bot-init') {
 

@@ -15,7 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 
-import { Button, Input, Checkbox, Card, Divider, Collapse } from 'antd';
+import { Button, Input, Checkbox, Card, Divider, Collapse, message } from 'antd';
 
 const { Panel: Panel0 } = Collapse;
 const { TextArea } = Input;
@@ -51,15 +51,15 @@ _DEFAULTCOMBO.app = _APP;
 // }
 
 
-declare const window: Window &
-  typeof globalThis & {
-    _brainwave_import: any,
-    _brainwave_get_current_node_for_workflow: any,
-    _brainwave_get_workflow_data: any,
-    _brainwave_save_callback: any,
-    _brainwave_save_callback_init: any,
-    _brainwave_debug_callback: any
-  }
+// declare const window: Window &
+//   typeof globalThis & {
+//     _brainwave_import: any,
+//     _brainwave_get_current_node_for_workflow: any,
+//     _brainwave_get_workflow_data: any,
+//     _brainwave_save_callback: any,
+//     _brainwave_save_callback_init: any,
+//     _brainwave_debug_callback: any
+//   }
 
 const selector = (state: RFState) => ({
   comboOptions: state.comboOptions,
@@ -91,12 +91,11 @@ const defaultEdgeOptions = { style: connectionLineStyle, type: 'brainwave' };
 
 function Flow(props: any) {
 
-  const { debug, loadData, isNew } = props;
+  const { debug, loadData, isNew, saveCallback } = props;
   // console.log('Flow isNew', isNew)
-  if (typeof (localStorage) !== 'undefined') localStorage.setItem('isNew', isNew ? '1' : '');
 
   const reactFlowInstance = useReactFlow();
-  const [isSaveCallback, setIsSaveCallback] = React.useState(false)
+
   // whenever you use multiple values, you should use shallow for making sure that the component only re-renders when one of the values change
   const {
     comboOptions,
@@ -227,6 +226,7 @@ function Flow(props: any) {
 
     return new Promise((res, rej) => {
       getItems('root', (result: any) => {
+        // console.log(result)
         const items = JSON.parse(JSON.stringify(result));
 
         // role节点赋予全部节点的role字段
@@ -273,11 +273,17 @@ function Flow(props: any) {
   }
 
   const save = () => {
-    if (typeof (window) !== 'undefined') {
-      if (window._brainwave_save_callback) {
-        window._brainwave_save_callback()
-      }
+    if (saveCallback) {
+      exportDataToEarth().then((res: any) => {
+        saveCallback(res)
+        // message.info('已保存')
+      })
     }
+    // if (typeof (window) !== 'undefined') {
+    //   if (window._brainwave_save_callback) {
+    //     window._brainwave_save_callback()
+    //   }
+    // }
   }
 
   const load = (json: any, debug: any) => {
@@ -317,11 +323,13 @@ function Flow(props: any) {
           p.role = { name: '', text: '' }
           p.input = 'default'
           p.output = 'default'
+          // role类型需求清空text字段
+          p.text = ""
           prompts.push(p);
         }
         if (combo[key]) prompts.push(combo[key])
       }
-      console.log('comboNew', comboNew, prompts)
+      // console.log('comboNew', comboNew, prompts)
 
       comboNew.combo = prompts.length;
       for (let index = 0; index < prompts.length; index++) {
@@ -335,6 +343,12 @@ function Flow(props: any) {
         const key = `prompt${index > 0 ? index + 1 : ''}`;
         if (comboNew[key]) {
           const id = index == 0 ? source : key + comboNew.id;
+
+          if (comboNew[key].type == 'role') {
+            // role类型需求清空text字段
+            comboNew[key].text = ""
+          }
+
           // node
           nodes.push({
             data: comboNew[key],
@@ -360,7 +374,7 @@ function Flow(props: any) {
         }
       }
 
-      console.log('newCombo', comboNew)
+      // console.log('newCombo', comboNew)
       newCombo(comboNew.id, comboNew.tag, comboNew.interfaces, nodes, edges, debug);
 
       clearLocalStore()
@@ -395,22 +409,11 @@ function Flow(props: any) {
     input.click();
   }
 
-  if (typeof (window) !== 'undefined') {
-    var timer = setTimeout(function () {
-      window._brainwave_import = load;
-      window._brainwave_get_current_node_for_workflow = () => {
-        const n = nodes.filter(n => n.selected)[0];
-        const combo = {
-          ..._DEFAULTCOMBO,
-          prompt: n.data,
-          createDate: (new Date()).getTime()
-        }
-        return combo
-      };
-      window._brainwave_get_workflow_data = () => exportDataToEarth();
-      window._brainwave_save_callback_init = () => setIsSaveCallback(true)
-    }, 200);
-  }
+  // if (typeof (window) !== 'undefined') {
+  //   var timer = setTimeout(function () {
+
+  //   }, 200);
+  // }
 
   const onSave = useCallback(() => {
     if (reactFlowInstance) {
@@ -445,16 +448,20 @@ function Flow(props: any) {
   const clearLocalStore = () => localStorage.setItem('flowKey', '{}');
 
   const onInit = (reactFlowInstance: ReactFlowInstance) => {
-    const isNew = localStorage.getItem('isNew');
-    // console.log('flow - - - - onInit', isNew)
+
+    if (typeof (localStorage) !== 'undefined' && loadData[0]) localStorage.setItem('loadDataId', loadData[0].id);
+
+    // const isNew = localStorage.getItem('isNew');
+    console.log('flow - - - - onInit', id)
     // isNew == "1" ? newWorkflow() : onRestore()
     // newWorkflow()
   }
 
   const onChange = () => {
-    // console.log('change')
+    console.log('flow - - - - onChange', id)
     // setInterval(()=>onSave(),3000)
     // setTimeout(() => onSave(), 200)
+    if (typeof (localStorage) !== 'undefined' && loadData[0]) localStorage.setItem('loadDataId', id);
   };
 
   useEffect(() => {
@@ -529,9 +536,7 @@ function Flow(props: any) {
               />
               <Divider dashed />
               <p>文件</p>
-              {
-                isSaveCallback ? <Button onClick={() => save()} style={{ marginRight: '24px' }}>保存</Button> : ''
-              }
+              {saveCallback ? <Button onClick={() => save()} style={{ marginRight: '24px' }}>保存</Button> : ''}
               <Button onClick={() => download()} style={{ marginRight: '24px' }}>导出</Button>
               <Button onClick={() => openMyCombo()} style={{ marginRight: '24px' }}>打开</Button>
             </Panel0>
@@ -543,9 +548,9 @@ function Flow(props: any) {
 }
 
 export default (props: any) => {
-  const { debug, loadData, isNew } = props;
+  const { debug, loadData, isNew, saveCallback } = props;
   return (<ReactFlowProvider >
-    <Flow debug={debug} loadData={loadData} isNew={isNew} />
+    <Flow debug={debug} loadData={loadData} isNew={isNew} saveCallback={saveCallback} />
   </ReactFlowProvider>)
 };
 

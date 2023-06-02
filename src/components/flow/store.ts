@@ -76,10 +76,12 @@ const useStore = create<RFState>((set, get) => ({
   },
   // 完成调试状态和节点的导入、初始化等
   newCombo: (id: string, tag: string, interfaces: any, ns: any, edges: any, debug: any) => {
+    const oId = get().id;
+    if (id == oId) return;
     set({
       nodes: [], edges: []
     });
-    console.log('newCombo - tag -debug', tag, interfaces,debug)
+    console.log('newCombo - tag -debug', tag, interfaces, debug)
 
     const nodes = [...Array.from(ns, (nd: any) => {
       nd.data = {
