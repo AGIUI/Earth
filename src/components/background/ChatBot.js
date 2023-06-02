@@ -206,7 +206,7 @@ class ChatBotBackground {
             //     type: 'ws',
             //     data: res
             //   })
-            console.log('doSendMessageForBg', args)
+            // console.log('doSendMessageForBg', args)
             if (args[1].type == 'ws') {
                 // 缓存下来
                 let data = args[1].data
@@ -323,7 +323,7 @@ class ChatBotBackground {
             createTime: result.createTime
         }
 
-        console.log('saveChatBotByPrompt', data, result)
+        // console.log('saveChatBotByPrompt', data, result)
         try {
             await chromeStorageSet(data)
         } catch (error) {
@@ -377,22 +377,22 @@ class ChatBotBackground {
 
     // 转化数据结构
     parseData(data) {
-        console.log('parseData', data)
-            // 对话数据
-            /**
-             *    tId,
-                  id: tId + 0,
-                  markdown: result,
-                  user:false,
-                  type: suggest 、markdown、urls 、 error、done ,+ start
-                  from:local、ws
-             */
+        // console.log('parseData', data)
+        // 对话数据
+        /**
+         *    tId,
+              id: tId + 0,
+              markdown: result,
+              user:false,
+              type: suggest 、markdown、urls 、 error、done ,+ start
+              from:local、ws
+         */
         let talks = [],
             morePrompts, moreLinks;
 
         if (data.data && data.data.type == 'DONE' && data.data.data && data.data.data.moreLinks) moreLinks = data.data.data.moreLinks;
         if (data.data && data.data.type == 'DONE' && data.data.data && data.data.data.morePrompts) morePrompts = data.data.data.morePrompts;
-        console.log('morePrompts, moreLinks', morePrompts, moreLinks)
+        // console.log('morePrompts, moreLinks', morePrompts, moreLinks)
 
         if (data.type == 'local') {
             // console.log('本地获取到了缓存,需要添加新建对话的建议', data)

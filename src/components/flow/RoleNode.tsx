@@ -6,6 +6,8 @@ import { DownOutlined, UserOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Option } = Select;
 
+import { roleAvatars } from './Workflow'
+
 export type NodeData = {
     role: any;
     debug: any;
@@ -153,36 +155,25 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
             text: '我是...'
         }
 
-        const handleMenuClick: any = (e: any) => {
-            // message.info('Click on menu item.');
-            console.log('click', e);
-        };
+        const items: any = Array.from(roleAvatars, (avatar: any) => {
+            return {
+                label: avatar.label,
+                key: avatar.key,
+                icon: <UserOutlined />,
+                disabled: !!avatar.disabled,
+                checked: avatar.key === role.avatar
+            }
+        });
 
-        const items: any = [
-            {
-                label: '工程师',
-                key: '1',
-                icon: <UserOutlined />,
-            },
-            {
-                label: '设计师',
-                key: '2',
-                icon: <UserOutlined />,
-            },
-            {
-                label: '财务官',
-                key: '3',
-                icon: <UserOutlined />,
-                danger: true,
-            },
-            {
-                label: '执行官',
-                key: '4',
-                icon: <UserOutlined />,
-                danger: true,
-                disabled: true,
-            },
-        ];
+        const avatarChecked = roleAvatars.filter((item: any) => item.key == role.avatar)[0];
+        const avatarCheckedLabel = avatarChecked && avatarChecked.label || '角色类型'
+
+        const handleMenuClick: any = (e: any) => {
+            // console.log('roleAvatars click', e);
+            updateRole({
+                key: 'avatar', data: e.key
+            })
+        };
 
         const menuProps: any = {
             items,
@@ -195,14 +186,14 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
             style={{ width: 300 }}>
             <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
 
-                {/* <Dropdown menu={menuProps}>
+                <Dropdown menu={menuProps}>
                     <Button>
                         <Space>
-                            职业
-                            <DownOutlined rev={undefined} />
+                            {avatarCheckedLabel}
+                            <DownOutlined />
                         </Space>
                     </Button>
-                </Dropdown> */}
+                </Dropdown>
 
                 {createName(keys['name'], role.name, updateRole)}
 

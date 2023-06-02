@@ -39,6 +39,54 @@ function chromeStorageSyncSet(json: any) {
     });
 }
 
+const sendMessageCanRetry = (cmd: any, data: any, erroCallback: any) => {
+    let start = false, count = 0;
+    const r = () => {
+        chrome.runtime.sendMessage({
+            cmd,
+            data
+        }, res => {
+            console.log('status', res.status)
+            start = true;
+        })
+
+        setTimeout(() => {
+            const tryInfo = '出错了，重试ing'
+            const info = "出错了，请重试"
+            if (start === false) {
+                console.log(tryInfo)
+                if (erroCallback) erroCallback({
+                    data,
+                    info: tryInfo,
+                    cmd
+                })
+                count++;
+                if (count > 10) {
+                    // message.info('出错了，请重试')
+                    console.log(info)
+                    if (erroCallback) erroCallback({
+                        data,
+                        info,
+                        cmd
+                    })
+                } else {
+                    //TODO 把上一条的对话输入，传过来
+                    r();
+                }
+            }
+        }, 2100)
+    }
+    r();
+}
+
+function checkImageUrl(url: string) {
+    return new Promise((res, rej) => {
+        const im = new Image()
+        im.src = url
+        im.onerror = () => res(false);
+        im.onload = () => res(true);
+    })
+}
 
 function md5(text: string) {
     return Md5.hashStr(text)
@@ -59,11 +107,11 @@ const parseUrl = () => {
 // from Bing,ChatGPT 初始化对话框 采用哪个引擎
 // const {  reader, fullscreen, userInput, from } = parseUrl();
 const getConfigFromUrl = () => {
-    const { reader, fullscreen, userInput, from, agents,databaseId, blockId } = parseUrl();
-    return { reader, fullscreen, userInput, from, agents,databaseId, blockId }
+    const { reader, fullscreen, userInput, from, agents, databaseId, blockId } = parseUrl();
+    return { reader, fullscreen, userInput, from, agents, databaseId, blockId }
 }
 
-const getConfig = () =>app
+const getConfig = () => app
 
 
 const textSplitByLength = (text: string, length: number) => {
@@ -120,5 +168,7 @@ export {
     parseUrl,
     getConfig,
     getConfigFromUrl,
-    textSplitByLength
+    textSplitByLength,
+    sendMessageCanRetry,
+    checkImageUrl
 }

@@ -109,7 +109,14 @@ function addCss() {
     margin: 8px 4px!important;
     line-height: 24px!important; 
 }
- 
+ .chatbot-role-card{
+  background: black;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 300;
+ }
  .chatbot-suggest span{
     color: white!important;
 }

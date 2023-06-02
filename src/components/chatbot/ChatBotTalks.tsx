@@ -9,9 +9,11 @@ import ChatBotConfig from "./ChatBotConfig";
 
 import PPT from "@components/files/PPT"
 
+
 /** < ChatBotTalks  callback={} items={}/>
  * 
  * export 是否允许导出
+ * avatarUrl 类型suggest，新增此字段，显示角色头像
  * 
  * items:[{
             type, user, html, buttons,export
@@ -51,6 +53,7 @@ import PPT from "@components/files/PPT"
     {
         type: 'suggest',
         hi:'hi 我可以为你梳理当前页面的知识',
+        avatarUrl:'',
         buttons: [{
             from: 'combo'// ,
             data: {
@@ -153,7 +156,9 @@ const thinkingBtn = (name = '思考中') => <Button type="dashed"
     loading disabled
 >{name}</Button>
 
-const suggestBtn = (i: string, name: string, callback: any) => <Button key={i} type="primary"
+const suggestBtn = (i: string, name: string, callback: any) => <Button
+    key={i}
+    type="primary"
     style={{
         background: '#1677ff',
         // border: 'none',
@@ -222,21 +227,27 @@ const createPPT = (data: any) => {
 
 const createListItem = (data: any, index: number, debug: boolean) => {
 
-    return <div style={{ margin: '5px 0' }}>{
+    return <div style={{ margin: '5px 0' }} className={`chatbot-talk-card-${data.type}`}>{
         // 状态判断：思考、建议选项、对话
         data.type == 'thinking' ? thinkingBtn(data.hi) : (
             data.type == 'suggest' ? <>
                 {
-                    data.buttons
-                        && data.buttons.length > 0
-                        && data.hi ?
-                        createAvatar(data.avatar || chrome.runtime.getURL('public/icon-34.png'), data.hi) : ''
+                    data.hi ?
+                        createAvatar(data.avatarUrl || chrome.runtime.getURL('public/icon-34.png'), data.hi) : ''
+                }
+                {
+                    data.html ?
+                        <p
+                            style={createTalkBubbleStyle(false)}
+                            className={`chatbot-text-bubble`}
+                            key={index}
+                            dangerouslySetInnerHTML={{ __html: data.html }}>
+                        </p> : ''
                 }
                 {
                     data.buttons && data.buttons.length > 0 ? Array.from(
                         data.buttons,
                         (button: any, i) => {
-                            // console.log('button',button)
                             return suggestBtn(i + '', button.name, () => button.callback && button.callback())
                         }
                     ) : ''

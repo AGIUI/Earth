@@ -1,7 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { message } from 'antd';
-import { getConfig, chromeStorageGet, chromeStorageSet } from "@components/Utils"
+import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry } from "@components/Utils"
 import Flow from '@components/flow/index'
 import Main from "@pages/content/Main";
 
@@ -43,6 +43,7 @@ function saveCombos(combos: any = []) {
     }
     chromeStorageSet({ 'user': newUser });
     message.info('已保存');
+    // sendMessageCanRetry('combo-editor-refresh', {}, console.log)
   });
 }
 
@@ -88,36 +89,6 @@ function options() {
     }
   })
 
-  if (typeof (window) !== 'undefined') {
-    var timer = setTimeout(function () {
-      window._brainwave_save_callback_init();
-      window._brainwave_save_callback = () => {
-        window._brainwave_get_workflow_data().then((combo: any) => {
-          saveCombos([combo])
-        })
-      };
-      window._brainwave_debug_callback = () => {
-
-        // chrome.runtime.sendMessage({
-        //   cmd: 'open-insight'
-        // }, res => console.log('open-insight', res))
-        setTimeout(() => {
-          const combo = window._brainwave_get_current_node_for_workflow();
-          const d = {
-            '_combo': combo,
-            from: 'brainwave',
-            prompt: combo.prompt,
-            tag: combo.tag,
-            newTalk: true,
-            autoRun: true,
-            id: (new Date()).getTime()
-          }
-          setDebugData(d)
-        }, 500)
-
-      }
-    }, 1000);
-  }
 
   const chatbotCallbacks = (event: any) => {
     const { cmd, data } = event;
@@ -135,14 +106,18 @@ function options() {
       loadData={loadData}
       debug={{
         callback: (event: any) => {
-          console.log('debug-callback-from-parent', event)
-          if(event)  setTimeout(() => {
+          // console.log('debug-callback-from-parent', event)
+          if (event) setTimeout(() => {
             setDebugData(event)
           }, 100)
         },
         open: true
       }}
       isNew={isNew}
+      saveCallback={
+        (combo: any) => saveCombos([combo])
+      }
+
     />
     <Main
       className="_agi_ui"
