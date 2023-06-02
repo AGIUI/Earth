@@ -128,7 +128,7 @@ const Content: any = styled(Flex)`
 const createAvatar = (avatar: string, text = 'Data Not Found') => (
     <div style={{ textAlign: 'left', marginTop: '10px' }}>
         <img src={avatar} className="logo" style={{
-            width: '35px !important',
+            width: '35px',
             height: 'fit-content!important'
         }} />
         {/* <SmileOutlined style={{ fontSize: 20 }} /> */}
@@ -238,8 +238,7 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                 {
                     data.html ?
                         <p
-                            style={createTalkBubbleStyle(false)}
-                            className={`chatbot-text-bubble`}
+                            style={{ ...createTalkBubbleStyle(false), background: 'transparent' }}
                             key={index}
                             dangerouslySetInnerHTML={{ __html: data.html }}>
                         </p> : ''

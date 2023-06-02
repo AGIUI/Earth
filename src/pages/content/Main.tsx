@@ -18,7 +18,8 @@ import {
     extractDomElement,
     promptParse,
     promptUseLastTalk,
-    promptBindRole
+    promptBindRole,
+    bindUserInput
 } from '@src/components/combo/Prompt'
 
 import { highlightText } from "@components/combo/Agent"
@@ -32,6 +33,8 @@ import PDF from '@components/files/PDF'
 
 import { chromeStorageGet, chromeStorageSet, sendMessageCanRetry, checkImageUrl } from "@components/Utils"
 import { message } from 'antd';
+
+// checkClipboard()
 
 declare const window: Window &
     typeof globalThis & {
@@ -62,6 +65,23 @@ const getPromptsData = async (keys = ['user']) => {
 
 
 const Talks = {
+    filter: (talks: any) => {
+        let countSuggest = talks.filter((t: any) => t.type == 'suggest').length;
+        let newTalks = [];
+        for (const t of [...talks]) {
+            if (t) {
+                if (t.type == "suggest") countSuggest--;
+                if (t.type == 'suggest' && countSuggest == 0) {
+                    newTalks.push(t);
+                } else if (t.type == 'talk' || t.type == 'markdown' || t.type == 'done' || t.type == 'images') {
+                    newTalks.push(t);
+                }
+            }
+
+        }
+        // const nt = [...talks].filter((t: any) => t.type == 'suggest' || t.type == 'talk' || t.type == 'markdown' || t.type == 'done' || t.type == 'images');
+        return newTalks
+    },
     save: (value: any) => {
         // console.log(value)
         let talks = Array.from(value, (v: any, index: number) => {
@@ -94,8 +114,8 @@ const Talks = {
     get: async () => {
         let data: any = await chromeStorageGet(['_currentTalks'])
         if (data && data['_currentTalks'] && data['_currentTalks'].talks) {
-            // 只保留type==markdown talk
-            const talks = data['_currentTalks'].talks.filter((t: any) => t.type == 'talk' || t.type == 'markdown' || t.type == 'done' || t.type == 'images')
+            // 只保留type==markdown talk            
+            const talks = Talks.filter(data['_currentTalks'].talks)
             return talks
         };
         return []
@@ -500,7 +520,7 @@ class Main extends React.Component<{
                 talks.push(talk);
             }
 
-            talks = talks.filter((t: any) => t)
+            talks = Talks.filter(talks);
             if (talks.length > 0) this.setState({
                 talks
             })
@@ -1031,6 +1051,9 @@ class Main extends React.Component<{
             console.log('_control:', nTalks, cmd, data)
 
             const sendTalk = async () => {
+
+                this.updateChatBotStatus(true);
+
                 let combo = data._combo ? data._combo.combo : -1;
                 let { prompt, tag, newTalk, from, prePrompt, debugInfo } = data;
                 // from : combo ,chatbot-input,comboEditor,debug
@@ -1041,13 +1064,10 @@ class Main extends React.Component<{
                 /**
                  * ::start 对话界面的信息处理
                  */
-                // 清空type thinking && suggest 的状态
-                nTalks = nTalks.filter(n => n && (n.type == 'talk' || n.type == 'markdown' || n.type == 'done' || n.type == 'images'))
-                this.updateChatBotStatus(true);
 
                 // role需要显示对应的avatar
-                console.log('role需要显示对应的avatar', prompt)
-                if (prompt.role && (prompt.role.name || prompt.role.text)) {
+                console.log('role需要显示对应的avatar', prompt, this.state.PromptIndex)
+                if (this.state.PromptIndex <= 1 && prompt.role && (prompt.role.name || prompt.role.text)) {
 
                     let avatarUrl = prompt.role.avatar ? chrome.runtime.getURL(`public/avatars/${prompt.role.avatar}.png`) : ''
                     const isAvatarUrl = await checkImageUrl(avatarUrl);
@@ -1061,7 +1081,7 @@ class Main extends React.Component<{
                                 html: `<p class="chatbot-role-card">${prompt.role.text}</p>`,
                             }
                         ));
-                    console.log(nTalks)
+                    // console.log(nTalks)
                 }
 
                 if (from !== 'debug' && tag) {
@@ -1080,16 +1100,14 @@ class Main extends React.Component<{
                             }));
                 };
 
+                // 清空type thinking 的状态
+                nTalks = Talks.filter(nTalks)
+
                 // 增加思考状态
                 nTalks.push(ChatBotConfig.createTalkData('thinking', {}));
 
-
-                nTalks = nTalks.filter(t => t)
-                // console.log("nTalks filter", nTalks);
-
                 // 把对话内容保存到本地
                 Talks.save(nTalks)
-
 
                 this.setState({
                     userInput: {
@@ -1109,6 +1127,9 @@ class Main extends React.Component<{
 
                 // combo>0从comboor对话流里运行
                 // combo==-1 用户对话框里的输入
+
+                // userinput的初始化
+                prompt.text = bindUserInput(prompt.text);
 
                 // role的处理
                 if (prompt.role && (prompt.role.name || prompt.role.text)) {
@@ -1461,7 +1482,7 @@ class Main extends React.Component<{
 
         // 聊天服务无效,补充提示
         if (!this.state.chatBotIsAvailable && activeIndex == -1) {
-            talks = talks.filter((d: any) => d.type == 'markdown' || d.type == 'talk' || d.type == 'done' || d.type == 'images');
+            talks = Talks.filter(talks)
             talks.push(ChatBotConfig.createTalkData('chatbot-is-available-false', {
                 hi: this.state.chatBotType
             }))

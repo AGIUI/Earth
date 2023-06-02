@@ -109,10 +109,11 @@ const createUrl = (key: string, title: string, json: any, onChange: any) => {
       placeholder={`请填写url`}
       defaultValue={url}
       onChange={(e: any) => {
+        // console.log('input url',e)
         onChange({
           key,
           data: {
-            ...json, url: e
+            ...json, url: e.target.value
           }
         })
       }}

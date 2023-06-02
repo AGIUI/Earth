@@ -110,8 +110,8 @@ function addCss() {
     line-height: 24px!important; 
 }
  .chatbot-role-card{
-  background: black;
-    color: white;
+    background: black;
+    color: white!important;
     padding: 12px;
     border-radius: 6px;
     font-size: 12px;
@@ -120,6 +120,7 @@ function addCss() {
  .chatbot-suggest span{
     color: white!important;
 }
+
  .chatbot-error{
 }
  .chatbot-text-bubble-user{
