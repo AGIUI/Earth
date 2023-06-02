@@ -1066,7 +1066,7 @@ class Main extends React.Component<{
                  */
 
                 // role需要显示对应的avatar
-                console.log('role需要显示对应的avatar', prompt, this.state.PromptIndex)
+                // console.log('role需要显示对应的avatar', prompt, this.state.PromptIndex)
                 if (this.state.PromptIndex <= 1 && prompt.role && (prompt.role.name || prompt.role.text)) {
 
                     let avatarUrl = prompt.role.avatar ? chrome.runtime.getURL(`public/avatars/${prompt.role.avatar}.png`) : ''
@@ -1185,6 +1185,12 @@ class Main extends React.Component<{
 
                 // 标记当前执行状态，以及下一条
                 const currentCombo = { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex }
+
+                // 提取 <lastTalk> 里的传给api\send-to-zsxq\query
+                let d = document.createElement('div');
+                d.innerHTML = prompt.text;
+                const t: any = d.querySelector('lastTalk');
+                prompt.text = t?.innerText || ''
 
                 if (prompt.type === 'query') this._agentQueryRun(prompt.queryObj, currentCombo);
 

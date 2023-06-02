@@ -226,7 +226,7 @@ function Flow(props: any) {
 
     return new Promise((res, rej) => {
       getItems('root', (result: any) => {
-        console.log(result)
+        // console.log(result)
         const items = JSON.parse(JSON.stringify(result));
 
         // role节点赋予全部节点的role字段
