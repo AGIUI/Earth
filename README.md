@@ -123,6 +123,8 @@ v0.3.3
 
 - 集成 [brainwave v0.1](https://github.com/AGIUI/BrainWave)
 
+- 右键菜单功能的完善
+
 
 ## TODO
 
