@@ -347,8 +347,7 @@ class Setup extends React.Component<{
                     // flex: 1,
                     padding: '25px',
                     height: 'calc(100% - 80px)',
-                    overflowY: 'scroll',
-                    // paddingBottom: '100px'
+                    overflowY: 'auto',
                 }}
 
                 extra={<div>

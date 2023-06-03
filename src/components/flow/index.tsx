@@ -15,7 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 
-import { Button, Input, Checkbox, Card, Divider, Collapse, message } from 'antd';
+import { Button, Input, Checkbox, Card, Divider, Collapse, message,Space } from 'antd';
 
 const { Panel: Panel0 } = Collapse;
 const { TextArea } = Input;
@@ -338,7 +338,7 @@ function Flow(props: any) {
       }
       // ----- 如果没有role，则在第一个新加一个role节点
 
-      // 
+      //
       for (let index = 0; index < comboNew.combo; index++) {
         const key = `prompt${index > 0 ? index + 1 : ''}`;
         if (comboNew[key]) {
@@ -500,8 +500,8 @@ function Flow(props: any) {
       onInit={onInit}
       onChange={onChange}
     >
-      <Controls position={'bottom-left'} />
-      <MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable inversePan={false} ariaLabel={null} />
+      <Controls style={{display: 'flex', flexDirection: 'row'}} position={'bottom-center'}/>
+      {/*<MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable inversePan={false} ariaLabel={null} />*/}
       <Background variant={variant} />
 
       {/* <Panel position="top-left">
@@ -511,34 +511,38 @@ function Flow(props: any) {
 
 
       <Panel position="top-right">
-        <Card style={{ width: '300px' }}
+        <Card
           bodyStyle={{
-            paddingTop: '8px',
-            paddingBottom: '8px'
+            padding: 10
           }}
         >
           <Collapse ghost size="small">
             <Panel0 header="菜单" key="1">
-              <p>名称</p>
-              <TextArea placeholder="输入名称..."
-                autoSize
-                value={tag}
-                onChange={(e: any) => onTagChange(e.target.value)}
-              />
-              <p>Interfaces</p>
+              <Space direction="horizontal" style={{width: '100%'}} size={"small"}>
+                <span style={{fontWeight:"bold"}}>工作流名称</span>
+                <Input placeholder="输入名称..."
+                       name={"标题"}
+                       value={tag}
+                       onChange={(e: any) => onTagChange(e.target.value)}
+                />
+              </Space>
+              <p style={{fontWeight: "bold"}}>设置选项</p>
               <Checkbox.Group
-                options={comboOptions}
-                value={
-                  Array.from(comboOptions,
-                    (c: any) => c.checked ? c.value : null)
-                    .filter(f => f)}
-                onChange={onComboOptionsChange}
+                  options={comboOptions}
+                  value={
+                    Array.from(comboOptions,
+                        (c: any) => c.checked ? c.value : null)
+                        .filter(f => f)}
+                  onChange={onComboOptionsChange}
               />
-              <Divider dashed />
-              <p>文件</p>
-              {saveCallback ? <Button onClick={() => save()} style={{ marginRight: '24px' }}>保存</Button> : ''}
-              <Button onClick={() => download()} style={{ marginRight: '24px' }}>导出</Button>
-              <Button onClick={() => openMyCombo()} style={{ marginRight: '24px' }}>打开</Button>
+              <Divider dashed/>
+              <div style={{display: 'flex', justifyContent: 'flex-end'}}>
+                <Button onClick={() => openMyCombo()} style={{marginRight: '10px'}}>导入</Button>
+                <Button onClick={() => download()} style={{marginRight: '10px'}}>下载</Button>
+                <Button danger style={{marginRight: '10px'}}>删除</Button>
+                {saveCallback ?
+                    <Button type={"primary"} onClick={() => save()}>保存</Button> : ''}
+              </div>
             </Panel0>
           </Collapse>
         </Card>
