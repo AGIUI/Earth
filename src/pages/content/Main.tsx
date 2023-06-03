@@ -1050,7 +1050,7 @@ class Main extends React.Component<{
             // 更新到这里
             let nTalks = [...talks].filter(t => t);
 
-            console.log('_control:', nTalks, cmd, data)
+            // console.log('_control:', nTalks, cmd, data)
 
             const sendTalk = async () => {
 
