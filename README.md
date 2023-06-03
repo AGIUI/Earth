@@ -141,6 +141,8 @@ v0.3.3
 
 ## 相关资料：
 
+[AGIUI 研讨会](https://m.bilibili.com/video/BV1a24y1P7Qg)
+
 [视频demo](https://space.bilibili.com/540054369)
 
 [如何构建属于自己的知识引擎？](https://mp.weixin.qq.com/s/W6wjg8873gNci2vcZhamGg)
