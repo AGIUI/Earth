@@ -190,6 +190,7 @@ const sendMessageToBackground = {
     'open-url': (data: any) => sendMessageCanRetry('open-url', data, console.log),
     'api-run': (data: any) => sendMessageCanRetry('api-run', data, console.log),
     'open-options-page': (data: any) => sendMessageCanRetry('open-options-page', data, console.log),
+    'hi': (data: any) => sendMessageCanRetry('hi', data, console.log),
 }
 
 
@@ -458,7 +459,9 @@ class Main extends React.Component<{
         window.onfocus = (e) => {
             if (document.readyState == 'complete') {
                 // console.log('激活状态！')
-                this._updateCurrentTalks()
+                this._updateCurrentTalks();
+                // 保持后台连接
+                sendMessageToBackground['hi']({})
             }
         }
 
@@ -469,7 +472,8 @@ class Main extends React.Component<{
 
             } else {
                 // 刷新combo编辑器的数据
-                !this.state.showEdit && !this.state.loadingChatBot && this.state.openMyPrompts && this._comboEditorRefresh()
+                !this.state.showEdit && !this.state.loadingChatBot && this.state.openMyPrompts && this._comboEditorRefresh();
+                sendMessageToBackground['hi']({});
             }
         }, false);
 
@@ -500,9 +504,7 @@ class Main extends React.Component<{
         userSelectionInit();
 
 
-        chrome.runtime.sendMessage({
-            cmd: 'hi'
-        }, res => console.log('hi status', res))
+
 
     }
 
