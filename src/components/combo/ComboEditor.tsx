@@ -112,12 +112,12 @@ class ComboEditor extends React.Component {
         // this.destroyConnection();
     }
 
-    _delete(prompt: any) {
-        console.log('_delete', prompt)
-        this.props.callback({
-            cmd: 'delete-combo-confirm', data: { prompt, from: 'combo-editor' }
-        })
-    }
+    // _delete(prompt: any) {
+    //     console.log('_delete', prompt)
+    //     this.props.callback({
+    //         cmd: 'delete-combo-confirm', data: { prompt, from: 'combo-editor' }
+    //     })
+    // }
 
     _comboHandle(combo: any, from: string) {
         if (this.props.callback) this.props.callback({
@@ -302,21 +302,21 @@ class ComboEditor extends React.Component {
                                             marginBottom: 10
                                         }}
                                         actions={[
-                                            <Popconfirm
-                                                placement="bottomRight"
-                                                title={'确定删除Prompt？'}
-                                                onConfirm={() => this._delete(p)}
-                                                okText="是的"
-                                                cancelText="取消"
-                                                zIndex={100000000}
-                                            >
-                                                <Button danger
-                                                    style={{ color: '#grey', border: "none", boxShadow: "none" }}
-                                                >
-                                                    删除
-                                                </Button>
+                                            // <Popconfirm
+                                            //     placement="bottomRight"
+                                            //     title={'确定删除Prompt？'}
+                                            //     onConfirm={() => this._delete(p)}
+                                            //     okText="是的"
+                                            //     cancelText="取消"
+                                            //     zIndex={100000000}
+                                            // >
+                                            //     <Button danger
+                                            //         style={{ color: '#grey', border: "none", boxShadow: "none" }}
+                                            //     >
+                                            //         删除
+                                            //     </Button>
 
-                                            </Popconfirm>
+                                            // </Popconfirm>
                                             ,
                                             <Button
                                                 onClick={(event: any) => this._showModal(event, p)}

@@ -15,7 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 
-import { Button, Input, Checkbox, Card, Divider, Collapse, message,Space } from 'antd';
+import { Button, Input, Checkbox, Card, Divider, Collapse, Popconfirm, Space } from 'antd';
 
 const { Panel: Panel0 } = Collapse;
 const { TextArea } = Input;
@@ -91,7 +91,7 @@ const defaultEdgeOptions = { style: connectionLineStyle, type: 'brainwave' };
 
 function Flow(props: any) {
 
-  const { debug, loadData, isNew, saveCallback } = props;
+  const { debug, loadData, isNew, saveCallback, deleteCallback } = props;
   // console.log('Flow isNew', isNew)
 
   const reactFlowInstance = useReactFlow();
@@ -382,6 +382,9 @@ function Flow(props: any) {
     }
   }
 
+  const deleteMyCombo = (comboId: string) => {
+    if (deleteCallback) deleteCallback(comboId)
+  }
 
   const openMyCombo = () => {
     const currentNodes = nodes;
@@ -500,7 +503,7 @@ function Flow(props: any) {
       onInit={onInit}
       onChange={onChange}
     >
-      <Controls style={{display: 'flex', flexDirection: 'row'}} position={'bottom-center'}/>
+      <Controls style={{ display: 'flex', flexDirection: 'row' }} position={'bottom-center'} />
       {/*<MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable inversePan={false} ariaLabel={null} />*/}
       <Background variant={variant} />
 
@@ -518,30 +521,51 @@ function Flow(props: any) {
         >
           <Collapse ghost size="small">
             <Panel0 header="菜单" key="1">
-              <Space direction="horizontal" style={{width: '100%'}} size={"small"}>
-                <span style={{fontWeight:"bold"}}>工作流名称</span>
+              <Space direction="horizontal" style={{ width: '100%' }} size={"small"}>
+                <span style={{ fontWeight: "bold" }}>工作流名称</span>
                 <Input placeholder="输入名称..."
-                       name={"标题"}
-                       value={tag}
-                       onChange={(e: any) => onTagChange(e.target.value)}
+                  name={"标题"}
+                  value={tag}
+                  onChange={(e: any) => onTagChange(e.target.value)}
                 />
               </Space>
-              <p style={{fontWeight: "bold"}}>设置选项</p>
+              <p style={{ fontWeight: "bold" }}>设置选项</p>
               <Checkbox.Group
-                  options={comboOptions}
-                  value={
-                    Array.from(comboOptions,
-                        (c: any) => c.checked ? c.value : null)
-                        .filter(f => f)}
-                  onChange={onComboOptionsChange}
+                options={comboOptions}
+                value={
+                  Array.from(comboOptions,
+                    (c: any) => c.checked ? c.value : null)
+                    .filter(f => f)}
+                onChange={onComboOptionsChange}
               />
-              <Divider dashed/>
-              <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-                <Button onClick={() => openMyCombo()} style={{marginRight: '10px'}}>导入</Button>
-                <Button onClick={() => download()} style={{marginRight: '10px'}}>下载</Button>
-                <Button danger style={{marginRight: '10px'}}>删除</Button>
+              <Divider dashed />
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button onClick={() => openMyCombo()} style={{ marginRight: '10px' }}>导入</Button>
+                <Button onClick={() => download()} style={{ marginRight: '10px' }}>下载</Button>
+                {deleteCallback ? <Popconfirm
+                  placement="bottomRight"
+                  title={'确定删除Prompt？'}
+                  onConfirm={() => deleteMyCombo(id)}
+
+                  okText="是的"
+                  cancelText="取消"
+                  zIndex={100000000}
+                >
+                  <Button danger
+                    style={{ marginRight: '10px' }}
+                  >
+                    删除
+                  </Button>
+
+                </Popconfirm> : ''}
+
+                {/* <Button 
+                danger 
+                style={{marginRight: '10px'}}
+                onClick={()=>deleteMyCombo()}
+                >删除</Button> */}
                 {saveCallback ?
-                    <Button type={"primary"} onClick={() => save()}>保存</Button> : ''}
+                  <Button type={"primary"} onClick={() => save()}>保存</Button> : ''}
               </div>
             </Panel0>
           </Collapse>
@@ -552,9 +576,9 @@ function Flow(props: any) {
 }
 
 export default (props: any) => {
-  const { debug, loadData, isNew, saveCallback } = props;
+  const { debug, loadData, isNew, saveCallback, deleteCallback } = props;
   return (<ReactFlowProvider >
-    <Flow debug={debug} loadData={loadData} isNew={isNew} saveCallback={saveCallback} />
+    <Flow debug={debug} loadData={loadData} isNew={isNew} saveCallback={saveCallback} deleteCallback={deleteCallback} />
   </ReactFlowProvider>)
 };
 
