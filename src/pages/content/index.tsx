@@ -142,6 +142,20 @@ function addCss() {
     width: 0;
     content: "" !important;
   }
+  
+  .ant-card-body::-webkit-scrollbar{
+      width:2px;
+    }
+  .ant-card-body::-webkit-scrollbar-track{
+      border-radius:25px;
+      -webkit-box-shadow:inset 0 0 5px rgba(255,255,255, 0.5);
+      background:rgba(255,255,255, 0.5);
+    }
+  .ant-card-body::-webkit-scrollbar-thumb{
+      border-radius:15px;
+      -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
+      background:rgba(0, 0,0, 0.2);
+    }
   `
   dom.appendChild(s);
 
