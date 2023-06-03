@@ -70,7 +70,7 @@ async function loadContextMenuData() {
     });
 
     chrome.contextMenus.create({
-        id: 'toggle-insight',
+        id: 'open-insight',
         title: "打开面板",
         type: 'normal',
 
@@ -173,11 +173,11 @@ async function loadContextMenuData() {
     //     let isNew = true
     //     for (let command of commands) {
     //         // console.log('command', command)
-    //         if (command.name == 'toggle-insight') isNew = false
+    //         if (command.name == 'open-insight') isNew = false
     //     }
     //     if (isNew) {
     //         chrome.contextMenus.create({
-    //             id: 'toggle-insight',
+    //             id: 'open-insight',
     //             title: json.app,
     //             type: 'normal',
     //             contexts: ['page']
@@ -216,10 +216,10 @@ async function loadContextMenuData() {
         const id = item.menuItemId
         if (!tab.url.match('http')) return
 
-        if (id === 'toggle-insight') {
+        if (id === 'open-insight') {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd: 'toggle-insight',
+                    cmd: 'open-insight',
                     success: true,
                     data: true
                 },
@@ -230,7 +230,7 @@ async function loadContextMenuData() {
         } else {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd: 'toggle-insight',
+                    cmd: 'open-insight',
                     success: true,
                     data: true
                 },

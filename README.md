@@ -121,6 +121,9 @@ v0.3.3
 
 - 裁剪文本长度的优化（感谢[@nem035/gpt-3-encoder](https://www.npmjs.com/package/@nem035/gpt-3-encoder)）
 
+- 集成 [brainwave v0.1](https://github.com/AGIUI/BrainWave)
+
+- 右键菜单功能的完善
 
 
 ## TODO

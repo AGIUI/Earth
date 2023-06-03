@@ -916,14 +916,15 @@ class ComboModal extends React.Component {
 
             <Modal
                 width={720}
-                zIndex={900}
+                zIndex={99999999}
                 maskClosable={false}
                 title="添加Prompts"
                 open={true}
                 onOk={() => this._onFinish()}
                 onCancel={() => this._handleCancel()}
                 footer={null}
-                style={{ top: 20, userSelect: 'none' }}
+                centered={true}
+                style={{ userSelect: 'none' }}
             >
                 <Form1
                     name="promptsForm"
@@ -986,7 +987,7 @@ class ComboModal extends React.Component {
                             onConfirm={() => this._deleteConfirm(promptValue)}
                             okText="是的"
                             cancelText="取消"
-                            zIndex={1250}
+                            zIndex={100000000}
                         >
                             <Button danger>删除</Button>
                         </Popconfirm>

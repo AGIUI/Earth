@@ -4,7 +4,7 @@ import {
     Button,
     Typography,
     Tag,
-    List, Empty,
+    List, Empty, Popconfirm
 } from 'antd';
 
 const { Text } = Typography;
@@ -21,6 +21,7 @@ import { FlexRow } from "@components/Style";
 import OpenFileButton from "@components/buttons/OpenFileButton";
 
 import styled from 'styled-components';
+import CloseButton from "@components/buttons/CloseButton";
 
 const Base: any = styled.div`
     & .ant-card-body::-webkit-scrollbar{
@@ -73,7 +74,7 @@ class ComboEditor extends React.Component {
         super(props);
         this.state = {
             name: 'comboEditor',
-            secondTitle: '我的Prompts',
+            secondTitle: '我的工作流',
             myPrompts: this.props.myPrompts,
             showImportModal: false,
             version: '',
@@ -111,12 +112,20 @@ class ComboEditor extends React.Component {
         // this.destroyConnection();
     }
 
+    // _delete(prompt: any) {
+    //     console.log('_delete', prompt)
+    //     this.props.callback({
+    //         cmd: 'delete-combo-confirm', data: { prompt, from: 'combo-editor' }
+    //     })
+    // }
+
     _comboHandle(combo: any, from: string) {
         if (this.props.callback) this.props.callback({
             cmd: 'combo',
             data: {
                 '_combo': combo,
-                from, prompt: combo.prompt,
+                from,
+                prompt: combo.prompt,
                 tag: combo.tag,
                 newTalk: true
             }
@@ -124,12 +133,14 @@ class ComboEditor extends React.Component {
     }
 
     _showModal(event: React.MouseEvent<HTMLButtonElement>, prompt: any) {
+        const isNew = !!prompt.isNew;
         const data = {
             prompt: {
                 ...defaultCombo,
                 ...prompt
             },
-            from: 'combo-editor'
+            from: 'combo-editor',
+            isNew
         }
         // console.log('_showModal', data)
         event.stopPropagation();
@@ -224,31 +235,22 @@ class ComboEditor extends React.Component {
                 headStyle={{
                     userSelect: 'none',
                     border: 'none',
+                    height: '80px',
                     fontSize: 24,
                     fontWeight: "bold",
-                    paddingTop: 16
                 }}
                 bodyStyle={{
                     // flex: 1,
-                    padding: '24px 24px 8px 24px',
-                    height: '100%',
-                    overflowY: 'scroll',
-                    paddingBottom: '99px'
+                    height: 'calc(100% - 80px)',
+                    paddingTop: 0,
                 }}
 
                 extra={<div>
-                    <Button
-                        style={{
-                            outline: 'none',
-                            border: 'none',
-                            margin: '0px 0px 0px 5px',
-                            boxShadow: 'none'
-                        }}
-                        onClick={
-                            () => this.props.callback && this.props.callback({ cmd: 'close-combo-editor' })
-                        }
-                        icon={<CloseOutlined style={{ fontSize: 20 }} />}
-                    />
+                    <CloseButton
+                        disabled={false}
+                        callback={() => this.props.callback({
+                            cmd: 'close-combo-editor'
+                        })} />
                 </div>}
 
                 style={{
@@ -266,12 +268,15 @@ class ComboEditor extends React.Component {
                 }}>
 
 
-                    <FlexRow display="flex">
-                        <Text style={{ fontSize: 20, fontWeight: "bold" }}>{this.state.secondTitle}</Text>
+                    <FlexRow display="flex"
+                        style={{ "marginBottom": "10px" }}
+                    >
+                        <Text style={{ fontSize: 20, fontWeight: "bold", color: "black" }}>{this.state.secondTitle}</Text>
                         <div>
 
                             <DownloadButton
                                 disabled={false}
+                                style={{ marginRight: 10 }}
                                 callback={() => this._downloadMyCombo(this.state.myPrompts.filter((p: any) => p.owner != 'official'))} />
                             <OpenFileButton
                                 disabled={false}
@@ -292,26 +297,43 @@ class ComboEditor extends React.Component {
                                             borderColor: '#d9d9d9',
                                             borderStyle: 'solid',
                                             borderRadius: 5,
-                                            paddingTop: 15,
-                                            paddingBottom: 15,
-                                            paddingLeft: 10,
-                                            paddingRight: 10,
+                                            padding: "5px 0 5px 10px",
                                             marginTop: 10,
                                             marginBottom: 10
                                         }}
                                         actions={[
+                                            // <Popconfirm
+                                            //     placement="bottomRight"
+                                            //     title={'确定删除Prompt？'}
+                                            //     onConfirm={() => this._delete(p)}
+                                            //     okText="是的"
+                                            //     cancelText="取消"
+                                            //     zIndex={100000000}
+                                            // >
+                                            //     <Button danger
+                                            //         style={{ color: '#grey', border: "none", boxShadow: "none" }}
+                                            //     >
+                                            //         删除
+                                            //     </Button>
+
+                                            // </Popconfirm>
+                                            ,
                                             <Button
                                                 onClick={(event: any) => this._showModal(event, p)}
                                                 key={'edit'}
-                                                type={'text'}
+                                                type={"text"}
+                                                style={{ color: '#grey', border: "none", boxShadow: "none" }}
                                             >
                                                 编辑
                                             </Button>,
-                                            <Button onClick={() => this._comboHandle(p, "getPromptPage")}
+                                            <Button
+                                                type={"primary"}
+                                                style={{ background: '#1677ff' }}
+                                                onClick={() => this._comboHandle(p, "comboEditor")}
                                             >运行</Button>
                                         ]}
                                     >
-                                        <Text style={{ fontWeight: 'bold' }}>
+                                        <Text style={{ fontWeight: 'bold', color: "black" }}>
                                             {p.tag}
                                             {
                                                 p.combo > 1 ? (
@@ -329,8 +351,12 @@ class ComboEditor extends React.Component {
                 </div>
                 <Button size={"large"} type={"primary"}
                     style={{ position: "absolute", bottom: 30, width: 450, left: 25 }}
-                    onClick={(event: any) => this._showModal(event, { owner: 'user', id: (new Date()).getTime() })}>
-                    新建我的Prompts
+                    onClick={(event: any) => this._showModal(event, {
+                        owner: 'user',
+                        id: (new Date()).getTime(),
+                        isNew: true
+                    })}>
+                    新建
                 </Button>
 
                 {/* {this.state.showEdit && ReactDOM.createPortal(showEditModal(), document.body as HTMLElement)} */}

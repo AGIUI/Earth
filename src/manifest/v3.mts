@@ -55,6 +55,7 @@ function getManifestV3(pageDirMap: { [x: string]: any }): ManifestTypeV3 {
   if (pages.indexOf("options") > -1) {
     manifest.options_ui = {
       page: fixedPath(pageDirMap["options"]),
+      open_in_tab:true
     };
   }
 
@@ -74,11 +75,11 @@ function getManifestV3(pageDirMap: { [x: string]: any }): ManifestTypeV3 {
     };
   }
 
-  // if (pages.indexOf("newtab") > -1) {
-  //   manifest.chrome_url_overrides = {
-  //     newtab: fixedPath(pageDirMap["newtab"]),
-  //   };
-  // }
+  if (pages.indexOf("newtab") > -1) {
+    manifest.chrome_url_overrides = {
+      newtab: fixedPath(pageDirMap["newtab"]),
+    };
+  }
 
   if (pages.indexOf("bookmarks") > -1) {
     manifest.chrome_url_overrides = {

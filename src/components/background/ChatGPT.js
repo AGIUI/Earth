@@ -62,8 +62,8 @@ function fetchStream(stream, callback) {
         // done  - 当 stream 传完所有数据时则变成 true
         // value - 数据片段。当 done 为 true 时始终为 undefined
         if (done) {
-            console.log('Stream complete', value)
-                // para.textContent = value;
+            // console.log('Stream complete', value)
+            // para.textContent = value;
             return
         }
         // value for fetch streams is a Uint8Array
@@ -147,16 +147,17 @@ export default class ChatGPT {
     clearAvailable() {
         this.available = null;
     }
-    async getAvailable() {
-        let res = {
-            success: false,
-            info: ''
-        }
+    getAvailable() {
 
-        if (!this.available) res = await this.init()
-        if (this.available && this.available.success == false) res = await this.init()
-        if (this.available && this.available.success) res = this.available
-        return res
+        // let res = {
+        //     success: false,
+        //     info: ''
+        // }
+
+        // if (!this.available) res = await this.init()
+        // if (this.available && this.available.success == false) res = await this.init()
+        // if (this.available && this.available.success) res = this.available
+        return this.available;
     }
 
     async init(token, baseUrl, model = 'gpt-3.5-turbo') {
@@ -208,7 +209,7 @@ export default class ChatGPT {
             success,
             info,
             data: res,
-            style: 0.6,
+            style: { label: 'temperature', value: 0.6 },
             temperature: 0.6
         }
 
@@ -294,7 +295,7 @@ export default class ChatGPT {
         const result = { role: 'assistant', content: '' }
             // console.log('params.stream', resp);
         await parseSSEResponse(resp, message => {
-            console.log('parseSSEResponse', message)
+            // console.log('parseSSEResponse', message)
             let isDone = false;
             if (message === '[DONE]') {
                 isDone = true;

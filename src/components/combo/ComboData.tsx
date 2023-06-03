@@ -1,4 +1,4 @@
-import { workflow } from '@components/Workflow'
+import { workflow, defaultNode, comboOptions } from '@components/flow/Workflow'
 
 
 const PROMPT_MAX_LENGTH = 720
@@ -6,31 +6,7 @@ const PROMPT_MAX_LENGTH = 720
 // output : default,json,markdown
 //  type:prompt,tasks,query,api,highlight
 const defaultPrompt = {
-    text: '',
-    url: '',
-    api: {
-        url: '',
-        protocol: 'https://',
-        init: {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: "{}",
-            mode: 'cors',
-            cache: 'default',
-            responseType: 'text'
-        },
-        isApi: false
-    },
-    queryObj: {
-        query: '', url: '', protocol: 'https://', isQuery: false
-    },
-    temperature: 0.6,
-    model: 'ChatGPT',
-    input: 'default',
-    output: 'default',
-    type: 'prompt'
+    ...defaultNode
 }
 
 /**
@@ -53,45 +29,47 @@ const defaultCombo = {
     id: ''
 }
 
-const comboOptions = [
-    {
-        label: '开启Prompts Combo',
-        value: 'combo',
-    },
-    {
-        label: '作为对话流选项',
-        value: 'showInChat',
-    },
-    {
-        label: '作为右键菜单选项',
-        value: 'contextMenus',
-    },
-    {
-        label: '首页',
-        value: 'home',
-    },
-    {
-        label: '无限循环',
-        value: 'infinite',
-    }
-];
+// const comboOptions = [
+//     {
+//         label: '开启Prompts Combo',
+//         value: 'combo',
+//     },
+//     {
+//         label: '作为对话流选项',
+//         value: 'showInChat',
+//     },
+//     {
+//         label: '作为右键菜单选项',
+//         value: 'contextMenus',
+//     },
+//     {
+//         label: '首页',
+//         value: 'home',
+//     },
+//     {
+//         label: '无限循环',
+//         value: 'infinite',
+//     }
+// ];
 
 
 
 
 const models: any = Array.from(workflow.models, model => {
-    if (model.value === 'temperature') return {
-        ...model, type: 'range'
-    }
-    if (model.value === 'model') return {
-        ...model, type: 'select'
+    if (model.display.includes('editor')) {
+        if (model.value === 'temperature') return {
+            ...model, type: 'range'
+        }
+        if (model.value === 'model') return {
+            ...model, type: 'select'
+        }
     }
 })
 
 
 
 const inputs: any = Array.from(workflow.inputs, (inp: any) => {
-    if (!inp.disabled) return {
+    if (!inp.disabled && inp.display.includes('editor')) return {
         ...inp, input: true, type: 'checkbox'
     }
 }).filter(a => a)
@@ -100,13 +78,13 @@ const inputs: any = Array.from(workflow.inputs, (inp: any) => {
  * 默认 - 不传递
  */
 const outputs: any = Array.from(workflow.outputs, (out: any) => {
-    if (!out.disabled) return {
+    if (!out.disabled && out.display.includes('editor')) return {
         ...out, output: true, type: 'checkbox'
     }
 }).filter(a => a)
 
-const promptOptions: any = Array.from(workflow.agents, agent => {
-    if (!agent.disabled) return {
+const promptOptions: any = Array.from(workflow.agents, (agent: any) => {
+    if (!agent.disabled && agent.display.includes('editor')) return {
         ...agent,
         children: [],
         inputs: inputs.filter((f: any) => f.value),

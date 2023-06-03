@@ -150,8 +150,9 @@ async function buildJSPage(name: string, entry: string, outdir: string, dev: boo
       ".json": "json",
     },
     plugins: [
-
+      stylePlugin()
     ],
+   
   });
 
   console.timeEnd(prompt);
@@ -233,6 +234,7 @@ function BuildManifest(version: 2 | 3, pageDirMap: { [x: string]: any }) {
     resolve(extDir, "manifest.json"),
     JSON.stringify(manifest, null, 2),
   );
+  // console.log(JSON.stringify(manifest, null, 2))
 
   console.timeEnd(prompt);
 }
@@ -254,7 +256,7 @@ async function BuildPages(version: 2 | 3, pageDirMap: { [x: string]: any }, dev:
 
 async function BuildVersionedExt(versions: (2 | 3)[], dev: boolean = false) {
   const pageDirMap = getPageDirMap();
-
+  console.log('-------BuildVersionedExt',JSON.stringify(pageDirMap,null,2))
   if (versions.length === 0) {
     return;
   }
@@ -283,10 +285,8 @@ function Clean(version?: 2 | 3) {
   if (version) {
     const extDir = resolve(OutDir, `v${version}`);
     fse.removeSync(extDir);
-
     return;
   }
-
   fse.removeSync(OutDir);
 }
 
@@ -303,6 +303,7 @@ async function DevVersionedExt(versions: (2 | 3)[]) {
   try {
     await BuildVersionedExt(versions, true);
   } catch (error) {
+    // console.log('BuildVersionedExt:::::')
     console.error(error);
   }
 
@@ -379,6 +380,9 @@ async function DevVersionedExt(versions: (2 | 3)[]) {
       console.log("Watching for changes...\n");
 
       version = versions[0];
+
+     
+
     }
   });
 }
@@ -461,7 +465,7 @@ function MatchExtVersions(browsers: BrowserPath[]) {
   return Array.from(versions);
 }
 
-function BuildBrowserExt(browsers: string[]) {
+async function BuildBrowserExt(browsers: string[]) {
   const matchedBrowsers = MatchInstalledBrowsers(browsers);
 
   if (matchedBrowsers.length === 0) {
@@ -471,7 +475,7 @@ function BuildBrowserExt(browsers: string[]) {
 
   const versions = MatchExtVersions(matchedBrowsers);
 
-  BuildVersionedExt(versions);
+ await BuildVersionedExt(versions);
 
   for (const matchedBrowser of matchedBrowsers) {
     const version = manifestVersion(matchedBrowser);
@@ -562,7 +566,7 @@ function LaunchCommand(browser: BrowserPath, profileDir: string) {
   return;
 }
 
-function DevBrowserExt(browsers: string[]) {
+async function DevBrowserExt(browsers: string[]) {
 
   const matchedBrowsers = MatchInstalledBrowsers(browsers);
 
@@ -573,7 +577,7 @@ function DevBrowserExt(browsers: string[]) {
 
   const versions = MatchExtVersions(matchedBrowsers);
 
-  DevVersionedExt(versions);
+  await DevVersionedExt(versions);
 
   const profileRoot = CreateProfileRoot();
   const commands: string[] = [];
@@ -598,6 +602,7 @@ function DevBrowserExt(browsers: string[]) {
       for (const { command, exitCode } of err) {
         if (exitCode !== 0) {
           console.error(`${command.command}:\n exited with code ${exitCode}\n`);
+        
           throw new Error(command.error);
         }
       }
@@ -609,9 +614,9 @@ async function Init() {
   const { browsers, dev } = GetArgs();
   await writeJsonAsync();
   if (dev) {
-    DevBrowserExt(browsers);
+   await DevBrowserExt(browsers);
   } else {
-    BuildBrowserExt(browsers);
+   await BuildBrowserExt(browsers);
   }
 
 

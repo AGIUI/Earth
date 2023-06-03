@@ -73,8 +73,58 @@ const cropText = (
     return croppedText
 }
 
+function parseByTag(prompt: string) {
+    console.log('parseByTag', prompt)
+
+    let div = document.createElement('div');
+    div.innerHTML = prompt;
+    const str = (q: string) => {
+        const n: any = div.querySelector(q);
+        return n && n.innerText;
+    }
+    const name = str('name'),
+        role = str('role'),
+        title = str('title'),
+        url = str('url'),
+        text = str('text'),
+        html = str('html'),
+        task = str('task'),
+        lastTalk = str('lastTalk'),
+        userInput = str('userInput');
+
+    console.log('parseByTag', name, role, title, url, text, html, task, lastTalk, userInput)
+    if((name||role)&&(!title&&!url&&!text&&!html&&!task&&!lastTalk&&!userInput)){
+        prompt=`${prompt}
+        说明:
+        <name>是扮演的角色名称
+        <role>扮演的角色背景信息`
+    }else{
+        prompt = `${prompt}
+        说明:
+        <name>是扮演的角色名称
+        <role>扮演的角色背景信息
+        <title>当前网页标题
+        <url>当前网页链接
+        <text>当前网页正文
+        <html>当前网页
+        <task>具体的任务
+        <lastTalk>上一次聊天信息
+        <userInput>用户输入的信息
+        请根据以上信息，完成<userInput>和<task>，输出<output>`
+    }
+    
+
+    return prompt
+
+}
+
+const bindUserInput = (userInput: string) => {
+    userInput = userInput.trim();
+    return `<userInput>${cropText(userInput)}</userInput>`
+}
 
 
+// 划选的监听
 const userSelectionInit = () => {
     document.addEventListener("selectionchange", () => {
         const text = userSelection();
@@ -83,34 +133,49 @@ const userSelectionInit = () => {
         return text
     });
 }
-
+// 划选
 const userSelection = () => {
     const selObj: any = window.getSelection();
     // let textContent = selObj.type !== 'None' ? (selObj.getRangeAt(0)).startContainer.textContent : '';
     let textContent = selObj.toString();
     return textContent.trim();
 }
+// 剪切板
+const checkClipboard = async () => {
+    const queryOpts: any = { name: 'clipboard-read', allowWithoutGesture: false };
+    const permissionStatus = await navigator.permissions.query(queryOpts);
+    // Will be 'granted', 'denied' or 'prompt':
+    console.log(permissionStatus.state);
 
-const promptBindText = (userText: string, prompt: string) => {
-    const text = userText.replace(/\s+/ig, ' ');
-    prompt = prompt.trim();
-    prompt = `'''${cropText(text)}''',` + prompt;
-    return prompt
+    // Listen for changes to the permission state
+    permissionStatus.onchange = () => {
+        console.log(permissionStatus.state);
+    };
 }
 
-const promptBindUserSelection = (prompt: string) => {
+// 绑定用户划选的内容
+const promptBindUserSelection = (userInput: string) => {
     const userText = localStorage.getItem('___userSelection') || ''
-    prompt = promptBindText(userText, prompt)
+    const prompt = promptBindText(userText, userInput)
     return prompt
 }
-
-const promptBindUserClipboard = async (prompt: string) => {
+// 绑定剪切板信息
+const promptBindUserClipboard = async (userInput: string) => {
     let text = await navigator.clipboard.readText()
     // console.log('navigator.clipboard.readText()', text)
-    prompt = promptBindText(text, prompt)
+    const prompt = promptBindText(text, userInput)
     return prompt
 }
 
+// 绑定信息
+const promptBindText = (bindText: string, userInput: string) => {
+    const text = bindText.replace(/\s+/ig, ' ');
+    userInput = userInput.trim();
+    const prompt = `<text>${cropText(text)}</text>${userInput}`;
+    return prompt
+}
+
+// 提取文章信息
 const extractArticle = () => {
     let documentClone: any = document.cloneNode(true);
     documentClone.querySelector('._agi_ui')?.remove();
@@ -153,49 +218,48 @@ const extractArticle = () => {
     return article
 }
 
-const promptBindCurrentSite = (prompt: string, type = 'text') => {
+// 绑定当前页面信息
+const promptBindCurrentSite = (userInput: string, type = 'text') => {
     // 获取当前网页正文信息
     const { length, title, textContent, href, elements } = extractArticle();
-    prompt = prompt.trim();
+    let prompt = userInput.trim();
 
     if (type == 'text') {
         const text = textContent.trim().replace(/\s+/ig, ' ');
-        const t = `'''title:${title},url:${href}'''`
+        const t = `<title>${title}</title><url>${href}</url>`
         if (prompt) {
-            prompt = `'''${t},content:${cropText(text)}''',` + prompt;
+            prompt = `${t}<text>${cropText(text)}</text>${prompt}`;
         } else {
-            prompt = `'''${t},content:${cropText(text)}'''`;
+            prompt = `${t}<text>${cropText(text)}</text>`;
         }
 
     } else if (type == 'html') {
         const htmls = Array.from(elements, (t: any) => t.html)
         if (prompt) {
-            prompt = `'''${cropText(JSON.stringify(htmls))}''',` + prompt;
+            prompt = `<html>${cropText(JSON.stringify(htmls))}</html>${prompt}`;
         } else {
-            prompt = `'''${cropText(JSON.stringify(htmls))}'''`;
+            prompt = `<html>${cropText(JSON.stringify(htmls))}</html>`;
         }
 
     } else if (type == 'url') {
         // const htmls = Array.from(elements, (t: any) => t.html)
         if (prompt) {
-            prompt = `'''title:${title},url:${href}''',` + prompt;
+            prompt = `<title>${title}</title><url>${href}</url>${prompt}`;
         } else {
-            prompt = `'''title:${title},url:${href}'''`;
+            prompt = `<title>${title}</title><url>${href}</url>`;
         }
     }
     return prompt
 }
 
 // 拆解任务目标
-const promptBindTasks = (prompt: string) => {
-    prompt = prompt.trim();
-    return `'''${prompt}''',针对以上的任务目标，一步步思考如何完成，按照可行的步骤列出来：`
+const promptBindTasks = (userInput: string) => {
+    return `${userInput}<task>针对以上的任务目标，一步步思考如何完成，按照可行的步骤列出来</task>`
 }
 
 // 高亮信息
-const promptBindHighlight = (prompt: string) => {
-    prompt = prompt.trim();
-    return `'''${prompt}''',从以上html元素中选择最值得看的信息，返回top5的元素id号给我`
+const promptBindHighlight = (userInput: string) => {
+    return `${userInput}<task>从以上html元素中选择最值得看的信息，返回top5的元素id号给我</task>`
 }
 
 /**
@@ -209,36 +273,53 @@ const extractDomElement = () => {
 }
 
 
+const promptBindRole = (userInput: string, role: any) => {
+    let prompt = userInput
+    if (role.text) {
+        prompt = `<role>你的角色背景是${cropText(role.text)}</role>${prompt}`
+    }
+    if (role.name) {
+        prompt = `<name>你的名字是${role.name}</name>${prompt}`
+    };
+    return prompt
+}
+
 const promptUseLastTalk = (prompt: string, lastTalk: string) => {
     prompt = prompt.trim()
-    lastTalk = lastTalk.trim()
+    lastTalk = cropText(lastTalk.trim())
     if (lastTalk && prompt) {
-        prompt = `<${lastTalk}>,[USER INPUT]${prompt}`
+        prompt = `<lastTalk>${lastTalk}</lastTalk>${prompt}`
     } else if (lastTalk) {
-        prompt = lastTalk;
+        prompt = `<lastTalk>${lastTalk}</lastTalk>`;
     }
     return prompt
 }
 
+
+
 // type markdown/json
 const promptParse = (prompt: string, type: string) => {
-    prompt = cropText(prompt)
+    // prompt = cropText(prompt)
     if (type == 'markdown') {
-        prompt = `${prompt},完成任务并按照markdown格式输出`
+        prompt = `<task>按照markdown格式输出</task>${prompt}`
     } else if (type == 'json') {
-        prompt = `${prompt},完成任务并按照json格式输出`
+        prompt = `<task>按照json格式输出</task>${prompt}`
     } else if (type == 'translate-zh') {
-        prompt = `${prompt},完成任务,翻译成中文`
+        prompt = `<task>翻译成中文</task>${prompt}`
     } else if (type == 'translate-en') {
-        prompt = `${prompt},完成任务,翻译成英文`
+        prompt = `<task>翻译成英文</task>${prompt}`
     } else if (type == 'extract') {
-        prompt = `完成这个任务：分析实体词，并分类。[USER INPUT]${prompt}`
-    }
+        prompt = `<task>分析实体词，并分类</task>${prompt}`
+    };
+    // 处理所有的prompt
+    prompt=parseByTag(prompt)
+   
     return prompt
 }
 
 
 export {
+    bindUserInput,
     promptBindCurrentSite,
     promptBindUserSelection,
     userSelectionInit,
@@ -246,5 +327,7 @@ export {
     extractDomElement,
     promptBindTasks,
     promptBindHighlight,
-    cropText, promptParse, promptUseLastTalk
+    cropText, promptParse,
+    promptUseLastTalk,
+    promptBindRole, checkClipboard
 }
