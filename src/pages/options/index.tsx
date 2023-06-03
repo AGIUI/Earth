@@ -102,7 +102,7 @@ function options() {
         // message.error('已达到最大存储数量');
       };
 
-      chromeStorageSet({ 'user': newData }).then(() => window.location.reload())
+      chromeStorageSet({ 'user': newData }).then(() => window.close())
       // .then(() => this._comboEditorRefresh())
 
     });

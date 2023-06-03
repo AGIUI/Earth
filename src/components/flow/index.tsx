@@ -544,7 +544,7 @@ function Flow(props: any) {
                 <Button onClick={() => download()} style={{ marginRight: '10px' }}>下载</Button>
                 {deleteCallback ? <Popconfirm
                   placement="bottomRight"
-                  title={'确定删除Prompt？'}
+                  title={'确定删除？'}
                   onConfirm={() => deleteMyCombo(id)}
 
                   okText="是的"
