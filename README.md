@@ -2,7 +2,7 @@
    <img src="public/logo.png" width=256></img>
    <p><strong>让AI工作流改变世界</strong></p>
 
-[English](README_EN.md) | [简体中文](README.md)
+[简体中文](README.md) | [English](README_EN.md)
 
 </div>
 
@@ -17,7 +17,7 @@ Earth PC&Mac版本：https://github.com/AGIUI/Solis
 [![Weibo](https://img.shields.io/badge/Weibo-Share-red?style=social&logo=weibo)](http://service.weibo.com/share/share.php?url=https%3A%2F%2Fgithub.com%2FAGIUI%2FEarth&title=分享一下AI工作流-Earth%21)
 
 ## 主要特色
-1. 支持多种AI模型，包括ChatGPT、BingChat和本地LLM（openai官方标准）。
+1. 支持多种AI模型，包括ChatGPT、BingChat和本地LLM（OpenAI官方标准）。
 2. 可以在任何网页上使用，包括搜索引擎、社交媒体、新闻网站等。
 3. 定义自己的工作流，解放双手，提高工作效率。
 4. 可以读取和操控网页信息
