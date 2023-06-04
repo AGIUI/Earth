@@ -166,14 +166,7 @@ npm run build [browser]
 [shadow](https://twitter.com/mixlabPro)、[薛志荣](https://twitter.com/XueZhirong)
 
 #### 微信
-<div style="display: flex;">
-  <div style="flex: 50%; padding: 5px;">
-    <img src="README/shadow.jpg">
-  </div>
-  <div style="flex: 50%; padding: 5px;">
-    <img src="README/xuezhirong.jpg">
-  </div>
-</div>
+![微信](/README/wechat.png)
 
 ## 相关资料
 
