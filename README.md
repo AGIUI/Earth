@@ -163,7 +163,7 @@ npm run build [browser]
 
 ## 联系我们
 #### Twitter
-[shadow](https://twitter.com/mixlabPro)、[薛志荣](https://twitter.com/XueZhirong)
+[@shadow](https://twitter.com/mixlabPro)、[@薛志荣](https://twitter.com/XueZhirong)
 
 #### 微信
 ![微信](/README/wechat.png)
