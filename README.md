@@ -9,7 +9,7 @@
 # Earth
 AGI-UI（Artificial General Intelligence user interface，通用人工智能用户界面）组织的使命是改善AGI在PC、Web、Mobile、XR、机器人等领域的人机协作体验，让更多人可以实现自己的AGI交互界面。
 
-作为AGIUI的首个开源项目，Earth是一款浏览器插件，暂时支持Chrome和Edge浏览器。如果你感兴趣可以分享我们的项目到各个平台。
+作为AGIUI的首个开源项目，<strong>Earth</strong>是一款浏览器插件，暂时支持Chrome和Edge浏览器。如果你感兴趣可以分享我们的项目到各个平台。
 
 Earth PC&Mac版本：https://github.com/AGIUI/Solis
 
@@ -40,7 +40,7 @@ Earth PC&Mac版本：https://github.com/AGIUI/Solis
 
 ### 3.设置Bing Chat
 
-在浏览器打开[https://www.bing.com/](https://www.bing.com/) ，登录Bing账号（前提是已经申请并通过Bing Chat使用权限）
+在浏览器打开[https://www.bing.com/](https://www.bing.com/) ，登录Bing账号（前提是已获得Bing Chat使用权限）
 
 ### 4.设置API Key和前缀
 
