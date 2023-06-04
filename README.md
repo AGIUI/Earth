@@ -98,7 +98,7 @@ npm run build [browser]
 
 v0.2.0 
 
-新增绑定当前网页、输出格式，combo编辑器导入导出，提供示例
+- 新增绑定当前网页、输出格式，combo编辑器导入导出，提供示例
 
 v0.3.1
 - combo数据结构调整及编辑器，新增：interfaces（home、contextMenus、showInChat）、input、output
