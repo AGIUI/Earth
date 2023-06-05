@@ -34,6 +34,32 @@ import PDF from '@components/files/PDF'
 import { chromeStorageGet, chromeStorageSet, sendMessageCanRetry, checkImageUrl } from "@components/Utils"
 import { message } from 'antd';
 
+import { getConfig } from '@components/Utils';
+
+// console
+const config=getConfig()
+console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
+    return function () {
+        if (!dev) return
+        try {
+            let arr = []
+            arr.push(...arguments)
+            arr.forEach((item, index) => {
+                if (Object.prototype.toString.call(item) === '[object Object]' ||
+                    Object.prototype.toString.call(item) === '[object Array]') {
+                    arr[index] = JSON.parse(JSON.stringify(item))
+                }
+            })
+            logFunc.call(console, ...arr)
+            isLogStack ? console.trace() : null  // 是否打印堆栈
+        } catch (e) {
+            console.log(`a log error: ${e}`)
+        }
+    }
+})(console.log)
+
+console.log(11111111111111111111111111111111111)
+
 // checkClipboard()
 
 declare const window: Window &

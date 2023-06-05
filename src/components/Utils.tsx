@@ -159,6 +159,8 @@ const textSplitByLength = (text: string, length: number) => {
     return arr;
 }
 
+
+
 export {
     chromeStorageGet,
     chromeStorageSet,
