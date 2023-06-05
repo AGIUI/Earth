@@ -30,17 +30,17 @@ import CloseButton from "@components/buttons/CloseButton";
 //     overflow-y: scroll;
 //     overflow-x: hidden;
 //     background-color: white;
-//     &::-webkit-scrollbar
+//     .ant-card-body::-webkit-scrollbar
 //     {
 //       width:2px;
 //     }
-//     &::-webkit-scrollbar-track
+//     .ant-card-body::-webkit-scrollbar-track
 //     {
 //       border-radius:25px;
 //       -webkit-box-shadow:inset 0 0 5px rgba(255,255,255, 0.5);
 //       background:rgba(255,255,255, 0.5);
 //     }
-//     &::-webkit-scrollbar-thumb
+//     .ant-card-body::-webkit-scrollbar-thumb
 //     {
 //       border-radius:15px;
 //       -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
@@ -326,11 +326,11 @@ class Setup extends React.Component<{
     }
 
     componentWillUnmount(): void {
-        console.log('componentWillUnmount')
+        // console.log('componentWillUnmount')
     }
 
     render(): JSX.Element {
-        console.log(this.state.name)
+        // console.log(this.state.name)
         return (
             <Card
                 title={'设置'}
@@ -347,8 +347,7 @@ class Setup extends React.Component<{
                     // flex: 1,
                     padding: '25px',
                     height: 'calc(100% - 80px)',
-                    // overflowY: 'scroll',
-                    // paddingBottom: '100px'
+                    overflowY: 'auto',
                 }}
 
                 extra={<div>

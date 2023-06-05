@@ -89,6 +89,27 @@ function options() {
     }
   })
 
+  const deleteCombos = (id: string) => {
+    // console.log('_delete', id)
+    chromeStorageGet(['user']).then((items: any) => {
+      const oldData = items.user || [];
+      const newData = oldData.filter((od: any) => od.id != id);
+
+      // if (type === 'add') newData.push(data);
+
+      if (newData.length > 5) {
+        message.info('已达到最大存储数量')
+        // message.error('已达到最大存储数量');
+      };
+
+      chromeStorageSet({ 'user': newData }).then(() => window.close())
+      // .then(() => this._comboEditorRefresh())
+
+    });
+  }
+
+
+
 
   const chatbotCallbacks = (event: any) => {
     const { cmd, data } = event;
@@ -117,7 +138,9 @@ function options() {
       saveCallback={
         (combo: any) => saveCombos([combo])
       }
-
+      deleteCallback={
+        (comboId: any) => deleteCombos(comboId)
+      }
     />
     <Main
       className="_agi_ui"
