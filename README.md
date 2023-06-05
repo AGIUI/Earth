@@ -1,6 +1,6 @@
 <div align="center">
    <img src="public/logo.png" width=256></img>
-   <p><strong>让AI工作流改变世界</strong></p>
+   <p><strong>让AI工作流改变我们的工作方式</strong></p>
 
 [简体中文](README.md) | [English](README_EN.md)
 
