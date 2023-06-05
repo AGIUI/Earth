@@ -196,14 +196,14 @@ const workflow = {
             "disabled": true,
             "display": ["chatbot", "editor", "debug"]
         },
-        {
-            "label": "进入网页",
-            "key": "open-url",
-            // 属于哪一个分类
-            "parent": "query",
-            "disabled": false,
-            "display": ["editor", "debug"]
-        }
+        // {
+        //     "label": "进入网页",
+        //     "key": "open-url",
+        //     // 属于哪一个分类
+        //     "parent": "query",
+        //     "disabled": false,
+        //     "display": ["editor", "debug"]
+        // }
     ]
 
 }
@@ -252,7 +252,13 @@ const defaultNode = {
         isApi: false
     },
     queryObj: {
-        query: '', url: '', protocol: 'https://', isQuery: false
+        query: '',
+        url: '',
+        protocol: 'https://',
+        content: 'bindCurrentPage',
+        // 网页跳转 default、模拟点击click 、输入input、读取read
+        action:'default',
+        isQuery: false
     },
     temperature: 0.6,
     model: 'ChatGPT',

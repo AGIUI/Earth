@@ -1,6 +1,6 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
-import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
+import { Input, Card, Select, Radio, InputNumber, Checkbox, Dropdown, Divider, Space, Button } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
@@ -8,11 +8,12 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const menuNames = {
-  title: '模拟点击事件',
+  title: '文本输入',
   selectQuery: 'SelectQuery',
+  selectQueryPlaceholder: '- - ',
+  useLastText: '从上一节点获取文本',
   debug: '调试'
 }
-
 
 export type NodeData = {
   debug: any;
@@ -31,9 +32,10 @@ export type NodeData = {
  * @param json init / query
  * @returns 
  */
-const createUrl = (key: string, title: string, json: any, onChange: any) => {
-  const { protocol, url, init, query, isApi, isQuery } = json;
 
+const createUrl = (title1: string, placeholder1: string, title2: string, json: any, onChange: any) => {
+  const { query, content } = json;
+  const key = 'query'
   return <div onMouseOver={() => {
     onChange({
       key: 'draggable',
@@ -46,29 +48,46 @@ const createUrl = (key: string, title: string, json: any, onChange: any) => {
         data: true
       })
     }}>
-    <p>{title}</p>
+
+    <p>{title1}</p>
     <TextArea
       defaultValue={query}
       rows={4}
-      placeholder="xxxx"
+      placeholder={placeholder1}
       autoSize
       onChange={(e) => {
         const data = {
-          ...json
+          ...json,
+          query: e.target.value,
+          action: 'input'
         }
-        data['query'] = e.target.value;
+
         onChange({
           key,
           data
         })
-
       }}
     />
+    <Divider dashed />
+    <Checkbox onChange={(e) => {
+      // console.log(e)
+      const data = {
+        ...json
+      }
+      data['action'] = e.target.checked ? 'input' : ''
+
+      onChange({
+        key,
+        data
+      })
+
+    }}>{title2}</Checkbox>
   </div>
 }
 
 
-function QueryBySelectNode({ id, data, selected }: NodeProps<NodeData>) {
+
+function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
   const [type, setType] = React.useState(data.type)
   // console.log('QueryURLNode', data)
 
@@ -86,13 +105,15 @@ function QueryBySelectNode({ id, data, selected }: NodeProps<NodeData>) {
 
 
   const createNode = () => {
-    const node = [];
 
-    ['query'].includes(type) && node.push(createUrl('query', menuNames.selectQuery, queryObj, updateQueryObj));
+
+    const node = [
+      createUrl(menuNames.selectQuery, menuNames.selectQueryPlaceholder, menuNames.useLastText, queryObj, updateQueryObj)
+    ];
 
     if (data.debug) {
       node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button>)
+      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
     }
 
     return <Card
@@ -131,4 +152,4 @@ function QueryBySelectNode({ id, data, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default QueryBySelectNode;
+export default QueryInputNode;

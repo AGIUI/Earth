@@ -30,17 +30,19 @@ import RoleNode from './nodes/RoleNode';
 import 'reactflow/dist/style.css';
 
 import { _DEFAULTCOMBO } from './Workflow'
-import QueryURLNode from './nodes/QueryURLNode';
-import QueryBySelectNode from './nodes/QueryBySelectNode'
-import QueryContentNode from './nodes/QueryContentNode';
+import QueryDefaultNode from './nodes/QueryDefaultNode';
+import QueryClickNode from './nodes/QueryClickNode'
+import QueryReadNode from './nodes/QueryReadNode';
+import QueryInputNode from './nodes/QueryInputNode';
 
 // 定义节点类型
 const nodeTypes = {
   role: RoleNode,
   brainwave: BWNode,
-  queryURL: QueryURLNode,
-  queryBySelect: QueryBySelectNode,
-  queryContent: QueryContentNode
+  queryDefault: QueryDefaultNode,
+  queryClick: QueryClickNode,
+  queryRead: QueryReadNode,
+  queryInput: QueryInputNode
 };
 
 // 定义连线类型
@@ -588,17 +590,22 @@ function Flow(props: any) {
 
                   style={{ marginRight: '10px' }}
                   onClick={() => {
+ 
                     const items = [
                       {
-                        nodeType: 'queryURL',
+                        nodeType: 'queryDefault',
                         dataType: 'query'
                       },
                       {
-                        nodeType: 'queryBySelect',
+                        nodeType: 'queryClick',
                         dataType: 'query'
                       },
                       {
-                        nodeType: 'queryContent',
+                        nodeType: 'queryRead',
+                        dataType: 'query'
+                      },
+                      {
+                        nodeType: 'queryInput',
                         dataType: 'query'
                       }
                     ];

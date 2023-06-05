@@ -8,9 +8,8 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const menuNames = {
-  title: '内容读取',
-  Url: '获取网页内容',
-  selectQuery:'SelectQuery',
+  title: '进入网页',
+  second: 'URL',
   debug: '调试'
 }
 
@@ -23,17 +22,9 @@ export type NodeData = {
 };
 
 
-
-/**
- * API / queryObj
- * @param title 
- * @param protocol 
- * @param url 
- * @param json init / query
- * @returns 
- */
-const createUrl = (key: string, title: string, json: any, onChange: any) => {
+const createUrl = (title: string, json: any, onChange: any) => {
   const { protocol, url, init, query, isApi, isQuery } = json;
+  const key = 'query';
 
   return <div onMouseOver={() => {
     onChange({
@@ -48,30 +39,42 @@ const createUrl = (key: string, title: string, json: any, onChange: any) => {
       })
     }}>
     <p>{title}</p>
-    <TextArea
-      defaultValue={query}
-      rows={4}
-      placeholder="xxxx"
-      autoSize
-      onChange={(e) => {
-        const data = {
-          ...json
-        }
-        data['query'] = e.target.value;
+    <Input addonBefore={
+      <Select defaultValue={protocol} onChange={(e: string) => {
         onChange({
           key,
-          data
+          data: {
+            ...json, protocol: e
+          }
         })
 
+      }}>
+        <Option value="http://">http://</Option>
+        <Option value="https://">https://</Option>
+      </Select>
+    }
+      placeholder={`请填写url`}
+      defaultValue={url}
+      onChange={(e: any) => {
+        // console.log('input url',e)
+        onChange({
+          key,
+          data: {
+            ...json,
+            url: e.target.value,
+            action: 'default'
+          }
+        })
       }}
     />
+
   </div>
 }
 
 
-function QueryContentNode({ id, data, selected }: NodeProps<NodeData>) {
+function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
   const [type, setType] = React.useState(data.type)
-  // console.log('QueryURLNode', data)
+  // console.log('QueryDefaultNode', data)
 
   // queryObj
   data.queryObj.isQuery = type === "query";
@@ -87,14 +90,11 @@ function QueryContentNode({ id, data, selected }: NodeProps<NodeData>) {
 
 
   const createNode = () => {
-    const node = [];
-
-    // ['query'].includes(type) && node.push(createUrl('query', menuNames.selectQuery, queryObj, updateQueryObj));
-    ['query'].includes(type) && node.push(createUrl('query', menuNames.selectQuery, queryObj, updateQueryObj));
+    const node = [createUrl(menuNames.second, queryObj, updateQueryObj)];
 
     if (data.debug) {
       node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button>)
+      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
     }
 
     return <Card
@@ -133,4 +133,4 @@ function QueryContentNode({ id, data, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default QueryContentNode;
+export default QueryDefaultNode;

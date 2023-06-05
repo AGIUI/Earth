@@ -1,6 +1,6 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
-import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
+import { Input, Card, Select, Radio, InputNumber, Checkbox, Dropdown, Divider, Space, Button } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
@@ -8,11 +8,12 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const menuNames = {
-  title: '进入网页',
-  second:'URL',
+  title: '内容读取',
+  content: '获取网页内容',
+  selectQuery: 'SelectQuery',
+  placeholder: '不填默认获取整个网页',
   debug: '调试'
 }
-
 
 export type NodeData = {
   debug: any;
@@ -21,18 +22,9 @@ export type NodeData = {
   onChange: any
 };
 
-
-/**
- * API / queryObj
- * @param title 
- * @param protocol 
- * @param url 
- * @param json init / query
- * @returns 
- */
-const createUrl = (key: string, title: string, json: any, onChange: any) => {
-  const { protocol, url, init, query, isApi, isQuery } = json;
-
+const createUrl = (title1: string, title2: string, placeholder2: string, json: any, onChange: any) => {
+  const { query, content } = json;
+  const key = 'query'
   return <div onMouseOver={() => {
     onChange({
       key: 'draggable',
@@ -45,39 +37,55 @@ const createUrl = (key: string, title: string, json: any, onChange: any) => {
         data: true
       })
     }}>
-    <p>{title}</p>
-    <Input addonBefore={
-      <Select defaultValue={protocol} onChange={(e: string) => {
+    <p>{title1}</p>
+    <Select
+      defaultValue={content || "bindCurrentPage"}
+      style={{ width: 120 }}
+      onChange={(e) => {
+        // console.log(e)
+        const data = {
+          ...json,
+          content: e,
+          action: 'read'
+        }
+
         onChange({
           key,
-          data: {
-            ...json, protocol: e
-          }
+          data
         })
 
-      }}>
-        <Option value="http://">http://</Option>
-        <Option value="https://">https://</Option>
-      </Select>
-    }
-      placeholder={`请填写url`}
-      defaultValue={url}
-      onChange={(e: any) => {
-        // console.log('input url',e)
+      }}
+      options={[
+        { value: 'bindCurrentPageHTML', label: '网页HTML' },
+        { value: 'bindCurrentPage', label: '网页正文' },
+        { value: 'bindCurrentPageURL', label: '网页URL' },
+        { value: 'bindCurrentPageTitle', label: '网页标题', disabled: true },
+      ]}
+    />
+    <p>{title2}</p>
+    <TextArea
+      defaultValue={query}
+      rows={4}
+      placeholder={placeholder2}
+      autoSize
+      onChange={(e) => {
+        const data = {
+          ...json,
+          action: 'read',
+          query: e.target.value
+        }
         onChange({
           key,
-          data: {
-            ...json, url: e.target.value
-          }
+          data
         })
       }}
     />
-   
   </div>
 }
 
 
-function QueryURLNode({ id, data, selected }: NodeProps<NodeData>) {
+
+function QueryReadNode({ id, data, selected }: NodeProps<NodeData>) {
   const [type, setType] = React.useState(data.type)
   // console.log('QueryURLNode', data)
 
@@ -95,13 +103,13 @@ function QueryURLNode({ id, data, selected }: NodeProps<NodeData>) {
 
 
   const createNode = () => {
-    const node = [];
-
-    ['query'].includes(type) && node.push(createUrl('query', menuNames.second, queryObj, updateQueryObj));
+    const node = [
+      createUrl(menuNames.content, menuNames.selectQuery, menuNames.placeholder, queryObj, updateQueryObj)
+    ];
 
     if (data.debug) {
       node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button>)
+      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
     }
 
     return <Card
@@ -140,4 +148,4 @@ function QueryURLNode({ id, data, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default QueryURLNode;
+export default QueryReadNode;
