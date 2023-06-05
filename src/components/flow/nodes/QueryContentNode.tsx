@@ -8,7 +8,9 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const menuNames = {
-  title: '进入网页',
+  title: '内容读取',
+  Url: '获取网页内容',
+  selectQuery:'SelectQuery',
   debug: '调试'
 }
 
@@ -19,7 +21,6 @@ export type NodeData = {
   type: string,
   onChange: any
 };
-
 
 
 
@@ -47,60 +48,30 @@ const createUrl = (key: string, title: string, json: any, onChange: any) => {
       })
     }}>
     <p>{title}</p>
-    <Input addonBefore={
-      <Select defaultValue={protocol} onChange={(e: string) => {
+    <TextArea
+      defaultValue={query}
+      rows={4}
+      placeholder="xxxx"
+      autoSize
+      onChange={(e) => {
+        const data = {
+          ...json
+        }
+        data['query'] = e.target.value;
         onChange({
           key,
-          data: {
-            ...json, protocol: e
-          }
+          data
         })
 
-      }}>
-        <Option value="http://">http://</Option>
-        <Option value="https://">https://</Option>
-      </Select>
-    }
-      placeholder={`请填写url`}
-      defaultValue={url}
-      onChange={(e: any) => {
-        // console.log('input url',e)
-        onChange({
-          key,
-          data: {
-            ...json, url: e.target.value
-          }
-        })
       }}
     />
-    {json && (json.init || json.query) ? <>
-      <p>-</p>
-      <TextArea
-        defaultValue={key == 'api' ? JSON.stringify(init, null, 2) : query}
-        rows={4}
-        placeholder="xxxx"
-        autoSize
-        onChange={(e) => {
-          const data = {
-            ...json
-          }
-          key == 'api' ? data['init'] = JSON.parse(e.target.value) : data['query'] = e.target.value;
-
-          onChange({
-            key,
-            data
-          })
-
-        }}
-      />
-    </> : ''}
   </div>
 }
 
 
-function QueryNode({ id, data, selected }: NodeProps<NodeData>) {
+function QueryContentNode({ id, data, selected }: NodeProps<NodeData>) {
   const [type, setType] = React.useState(data.type)
-  console.log('QueryNode', data)
+  // console.log('QueryURLNode', data)
 
   // queryObj
   data.queryObj.isQuery = type === "query";
@@ -118,7 +89,8 @@ function QueryNode({ id, data, selected }: NodeProps<NodeData>) {
   const createNode = () => {
     const node = [];
 
-    ['query'].includes(type) && node.push(createUrl('query', 'URL', queryObj, updateQueryObj));
+    // ['query'].includes(type) && node.push(createUrl('query', menuNames.selectQuery, queryObj, updateQueryObj));
+    ['query'].includes(type) && node.push(createUrl('query', menuNames.selectQuery, queryObj, updateQueryObj));
 
     if (data.debug) {
       node.push(<Divider dashed />)
@@ -161,4 +133,4 @@ function QueryNode({ id, data, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default QueryNode;
+export default QueryContentNode;

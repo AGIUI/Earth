@@ -167,9 +167,12 @@ function readerHack(reader: boolean) {
   return reader
 }
 
-document.addEventListener('readystatechange', (e) => {
-  if (document.readyState == 'interactive') init()
-});
+// document.addEventListener('readystatechange', (e) => {
+//   if (document.readyState == 'interactive') {
+//     console.log(document.readyState)
+//     init()
+//   }
+// });
 // window.onfocus = function (e) {
 //   console.log('window.onfocus')
 //   if (document.readyState == 'complete') {
@@ -178,4 +181,9 @@ document.addEventListener('readystatechange', (e) => {
 //     init()
 //   }
 // }
-// document.addEventListener("DOMContentLoaded", init);
+
+// 部分网站body下面的元素是动态植入的，需要在dom加载完后再注入，不然会被清除掉
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOMContentLoaded")
+  init()
+});

@@ -14,7 +14,8 @@ const executeScript = (url, data = {}, combo) => {
     const { query, text, type } = data;
     chromeStorageSet({ 'run-agents-result': null })
 
-    const targetUrl = url + (url.match('/?') ? '&' : '?') + 'agents=1&reader=1';
+    url = url + (url.includes('?') ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix'))
+    const targetUrl = url + (url.includes('?') ? '&' : '/?') + 'agents=1&reader=1';
 
     chrome.tabs.query({ url: targetUrl }).then(tabs => {
         // 仅保持一个代理网页

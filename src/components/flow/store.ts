@@ -147,13 +147,14 @@ const useStore = create<RFState>((set, get) => ({
       edges: applyEdgeChanges(changes, get().edges),
     });
   },
-  addNode: (type: string) => {
+  addNode: (nodeType: string,dataType:string) => {
+    
     const newNode: any = {
       id: nanoid(),
-      type,
+      type:nodeType,
       data: {
         ...defaultNode,
-        type,
+        type:dataType,
         onChange: (e: any) => {
           // console.log('store-onchange', e)
           const nodes = [];
@@ -182,6 +183,7 @@ const useStore = create<RFState>((set, get) => ({
     });
   },
   changeChildNode: (source: string, target: string) => {
+    const nodes = get().nodes;
 
     // source 
     const edges = get().edges.filter(e => e.source != source && e.target != target)
@@ -190,7 +192,11 @@ const useStore = create<RFState>((set, get) => ({
     const newEdge = {
       id: nanoid(),
       source,
-      target
+      target,
+      type: 'straight',
+      // animated: true,
+      label: nodes.filter((node: any) => node.id == source)[0].data.output,
+      deletable: true,
     };
 
     set({
@@ -250,6 +256,10 @@ const useStore = create<RFState>((set, get) => ({
       id: nanoid(),
       source: parentNode.id,
       target: newNode.id,
+      type: 'straight',
+      // animated: true,
+      label: get().nodes.filter((node: any) => node.id == parentNode.id)[0].data.output,
+      deletable: true,
     };
 
     set({

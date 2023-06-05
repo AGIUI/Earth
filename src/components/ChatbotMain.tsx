@@ -37,7 +37,7 @@ import { message } from 'antd';
 import { getConfig } from '@components/Utils';
 
 // console
-const config=getConfig()
+const config = getConfig()
 console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
     return function () {
         if (!dev) return
@@ -705,17 +705,14 @@ class Main extends React.Component<{
 
             // 对url进行处理
             if (url && !url.match('//')) url = `https://${url}`
-            if (url.match(/\?/)) {
-                url = url + url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')
-            }
-
+    
             const agentsJson = JSON.parse(JSON.stringify({
                 type: 'query',
                 url,
                 query,
                 combo: { ...combo } //用来传递combo数据
             }));
-
+            console.log('agentsJson', agentsJson)
 
             // 需要把当前面板的状态停止
             this._promptControl({ cmd: 'stop-combo' });
@@ -820,7 +817,7 @@ class Main extends React.Component<{
 
     // TODO 需要放到某个监听里，来更新对话数据
     _updateChatBotTalksResult(items: any) {
-        console.log('_updateChatBotTalksResult',items)
+        console.log('_updateChatBotTalksResult', items)
         // 对话数据
         const talks: any = this.state.talks;
         // 更新到这里
@@ -845,7 +842,7 @@ class Main extends React.Component<{
             if (data.type == "start") {
                 // 需补充此状态
                 // 对话状态开启
-                console.log('对话状态开启',data)
+                console.log('对话状态开启', data)
                 this.updateChatBotStatus(true);
 
             } else if ((data.type == 'markdown' || data.type == 'done')) {

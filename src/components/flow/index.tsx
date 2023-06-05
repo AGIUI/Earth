@@ -30,14 +30,30 @@ import RoleNode from './nodes/RoleNode';
 import 'reactflow/dist/style.css';
 
 import { _DEFAULTCOMBO } from './Workflow'
-import QueryNode from './nodes/QueryNode';
+import QueryURLNode from './nodes/QueryURLNode';
+import QueryBySelectNode from './nodes/QueryBySelectNode'
+import QueryContentNode from './nodes/QueryContentNode';
+
+// 定义节点类型
+const nodeTypes = {
+  role: RoleNode,
+  brainwave: BWNode,
+  queryURL: QueryURLNode,
+  queryBySelect: QueryBySelectNode,
+  queryContent: QueryContentNode
+};
+
+// 定义连线类型
+const edgeTypes = {
+  brainwave: BWEdge,
+};
+
 
 const _VERVISON = '0.1.0',
   _APP = 'brainwave';
 
 _DEFAULTCOMBO.version = _VERVISON;
 _DEFAULTCOMBO.app = _APP;
-
 
 const selector = (state: RFState) => ({
   comboOptions: state.comboOptions,
@@ -56,19 +72,6 @@ const selector = (state: RFState) => ({
   addNode: state.addNode
 });
 
-
-
-// 定义节点类型
-const nodeTypes = {
-  role: RoleNode,
-  brainwave: BWNode,
-  query: QueryNode
-};
-
-// 定义连线类型
-const edgeTypes = {
-  brainwave: BWEdge,
-};
 
 const nodeOrigin: NodeOrigin = [0.5, 0.5];
 const connectionLineStyle = { stroke: '#F6AD55', strokeWidth: 3 };
@@ -463,9 +466,7 @@ function Flow(props: any) {
     // restoreFlow();
   }, [newCombo, debug]);
 
-  const addNewNode = (type: string) => {
-    addNode(type)
-  }
+
 
   const newWorkflow = () => {
     newCombo(nanoid(), '', [], [defaultNode], [], debug);
@@ -587,8 +588,22 @@ function Flow(props: any) {
 
                   style={{ marginRight: '10px' }}
                   onClick={() => {
-                    // 
-                    addNewNode('query')
+                    const items = [
+                      {
+                        nodeType: 'queryURL',
+                        dataType: 'query'
+                      },
+                      {
+                        nodeType: 'queryBySelect',
+                        dataType: 'query'
+                      },
+                      {
+                        nodeType: 'queryContent',
+                        dataType: 'query'
+                      }
+                    ];
+                    const i: any = items[Math.ceil(Math.random() * items.length) - 1]
+                    addNode(i.nodeType, i.dataType)
                   }}
                 >+</Button>
                 {saveCallback ?
