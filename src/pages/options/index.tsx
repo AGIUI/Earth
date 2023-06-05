@@ -1,9 +1,17 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { message } from 'antd';
+import { message, FloatButton } from 'antd';
+import { RobotOutlined } from '@ant-design/icons';
 import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry } from "@components/Utils"
 import Flow from '@components/flow/index'
-import Main from "@pages/content/Main";
+import Chatbot from "@src/components/ChatbotMain";
+
+import { parseCombo2ControlEvent } from '@components/flow/Workflow'
+
+const menuNames = {
+  devTooltip: '调试窗口'
+}
+
 
 declare const window: Window &
   typeof globalThis & {
@@ -53,11 +61,12 @@ function saveCombos(combos: any = []) {
 function options() {
 
   const [debugData, setDebugData] = React.useState({});
-  const [flowWidth, setFlowWidth] = React.useState('calc(100% - 500px)');
+  const [flowWidth, setFlowWidth] = React.useState('100%');
 
   const [loadData, setLoadData] = React.useState({});
   const [isNew, setIsNew] = React.useState(true);
 
+  let exportDataToEarth: any;
 
   chrome.storage.local.onChanged.addListener((changes) => {
     // console.log('changes')
@@ -108,21 +117,28 @@ function options() {
     });
   }
 
-
-
-
   const chatbotCallbacks = (event: any) => {
     const { cmd, data } = event;
-    if (cmd == 'open-insight') {
-      setFlowWidth('calc(100% - 500px)')
-    } else if (cmd == "close-insight") {
-      setFlowWidth('100%')
+    // console.log(event)
+    if (cmd == "debug-combo") {
+      if (exportDataToEarth) exportDataToEarth().then((combo: any) => {
+        // console.log('exportDataToEarth',combo)
+        const event = parseCombo2ControlEvent(combo);
+        setIsNew(false);
+        setDebugData(event);
+      })
     }
+    // if (cmd == 'open-chatbot-panel') {
+    //   setFlowWidth('calc(100% - 500px)')
+    // } else if (cmd == "close-insight") {
+    //   setFlowWidth('100%')
+    // }
   }
 
-  return (<div style={{
-    width: flowWidth, height: '100%'
-  }}>
+  return (<div
+    style={{
+      width: flowWidth, height: '100%'
+    }}>
     <Flow
       loadData={loadData}
       debug={{
@@ -135,6 +151,7 @@ function options() {
         open: true
       }}
       isNew={isNew}
+      exportData={(e: any) => (exportDataToEarth = e)}
       saveCallback={
         (combo: any) => saveCombos([combo])
       }
@@ -142,7 +159,15 @@ function options() {
         (comboId: any) => deleteCombos(comboId)
       }
     />
-    <Main
+    <FloatButton
+      type="primary"
+      icon={<RobotOutlined />}
+      tooltip={<div>{menuNames.devTooltip}</div>}
+      onClick={() => {
+        sendMessageCanRetry('open-chatbot-panel', {}, console.log)
+      }}
+    />
+    <Chatbot
       className="_agi_ui"
       appName={config.app}
       // 代理器
@@ -157,13 +182,14 @@ function options() {
         tag: ''
       }}
       // 默认是否开启
-      initIsOpen={true}
+      initIsOpen={false}
       // 初始引擎
       initChatBotType={
         'ChatGPT'
       }
       debug={true}
       debugData={debugData}
+    
       callback={(e: any) => chatbotCallbacks(e)}
     />
   </div>)

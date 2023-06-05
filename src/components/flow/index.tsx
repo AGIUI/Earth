@@ -22,14 +22,15 @@ const { TextArea } = Input;
 import { nanoid } from 'nanoid/non-secure';
 
 import useStore, { RFState } from './store';
-import BWNode from './BWNode';
-import BWEdge from './BWEdge';
-import RoleNode from './RoleNode';
+import BWNode from './nodes/BWNode';
+import BWEdge from './edges/BWEdge';
+import RoleNode from './nodes/RoleNode';
 
 // we need to import the React Flow styles to make it work
 import 'reactflow/dist/style.css';
 
 import { _DEFAULTCOMBO } from './Workflow'
+import QueryNode from './nodes/QueryNode';
 
 const _VERVISON = '0.1.0',
   _APP = 'brainwave';
@@ -37,29 +38,6 @@ const _VERVISON = '0.1.0',
 _DEFAULTCOMBO.version = _VERVISON;
 _DEFAULTCOMBO.app = _APP;
 
-// const _DEFAULTCOMBO = {
-//   tag: '',
-//   combo: 1,
-//   interfaces: [],
-//   isInfinite: false,
-//   owner: 'user',
-//   prompt: {},
-//   version: _VERVISON,
-//   app: _APP,
-//   id: '',
-//   createDate: (new Date()).getTime()
-// }
-
-
-// declare const window: Window &
-//   typeof globalThis & {
-//     _brainwave_import: any,
-//     _brainwave_get_current_node_for_workflow: any,
-//     _brainwave_get_workflow_data: any,
-//     _brainwave_save_callback: any,
-//     _brainwave_save_callback_init: any,
-//     _brainwave_debug_callback: any
-//   }
 
 const selector = (state: RFState) => ({
   comboOptions: state.comboOptions,
@@ -73,14 +51,21 @@ const selector = (state: RFState) => ({
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   newCombo: state.newCombo,
+  changeChildNode: state.changeChildNode,
   addChildNode: state.addChildNode,
+  addNode: state.addNode
 });
 
+
+
+// 定义节点类型
 const nodeTypes = {
   role: RoleNode,
   brainwave: BWNode,
+  query: QueryNode
 };
 
+// 定义连线类型
 const edgeTypes = {
   brainwave: BWEdge,
 };
@@ -91,7 +76,7 @@ const defaultEdgeOptions = { style: connectionLineStyle, type: 'brainwave' };
 
 function Flow(props: any) {
 
-  const { debug, loadData, isNew, saveCallback, deleteCallback } = props;
+  const { debug, loadData, isNew, saveCallback, deleteCallback, exportData } = props;
   // console.log('Flow isNew', isNew)
 
   const reactFlowInstance = useReactFlow();
@@ -109,7 +94,9 @@ function Flow(props: any) {
     onNodesChange,
     onEdgesChange,
     newCombo,
-    addChildNode
+    changeChildNode,
+    addChildNode,
+    addNode
   } = useStore(selector, shallow);
 
   const connectingNodeId = useRef<string | null>(null);
@@ -138,10 +125,9 @@ function Flow(props: any) {
       y: event.clientY - top,
     });
 
-    // we are calculating with positionAbsolute here because child nodes are positioned relative to their parent
     return {
-      x: panePosition.x - parentNode.positionAbsolute.x + parentNode.width / 2,
-      y: panePosition.y - parentNode.positionAbsolute.y + parentNode.height / 2,
+      x: panePosition.x,
+      y: panePosition.y,
     };
   };
 
@@ -157,7 +143,7 @@ function Flow(props: any) {
       if (targetIsPane && connectingNodeId.current) {
         const parentNode = nodeInternals.get(connectingNodeId.current);
         const childNodePosition = getChildNodePosition(event, parentNode);
-
+        // console.log(parentNode)
         if (parentNode && childNodePosition) {
           addChildNode(parentNode, childNodePosition);
         }
@@ -166,6 +152,12 @@ function Flow(props: any) {
     },
     [getChildNodePosition]
   );
+
+  const onConnect = useCallback((params: any) => {
+    console.log('onConnect', params)
+    changeChildNode(params.source, params.target)
+  }, []);
+
 
   const panOnDrag = [1, 2];
 
@@ -233,29 +225,44 @@ function Flow(props: any) {
         const rolePrompt = items.filter((item: any) => item.type == 'role')[0];
 
         // 按照combo的格式输出
-        const combo: any = { ...defaultCombo, tag, id: id }
+        const combo: any = {
+          ...defaultCombo,
+          tag,
+          id,
+          combo: 0,
+          role: { ...rolePrompt.role }
+        };
+
         for (let index = 0; index < items.length; index++) {
           const prompt = items[index];
           prompt.role = { ...rolePrompt.role };
           delete prompt.onChange;
           delete prompt.opts;
 
-          if (index === 0) {
-            combo.prompt = prompt;
+          if (prompt.type !== 'role') {
+            combo.combo++;
+            if (combo.combo === 1) {
+              combo.prompt = prompt;
+            } else {
+              combo[`prompt${combo.combo}`] = prompt;
+            }
           }
-          if (index > 0) {
-            combo[`prompt${index + 1}`] = prompt;
-          }
-          combo.combo = index + 1;
+
         }
 
         // interfaces
         combo.interfaces = Array.from(comboOptions, (c: any) => {
           if (c.checked) return c.value
         }).filter(f => f)
+        // console.log(combo)
         res(combo)
       })
     })
+  }
+
+  if (exportData) {
+    //如果父组件传来该方法
+    exportData(exportDataToEarth);
   }
 
   const download = () => {
@@ -311,25 +318,35 @@ function Flow(props: any) {
 
       // ----- 如果没有role，则在第一个新加一个role节点
       const comboNew: any = { ...combo };
-      const prompts = [];
+      const prompts = [
+        {
+          ...defaultNode,
+          role: { ...combo.role },
+          type: 'role',
+          input: 'default',
+          output: 'default'
+        }
+      ];
       for (let index = 0; index < combo.combo; index++) {
         const key = `prompt${index > 0 ? index + 1 : ''}`;
+        const p = { ...combo[key] };
+        if (comboNew[key]) delete comboNew[key]
         // 如果没有role，则在第一个新加一个role节点
-        if (combo[key] && index == 0 && combo[key].type !== 'role') {
-          // const id = index == 0 ? source : key + combo.id;
-          // comboNew.combo++;
-          const p = { ...combo[key] };
-          p.type = 'role';
-          p.role = { name: '', text: '' }
-          p.input = 'default'
-          p.output = 'default'
-          // role类型需求清空text字段
-          p.text = ""
-          prompts.push(p);
-        }
-        if (combo[key]) prompts.push(combo[key])
+        // if (combo[key] && index == 0 && combo[key].type !== 'role') {
+        //   // const id = index == 0 ? source : key + combo.id;
+        //   // comboNew.combo++;
+        //   const p = { ...combo[key] };
+        //   p.type = 'role';
+        //   p.role = { name: '', text: '' }
+        //   p.input = 'default'
+        //   p.output = 'default'
+        //   // role类型需求清空text字段
+        //   p.text = ""
+        //   prompts.push(p);
+        // }
+        if (combo[key] && combo[key].type !== 'role') prompts.push(p)
       }
-      // console.log('comboNew', comboNew, prompts)
+
 
       comboNew.combo = prompts.length;
       for (let index = 0; index < prompts.length; index++) {
@@ -337,6 +354,8 @@ function Flow(props: any) {
         comboNew[key] = prompts[index];
       }
       // ----- 如果没有role，则在第一个新加一个role节点
+
+      // console.log('comboNew', comboNew, prompts)
 
       //
       for (let index = 0; index < comboNew.combo; index++) {
@@ -444,8 +463,12 @@ function Flow(props: any) {
     // restoreFlow();
   }, [newCombo, debug]);
 
+  const addNewNode = (type: string) => {
+    addNode(type)
+  }
+
   const newWorkflow = () => {
-    newCombo(nanoid(), 'new', [], [defaultNode], [], debug);
+    newCombo(nanoid(), '', [], [defaultNode], [], debug);
   }
 
   const clearLocalStore = () => localStorage.setItem('flowKey', '{}');
@@ -485,6 +508,7 @@ function Flow(props: any) {
       edges={edges}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
       onConnectStart={onConnectStart}
       onConnectEnd={onConnectEnd}
       nodeTypes={nodeTypes}
@@ -531,7 +555,7 @@ function Flow(props: any) {
               </Space>
               <p style={{ fontWeight: "bold" }}>设置选项</p>
               <Checkbox.Group
-                options={comboOptions}
+                options={comboOptions.filter((c: any) => !c.disabled)}
                 value={
                   Array.from(comboOptions,
                     (c: any) => c.checked ? c.value : null)
@@ -559,11 +583,14 @@ function Flow(props: any) {
 
                 </Popconfirm> : ''}
 
-                {/* <Button 
-                danger 
-                style={{marginRight: '10px'}}
-                onClick={()=>deleteMyCombo()}
-                >删除</Button> */}
+                <Button
+
+                  style={{ marginRight: '10px' }}
+                  onClick={() => {
+                    // 
+                    addNewNode('query')
+                  }}
+                >+</Button>
                 {saveCallback ?
                   <Button type={"primary"} onClick={() => save()}>保存</Button> : ''}
               </div>
@@ -576,9 +603,15 @@ function Flow(props: any) {
 }
 
 export default (props: any) => {
-  const { debug, loadData, isNew, saveCallback, deleteCallback } = props;
+  const { debug, loadData, isNew, saveCallback, deleteCallback, exportData } = props;
   return (<ReactFlowProvider >
-    <Flow debug={debug} loadData={loadData} isNew={isNew} saveCallback={saveCallback} deleteCallback={deleteCallback} />
+    <Flow
+      debug={debug}
+      loadData={loadData}
+      isNew={isNew}
+      exportData={exportData}
+      saveCallback={saveCallback}
+      deleteCallback={deleteCallback} />
   </ReactFlowProvider>)
 };
 

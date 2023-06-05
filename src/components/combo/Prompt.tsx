@@ -73,34 +73,10 @@ const cropText = (
     return croppedText
 }
 
-function parseByTag(prompt: string) {
-    console.log('parseByTag', prompt)
 
-    let div = document.createElement('div');
-    div.innerHTML = prompt;
-    const str = (q: string) => {
-        const n: any = div.querySelector(q);
-        return n && n.innerText;
-    }
-    const name = str('name'),
-        role = str('role'),
-        title = str('title'),
-        url = str('url'),
-        text = str('text'),
-        html = str('html'),
-        task = str('task'),
-        lastTalk = str('lastTalk'),
-        userInput = str('userInput');
-
-    console.log('parseByTag', name, role, title, url, text, html, task, lastTalk, userInput)
-    if((name||role)&&(!title&&!url&&!text&&!html&&!task&&!lastTalk&&!userInput)){
-        prompt=`${prompt}
-        说明:
-        <name>是扮演的角色名称
-        <role>扮演的角色背景信息`
-    }else{
-        prompt = `${prompt}
-        说明:
+/**
+ * 
+ * @param prompt 说明:
         <name>是扮演的角色名称
         <role>扮演的角色背景信息
         <title>当前网页标题
@@ -110,10 +86,60 @@ function parseByTag(prompt: string) {
         <task>具体的任务
         <lastTalk>上一次聊天信息
         <userInput>用户输入的信息
-        请根据以上信息，完成<userInput>和<task>，输出<output>`
-    }
-    
+        请根据以上信息，完成<userInput>和<task>，输出结果`
+ * @returns 
+ */
 
+function parseByTag(prompt: string) {
+    console.log('parseByTag', prompt)
+
+    let div = document.createElement('div');
+    div.innerHTML = prompt;
+    const str = (q: string) => {
+        const n: any = div.querySelector(q);
+        return n && n.innerText.trim();
+    }
+
+    const keys = Array.from(`name, role, title, url, text, html, task, lastTalk, userInput`.split(','), k => k.trim()).filter(f => f);
+    const desc: any = {
+        name: "是扮演的角色名称",
+        role: "扮演的角色背景信息",
+        title: "当前网页标题",
+        url: "当前网页链接",
+        text: "当前网页正文",
+        html: "当前网页",
+        task: "具体的任务",
+        lastTalk: "上一次聊天信息",
+        userInput: "用户输入的信息",
+    }
+
+    const prompts: any = {};
+
+    for (const key of keys) {
+        let v = str(key);
+        if (v) prompts[key] = v;
+    }
+
+    console.log('parseByTag', JSON.stringify(prompts, null, 2))
+
+    let des = [
+        "<userInput>用户输入的信息",
+    ];
+
+    let promptNew = `<userInput>${prompts['userInput']}</userInput>`;
+
+    for (const key in prompts) {
+        if (key != "userInput") {
+            promptNew += `<${key}>${prompts[key]}</${key}>`;
+            des.push(`<${key}>${desc[key]}`)
+        }
+    }
+
+    if (des.length === 1) prompt = prompts['userInput'];
+    if (des.length > 1) prompt = `${promptNew}
+    说明:${des.join('\n')}
+    请根据以上信息，完成<userInput>和<task>，输出结果，输出结果不用包含${Object.keys(desc).join(',')}
+    `
     return prompt
 
 }
@@ -312,8 +338,8 @@ const promptParse = (prompt: string, type: string) => {
         prompt = `<task>分析实体词，并分类</task>${prompt}`
     };
     // 处理所有的prompt
-    prompt=parseByTag(prompt)
-   
+    prompt = parseByTag(prompt)
+
     return prompt
 }
 

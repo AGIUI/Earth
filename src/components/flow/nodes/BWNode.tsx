@@ -1,6 +1,6 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
-import { Input, Card, Select, Radio, InputNumber, Dropdown, Divider, Space, Button } from 'antd';
+import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
@@ -55,7 +55,7 @@ const createType = (type: string, agents: any, onChange: any) => {
     }}>
     <Space>
       {label}
-      <DownOutlined/>
+      <DownOutlined />
     </Space>
 
   </Dropdown>
@@ -70,6 +70,18 @@ const createText = (title: string, text: string, onChange: any) => <>
     autoSize
     placeholder="maxLength is 6"
     // maxLength={6}
+    onMouseOver={() => {
+      onChange({
+        key: 'draggable',
+        data: false
+      })
+    }}
+    onMouseLeave={() => {
+      onChange({
+        key: 'draggable',
+        data: true
+      })
+    }}
     onChange={(e) => {
       onChange({
         key: 'text',
@@ -90,7 +102,20 @@ const createText = (title: string, text: string, onChange: any) => <>
 const createUrl = (key: string, title: string, json: any, onChange: any) => {
   const { protocol, url, init, query, isApi, isQuery } = json;
 
-  return <>
+  return <div
+    onMouseOver={() => {
+      onChange({
+        key: 'draggable',
+        data: false
+      })
+    }}
+    onMouseLeave={() => {
+      onChange({
+        key: 'draggable',
+        data: true
+      })
+    }}
+  >
     <p>{title}</p>
     <Input addonBefore={
       <Select defaultValue={protocol} onChange={(e: string) => {
@@ -139,7 +164,7 @@ const createUrl = (key: string, title: string, json: any, onChange: any) => {
         }}
       />
     </> : ''}
-  </>
+  </div>
 }
 
 const createModel = (model: string, temperature: number, opts: any, onChange: any) => <>
@@ -164,12 +189,61 @@ const createModel = (model: string, temperature: number, opts: any, onChange: an
       })}
   </Radio.Group>
   <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}</p>
-  <InputNumber
+
+  <div
+    onMouseOver={() => {
+      onChange({
+        key: 'draggable',
+        data: false
+      })
+    }}
+    onMouseLeave={() => {
+      onChange({
+        key: 'draggable',
+        data: true
+      })
+    }}
+  >
+    <Slider
+      style={{ width: '200px' }}
+      range={false}
+      max={1}
+      min={0}
+      step={0.05}
+      defaultValue={temperature}
+      value={temperature}
+      onChange={(e: any) => {
+        // console.log('temperature', e)
+        onChange({
+          key: 'temperature',
+          data: e
+        })
+
+      }}
+
+    />
+  </div>
+
+
+
+  {/* <InputNumber
     stringMode
     step="0.01"
     size="large"
     min={'0'}
     max={'1'}
+    onMouseOver={() => {
+      onChange({
+        key: 'draggable',
+        data: false
+      })
+    }}
+    onMouseLeave={() => {
+      onChange({
+        key: 'draggable',
+        data: true
+      })
+    }}
     value={temperature.toString()} onChange={(e: any) => {
       // console.log(e)
       onChange({
@@ -177,7 +251,7 @@ const createModel = (model: string, temperature: number, opts: any, onChange: an
         data: parseFloat(e)
       })
 
-    }} />
+    }} /> */}
 
 </>
 
@@ -228,6 +302,7 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
       setTemperature(e.data);
       data.onChange({ id, data: { temperature: e.data } })
     }
+    if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
   // text
   const [text, setText] = React.useState(data.text)
@@ -237,6 +312,8 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
       setText(e.data);
       data.onChange({ id, data: { text: e.data } })
     }
+
+    if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
 
   }
 
@@ -249,7 +326,7 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
       setApi(e.data);
       data.onChange({ id, data: { api: e.data } })
     }
-
+    if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
 
 
@@ -262,7 +339,7 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
       setQueryObj(e.data);
       data.onChange({ id, data: { queryObj: e.data } })
     }
-
+    if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
 
   // input

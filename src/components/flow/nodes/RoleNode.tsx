@@ -6,7 +6,7 @@ import { DownOutlined, UserOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Option } = Select;
 
-import { roleAvatars } from './Workflow'
+import { roleAvatars } from '../Workflow'
 
 export type NodeData = {
     role: any;
@@ -22,6 +22,11 @@ export type NodeData = {
     opts: any,
     onChange: any
 };
+
+const menuName = {
+    cardTitle: '角色',
+    createText: '角色定义'
+}
 
 const createType = (type: string, agents: any, onChange: any) => {
     const label = agents.filter((a: any) => a.key == type)[0]?.label || '-';
@@ -52,9 +57,22 @@ const createName = (title: string, name: string, onChange: any) =>
         }} />
 
 const createText = (title: string, text: string, onChange: any) => <>
+    <p>{menuName.createText}</p>
     <TextArea
         defaultValue={text}
         rows={4}
+        onMouseOver={() => {
+            onChange({
+                key: 'draggable',
+                data: false
+            })
+        }}
+        onMouseLeave={() => {
+            onChange({
+                key: 'draggable',
+                data: true
+            })
+        }}
         autoSize
         placeholder={title}
         onChange={(e) => {
@@ -138,12 +156,19 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
     const [role, setRole] = React.useState(data.role)
     const updateRole = (e: any) => {
         // console.log(e)
+
         let r = { ...role };
-        r[e.key] = e.data;
-        setRole({
-            ...r
-        })
-        data.onChange({ id, data: { role: r } })
+
+        if (e.key == 'role') {
+            r[e.key] = e.data;
+            setRole({
+                ...r
+            })
+            data.onChange({ id, data: { role: r } })
+        }
+
+        if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
+
     }
 
 
@@ -152,7 +177,7 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
         const keys: any = {
             guide: '你的AI员工是个拥有情感、喜恶、过往、抱负、目标、梦想与恐惧的AI机器人，就和一个真人一样。编辑这个员工将重新生成它，赋予它新的简介与小传（除非已被锁定），也可能因此改变它的言论与行为。在编辑AI员工前，请确保您可以接受因此带来的后果。',
             name: '姓名',
-            text: '我是...'
+            text: '请描述角色的特征，我是...'
         }
 
         const items: any = Array.from(roleAvatars, (avatar: any) => {
@@ -181,33 +206,27 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
         };
         return <Card
             key={id}
-            title="Role"
+            title={menuName.cardTitle}
             //   extra={createType(type, agents, updateType)}
             style={{ width: 300 }}>
-            <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-
-                <Dropdown menu={menuProps}>
+            {/* <Dropdown menu={menuProps}>
                     <Button>
                         <Space>
                             {avatarCheckedLabel}
                             <DownOutlined />
                         </Space>
                     </Button>
-                </Dropdown>
+                </Dropdown> */}
 
-                {createName(keys['name'], role.name, updateRole)}
+            {/* {createName(keys['name'], role.name, updateRole)} */}
 
-                {createText(keys['text'], role.text, updateRole)}
+            {createText(keys['text'], role.text, updateRole)}
 
-                {createModel(model, temperature, models, updateModel)}
+            {/* {createModel(model, temperature, models, updateModel)} */}
 
-                <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
+            {/* <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
                     {data.debug ? <Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button> : ''}
-
-                    {/* <Button onClick={(e) => console.log(role)} >开始</Button> */}
-                </Space>
-
-            </Space>
+                </Space> */}
 
         </Card>
     }

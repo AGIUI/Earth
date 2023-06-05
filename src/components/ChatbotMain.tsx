@@ -58,7 +58,6 @@ console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
     }
 })(console.log)
 
-console.log(11111111111111111111111111111111111)
 
 // checkClipboard()
 
@@ -513,11 +512,11 @@ class Main extends React.Component<{
             } = request;
             if (cmd == 'open-readability') {
                 window.location.href = window.location.origin + window.location.pathname + window.location.search + '&reader=1'
-            } else if (cmd == 'open-insight') {
+            } else if (cmd == 'open-chatbot-panel') {
                 this.setState({ initIsOpen: true });
                 this.show(false);
                 this.props.callback({
-                    cmd: 'open-insight',
+                    cmd: 'open-chatbot-panel',
                 })
             } else if (cmd == 'chat-bot-init-result') {
                 this.initChatBot(false);
@@ -821,7 +820,7 @@ class Main extends React.Component<{
 
     // TODO 需要放到某个监听里，来更新对话数据
     _updateChatBotTalksResult(items: any) {
-
+        console.log('_updateChatBotTalksResult',items)
         // 对话数据
         const talks: any = this.state.talks;
         // 更新到这里
@@ -846,7 +845,7 @@ class Main extends React.Component<{
             if (data.type == "start") {
                 // 需补充此状态
                 // 对话状态开启
-                console.log('对话状态开启')
+                console.log('对话状态开启',data)
                 this.updateChatBotStatus(true);
 
             } else if ((data.type == 'markdown' || data.type == 'done')) {
@@ -882,7 +881,7 @@ class Main extends React.Component<{
                 if (data.type == 'done') {
 
                     let PromptIndex = this.state.PromptIndex;
-                    // console.log('done', this.state.currentPrompt.combo, PromptIndex)
+                    console.log('done', this.state.currentPrompt, PromptIndex)
 
                     // 上一个节点
                     let prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
@@ -1101,14 +1100,14 @@ class Main extends React.Component<{
                     const isAvatarUrl = await checkImageUrl(avatarUrl);
                     if (isAvatarUrl == false) avatarUrl = chrome.runtime.getURL('public/chatgpt-icon.png');
 
-                    nTalks.push(
-                        ChatBotConfig.createTalkData('role-start',
-                            {
-                                name: prompt.role.name || '',
-                                avatarUrl,
-                                html: `<p class="chatbot-role-card">${prompt.role.text}</p>`,
-                            }
-                        ));
+                    // nTalks.push(
+                    //     ChatBotConfig.createTalkData('role-start',
+                    //         {
+                    //             name: prompt.role.name || '',
+                    //             avatarUrl,
+                    //             html: `<p class="chatbot-role-card">${prompt.role.text}</p>`,
+                    //         }
+                    //     ));
                     // console.log(nTalks)
                 }
 
@@ -1198,6 +1197,7 @@ class Main extends React.Component<{
                     if (this.state.chatBotStyle && this.state.chatBotStyle.value) prompt.temperature = this.state.chatBotStyle.value;
                 }
 
+                // 
                 if (['prompt',
                     'tasks',
                     'extract',
@@ -1205,7 +1205,7 @@ class Main extends React.Component<{
                     'list',
                     'markdown',
                     'translate-zh',
-                    'translate-en', 'role'].includes(prompt.type)) this._llmRun(prompt, newTalk);
+                    'translate-en'].includes(prompt.type)) this._llmRun(prompt, newTalk);
 
                 if (prompt.type === 'highlight') {
                     // this._agentHighlightTextRun(lastTalk)
@@ -1365,11 +1365,11 @@ class Main extends React.Component<{
                     Talks.save(nTalks)
 
                     break;
-                // case "input-change":
-                //     this.setState({
-                //         input: data.input
-                //     })
-                //     break;
+                case "debug-combo":
+                    this.props.callback({
+                        cmd: 'debug-combo',
+                    })
+                    break;
                 // case "output-change":
                 //     this.setState({
                 //         output: data.output

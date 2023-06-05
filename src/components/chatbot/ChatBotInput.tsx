@@ -12,7 +12,11 @@ import ChatBotSelect from "@components/chatbot/ChatBotSelect"
  * 
  */
 
-
+const menuNames = {
+    debug: '调试全部',
+    new: '新建',
+    send: '发送'
+}
 
 type PropType = {
     /** 回调
@@ -52,7 +56,7 @@ type StateType = {
     agent: any;
     chatBotType: string;
     chatBotStyle: any;
-    debug:boolean
+    debug: boolean
 }
 
 interface ChatBotInput {
@@ -107,7 +111,7 @@ class ChatBotInput extends React.Component {
             chatBotType: config.type,
             chatBotStyle: config.style,
 
-            debug:this.props.debug
+            debug: this.props.debug
         }
 
     }
@@ -274,10 +278,23 @@ class ChatBotInput extends React.Component {
                                 onClick={() => this._leftBtnClick()}
                                 disabled={this.state.isLoading}
                             >
-                            工作流
+                                工作流
                             </Button> : ''
                         }
 
+                        {
+                            this.props.debug ? <Button
+                                style={buttonStyle}
+                                type="dashed"
+                                icon={<BranchesOutlined />}
+                                onClick={() => this.props.callback({
+                                    cmd: 'debug-combo'
+                                })}
+                                disabled={this.state.isLoading}
+                            >
+                                {menuNames.debug}
+                            </Button> : ''
+                        }
 
                     </div>
                     ,
@@ -285,7 +302,7 @@ class ChatBotInput extends React.Component {
                         display: 'flex',
                         alignItems: 'center',
                         padding: '10px',
-                        paddingRight:'0px',
+                        paddingRight: '0px',
                         justifyContent: 'flex-end'
                     }}
                     >
@@ -373,7 +390,7 @@ class ChatBotInput extends React.Component {
                     placeholder={this.state.placeholder}
                     autoSize={{ minRows: 2, maxRows: 15 }}
                     disabled={this.state.isLoading}
-                    style={this.state.userInput.prompt ? { height: 'auto',marginTop:5 } : {marginTop:5}}
+                    style={this.state.userInput.prompt ? { height: 'auto', marginTop: 5 } : { marginTop: 5 }}
                 />
 
             </Card>

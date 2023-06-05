@@ -230,7 +230,7 @@ const createListItem = (data: any, index: number, debug: boolean) => {
     return <div style={{ margin: '5px 0' }} className={`chatbot-talk-card-${data.type}`}>{
         // 状态判断：思考、建议选项、对话
         data.type == 'thinking' ? thinkingBtn(data.hi) : (
-            data.type == 'suggest' ? <>
+            data.type == 'suggest'&& !debug ? <>
                 {
                     data.hi ?
                         createAvatar(data.avatarUrl || chrome.runtime.getURL('public/icon-34.png'), data.hi) : ''
@@ -353,7 +353,8 @@ class ChatBotTalks extends React.Component {
 
     _updateItems() {
         // 当this.props.items 为空
-        const defaultItems = [ChatBotConfig.createTalkData('help', {})];
+
+        const defaultItems = [!this.props.debug ? ChatBotConfig.createTalkData('help', {}) : null].filter(f => f);
 
         // 当this.props.items 为空
         let items: any = (!(this.props.items && this.props.items.length > 0) ? defaultItems : [...this.props.items]).filter(i => i);

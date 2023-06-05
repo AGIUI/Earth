@@ -12,16 +12,6 @@ import {
 import { create } from 'zustand';
 import { nanoid } from 'nanoid/non-secure';
 
-declare const window: Window &
-  typeof globalThis & {
-    _brainwave_import: any,
-    _brainwave_get_current_node_for_workflow: any,
-    _brainwave_get_workflow_data: any,
-    _brainwave_save_callback: any,
-    _brainwave_save_callback_init: any,
-    _brainwave_debug_callback: any
-  }
-
 import { defaultNode, comboOptions, _DEFAULTCOMBO, parsePrompt2ControlEvent } from './Workflow'
 
 
@@ -39,6 +29,8 @@ export type RFState = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   addChildNode: (parentNode: Node, position: XYPosition) => void;
+  changeChildNode: any;
+  addNode: any
 };
 
 
@@ -89,13 +81,15 @@ const useStore = create<RFState>((set, get) => ({
         ...nd.data,
         onChange: (e: any) => {
           // console.log('store-onchange', e)
+
           const nodes = [];
           for (const node of get().nodes) {
             if (node.id === e.id) {
               nodes.push({
                 ...node, data: {
                   ...node.data, ...e.data
-                }
+                },
+                draggable: !!e.data.draggable
               })
             } else {
               nodes.push(node)
@@ -153,6 +147,57 @@ const useStore = create<RFState>((set, get) => ({
       edges: applyEdgeChanges(changes, get().edges),
     });
   },
+  addNode: (type: string) => {
+    const newNode: any = {
+      id: nanoid(),
+      type,
+      data: {
+        ...defaultNode,
+        type,
+        onChange: (e: any) => {
+          // console.log('store-onchange', e)
+          const nodes = [];
+          for (const node of get().nodes) {
+            if (node.id === e.id) {
+              nodes.push({
+                ...node, data: {
+                  ...node.data, ...e.data
+                },
+                draggable: !!e.data.draggable
+              })
+            } else {
+              nodes.push(node)
+            }
+          }
+          set({
+            nodes
+          });
+        }
+      },
+      position: { x: 0, y: 0 },
+      deletable: true,
+    };
+    set({
+      nodes: [...get().nodes, newNode]
+    });
+  },
+  changeChildNode: (source: string, target: string) => {
+
+    // source 
+    const edges = get().edges.filter(e => e.source != source && e.target != target)
+    console.log(edges)
+
+    const newEdge = {
+      id: nanoid(),
+      source,
+      target
+    };
+
+    set({
+      edges: [...edges, newEdge],
+    });
+
+  },
   addChildNode: (parentNode: Node, position: XYPosition) => {
     // console.log('addChildNode', parentNode, get().edges)
     const pId = parentNode.id;
@@ -168,13 +213,15 @@ const useStore = create<RFState>((set, get) => ({
       data: {
         ...defaultNode,
         onChange: (e: any) => {
+          // console.log('store-onchange', e)
           const nodes = [];
           for (const node of get().nodes) {
             if (node.id === e.id) {
               nodes.push({
                 ...node, data: {
                   ...node.data, ...e.data
-                }
+                },
+                draggable: !!e.data.draggable
               })
             } else {
               nodes.push(node)
@@ -186,7 +233,7 @@ const useStore = create<RFState>((set, get) => ({
         }
       },
       position,
-      parentNode: parentNode.id,
+      // parentNode: parentNode.id,
       deletable: true
     };
 

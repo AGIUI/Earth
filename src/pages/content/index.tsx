@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import Main from "@pages/content/Main";
+import Main from "@src/components/ChatbotMain";
 import { getConfigFromUrl, getConfig } from "@components/Utils"
 
 
