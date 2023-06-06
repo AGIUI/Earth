@@ -3,10 +3,20 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-
-
 const { TextArea } = Input;
 const { Option } = Select;
+
+
+const menuNames = {
+  title: '提示工程',
+  userInput: '指令',
+  input: '输入',
+  output: '输出',
+  translate: '翻译',
+  format: '-',
+  debug: '调试'
+}
+
 
 export type NodeData = {
   debug: any;
@@ -19,47 +29,11 @@ export type NodeData = {
   output: string,
   type: string,
   opts: any,
-  onChange: any
+  onChange: any,
+  translate: any
 };
 
-const createType = (type: string, agents: any, onChange: any) => {
-  const label = agents.filter((a: any) => a.key == type)[0]?.label || '-';
 
-  const parents: any = {};
-  for (const agent of agents) {
-    if (!parents[agent.parent]) parents[agent.parent] = {
-      key: agent.parent,
-      type: 'group',
-      label: agent.parent,
-      children: []
-    }
-    parents[agent.parent].children.push(agent)
-  }
-
-  const items = [];
-  for (const key in parents) {
-    items.push(parents[key])
-  }
-
-  return <Dropdown
-    trigger={['click']}
-    menu={{
-      items,
-      onClick: (e) => {
-        // console.log(e)
-        onChange({
-          data: e.key,
-          key: 'type'
-        })
-      }
-    }}>
-    <Space>
-      {label}
-      <DownOutlined />
-    </Space>
-
-  </Dropdown>
-}
 
 const createText = (title: string, text: string, onChange: any) => <>
   <p>{title}</p>
@@ -91,81 +65,6 @@ const createText = (title: string, text: string, onChange: any) => <>
   /></>;
 
 
-/**
- * API / queryObj
- * @param title 
- * @param protocol 
- * @param url 
- * @param json init / query
- * @returns 
- */
-const createUrl = (key: string, title: string, json: any, onChange: any) => {
-  const { protocol, url, init, query, isApi, isQuery } = json;
-
-  return <div
-    onMouseOver={() => {
-      onChange({
-        key: 'draggable',
-        data: false
-      })
-    }}
-    onMouseLeave={() => {
-      onChange({
-        key: 'draggable',
-        data: true
-      })
-    }}
-  >
-    <p>{title}</p>
-    <Input addonBefore={
-      <Select defaultValue={protocol} onChange={(e: string) => {
-        onChange({
-          key,
-          data: {
-            ...json, protocol: e
-          }
-        })
-
-      }}>
-        <Option value="http://">http://</Option>
-        <Option value="https://">https://</Option>
-      </Select>
-    }
-      placeholder={`请填写url`}
-      defaultValue={url}
-      onChange={(e: any) => {
-        // console.log('input url',e)
-        onChange({
-          key,
-          data: {
-            ...json, url: e.target.value
-          }
-        })
-      }}
-    />
-    {json && (json.init || json.query) ? <>
-      <p>-</p>
-      <TextArea
-        defaultValue={key == 'api' ? JSON.stringify(init, null, 2) : query}
-        rows={4}
-        placeholder="xxxx"
-        autoSize
-        onChange={(e) => {
-          const data = {
-            ...json
-          }
-          key == 'api' ? data['init'] = JSON.parse(e.target.value) : data['query'] = e.target.value;
-
-          onChange({
-            key,
-            data
-          })
-
-        }}
-      />
-    </> : ''}
-  </div>
-}
 
 const createModel = (model: string, temperature: number, opts: any, onChange: any) => <>
   <p>{opts.filter((m: any) => m.value == 'model')[0].label}</p>
@@ -188,6 +87,7 @@ const createModel = (model: string, temperature: number, opts: any, onChange: an
         >{p.label}</Radio.Button>
       })}
   </Radio.Group>
+
   <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}</p>
 
   <div
@@ -209,7 +109,7 @@ const createModel = (model: string, temperature: number, opts: any, onChange: an
       range={false}
       max={1}
       min={0}
-      step={0.05}
+      step={0.02}
       defaultValue={temperature}
       value={temperature}
       onChange={(e: any) => {
@@ -225,13 +125,30 @@ const createModel = (model: string, temperature: number, opts: any, onChange: an
   </div>
 
 
+</>
 
-  {/* <InputNumber
-    stringMode
-    step="0.01"
-    size="large"
-    min={'0'}
-    max={'1'}
+const createInput = (title: string, key: string, value: string, opts: any, onChange: any) => <>
+  <p>{title}</p>
+  <Radio.Group
+    style={{
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'baseline'
+    }}
+    defaultValue={value}
+    value={value}
+    options={opts}
+    onChange={(e: any) => {
+      // console.log(e)
+      onChange({
+        key: key,
+        data: e.target.value
+      })
+    }} />
+</>
+
+const createTranslate = (title: string, key: string, value: string, opts: any, onChange: any) => {
+  return <div
     onMouseOver={() => {
       onChange({
         key: 'draggable',
@@ -244,18 +161,22 @@ const createModel = (model: string, temperature: number, opts: any, onChange: an
         data: true
       })
     }}
-    value={temperature.toString()} onChange={(e: any) => {
-      // console.log(e)
-      onChange({
-        key: 'temperature',
-        data: parseFloat(e)
-      })
+  >
+    <p>{title}</p>
+    <Select
+      defaultValue={value}
+      style={{ width: 120 }}
+      onChange={(e) => {
+        onChange({
+          key: key,
+          data: e
+        })
+      }}
+      options={opts}
+    /></div>
+}
 
-    }} /> */}
-
-</>
-
-const createInputAndOutput = (title: string, key: string, value: string, opts: any, onChange: any) => <>
+const createOutput = (title: string, key: string, value: string, opts: any, onChange: any) => <>
   <p>{title}</p>
   <Radio.Group
     style={{
@@ -277,17 +198,8 @@ const createInputAndOutput = (title: string, key: string, value: string, opts: a
 
 
 
-function BWNode({ id, data, selected }: NodeProps<NodeData>) {
+function Main({ id, data, selected }: NodeProps<NodeData>) {
 
-  // 类型
-  const agents = data.opts.agents;
-  const [type, setType] = React.useState(data.type)
-  const updateType = (e: any) => {
-    if (e.key === 'type') {
-      setType(e.data);
-      data.onChange({ id, data: { type: e.data } })
-    }
-  }
   // 模型
   const models = data.opts.models;
   const [model, setModel] = React.useState(data.model)
@@ -317,30 +229,6 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
 
   }
 
-  // api
-  data.api.isApi = type === "api";
-  const [api, setApi] = React.useState(data.api)
-  const updateApi = (e: any) => {
-    // console.log(e)
-    if (e.key === 'api') {
-      setApi(e.data);
-      data.onChange({ id, data: { api: e.data } })
-    }
-    if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
-  }
-
-
-  // queryObj
-  data.queryObj.isQuery = type === "query";
-  const [queryObj, setQueryObj] = React.useState(data.queryObj)
-  const updateQueryObj = (e: any) => {
-    // console.log(e)
-    if (e.key === 'query') {
-      setQueryObj(e.data);
-      data.onChange({ id, data: { queryObj: e.data } })
-    }
-    if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
-  }
 
   // input
   const inputs = data.opts.inputs;
@@ -355,6 +243,18 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
   }
 
   // output
+  const translates = data.opts.translates;
+  const [translate, setTranslate] = React.useState(data.translate)
+  const updateTranslate = (e: any) => {
+    // console.log(e)
+    if (e.key === 'translate') {
+      setTranslate(e.data);
+      data.onChange({ id, data: { translate: e.data } })
+    }
+    if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
+  }
+
+  // output
   const outputs = data.opts.outputs;
   const [output, setOutput] = React.useState(data.output)
   const updateOutput = (e: any) => {
@@ -366,35 +266,24 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
 
   }
 
+
   const createNode = () => {
     const node = [];
-    if (!['api', 'query', 'send-to-zsxq'].includes(type)) {
-      node.push(createInputAndOutput('Input', 'input', input, inputs, updateInput))
-      node.push(createText('Prompt', text, updateText))
-      node.push(createModel(model, temperature, models, updateModel))
-    } else {
-      ['api'].includes(type) && node.push(createUrl('api', 'URL', api, updateApi));
-      ['query'].includes(type) && node.push(createUrl('query', 'URL', queryObj, updateQueryObj));
-      ['send-to-zsxq'].includes(type) && node.push(
-        createUrl('query', 'URL',
-          {
-            protocol: queryObj.protocol,
-            url: queryObj.url
-          },
-          updateQueryObj));
-    }
-
-    node.push(createInputAndOutput('Output', 'output', output, outputs, updateOutput))
+    // node.push(createInput(menuNames.input, 'input', input, inputs, updateInput))
+    node.push(createText(menuNames.userInput, text, updateText))
+    node.push(createModel(model, temperature, models, updateModel))
+    node.push(createTranslate(menuNames.translate, 'translate', translate, translates, updateTranslate))
+    node.push(createOutput(menuNames.output, 'output', output, outputs, updateOutput))
 
     if (data.debug) {
       node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button>)
+      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
     }
 
     return <Card
       key={id}
-      title="Agent"
-      extra={createType(type, agents, updateType)}
+      title={menuNames.title}
+      // extra={createType(type, agents, updateType)}
       style={{ width: 300 }}>
       {...node}
     </Card>
@@ -422,17 +311,13 @@ function BWNode({ id, data, selected }: NodeProps<NodeData>) {
 
   return (
     <Dropdown menu={{ items, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
-
       <div style={nodeStyle} key={id}>
-
         {createNode()}
         <Handle type="target" position={Position.Left} />
-
         <Handle type="source" position={Position.Right} />
-
       </div>
     </Dropdown>
   );
 }
 
-export default BWNode;
+export default Main;

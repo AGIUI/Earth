@@ -7,7 +7,7 @@ import ChatBotPanel from "@components/chatbot/ChatBotPanel"
 import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 
 import ComboEditor from '@components/combo/ComboEditor';
-import ComboModal from '@components/combo/ComboModal'
+
 
 import {
     promptBindCurrentSite,
@@ -19,7 +19,9 @@ import {
     promptParse,
     promptUseLastTalk,
     promptBindRole,
-    bindUserInput
+    bindUserInput,
+    promptBindTranslate,
+    promptBindOutput
 } from '@src/components/combo/Prompt'
 
 import { highlightText } from "@components/combo/Agent"
@@ -441,10 +443,15 @@ class Main extends React.Component<{
             // console.log(prevProps.debugData, this.props.debugData)
             if (this.props.debugData.id != prevProps.debugData.id) {
                 const { autoRun } = this.props.debugData;
-                if (autoRun) this._control({
-                    cmd: 'combo',
-                    data: this.props.debugData
-                })
+                if (autoRun) {
+                    // 新建
+                    this._control({ cmd: 'new-talk' });
+                    setTimeout(() => this._control({
+                        cmd: 'combo',
+                        data: this.props.debugData
+                    }), 500)
+
+                }
             }
         }
         // console.log('this.props.show', this.props.show)
@@ -660,12 +667,15 @@ class Main extends React.Component<{
         return promptBindCurrentSite(prompt, type)
     }
 
+    _promptBindTranslate(prompt: string, type: string) {
+        return promptBindTranslate(prompt, type)
+    }
+
     // 
-    _promptOutput(type: string, prompt: string, lastTalk = '') {
-        if (type == 'isNextUse') {
-            return promptUseLastTalk(prompt, lastTalk)
-        }
-        return prompt
+    _promptOutput(prompt: string, type: string) {
+
+        return promptBindOutput(prompt, type)
+
     }
     //type markdown/json/
     // _promptByType(type: string, prompt: string, lastTalk = '') {
@@ -771,13 +781,16 @@ class Main extends React.Component<{
         console.log('this.state.chatBotStyle', this.state.chatBotStyle)
         const { temperature, model, text, type } = prompt;
 
-        let newText = text;
+        let newText = text,
+            systemContent = "";
 
         if (type === 'tasks') {
             newText = promptBindTasks(text);
         } else {
             console.log('_llmRun:', type)
-            newText = promptParse(text, type)
+            const { system, prompt } = promptParse(text, type);
+            newText = prompt;
+            systemContent = system;
         }
 
         let chatBotType = this.state.chatBotType,
@@ -794,6 +807,7 @@ class Main extends React.Component<{
         console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, newText)
 
         sendMessageToBackground['chat-bot-talk']({
+            systemContent: systemContent,
             prompt: newText,
             type: chatBotType,
             style,
@@ -1178,11 +1192,22 @@ class Main extends React.Component<{
                     prompt.text = await this._promptBindUserClipboard(prompt.text)
                 }
 
-                // output的处理
+                // translate的处理
+                if (prompt.translate != "default") this._promptBindTranslate(prompt.text, prompt.translate)
+
+                // 是否使用上一节点的处理
                 if (prePrompt && prePrompt.output != 'default') {
                     let lastTalk = Talks.getLastTalk([...nTalks]);
-                    prompt.text = this._promptOutput(prePrompt.output, prompt.text, lastTalk)
+
+                    // if (type == 'isNextUse') {
+                    //     return promptUseLastTalk(prompt, lastTalk)
+                    // }
+
+                    // prompt.text = this._promptOutput(prePrompt.output, prompt.text, lastTalk)
                 }
+
+                // output的处理
+                prompt.text = this._promptOutput(prompt.text, prompt.output)
 
 
                 // 运行时
@@ -1564,11 +1589,6 @@ class Main extends React.Component<{
                         myPrompts={this.state.myPrompts}
                         callback={(event: any) => this._control(event)}
                     /> : ''}
-
-                {this.state.showEdit && <ComboModal
-                    currentPrompt={this.state.currentPrompt}
-                    callback={(e: any) => this._promptControl(e)}
-                />}
 
                 {
                     !this.state.showEdit && this.state.toggleSetup &&

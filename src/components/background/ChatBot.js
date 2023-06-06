@@ -182,7 +182,7 @@ class ChatBotBackground {
     // style ：bing的，chatgpt的
     // 开始对话，需要给一个start的记录
     // this.talksRecord=[];
-    async doSendMessage(prompt, style, type, newTalk = false, callback) {
+    async doSendMessage(systemContent = null, prompt, style, type, newTalk = false, callback) {
         let item = this.items.filter(item => item.type == type)[0]
 
         // 从缓存中读取
@@ -266,7 +266,9 @@ class ChatBotBackground {
                 }
             }
             callback(...args)
-        })
+
+        }, systemContent)
+
         return this.getCurrentTalks()
     }
 

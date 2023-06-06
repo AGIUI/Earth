@@ -3,7 +3,9 @@ import { Card, Button, Input, Collapse, Radio, message } from 'antd';
 import { PlusOutlined, SendOutlined, BranchesOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Panel } = Collapse;
-import { defaultCombo, defaultPrompt } from "@components/combo/ComboData";
+
+import { _DEFAULTCOMBO, defaultNode } from "@components/flow/Workflow";
+
 import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ChatBotSelect from "@components/chatbot/ChatBotSelect"
 
@@ -11,6 +13,9 @@ import ChatBotSelect from "@components/chatbot/ChatBotSelect"
  * <ChatBotInput callback={({data,cmd})=>{console.log(cmd,data)}} isLoading={false} leftButton={label:'My Prompts'}/>
  * 
  */
+
+const defaultPrompt: any = { ...defaultNode }
+delete defaultPrompt.opts;
 
 const menuNames = {
     debug: '调试全部',
@@ -146,7 +151,7 @@ class ChatBotInput extends React.Component {
         if (prompt) {
             const output = this.state.output.filter((oup: any) => oup.checked)[0].value;
             const combo = {
-                ...defaultCombo,
+                ..._DEFAULTCOMBO,
                 prompt: {
                     ...defaultPrompt,
                     text: prompt,

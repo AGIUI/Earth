@@ -133,11 +133,14 @@ export default class ChatGPT {
         })
     }
 
-    buildMessages() {
+    buildMessages(systemContent = null) {
         const date = new Date().toISOString().split('T')[0]
+
+        systemContent = systemContent || `You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.\nKnowledge cutoff: 2021-09-01\nCurrent date: ${date}`;
+
         const systemMessage = {
             role: 'system',
-            content: `You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.\nKnowledge cutoff: 2021-09-01\nCurrent date: ${date}`
+            content: systemContent
         }
         return [
             systemMessage,
@@ -238,7 +241,7 @@ export default class ChatGPT {
         this.conversationContext = null
     }
 
-    async doSendMessageForBg(prompt, temperature, callback) {
+    async doSendMessageForBg(prompt, temperature, callback, systemContent) {
         // 支持传style
         if (!temperature) temperature = 0.6
             // style = style.toLowerCase();
@@ -246,6 +249,7 @@ export default class ChatGPT {
         let id = v4()
         try {
             this.doSendMessage({
+                systemContent: systemContent,
                 prompt: prompt,
                 temperature,
                 onEvent: async d => {
@@ -262,14 +266,18 @@ export default class ChatGPT {
     }
 
     async doSendMessage(params) {
-        let token = params.token || this.token
+        let token = params.token || this.token;
+        let systemContent = params.systemContent;
+        let temperature = params.temperature;
+        if (temperature === undefined || temperature === null) temperature = 0.6;
         if (!token) {
             params.onEvent({ type: 'ERROR', data: 'ChatGPT API key not set' })
                 // throw new Error('OpenAI API key not set')
             return
         }
         if (!this.conversationContext) {
-            this.conversationContext = { messages: [] }
+            this.conversationContext = { messages: [] };
+
         }
         this.conversationContext.messages.push({
             role: 'user',
@@ -285,8 +293,8 @@ export default class ChatGPT {
             params.url || this.baseUrl,
             token, {
                 model: params.model || this.model,
-                messages: this.buildMessages(),
-                temperature: params.temperature || 0.6,
+                messages: this.buildMessages(systemContent),
+                temperature: temperature,
                 stream: true
             },
             signal
@@ -317,6 +325,9 @@ export default class ChatGPT {
             };
 
             if (isDone) {
+
+                this.conversationContext.messages.push(result);
+
                 params.onEvent({ type: 'DONE' })
                 return
             }

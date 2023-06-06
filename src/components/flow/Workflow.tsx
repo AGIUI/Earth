@@ -59,6 +59,7 @@ const workflow = {
     "inputs": [{
         "label": "默认",
         "value": "default",
+        "checked":true,
         "display": ["chatbot", "editor", "debug"]
     }, {
         "label": "绑定网页正文",
@@ -89,16 +90,41 @@ const workflow = {
         "display": ["chatbot", "editor"]
     }
     ],
+    "translates": [
+        {
+            "label": "中文",
+            "value": "translate-zh",
+            "display": ["chatbot", "editor", "debug"]
+        },
+        {
+            "label": "英文",
+            "value": "translate-en",
+            "display": ["chatbot", "editor", "debug"]
+        },
+    ],
     "outputs": [{
         "label": "默认",
         "value": "default",
+        "checked":true,
         "display": ["chatbot", "editor", "debug"]
-
-    }, {
-        "label": "作为上下文",
-        "value": "isNextUse",
-        "display": ["editor"]
-    }],
+    },
+    {
+        "label": "JSON格式",
+        "value": "json",
+        "display": ["chatbot", "editor", "debug"]
+    },
+    {
+        "label": "MarkDown格式",
+        "value": "markdown",
+        "display": ["chatbot", "editor", "debug"]
+    },
+    {
+        "label": "列表",
+        "value": "list",
+        "disabled": true,
+        "display": ["chatbot", "editor", "debug"]
+    },
+    ],
     "agents": [
         {
             "key": "prompt",
@@ -147,42 +173,6 @@ const workflow = {
             "display": ["editor"]
         },
         {
-            "label": "JSON格式",
-            "key": "json",
-            "parent": "formatter",
-            "display": ["chatbot", "editor", "debug"]
-        },
-        {
-            "label": "列表",
-            "key": "list",
-            "parent": "formatter",
-            "disabled": true,
-            "display": ["chatbot", "editor", "debug"]
-        },
-        {
-            "label": "MarkDown格式",
-            "key": "markdown",
-            "parent": "formatter",
-            "display": ["chatbot", "editor", "debug"]
-        },
-        {
-            "label": "中文",
-            "key": "translate-zh",
-            "parent": "translate",
-            "display": ["chatbot", "editor", "debug"]
-        },
-        {
-            "label": "英文",
-            "key": "translate-en",
-            "parent": "translate",
-            "display": ["chatbot", "editor", "debug"]
-        },
-        // {
-        //     "label": "提取结构化数据",
-        //     "key": "extract",
-        //     "temperature": 0
-        // },
-        {
             "label": "条件判断",
             "key": "if-else",
             "parent": "logic",
@@ -195,15 +185,7 @@ const workflow = {
             "parent": "logic",
             "disabled": true,
             "display": ["chatbot", "editor", "debug"]
-        },
-        // {
-        //     "label": "进入网页",
-        //     "key": "open-url",
-        //     // 属于哪一个分类
-        //     "parent": "query",
-        //     "disabled": false,
-        //     "display": ["editor", "debug"]
-        // }
+        }
     ]
 
 }
@@ -230,10 +212,6 @@ const comboOptions = [
 ];
 
 const defaultNode = {
-    role: {
-        name: '',
-        text: ''
-    },
     text: '',
     url: '',
     api: {
@@ -257,7 +235,7 @@ const defaultNode = {
         protocol: 'https://',
         content: 'bindCurrentPage',
         input: 'nodeInput',
-        inputText:'',
+        inputText: '',
         // 网页跳转 default、模拟点击click 、输入input、读取read
         action: 'default',
         isQuery: false
@@ -265,6 +243,7 @@ const defaultNode = {
     temperature: 0.6,
     model: 'ChatGPT',
     input: 'default',
+    translate: 'default',
     output: 'default',
     type: 'prompt',
     // 以下是选项
@@ -276,6 +255,10 @@ const defaultNode = {
 
 const _DEFAULTCOMBO = {
     tag: 'default',
+    role: {
+        name: '',
+        text: ''
+    },
     combo: 1,
     interfaces: [],
     isInfinite: false,

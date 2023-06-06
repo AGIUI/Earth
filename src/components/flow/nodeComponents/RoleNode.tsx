@@ -84,82 +84,15 @@ const createText = (title: string, text: string, onChange: any) => <>
     /></>;
 
 
-
-const createModel = (model: string, temperature: number, opts: any, onChange: any) => <>
-    <p>{opts.filter((m: any) => m.value == 'model')[0].label}</p>
-    <Radio.Group
-        onChange={(e) => {
-
-            onChange({
-                key: 'model',
-                data: e.target.value
-            })
-
-        }}
-        defaultValue={model}
-    >
-        {Array.from(opts.filter((m: any) => m.value == 'model')[0].options,
-            (p: any, i: number) => {
-                return <Radio.Button
-                    key={i}
-                    value={p.value}
-                >{p.label}</Radio.Button>
-            })}
-    </Radio.Group>
-    <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}</p>
-    <InputNumber
-        stringMode
-        step="0.01"
-        size="large"
-        min={'0'}
-        max={'1'}
-        value={temperature.toString()} onChange={(e: any) => {
-            // console.log(e)
-            onChange({
-                key: 'temperature',
-                data: parseFloat(e)
-            })
-
-        }} />
-
-</>
-
-
 function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
     // console.log('RoleNode', JSON.stringify(data, null, 2))
-    // 类型
-    const agents = data.opts.agents;
-    const [type, setType] = React.useState(data.type)
-    const updateType = (e: any) => {
-        if (e.key === 'type') {
-            setType(e.data);
-            data.onChange({ id, data: { type: e.data } })
-        }
-    }
-    // 模型
-    const models = data.opts.models;
-    const [model, setModel] = React.useState(data.model)
-    const [temperature, setTemperature] = React.useState(data.temperature)
-    const updateModel = (e: any) => {
-        // console.log(e)
-        if (e.key === 'model') {
-            setModel(e.data);
-            data.onChange({ id, data: { model: e.data } })
-        }
-        if (e.key === 'temperature') {
-            setTemperature(e.data);
-            data.onChange({ id, data: { temperature: e.data } })
-        }
-    }
 
     // text
     const [role, setRole] = React.useState(data.role)
     const updateRole = (e: any) => {
         // console.log(e)
-
         let r = { ...role };
-
-        if (e.key == 'role') {
+        if (e.key == 'text' || e.key == 'name' || e.key == 'avatar') {
             r[e.key] = e.data;
             setRole({
                 ...r

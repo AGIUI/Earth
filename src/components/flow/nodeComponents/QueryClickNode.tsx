@@ -1,11 +1,10 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
 const { TextArea } = Input;
-const { Option } = Select;
+
 
 const menuNames = {
   title: '模拟点击事件',
@@ -22,15 +21,6 @@ export type NodeData = {
 };
 
 
-
-/**
- * API / queryObj
- * @param title 
- * @param protocol 
- * @param url 
- * @param json init / query
- * @returns 
- */
 const createUrl = (title: string, json: any, onChange: any) => {
   const { protocol, url, init, query, isApi, isQuery } = json;
   const key = 'query';
@@ -89,11 +79,9 @@ function QueryBySelectNode({ id, data, selected }: NodeProps<NodeData>) {
 
   const createNode = () => {
     const node = [createUrl(menuNames.selectQuery, queryObj, updateQueryObj)];
-
-
     if (data.debug) {
       node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button>)
+      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
     }
 
     return <Card

@@ -134,6 +134,7 @@ class Common {
                     // prompt, style, type, callback
                     try {
                         chatBot.doSendMessage(
+                            data.systemContent,
                             data.prompt,
                             data.style,
                             data.type,

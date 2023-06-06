@@ -127,9 +127,10 @@ function parseByTag(prompt: string) {
     ];
 
     let promptNew = `<userInput>${prompts['userInput']}</userInput>`;
+    let system = (prompts['name'] ? prompts['name'] + ',' : '') + prompts['role'];
 
     for (const key in prompts) {
-        if (key != "userInput") {
+        if (key != "userInput" && key != 'role' && key != 'name') {
             promptNew += `<${key}>${prompts[key]}</${key}>`;
             des.push(`<${key}>${desc[key]}`)
         }
@@ -140,7 +141,7 @@ function parseByTag(prompt: string) {
     说明:${des.join('\n')}
     请根据以上信息，完成<userInput>和<task>，输出结果，输出结果不用包含${Object.keys(desc).join(',')}
     `
-    return prompt
+    return { system, prompt }
 
 }
 
@@ -278,6 +279,27 @@ const promptBindCurrentSite = (userInput: string, type = 'text') => {
     return prompt
 }
 
+const promptBindTranslate = (userInput: string, type: string) => {
+    if (type == 'translate-zh') {
+        userInput = `<translate>翻译成中文</translate>${userInput}`
+    } else if (type == 'translate-en') {
+        userInput = `<translate>翻译成英文</translate>${userInput}`
+    }
+    return userInput
+}
+
+const promptBindOutput = (userInput: string, type: string) => {
+    if (type == 'markdown') {
+        userInput = `<output>按照markdown格式输出</output>${userInput}`
+    } else if (type == 'json') {
+        userInput = `<output>按照json格式输出</output>${userInput}`
+
+    } else if (type == 'extract') {
+        userInput = `<output>分析实体词，并分类</output>${userInput}`
+    };
+    return userInput
+}
+
 // 拆解任务目标
 const promptBindTasks = (userInput: string) => {
     return `${userInput}<task>针对以上的任务目标，一步步思考如何完成，按照可行的步骤列出来</task>`
@@ -326,21 +348,11 @@ const promptUseLastTalk = (prompt: string, lastTalk: string) => {
 // type markdown/json
 const promptParse = (prompt: string, type: string) => {
     // prompt = cropText(prompt)
-    if (type == 'markdown') {
-        prompt = `<task>按照markdown格式输出</task>${prompt}`
-    } else if (type == 'json') {
-        prompt = `<task>按照json格式输出</task>${prompt}`
-    } else if (type == 'translate-zh') {
-        prompt = `<task>翻译成中文</task>${prompt}`
-    } else if (type == 'translate-en') {
-        prompt = `<task>翻译成英文</task>${prompt}`
-    } else if (type == 'extract') {
-        prompt = `<task>分析实体词，并分类</task>${prompt}`
-    };
-    // 处理所有的prompt
-    prompt = parseByTag(prompt)
 
-    return prompt
+    // 处理所有的prompt
+    const res = parseByTag(prompt)
+
+    return res
 }
 
 
@@ -355,5 +367,7 @@ export {
     promptBindHighlight,
     cropText, promptParse,
     promptUseLastTalk,
+    promptBindTranslate,
+    promptBindOutput,
     promptBindRole, checkClipboard
 }

@@ -28,6 +28,7 @@ const config = getConfig();
 
 // 保存combo
 function saveCombos(combos: any = []) {
+  console.log('saveCombos',combos)
   chromeStorageGet(['user']).then((items: any) => {
     let newUser: any = []
     if (items && items.user) {
@@ -122,7 +123,7 @@ function options() {
     // console.log(event)
     if (cmd == "debug-combo") {
       if (exportDataToEarth) exportDataToEarth().then((combo: any) => {
-        // console.log('exportDataToEarth',combo)
+        console.log('exportDataToEarth',combo)
         const event = parseCombo2ControlEvent(combo);
         setIsNew(false);
         setDebugData(event);
@@ -189,7 +190,6 @@ function options() {
       }
       debug={true}
       debugData={debugData}
-    
       callback={(e: any) => chatbotCallbacks(e)}
     />
   </div>)

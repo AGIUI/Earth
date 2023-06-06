@@ -101,14 +101,7 @@ const createText = (title: string, text: string, onChange: any) => <>
     /></>;
 
 
-/**
- * API / queryObj
- * @param title 
- * @param protocol 
- * @param url 
- * @param json init / query
- * @returns 
- */
+
 const createUrl = (title: string, method: string, paramas: string, output: string, json: any, onChange: any) => {
     const { protocol, url, init, query, isApi, isQuery } = json;
     const key = 'api'

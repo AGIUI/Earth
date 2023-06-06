@@ -47,6 +47,7 @@ const useStore = create<RFState>((set, get) => ({
     type: 'role',
     data: {
       ...defaultNode,
+      role:{..._DEFAULTCOMBO.role},
       type: 'role',
     },
     position: { x: 0, y: 0 },
@@ -104,7 +105,7 @@ const useStore = create<RFState>((set, get) => ({
       if (nd.data.type == 'role') {
         nd.type = 'role';
       } else {
-        nd.type = 'brainwave'
+        nd.type = 'prompt'
       }
 
       if (debug && debug.open && debug.callback) {
@@ -147,14 +148,16 @@ const useStore = create<RFState>((set, get) => ({
       edges: applyEdgeChanges(changes, get().edges),
     });
   },
-  addNode: (nodeType: string,dataType:string) => {
-    
+  addNode: (nodeType: string, dataType: string, position = { x: 0, y: 0 }) => {
+    // role 只能放一张
+    if (nodeType == 'role' && get().nodes.filter((n: any) => n.type == nodeType).length > 0) return
+
     const newNode: any = {
       id: nanoid(),
-      type:nodeType,
+      type: nodeType,
       data: {
         ...defaultNode,
-        type:dataType,
+        type: dataType,
         onChange: (e: any) => {
           // console.log('store-onchange', e)
           const nodes = [];
@@ -175,7 +178,7 @@ const useStore = create<RFState>((set, get) => ({
           });
         }
       },
-      position: { x: 0, y: 0 },
+      position,
       deletable: true,
     };
     set({
@@ -215,7 +218,7 @@ const useStore = create<RFState>((set, get) => ({
 
     const newNode: any = {
       id: nanoid(),
-      type: 'brainwave',
+      type: 'prompt',
       data: {
         ...defaultNode,
         onChange: (e: any) => {
