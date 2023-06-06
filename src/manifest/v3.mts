@@ -18,7 +18,9 @@ const manifest: ManifestTypeV3 = {
     "clipboardWrite",
     "contextMenus",
     "scripting",
+    "activeTab"
   ],
+  host_permissions:["<all_urls>"],
   commands: {
     "toggle-insight": {
       "suggested_key": {
