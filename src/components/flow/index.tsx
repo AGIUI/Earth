@@ -34,6 +34,7 @@ import QueryDefaultNode from './nodes/QueryDefaultNode';
 import QueryClickNode from './nodes/QueryClickNode'
 import QueryReadNode from './nodes/QueryReadNode';
 import QueryInputNode from './nodes/QueryInputNode';
+import APINode from './nodes/APINode';
 
 // 定义节点类型
 const nodeTypes = {
@@ -42,7 +43,8 @@ const nodeTypes = {
   queryDefault: QueryDefaultNode,
   queryClick: QueryClickNode,
   queryRead: QueryReadNode,
-  queryInput: QueryInputNode
+  queryInput: QueryInputNode,
+  api: APINode
 };
 
 // 定义连线类型
@@ -590,7 +592,7 @@ function Flow(props: any) {
 
                   style={{ marginRight: '10px' }}
                   onClick={() => {
- 
+
                     const items = [
                       {
                         nodeType: 'queryDefault',
@@ -607,6 +609,10 @@ function Flow(props: any) {
                       {
                         nodeType: 'queryInput',
                         dataType: 'query'
+                      },
+                      {
+                        nodeType: 'api',
+                        dataType: 'api'
                       }
                     ];
                     const i: any = items[Math.ceil(Math.random() * items.length) - 1]

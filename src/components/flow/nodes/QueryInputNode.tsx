@@ -11,7 +11,7 @@ const menuNames = {
   title: '文本输入',
   selectQuery: 'SelectQuery',
   selectQueryPlaceholder: '- - ',
-  useLastText: '从上一节点获取文本',
+  inputText: '文本来源',
   debug: '调试'
 }
 
@@ -34,7 +34,7 @@ export type NodeData = {
  */
 
 const createUrl = (title1: string, placeholder1: string, title2: string, json: any, onChange: any) => {
-  const { query, content } = json;
+  const { query, content, inputText, input } = json;
   const key = 'query'
   return <div onMouseOver={() => {
     onChange({
@@ -69,7 +69,7 @@ const createUrl = (title1: string, placeholder1: string, title2: string, json: a
       }}
     />
     <Divider dashed />
-    <Checkbox onChange={(e) => {
+    {/* <Checkbox onChange={(e) => {
       // console.log(e)
       const data = {
         ...json
@@ -81,7 +81,54 @@ const createUrl = (title1: string, placeholder1: string, title2: string, json: a
         data
       })
 
-    }}>{title2}</Checkbox>
+    }}>{title2}</Checkbox> */}
+
+    <p>{title2}</p>
+    <Select
+      defaultValue={"nodeInput"}
+      style={{ width: 120 }}
+      onChange={(e) => {
+        const data = {
+          ...json,
+          action: 'input',
+          input: e
+        }
+
+        if (e == "nodeInput") data['inputText'] = ""
+
+        onChange({
+          key,
+          data
+        })
+        
+      }}
+      options={[
+        { value: 'nodeInput', label: '从上一节点获取文本' },
+        { value: 'userInput', label: '输入文本' },
+      ]}
+    />
+    {
+      json.input === "userInput" ? <TextArea
+        value={inputText}
+        rows={4}
+        placeholder={placeholder1}
+        autoSize
+        onChange={(e) => {
+          const data = {
+            ...json,
+            input: "userInput",
+            inputText: e.target.value,
+            action: 'input'
+          }
+          onChange({
+            key,
+            data
+          })
+        }}
+      /> : ''
+    }
+
+
   </div>
 }
 
@@ -108,7 +155,7 @@ function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
 
 
     const node = [
-      createUrl(menuNames.selectQuery, menuNames.selectQueryPlaceholder, menuNames.useLastText, queryObj, updateQueryObj)
+      createUrl(menuNames.selectQuery, menuNames.selectQueryPlaceholder, menuNames.inputText, queryObj, updateQueryObj)
     ];
 
     if (data.debug) {

@@ -256,8 +256,10 @@ const defaultNode = {
         url: '',
         protocol: 'https://',
         content: 'bindCurrentPage',
+        input: 'nodeInput',
+        inputText:'',
         // 网页跳转 default、模拟点击click 、输入input、读取read
-        action:'default',
+        action: 'default',
         isQuery: false
     },
     temperature: 0.6,

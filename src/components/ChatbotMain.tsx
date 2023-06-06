@@ -37,8 +37,8 @@ import { message } from 'antd';
 import { getConfig } from '@components/Utils';
 
 // console
-const config = getConfig()
-console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
+const config = getConfig();
+if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
     return function () {
         if (!dev) return
         try {
@@ -705,7 +705,7 @@ class Main extends React.Component<{
 
             // 对url进行处理
             if (url && !url.match('//')) url = `https://${url}`
-    
+
             const agentsJson = JSON.parse(JSON.stringify({
                 type: 'query',
                 url,
