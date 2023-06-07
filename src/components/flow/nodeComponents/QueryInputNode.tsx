@@ -24,18 +24,9 @@ export type NodeData = {
 
 
 
-/**
- * API / queryObj
- * @param title 
- * @param protocol 
- * @param url 
- * @param json init / query
- * @returns 
- */
-
 const createUrl = (title1: string, placeholder1: string, title2: string, json: any, onChange: any) => {
-  const { query, content, inputText, input } = json;
-  const key = 'query'
+  const { queryObj, userInput, input } = json;
+  const { query, action } = queryObj;
   return <div onMouseOver={() => {
     onChange({
       key: 'draggable',
@@ -48,7 +39,6 @@ const createUrl = (title1: string, placeholder1: string, title2: string, json: a
         data: true
       })
     }}>
-
     <p>{title1}</p>
     <TextArea
       defaultValue={query}
@@ -58,49 +48,40 @@ const createUrl = (title1: string, placeholder1: string, title2: string, json: a
       onChange={(e) => {
         const data = {
           ...json,
-          query: e.target.value,
-          action: 'input'
+          queryObj: {
+            ...json.queryObj,
+            content: '',
+            query: e.target.value,
+            action: 'input'
+          }
         }
-
         onChange({
-          key,
+          key: 'data',
           data
         })
       }}
     />
     <Divider dashed />
-    {/* <Checkbox onChange={(e) => {
-      // console.log(e)
-      const data = {
-        ...json
-      }
-      data['action'] = e.target.checked ? 'input' : ''
-
-      onChange({
-        key,
-        data
-      })
-
-    }}>{title2}</Checkbox> */}
-
     <p>{title2}</p>
     <Select
-      defaultValue={"nodeInput"}
-      style={{ width: 120 }}
+    
+      defaultValue={input}
+      style={{ width: '100%' }}
       onChange={(e) => {
         const data = {
           ...json,
-          action: 'input',
+          queryObj: {
+            ...json.queryObj,
+            content: '',
+            action: 'input'
+          },
           input: e
-        }
-
-        if (e == "nodeInput") data['inputText'] = ""
-
+        };
+        if (e === "nodeInput") data['userInput'] = "";
         onChange({
-          key,
+          key: 'data',
           data
         })
-        
       }}
       options={[
         { value: 'nodeInput', label: '从上一节点获取文本' },
@@ -108,27 +89,30 @@ const createUrl = (title1: string, placeholder1: string, title2: string, json: a
       ]}
     />
     {
-      json.input === "userInput" ? <TextArea
-        value={inputText}
+      input === "userInput" ? <TextArea
+        style={{ marginTop: '8px' }}
+        value={userInput}
         rows={4}
         placeholder={placeholder1}
         autoSize
         onChange={(e) => {
           const data = {
             ...json,
+            queryObj: {
+              ...json.queryObj,
+              content: '',
+              action: 'input'
+            },
             input: "userInput",
-            inputText: e.target.value,
-            action: 'input'
+            userInput: e.target.value
           }
           onChange({
-            key,
+            key: 'data',
             data
           })
         }}
       /> : ''
     }
-
-
   </div>
 }
 
@@ -141,11 +125,13 @@ function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
   // queryObj
   data.queryObj.isQuery = type === "query";
   const [queryObj, setQueryObj] = React.useState(data.queryObj)
-  const updateQueryObj = (e: any) => {
+
+  // 更新数据
+  const updateData = (e: any) => {
     // console.log(e)
-    if (e.key === 'query') {
-      setQueryObj(e.data);
-      data.onChange({ id, data: { queryObj: e.data } })
+    if (e.key === 'data') {
+      if (e.data.queryObj) setQueryObj(e.data.queryObj);
+      data.onChange({ id, data: { ...data, ...e.data } })
     }
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
@@ -153,9 +139,8 @@ function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
 
   const createNode = () => {
 
-
     const node = [
-      createUrl(menuNames.selectQuery, menuNames.selectQueryPlaceholder, menuNames.inputText, queryObj, updateQueryObj)
+      createUrl(menuNames.selectQuery, menuNames.selectQueryPlaceholder, menuNames.inputText, data, updateData)
     ];
 
     if (data.debug) {

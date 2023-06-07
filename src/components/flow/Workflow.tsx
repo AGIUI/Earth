@@ -59,7 +59,7 @@ const workflow = {
     "inputs": [{
         "label": "默认",
         "value": "default",
-        "checked":true,
+        "checked": true,
         "display": ["chatbot", "editor", "debug"]
     }, {
         "label": "绑定网页正文",
@@ -105,7 +105,7 @@ const workflow = {
     "outputs": [{
         "label": "默认",
         "value": "default",
-        "checked":true,
+        "checked": true,
         "display": ["chatbot", "editor", "debug"]
     },
     {
@@ -233,19 +233,17 @@ const defaultNode = {
         query: '',
         url: '',
         protocol: 'https://',
-        content: 'bindCurrentPage',
-        input: 'nodeInput',
-        inputText: '',
-        // 网页跳转 default、模拟点击click 、输入input、读取read
-        action: 'default',
+        content: 'bindCurrentPage',//给read使用
+        action: 'default', // 网页跳转 default、模拟点击click 、输入input、读取read
         isQuery: false
     },
     temperature: 0.6,
     model: 'ChatGPT',
-    input: 'default',
+    input: 'nodeInput',// nodeInput、userInput
+    userInput: '',
     translate: 'default',
     output: 'default',
-    type: 'prompt',
+    type: 'prompt',//运行时使用
     // 以下是选项
     opts: {
         ...workflow

@@ -33,10 +33,12 @@ import Setup from "@components/Setup"
 import PDF from '@components/files/PDF'
 
 
-import { chromeStorageGet, chromeStorageSet, sendMessageCanRetry, checkImageUrl } from "@components/Utils"
+import { chromeStorageGet, chromeStorageSet, sendMessageCanRetry, checkImageUrl, md5 } from "@components/Utils"
 import { message } from 'antd';
 
 import { getConfig } from '@components/Utils';
+
+import { inputByQueryBase, clickByQueryBase } from "@components/agent/base"
 
 // console
 const config = getConfig();
@@ -671,6 +673,10 @@ class Main extends React.Component<{
         return promptBindTranslate(prompt, type)
     }
 
+    _promptBindPrevOutput(prompt: string, lastTalk: string) {
+        return promptUseLastTalk(prompt, lastTalk)
+    }
+
     // 
     _promptOutput(prompt: string, type: string) {
 
@@ -704,30 +710,82 @@ class Main extends React.Component<{
         })
     }
 
-    _agentQueryRun(queryObj: any, combo: any) {
+    _queryClickRun(prompt: any) {
+        let query = prompt.queryObj.query;
+        // 当前页面
+        clickByQueryBase(query)
+        const id = md5(query + (new Date()))
+        const data = {
+            from: "_queryClickRun",
+            id,
+            markdown: '完成任务：模拟点击',
+            tId: id,
+            type: "done",
+            user: false
+        }
+        this._updateChatBotTalksResult([data]);
+    }
 
-        if (queryObj && queryObj.isQuery && queryObj.url && !this.props.agents) {
+    _queryInputRun(prompt: any, nTalks: any) {
+        let text = '', query = prompt.queryObj.query;
+        if (prompt.input == "nodeInput") {
+            // 从上一个节点输出获取
+            text = Talks.getLastTalk([...nTalks]);
+        } else if (prompt.input == "userInput") {
+            text = prompt.userInput;
+        }
+        // 当前页面
+        inputByQueryBase(query, text)
+        const id = md5(query + text + (new Date()))
+        const data = {
+            from: "_queryInputRun",
+            id,
+            markdown: '完成任务：文本输入',
+            tId: id,
+            type: "done",
+            user: false
+        }
+        this._updateChatBotTalksResult([data]);
+        // if (window.location.protocol == 'chrome-extension:') {
+
+        // } else {
+        //     const agentsJson = JSON.parse(JSON.stringify({
+        //         type: 'queryInput',
+        //         url: window.location.href,
+        //         query,
+        //         text,
+        //         delay: 2000,
+        //         combo: { ...combo } //用来传递combo数据
+        //     }));
+        //     console.log('_queryInputRun', agentsJson)
+        //     sendMessageToBackground['run-agents'](agentsJson)
+        // }
+    }
+
+    _queryDefaultRun(queryObj: any, combo: any) {
+
+        if (queryObj && queryObj.url && !this.props.agents) {
             // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
+            let {
+                url, protocol
+            } = queryObj;
 
             this.updateChatBotStatus(false);
 
-            let { url, query, isQuery } = queryObj;
-
             // 对url进行处理
-            if (url && !url.match('//')) url = `https://${url}`
+            if (url && !url.match('//')) url = `${protocol}${url}`
 
-            const agentsJson = JSON.parse(JSON.stringify({
+            const data = JSON.parse(JSON.stringify({
                 type: 'query',
                 url,
-                query,
                 combo: { ...combo } //用来传递combo数据
             }));
-            console.log('agentsJson', agentsJson)
+            console.log('_queryDefaultRun', data)
 
             // 需要把当前面板的状态停止
             this._promptControl({ cmd: 'stop-combo' });
 
-            sendMessageToBackground['run-agents'](agentsJson)
+            sendMessageToBackground['run-agents'](data)
 
         }
     }
@@ -774,6 +832,7 @@ class Main extends React.Component<{
 
     /**
      * 'prompt' ||   'tasks'  
+     * newTalk 不从缓存获取
      * TODO:bug 用户输入的prompt ，
      */
 
@@ -831,7 +890,7 @@ class Main extends React.Component<{
 
     // TODO 需要放到某个监听里，来更新对话数据
     _updateChatBotTalksResult(items: any) {
-        console.log('_updateChatBotTalksResult', items)
+        // console.log('_updateChatBotTalksResult', items)
         // 对话数据
         const talks: any = this.state.talks;
         // 更新到这里
@@ -892,7 +951,7 @@ class Main extends React.Component<{
                 if (data.type == 'done') {
 
                     let PromptIndex = this.state.PromptIndex;
-                    console.log('done', this.state.currentPrompt, PromptIndex)
+                    console.log('done', data, this.state.currentPrompt, PromptIndex)
 
                     // 上一个节点
                     let prePrompt = this.state.currentPrompt[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
@@ -919,10 +978,8 @@ class Main extends React.Component<{
                             index: PromptIndex,
                             prePrompt,
                             newTalk: true,
-                            from: 'combo'
-                        }
-                        if (prompt.queryObj && prompt.queryObj.isQuery) {
-                            data['_combo'] = this.state.currentPrompt
+                            from: 'combo',
+                            '_combo': this.state.currentPrompt
                         }
 
                         this.setState(
@@ -1196,14 +1253,9 @@ class Main extends React.Component<{
                 if (prompt.translate != "default") this._promptBindTranslate(prompt.text, prompt.translate)
 
                 // 是否使用上一节点的处理
-                if (prePrompt && prePrompt.output != 'default') {
+                if (prePrompt && prompt.prevOutput) {
                     let lastTalk = Talks.getLastTalk([...nTalks]);
-
-                    // if (type == 'isNextUse') {
-                    //     return promptUseLastTalk(prompt, lastTalk)
-                    // }
-
-                    // prompt.text = this._promptOutput(prePrompt.output, prompt.text, lastTalk)
+                    prompt.text = this._promptBindPrevOutput(prompt.text, lastTalk);
                 }
 
                 // output的处理
@@ -1234,15 +1286,26 @@ class Main extends React.Component<{
                 }
 
                 // 标记当前执行状态，以及下一条
-                const currentCombo = { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex }
+                const currentCombo = { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex };
+
+                // queryInput 
+                if (prompt.type == "queryInput" && prompt.queryObj) {
+                    this._queryInputRun(prompt, nTalks);
+                };
+
+                // queryClick
+                if (prompt.type == "queryClick" && prompt.queryObj) {
+                    this._queryClickRun(prompt);
+                };
+
+                // queryDefault 跳转页面
+                if (prompt.type === 'queryDefault') this._queryDefaultRun(prompt.queryObj, currentCombo);
 
                 // 提取 <lastTalk> 里的传给api\send-to-zsxq\query
                 let d = document.createElement('div');
                 d.innerHTML = prompt.text;
                 const t: any = d.querySelector('lastTalk');
                 prompt.text = t?.innerText || ''
-
-                if (prompt.type === 'query') this._agentQueryRun(prompt.queryObj, currentCombo);
 
                 if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, currentCombo)
 

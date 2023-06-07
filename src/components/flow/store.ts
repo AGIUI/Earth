@@ -47,7 +47,7 @@ const useStore = create<RFState>((set, get) => ({
     type: 'role',
     data: {
       ...defaultNode,
-      role:{..._DEFAULTCOMBO.role},
+      role: { ..._DEFAULTCOMBO.role },
       type: 'role',
     },
     position: { x: 0, y: 0 },
@@ -82,13 +82,14 @@ const useStore = create<RFState>((set, get) => ({
         ...nd.data,
         onChange: (e: any) => {
           // console.log('store-onchange', e)
-
           const nodes = [];
           for (const node of get().nodes) {
             if (node.id === e.id) {
               nodes.push({
-                ...node, data: {
-                  ...node.data, ...e.data
+                ...node,
+                data: {
+                  ...node.data,
+                  ...e.data
                 },
                 draggable: !!e.data.draggable
               })
@@ -102,11 +103,7 @@ const useStore = create<RFState>((set, get) => ({
         },
       }
 
-      if (nd.data.type == 'role') {
-        nd.type = 'role';
-      } else {
-        nd.type = 'prompt'
-      }
+      nd.type = nd.data.type;
 
       if (debug && debug.open && debug.callback) {
         nd.data['debug'] = (prompt: any) => {
@@ -181,6 +178,16 @@ const useStore = create<RFState>((set, get) => ({
       position,
       deletable: true,
     };
+
+    const debug = get().debug;
+    if (debug && debug.open && debug.callback) {
+      newNode.data['debug'] = (prompt: any) => {
+        const controlEvent = parsePrompt2ControlEvent(prompt)
+        debug.callback(controlEvent)
+      }
+    }
+
+
     set({
       nodes: [...get().nodes, newNode]
     });

@@ -232,8 +232,15 @@ function Flow(props: any) {
       const sourceNode: any = nodes.filter(node => (node.id.match('root_') ? 'root' : node.id) === source)[0];
       const targetNode: any = nodes.filter(node => (node.id.match('root_') ? 'root' : node.id) === target)[0];
       if (sourceNode && targetNode) {
-        workflow[source] = { ...sourceNode.data, nextId: target };
-        workflow[target] = targetNode.data;
+        workflow[source] = {
+          ...sourceNode.data,
+          type: sourceNode.type,
+          nextId: target
+        };
+        workflow[target] = {
+          ...targetNode.data,
+          type: targetNode.type
+        };
       }
     }
     const items: any = [];
@@ -358,6 +365,7 @@ function Flow(props: any) {
       for (let index = 0; index < combo.combo; index++) {
         const key = `prompt${index > 0 ? index + 1 : ''}`;
         const p = { ...comboNew[key] };
+        console.log(p.type)
         if (comboNew[key]) delete comboNew[key]
         if (combo[key] && combo[key].type !== 'role') prompts.push(p)
       }
@@ -385,7 +393,7 @@ function Flow(props: any) {
           nodes.push({
             data: comboNew[key],
             id,
-            type: comboNew[key].type == 'role' ? 'role' : "prompt",
+            type: comboNew[key].type,
             deletable: comboNew[key].type !== 'role',
             ...nodePosition(index)
           });
@@ -406,7 +414,7 @@ function Flow(props: any) {
         }
       }
 
-      console.log('!!!newCombo', comboNew)
+      console.log('!!!newCombo', comboNew.id, comboNew.tag, comboNew.interfaces, nodes, edges, debug)
       newCombo(comboNew.id, comboNew.tag, comboNew.interfaces, nodes, edges, debug);
 
       clearLocalStore()
