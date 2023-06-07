@@ -84,7 +84,7 @@ const cropText = (
         <text>当前网页正文
         <html>当前网页
         <task>具体的任务
-        <lastTalk>上一次聊天信息
+        <context>上一次聊天信息
         <userInput>用户输入的信息
         请根据以上信息，完成<userInput>和<task>，输出结果`
  * @returns 
@@ -99,7 +99,7 @@ function promptParse(prompt: string) {
         return n && n.innerText.trim();
     }
 
-    const keys = Array.from(`name, role, title, url, text, html, task,translate, lastTalk,output,userInput`.split(','), k => k.trim()).filter(f => f);
+    const keys = Array.from(`name, role, title, url, text, html, task,translate, context,output,userInput`.split(','), k => k.trim()).filter(f => f);
     const desc: any = {
         name: "是扮演的角色名称",
         role: "扮演的角色背景信息",
@@ -108,7 +108,7 @@ function promptParse(prompt: string) {
         text: "当前网页正文",
         html: "当前网页",
         task: "具体的任务",
-        lastTalk: "上一次聊天信息",
+        context: "上一次聊天信息",
         userInput: "用户输入的信息",
         translate: "翻译",
         output: "输出格式"
@@ -125,11 +125,6 @@ function promptParse(prompt: string) {
 
     let system = (prompts['name'] ? prompts['name'] + ',' : '') + prompts['role'];
     let promptNew = '';
-
-    let des = [
-        "<userInput>用户输入的信息",
-    ];
-
 
     for (const key in prompts) {
         if (key != "userInput" && key != 'role' && key != 'name') {
@@ -345,20 +340,16 @@ const promptBindRole = (userInput: string, role: any) => {
     return prompt
 }
 
-const promptUseLastTalk = (prompt: string, lastTalk: string) => {
+const promptUseLastTalk = (prompt: string, context: string) => {
     prompt = prompt.trim()
-    lastTalk = cropText(lastTalk.trim())
-    if (lastTalk && prompt) {
-        prompt = `<lastTalk>${lastTalk}</lastTalk>${prompt}`
-    } else if (lastTalk) {
-        prompt = `<lastTalk>${lastTalk}</lastTalk>`;
+    context = cropText(context.trim())
+    if (context && prompt) {
+        prompt = `<context>${context}</context>${prompt}`
+    } else if (context) {
+        prompt = `<context>${context}</context>`;
     }
     return prompt
 }
-
-
-
-
 
 export {
     bindUserInput,

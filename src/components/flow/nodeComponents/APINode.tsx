@@ -1,6 +1,7 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
-import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
+import { Input, Card, Select, Collapse, Checkbox, Dropdown, Divider, Space, Button } from 'antd';
+const { Panel } = Collapse;
 import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
@@ -13,12 +14,15 @@ const menuNames = {
     url: 'URL',
     method: '方法',
     parama: '参数',
+    responseType: '返回的数据类型',
     output: '输出',
     debug: '调试'
 }
 
 
 export type NodeData = {
+    nodeInputId: string;
+    getNodes: any;
     debug: any;
     text: string,
     api: any,
@@ -102,9 +106,17 @@ const createText = (title: string, text: string, onChange: any) => <>
 
 
 
-const createUrl = (title: string, method: string, paramas: string, output: string, json: any, onChange: any) => {
-    const { protocol, url, init, query, isApi, isQuery } = json;
-    const key = 'api'
+const createUI = (data: any, json: any, input: string, selectNodeValue: string, nodeOpts: any, onChange: any) => {
+
+    const { protocol, url, init, responseType } = json;
+    const key = 'api';
+
+    const extract = {
+        ...(init.extract || {
+            key: '', type: ''
+        })
+    }
+
     return <div
         style={{ cursor: 'default' }}
         onMouseOver={() => {
@@ -120,7 +132,7 @@ const createUrl = (title: string, method: string, paramas: string, output: strin
             })
         }}
     >
-        <p>{title}</p>
+        <p>{menuNames.url}</p>
         <Input addonBefore={
             <Select defaultValue={protocol} onChange={(e: string) => {
                 onChange({
@@ -148,38 +160,19 @@ const createUrl = (title: string, method: string, paramas: string, output: strin
                 })
             }}
         />
-        <p>{method}</p>
+        <p>{menuNames.method}</p>
         <Select
             defaultValue={"post"}
             style={{ width: 120 }}
             onChange={(e) => {
                 console.log(e)
-                let init = {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: "{}",
-                    mode: 'cors',
-                    cache: 'default',
-                    responseType: 'text'
-                }
-                if (e === 'get') init = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: "{}",
-                    mode: 'cors',
-                    cache: 'default',
-                    responseType: 'text'
-                }
-
                 const data = {
                     ...json,
-                    init
+                    init: {
+                        ...init,
+                        method: e,
+                    }
                 }
-
                 onChange({
                     key,
                     data
@@ -187,21 +180,24 @@ const createUrl = (title: string, method: string, paramas: string, output: strin
 
             }}
             options={[
-                { value: 'post', label: 'POST' },
-                { value: 'get', label: 'GET' }
+                { value: 'POST', label: 'POST' },
+                { value: 'GET', label: 'GET' }
             ]}
         />
 
-        <p>{paramas}</p>
+        <p>{menuNames.parama}</p>
         <TextArea
-            value={JSON.stringify(init, null, 2)}
+            value={JSON.stringify(init.body, null, 2)}
             rows={4}
-            placeholder={JSON.stringify(init, null, 2)}
+            placeholder={JSON.stringify(init.body, null, 2)}
             autoSize
             onChange={(e) => {
                 const data = {
                     ...json,
-                    init: JSON.parse(e.target.value)
+                    init: {
+                        ...init,
+                        body: JSON.parse(e.target.value)
+                    }
                 }
                 onChange({
                     key,
@@ -210,17 +206,73 @@ const createUrl = (title: string, method: string, paramas: string, output: strin
             }}
         />
 
-        <p>{output}</p>
+        <Checkbox
+            style={{ marginTop: '8px' }}
+            defaultChecked={input == "nodeInput"}
+            // checked={input == "nodeInput"}
+            onChange={(e) => {
+                // console.log(e)
+                onChange({
+                    key: 'input',
+                    data: e.target.checked ? 'nodeInput' : 'default'
+                })
+            }}>从上一节点获取文本</Checkbox>
+        {
+            input === "nodeInput" ? <Select
+                value={selectNodeValue}
+                style={{ width: '100%', marginTop: '8px' }}
+                onChange={(e) => {
+                    onChange({
+                        key: 'nodeInput',
+                        data: e
+                    })
+                }}
+                options={nodeOpts}
+            /> : ''
+        }
+
+        <p>{menuNames.responseType}</p>
         <Select
-            defaultValue={"text"}
+            defaultValue={responseType}
             style={{ width: 120 }}
             onChange={(e) => {
                 // console.log(e)
                 const data = {
                     ...json,
                     init: {
-                        ...json.init,
+                        ...init,
                         responseType: e
+                    },
+                    responseType: e
+                };
+                onChange({
+                    key,
+                    data
+                })
+
+            }}
+            options={[
+                { value: 'text', label: '字符串' },
+                { value: 'json', label: 'JSON' }
+            ]}
+        />
+
+        <p>{menuNames.output}</p>
+        <Select
+            value={extract.type}
+            style={{ width: 120 }}
+            onChange={(e) => {
+                const extract = {
+                    ...(init.extract || {
+                        key: '', type: ''
+                    }),
+                    type: e
+                }
+                const data = {
+                    ...json,
+                    init: {
+                        ...init,
+                        extract
                     }
                 };
                 onChange({
@@ -231,11 +283,68 @@ const createUrl = (title: string, method: string, paramas: string, output: strin
             }}
             options={[
                 { value: 'text', label: '文本' },
-                { value: 'images', label: '多张图片' }
+                { value: 'images', label: '多张图片' },
+                { value: 'json', label: 'JSON', disabled: true },
+                { value: 'audio', label: '音频', disabled: true }
             ]}
         />
+        <TextArea
+            value={extract.key}
+            rows={4}
+            placeholder={extract.key}
+            autoSize
+            onChange={(e) => {
+
+                const extract = {
+                    ...(init.extract || {
+                        key: '', type: ''
+                    }),
+                    key: e.target.value
+                }
+                const data = {
+                    ...json,
+                    init: {
+                        ...init,
+                        extract
+                    }
+                };
+                onChange({
+                    key,
+                    data
+                })
+            }}
+        />
+
+        <Collapse bordered={false} style={{
+            padding: 0
+        }}>
+            <Panel header="More" key="1">
+                <p>{menuNames.parama}</p>
+                <TextArea
+                    value={JSON.stringify(init, null, 2)}
+                    rows={4}
+                    placeholder={JSON.stringify(init, null, 2)}
+                    autoSize
+                    onChange={(e) => {
+                        const data = {
+                            ...json,
+                            init: JSON.parse(e.target.value)
+                        }
+                        onChange({
+                            key,
+                            data
+                        })
+                    }}
+                />
+                {data.debug ? <><Divider dashed />
+                    <Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button></> : ''}
+
+            </Panel>
+
+        </Collapse>
 
     </div>
+
 }
 
 
@@ -247,42 +356,65 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     // api
     data.api.isApi = type === "api";
     const [api, setApi] = React.useState(data.api)
+
     const updateApi = (e: any) => {
         if (e.key === 'api') {
             setApi(e.data);
             data.onChange({ id, data: { api: e.data } })
         }
+
+        if (e.key === 'input') {
+            setInput(e.data);
+            data.onChange({
+                id, data: {
+                    input: e.data
+                }
+            })
+        }
+
+        if (e.key == "nodeInput") {
+            setNodeInputId(e.data);
+            data.onChange({
+                id, data: {
+                    nodeInputId: e.data
+                }
+            })
+        }
+
+
+
         if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
     }
 
-
-    // input
-    const inputs = data.opts.inputs;
     const [input, setInput] = React.useState(data.input)
-    const updateInput = (e: any) => {
-        // console.log(e)
-        if (e.key === 'input') {
-            setInput(e.data);
-            data.onChange({ id, data: { input: e.data } })
-        }
-
-    }
-
+    const [nodeInputId, setNodeInputId] = React.useState(data.nodeInputId)
 
     const createNode = () => {
-        const node = [createUrl(menuNames.url, menuNames.method, menuNames.parama, menuNames.output, api, updateApi)];
 
-        if (data.debug) {
-            node.push(<Divider dashed />)
-            node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
-        }
+        let allNodes: any[] = [];
+        if (data.getNodes) allNodes = [...data.getNodes()]
+
+        const nodeOpts = Array.from(allNodes, (node, i) => {
+            return {
+                value: node.id, label: node.type
+            }
+        });
+
+        let selectNodeValue = nodeInputId || nodeOpts[0].value
+
 
         return <Card
             key={id}
             title={menuNames.title}
             bodyStyle={{ paddingTop: 0 }}
             style={{ width: 300 }}>
-            {...node}
+            {createUI(
+                data,
+                api,
+                input,
+                selectNodeValue,
+                nodeOpts,
+                updateApi)}
         </Card>
     }
 
@@ -313,7 +445,6 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
                 {createNode()}
                 <Handle type="target" position={Position.Left} />
-
                 <Handle type="source" position={Position.Right} />
 
             </div>

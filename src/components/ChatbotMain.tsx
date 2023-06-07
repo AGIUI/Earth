@@ -149,14 +149,35 @@ const Talks = {
         };
         return []
     },
+    getTalkByPromptId: (promptId: string, talks: any) => {
+
+        const getTalkInnerText = (data: any) => {
+            const json = { ...data };
+            const dom = document.createElement('div');
+            if (json && json.html) dom.innerHTML = json.html;
+            dom.innerHTML = dom.innerHTML.replaceAll('<br><br>', '\n')
+            // let texts: any = Array.from(dom.children, (c: any) => c.innerText);
+            // console.log('laskTalk:', dom.innerHTML, dom.innerText)
+            return dom.textContent;
+        };
+
+        talks = talks.filter((t: any) => t.promptId == promptId)
+
+        // n.type == 'talk' || n.type == 'markdown' || n.type == 'done'
+        const lastTalks = talks.filter((talk: any) => (talk.type == "markdown" || talk.type == "done") && !talk.user);
+        const laskTalk = lastTalks.slice(-1)[0];
+
+        return getTalkInnerText(laskTalk)
+    },
     getLastTalk: (talks: any) => {
         const getTalkInnerText = (data: any) => {
             const json = { ...data };
             const dom = document.createElement('div');
             if (json && json.html) dom.innerHTML = json.html;
             dom.innerHTML = dom.innerHTML.replaceAll('<br><br>', '\n')
+            // let texts: any = Array.from(dom.children, (c: any) => c.innerText);
             // console.log('laskTalk:', dom.innerHTML, dom.innerText)
-            return dom.innerText;
+            return dom.textContent;
         };
         // n.type == 'talk' || n.type == 'markdown' || n.type == 'done'
         const lastTalks = talks.filter((talk: any) => (talk.type == "markdown" || talk.type == "done") && !talk.user);
@@ -723,10 +744,16 @@ class Main extends React.Component<{
     }
 
     _queryInputRun(prompt: any, nTalks: any) {
-        let text = '', query = prompt.queryObj.query;
+        let text: any = '', query = prompt.queryObj.query;
         if (prompt.input == "nodeInput") {
             // 从上一个节点输出获取
-            text = Talks.getLastTalk([...nTalks]);
+            if (!prompt.nodeInputId) {
+                text = Talks.getLastTalk([...nTalks]);
+            } else {
+                text = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
+                // console.log('nodeInput_queryInputRun', nTalks)
+            }
+
         } else if (prompt.input == "userInput") {
             text = prompt.userInput;
         }
@@ -799,15 +826,17 @@ class Main extends React.Component<{
         //     type: "done",
         //     user: false
         // }, 
-        this._updateChatBotTalksResult([{
+
+        setTimeout(() => this._updateChatBotTalksResult([{
             export: true,
             from: "_queryReadRun",
             id: id + 'r',
             markdown: text,
             tId: id + 'r',
             type: "done",
-            user: false
-        }]);
+            user: false,
+
+        }]), 500);
 
         return
     }
@@ -958,17 +987,17 @@ class Main extends React.Component<{
                 if ((isNew || data.from == 'local') && data.markdown) {
 
                     let PromptIndex = this.state.PromptIndex;
-                    // 上一个节点
-                    let prePrompt = this.state.currentCombo[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
+                    // 当前节点
+                    let currentPrompt = this.state.currentCombo[`prompt${PromptIndex > 1 ? PromptIndex : ''}`] || {}
 
-                    console.log('对话状态开启', PromptIndex, prePrompt, data, this.state.currentCombo,)
-
+                    console.log('对话状态开启 promptId ', PromptIndex, this.state.currentCombo, currentPrompt.id, currentPrompt)
 
                     // 新对话
                     let d = {
                         ...data,
                         ...Talks.createTalkBubble(data.markdown),
-                        export: data.export === undefined ? true : data.export
+                        export: data.export === undefined ? true : data.export,
+                        promptId: currentPrompt.id
                     };
                     nTalks.push(d);
 
@@ -1281,13 +1310,16 @@ class Main extends React.Component<{
                     // 从剪切板
                     prompt.text = await this._promptBindUserClipboard(prompt.text)
                 } else if (prompt.input == 'nodeInput') {
-                    
-                    // 从上一节点获取文本，prompt的输入从上一个节点输入
-                    if (!prompt.nodeInputId) {
-                        let lastTalk = Talks.getLastTalk([...nTalks]);
-                        prompt.text = this._promptBindPrevOutput(prompt.text, lastTalk);
-                    }
 
+                    // 从上一节点获取文本，prompt的输入从上一个节点输入
+                    console.log('从上一节点获取文本', prompt, prompt.nodeInputId, nTalks)
+                    if (!prompt.nodeInputId) {
+                        let lastTalk: any = Talks.getLastTalk([...nTalks]);
+                        prompt.text = this._promptBindPrevOutput(prompt.text, lastTalk);
+                    } else {
+                        let talk: any = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
+                        prompt.text = this._promptBindPrevOutput(prompt.text, talk);
+                    }
                 }
 
                 // translate的处理
@@ -1323,7 +1355,7 @@ class Main extends React.Component<{
 
                 // queryInput 
                 if (prompt.type == "queryInput" && prompt.queryObj) {
-                    // this._queryInputRun(prompt, nTalks);
+                    this._queryInputRun(prompt, nTalks);
                 };
 
                 // queryClick
@@ -1435,7 +1467,7 @@ class Main extends React.Component<{
                     return;
                 // 用户点击建议
                 case "combo":
-                    // console.log('combo:开始运行:', data)
+                    console.log('combo:开始运行:', data)
                     this._promptControl({
                         cmd: 'update-prompt-for-combo',
                         data: { prompt: { ...data._combo }, from: "fromFlow" }
@@ -1462,7 +1494,8 @@ class Main extends React.Component<{
                     nTalks = nTalks.filter(t => t)
                     // console.log("nTalks filter", nTalks);
                     this.setState({
-                        talks: nTalks  // 保存对话内容 一句话也可以是按钮
+                        talks: nTalks,// 保存对话内容 一句话也可以是按钮
+                        PromptIndex: 0
                     });
 
                     // 把对话内容保存到本地

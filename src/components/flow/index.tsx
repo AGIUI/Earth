@@ -368,7 +368,7 @@ function Flow(props: any) {
       for (let index = 0; index < combo.combo; index++) {
         const key = `prompt${index > 0 ? index + 1 : ''}`;
         const p = { ...comboNew[key] };
-        console.log(p.type)
+        // console.log(p.type)
         if (comboNew[key]) delete comboNew[key]
         if (combo[key] && combo[key].type !== 'role') prompts.push(p)
       }
@@ -386,12 +386,11 @@ function Flow(props: any) {
         const key = `prompt${index > 0 ? index + 1 : ''}`;
         if (comboNew[key]) {
           const id = index == 0 ? source : key + comboNew.id;
-
           if (comboNew[key].type == 'role') {
             // role类型需求清空text字段
             comboNew[key].text = ""
           }
-
+          // console.log('comboNew[key]',comboNew[key])
           // node
           nodes.push({
             data: comboNew[key],

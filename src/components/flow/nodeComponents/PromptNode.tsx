@@ -276,7 +276,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
       setNodeInputId(e.data);
       data.onChange({
         id, data: {
-          nodeInput: e.data
+          nodeInputId: e.data
         }
       })
     }
@@ -284,8 +284,6 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
 
   }
-
-
 
 
   // output
@@ -326,7 +324,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     });
 
     let selectNodeValue = nodeInputId || nodeOpts[0].value
-
+    // console.log('selectNodeValue',selectNodeValue,nodeInputId,nodeOpts[0],data)
 
     node.push(createTextAndInput(menuNames.userInput, text, input, nodeOpts, selectNodeValue, updateTextAndInput))
     node.push(createModel(model, temperature, models, updateModel))

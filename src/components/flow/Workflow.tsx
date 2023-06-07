@@ -224,9 +224,13 @@ const defaultNode = {
             },
             body: "{}",
             mode: 'cors',
-            cache: 'default',
-            responseType: 'text'
+            cache: 'default'
         },
+        responseType: 'text',
+        extract: {
+            "key": "images",
+            "type": "images"
+        },//responseExtract
         isApi: false
     },
     queryObj: {
