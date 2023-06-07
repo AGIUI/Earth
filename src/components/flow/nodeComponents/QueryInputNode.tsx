@@ -16,6 +16,7 @@ const menuNames = {
 }
 
 export type NodeData = {
+  getNodes: any;
   debug: any;
   queryObj: any,
   type: string,
@@ -25,8 +26,21 @@ export type NodeData = {
 
 
 const createUrl = (title1: string, placeholder1: string, title2: string, json: any, onChange: any) => {
-  const { queryObj, userInput, input } = json;
+
+  let allNodes: any[] = []
+  if (json.getNodes) allNodes = [...json.getNodes()]
+
+  const { queryObj, userInput, input, nodeInputId } = json;
   const { query, action } = queryObj;
+
+  const nodeOpts = Array.from(allNodes, node => {
+    return {
+      value: node.id, label: node.type
+    }
+  });
+
+  let selectNodeValue = nodeInputId || nodeOpts[0].value
+
   return <div onMouseOver={() => {
     onChange({
       key: 'draggable',
@@ -64,7 +78,6 @@ const createUrl = (title1: string, placeholder1: string, title2: string, json: a
     <Divider dashed />
     <p>{title2}</p>
     <Select
-    
       defaultValue={input}
       style={{ width: '100%' }}
       onChange={(e) => {
@@ -101,7 +114,6 @@ const createUrl = (title1: string, placeholder1: string, title2: string, json: a
             queryObj: {
               ...json.queryObj,
               content: '',
-              action: 'input'
             },
             input: "userInput",
             userInput: e.target.value
@@ -111,6 +123,29 @@ const createUrl = (title1: string, placeholder1: string, title2: string, json: a
             data
           })
         }}
+      /> : ''
+    }
+    {
+      input === "nodeInput" ? <Select
+        value={selectNodeValue}
+        style={{ width: '100%' }}
+        onChange={(e) => {
+          const data = {
+            ...json,
+            queryObj: {
+              ...json.queryObj,
+              content: '',
+            },
+            input: 'nodeInput',
+            nodeInputId: e
+          };
+
+          onChange({
+            key: 'data',
+            data
+          })
+        }}
+        options={nodeOpts}
       /> : ''
     }
   </div>
@@ -140,7 +175,12 @@ function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
   const createNode = () => {
 
     const node = [
-      createUrl(menuNames.selectQuery, menuNames.selectQueryPlaceholder, menuNames.inputText, data, updateData)
+      createUrl(
+        menuNames.selectQuery,
+        menuNames.selectQueryPlaceholder,
+        menuNames.inputText,
+        data,
+        updateData)
     ];
 
     if (data.debug) {
@@ -151,6 +191,7 @@ function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
     return <Card
       key={id}
       title={menuNames.title}
+      bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}
     </Card>

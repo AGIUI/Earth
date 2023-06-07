@@ -100,6 +100,7 @@ function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
     return <Card
       key={id}
       title={menuNames.title}
+      bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}
     </Card>

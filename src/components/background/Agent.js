@@ -2,7 +2,17 @@
  * background
  */
 
-import { chromeStorageSet, inputByQueryBase } from '@components/Utils'
+import { chromeStorageSet } from '@components/Utils'
+
+async function base(combo) {
+    const markdown = '完成任务：打开网页'
+    const data = {
+        markdown,
+        combo
+    }
+    chrome.storage.local.set({ 'run-agents-result': data })
+    return data
+}
 
 // getTextByQuery
 async function getTextByQuery(query, combo) {
@@ -54,16 +64,16 @@ async function postTopicForZsxq(text, combo) {
 }
 
 
-function run(agentsTabId, data, combo) {
+function run(tabId, data, combo) {
     let { query, text, type, delay } = data;
     delay = delay || 10000
-    let code = { target: { tabId: agentsTabId }, };
+    let code = { target: { tabId }, };
 
-    if (type == 'query') {
+    if (type == 'queryDefault') {
         code = {
             ...code,
-            function: getTextByQuery,
-            args: [query, combo]
+            function: base,
+            args: [combo]
         }
     };
 

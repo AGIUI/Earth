@@ -2,26 +2,32 @@ import { createRoot } from "react-dom/client";
 import Main from "@src/components/ChatbotMain";
 import { getConfigFromUrl, getConfig } from "@components/Utils"
 
+let json: any = getConfig() || {};
+let id = json.app + "_dom";
+const rootContainer = document.createElement('div');
+rootContainer.id = id;
+
+const chatbotCallbacks = (event: any) => {
+  const { cmd, data } = event;
+  // console.log(event)
+  if (cmd == 'open-chatbot-panel') {
+    init()
+  } else if (cmd == "close-insight") {
+
+  }
+}
 
 async function init() {
-
-  let json: any = getConfig() || {};
-
   // from Bing,ChatGPT 初始化对话框 采用哪个引擎
   const { reader, fullscreen, userInput, from, agents } = getConfigFromUrl();
 
   let dom = document.body;
 
   // 只运行一次
-  let id = json.app + "_dom";
   let h = dom.querySelector('#' + id);
   if (h && h.children.length > 0) return
 
-  const rootContainer = document.createElement('div');
   const root = createRoot(rootContainer);
-  rootContainer.id = id;
-  // rootContainer.className = "_agi_ui"
-
   root.render(
     <Main
       className="_agi_ui"
@@ -47,13 +53,11 @@ async function init() {
 
       debug={false}
       debugData={{}}
-      callback={(e: any) => console.log(e)}
+      callback={(e: any) => chatbotCallbacks(e)}
     />
   );
 
-
   dom.appendChild(rootContainer);
-
   addCss();
 
 }
@@ -173,14 +177,14 @@ function readerHack(reader: boolean) {
 //     init()
 //   }
 // });
-// window.onfocus = function (e) {
-//   console.log('window.onfocus')
-//   if (document.readyState == 'complete') {
-//     console.log('激活状态！')
-//     // bing 搜索有bug，会被直接清掉
-//     init()
-//   }
-// }
+window.onfocus = function (e) {
+  console.log('window.onfocus')
+  if (document.readyState == 'complete') {
+    console.log('激活状态！')
+    // bing 搜索有bug，会被直接清掉
+    init()
+  }
+}
 
 // 部分网站body下面的元素是动态植入的，需要在dom加载完后再注入，不然会被清除掉
 document.addEventListener("DOMContentLoaded", () => {

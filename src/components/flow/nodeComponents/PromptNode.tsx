@@ -1,6 +1,6 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
-import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
+import { Input, Card, Select, Radio, Checkbox, Slider, Dropdown, Divider, Space, Button } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 const { TextArea } = Input;
@@ -19,6 +19,8 @@ const menuNames = {
 
 
 export type NodeData = {
+  getNodes: any;
+  nodeInputId: string;
   debug: any;
   text: string,
   api: any,
@@ -35,15 +37,11 @@ export type NodeData = {
 
 
 
-const createText = (title: string, text: string, onChange: any) => <>
-  <p>{title}</p>
-  <TextArea
-    defaultValue={text}
-    showCount
-    allowClear
-    autoSize
-    placeholder="maxLength is 6"
-    // maxLength={6}
+const createTextAndInput = (
+  title: string, text: string, input: string,
+  nodeOpts: any,
+  selectNodeValue: string,
+  onChange: any) => < div
     onMouseOver={() => {
       onChange({
         key: 'draggable',
@@ -56,13 +54,48 @@ const createText = (title: string, text: string, onChange: any) => <>
         data: true
       })
     }}
-    onChange={(e) => {
-      onChange({
-        key: 'text',
-        data: e.target.value
-      })
-    }}
-  /></>;
+  >
+    <p>{title}</p>
+    <TextArea
+      defaultValue={text}
+      showCount
+      allowClear
+      autoSize
+      placeholder="maxLength is 6"
+      // maxLength={6}
+
+      onChange={(e) => {
+        onChange({
+          key: 'text',
+          data: e.target.value
+        })
+      }}
+    />
+    <Checkbox
+      style={{ marginTop: '8px' }}
+      defaultChecked={input == "nodeInput"}
+      // checked={input == "nodeInput"}
+      onChange={(e) => {
+        // console.log(e)
+        onChange({
+          key: 'input',
+          data: e.target.checked ? 'nodeInput' : 'default'
+        })
+      }}>从上一节点获取文本</Checkbox>
+    {
+      input === "nodeInput" ? <Select
+        value={selectNodeValue}
+        style={{ width: '100%', marginTop: '8px' }}
+        onChange={(e) => {
+          onChange({
+            key: 'nodeInput',
+            data: e
+          })
+        }}
+        options={nodeOpts}
+      /> : ''
+    }
+  </div>;
 
 
 
@@ -216,13 +249,36 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     }
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
+
+  // input
+  const inputs = data.opts.inputs;
+  const [input, setInput] = React.useState(data.input)
+  const [nodeInputId, setNodeInputId] = React.useState(data.nodeInputId)
   // text
   const [text, setText] = React.useState(data.text)
-  const updateText = (e: any) => {
+  const updateTextAndInput = (e: any) => {
     // console.log(e)
     if (e.key === 'text') {
       setText(e.data);
       data.onChange({ id, data: { text: e.data } })
+    }
+
+    if (e.key === 'input') {
+      setInput(e.data);
+      data.onChange({
+        id, data: {
+          input: e.data
+        }
+      })
+    }
+
+    if (e.key == "nodeInput") {
+      setNodeInputId(e.data);
+      data.onChange({
+        id, data: {
+          nodeInput: e.data
+        }
+      })
     }
 
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
@@ -230,17 +286,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
   }
 
 
-  // input
-  const inputs = data.opts.inputs;
-  const [input, setInput] = React.useState(data.input)
-  const updateInput = (e: any) => {
-    // console.log(e)
-    if (e.key === 'input') {
-      setInput(e.data);
-      data.onChange({ id, data: { input: e.data } })
-    }
 
-  }
 
   // output
   const translates = data.opts.translates;
@@ -269,8 +315,20 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
   const createNode = () => {
     const node = [];
-    // node.push(createInput(menuNames.input, 'input', input, inputs, updateInput))
-    node.push(createText(menuNames.userInput, text, updateText))
+
+    let allNodes: any[] = [];
+    if (data.getNodes) allNodes = [...data.getNodes()]
+
+    const nodeOpts = Array.from(allNodes, (node, i) => {
+      return {
+        value: node.id, label: node.type
+      }
+    });
+
+    let selectNodeValue = nodeInputId || nodeOpts[0].value
+
+
+    node.push(createTextAndInput(menuNames.userInput, text, input, nodeOpts, selectNodeValue, updateTextAndInput))
     node.push(createModel(model, temperature, models, updateModel))
     node.push(createTranslate(menuNames.translate, 'translate', translate, translates, updateTranslate))
     node.push(createOutput(menuNames.output, 'output', output, outputs, updateOutput))
@@ -283,6 +341,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     return <Card
       key={id}
       title={menuNames.title}
+      bodyStyle={{ paddingTop: 0 }}
       // extra={createType(type, agents, updateType)}
       style={{ width: 300 }}>
       {...node}

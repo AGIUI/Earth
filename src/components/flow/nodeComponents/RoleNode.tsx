@@ -140,6 +140,7 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
         return <Card
             key={id}
             title={menuName.cardTitle}
+            bodyStyle={{ paddingTop: 0 }}
             //   extra={createType(type, agents, updateType)}
             style={{ width: 300 }}>
             {/* <Dropdown menu={menuProps}>

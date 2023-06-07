@@ -235,11 +235,13 @@ function Flow(props: any) {
         workflow[source] = {
           ...sourceNode.data,
           type: sourceNode.type,
+          id: sourceNode.id,
           nextId: target
         };
         workflow[target] = {
           ...targetNode.data,
-          type: targetNode.type
+          type: targetNode.type,
+          id: targetNode.id
         };
       }
     }
@@ -279,6 +281,7 @@ function Flow(props: any) {
           const prompt = items[index];
           prompt.role = { ...rolePrompt.role };
           delete prompt.onChange;
+          delete prompt.getNodes;
           delete prompt.opts;
 
           if (prompt.type !== 'role') {

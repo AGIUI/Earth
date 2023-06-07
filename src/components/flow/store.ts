@@ -80,6 +80,7 @@ const useStore = create<RFState>((set, get) => ({
       nd.data = {
         ...defaultNode,
         ...nd.data,
+        getNodes:()=>get().nodes,
         onChange: (e: any) => {
           // console.log('store-onchange', e)
           const nodes = [];
@@ -155,6 +156,7 @@ const useStore = create<RFState>((set, get) => ({
       data: {
         ...defaultNode,
         type: dataType,
+        getNodes:()=>get().nodes,
         onChange: (e: any) => {
           // console.log('store-onchange', e)
           const nodes = [];
@@ -228,6 +230,7 @@ const useStore = create<RFState>((set, get) => ({
       type: 'prompt',
       data: {
         ...defaultNode,
+        getNodes:()=>get().nodes,
         onChange: (e: any) => {
           // console.log('store-onchange', e)
           const nodes = [];
