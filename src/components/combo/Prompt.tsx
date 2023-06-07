@@ -132,7 +132,7 @@ function promptParse(prompt: string) {
         }
     }
 
-    prompt = `${promptNew}\nuserInput:${prompts['userInput']}`
+    prompt = `${promptNew ? promptNew + '\nuserInput:' : ''}${prompts['userInput']}`
 
     return { system, prompt }
 
@@ -226,7 +226,12 @@ const extractArticle = (query = "") => {
 
     divs = divs.filter((d: any) => d.className != '_agi_ui')
 
-    let elements = Array.from(divs, (div: any) => [...div.querySelectorAll('p'), ...div.querySelectorAll('span'), ...div.querySelectorAll('h1'), ...div.querySelectorAll('section')].flat()).flat().filter((f: any) => f);
+    let elements = Array.from(divs, (div: any) => [
+        ...div.querySelectorAll('p'),
+        ...div.querySelectorAll('span'),
+        ...div.querySelectorAll('h1'),
+        ...div.querySelectorAll('section'),
+    ].flat()).flat().filter((f: any) => f);
 
     article.elements = Array.from(elements, (element: any, index) => {
         const tagName = element.tagName.toLowerCase();
@@ -248,6 +253,16 @@ const extractArticle = (query = "") => {
         article.title = document.title;
         article.textContent = (Array.from(['p', 'span', 'h1', 'section'], e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
     }
+
+    // 图片
+    if (query) {
+        let imgs: any = document.body.querySelectorAll(query);
+        if (imgs.length > 0) {
+            article.images = Array.from(imgs, (im: any) => im.src)
+        }
+    }
+
+
     console.log('_extractArticle', article)
     article.href = window.location.href.replace(/\?.*/ig, '');
     return article
@@ -256,7 +271,7 @@ const extractArticle = (query = "") => {
 // 绑定当前页面信息
 const promptBindCurrentSite = (userInput: string, type = 'text', query: string) => {
     // 获取当前网页正文信息
-    const { length, title, textContent, href, elements } = extractArticle(query);
+    const { length, title, textContent, href, elements, images } = extractArticle(query);
     let prompt = userInput.trim();
 
     if (type == 'text') {
@@ -282,6 +297,12 @@ const promptBindCurrentSite = (userInput: string, type = 'text', query: string) 
             prompt = `<title>${title}</title><url>${href}</url>${prompt}`;
         } else {
             prompt = `<title>${title}</title><url>${href}</url>`;
+        }
+    } else if (type == 'images') {
+        if (prompt) {
+            prompt = `${Array.from(images, im => `<img src="${im}"/>`).join("")}${prompt}`;
+        } else {
+            prompt = Array.from(images, im => `<img src="${im}"/>`).join("");
         }
     }
     return prompt

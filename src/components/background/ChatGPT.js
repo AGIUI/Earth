@@ -135,7 +135,9 @@ export default class ChatGPT {
 
     buildMessages(systemContent = null) {
         const date = new Date().toISOString().split('T')[0]
-
+        if (systemContent === "undefined") systemContent = null;
+        if (systemContent === "null") systemContent = null;
+        if (systemContent === "") systemContent = null;
         systemContent = systemContent || `You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.\nKnowledge cutoff: 2021-09-01\nCurrent date: ${date}`;
 
         const systemMessage = {

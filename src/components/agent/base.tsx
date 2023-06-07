@@ -1,7 +1,7 @@
 
 
 function addHighlight(dom: any) {
-    if (dom) dom.style.backgroundColor = "yellow"
+    if (dom) dom.style.border = "1px solid yellow"
 }
 
 

@@ -691,6 +691,7 @@ class Main extends React.Component<{
     }
 
     _promptBindTranslate(prompt: string, type: string) {
+        console.log('_promptBindTranslate', prompt, type, promptBindTranslate(prompt, type))
         return promptBindTranslate(prompt, type)
     }
 
@@ -804,19 +805,21 @@ class Main extends React.Component<{
 
     _queryReadRun(queryObj: any) {
         const { content, query } = queryObj;
-        let text = '';
+        let markdown = '';
         if (content == 'bindCurrentPage') {
             // 绑定全文
-            text = this._promptBindCurrentSite('', 'text', query)
+            markdown = this._promptBindCurrentSite('', 'text', query)
         } else if (content == 'bindCurrentPageHTML') {
             // 绑定网页
-            text = this._promptBindCurrentSite('', 'html', query)
+            markdown = this._promptBindCurrentSite('', 'html', query)
         } else if (content == 'bindCurrentPageURL') {
             // 绑定url
-            text = this._promptBindCurrentSite('', 'url', query)
+            markdown = this._promptBindCurrentSite('', 'url', query)
+        }else if(content == 'bindCurrentPageImages'){
+            markdown = this._promptBindCurrentSite('', 'images', query)
         }
 
-        const id = md5(query + text + (new Date()))
+        const id = md5(query + markdown + (new Date()))
         // {
         //     export: false,
         //     from: "_queryReadRun",
@@ -831,7 +834,7 @@ class Main extends React.Component<{
             export: true,
             from: "_queryReadRun",
             id: id + 'r',
-            markdown: text,
+            markdown: markdown,
             tId: id + 'r',
             type: "done",
             user: false,
@@ -1143,10 +1146,10 @@ class Main extends React.Component<{
 
         if (promptFromLocal) {
             // 因为是从本地获取的数据,需要添加是否新建对话?
-
+             
             nTalks.push(ChatBotConfig.createTalkData('send-talk-refresh', {
                 data: {
-                    tag: promptFromLocal,
+                    tag: promptFromLocal.slice(0,10)+(promptFromLocal.length>10?'...':''),
                     prompt: {
                         text: promptFromLocal,
                         type: 'prompt',
@@ -1323,7 +1326,7 @@ class Main extends React.Component<{
                 }
 
                 // translate的处理
-                if (prompt.translate != "default") this._promptBindTranslate(prompt.text, prompt.translate)
+                if (prompt.translate != "default") prompt.text = this._promptBindTranslate(prompt.text, prompt.translate)
 
 
                 // output的处理
@@ -1340,14 +1343,7 @@ class Main extends React.Component<{
                 }
 
                 // 
-                if (['prompt',
-                    'tasks',
-                    'extract',
-                    'json',
-                    'list',
-                    'markdown',
-                    'translate-zh',
-                    'translate-en'].includes(prompt.type)) this._llmRun(prompt, newTalk);
+                if (prompt.type == 'prompt') this._llmRun(prompt, newTalk);
 
 
                 // 标记当前执行状态，以及下一条
