@@ -223,7 +223,7 @@ function Flow(props: any) {
       const id = nodes[0].id.match('root_') ? 'root' : nodes[0].id
       workflow[id] = nodes[0].data
     }
-    // console.log(nodes)
+    console.log(nodes, edges)
     for (const edge of edges) {
       let { source, target } = edge;
       source = source.match('root_') ? 'root' : source;
@@ -246,7 +246,7 @@ function Flow(props: any) {
       }
     }
     const items: any = [];
-    // console.log(workflow)
+    console.log(workflow)
     // 按顺序从到尾
     const getItems = (id: string, callback: any) => {
       if (workflow[id]) {
@@ -257,6 +257,8 @@ function Flow(props: any) {
         } else {
           return callback(items)
         }
+      } else {
+        return callback(items)
       }
     }
 

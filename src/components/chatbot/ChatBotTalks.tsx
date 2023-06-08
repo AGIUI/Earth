@@ -245,9 +245,7 @@ const createImages = (html: string) => {
         }}
     >
         {
-            Array.from(urls, (u: string) => <Image width={180} src={u} style={{
-                margin:'8px'
-            }}/>)
+            Array.from(urls, (u: string) => <Image width={180} src={u}  />)
         }
         {
             text && <p>{text}</p>
@@ -290,7 +288,11 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                     dangerouslySetInnerHTML={{ __html: data.html }}>
                 </p> : <Card title={""}
                     headStyle={{
-                        minHeight: '10px', backgroundColor: 'white', border: "none", marginBottom: -20
+                        minHeight: '10px', 
+                        backgroundColor: 'white', 
+                        border: "none", 
+                        marginBottom: -20,
+                        width: '100%'
                     }}
                     bordered={false}
                     size={'small'}
@@ -310,8 +312,14 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                     }
 
                     style={{
-                        width: '100%', background: 'rgba(255, 255, 255, 0.00)', marginTop: '10px',
-                        marginBottom: '10px', padding: '0px', boxShadow: 'none',
+                        width: '100%', 
+                        background: 'rgba(255, 255, 255, 0.00)', 
+                        marginTop: '10px',
+                        marginBottom: '10px', 
+                        padding: '0px', 
+                        boxShadow: 'none',
+                        display: 'flex',
+                        flexWrap: 'wrap'
                     }}>
                     {
                         data.type == "images" ?

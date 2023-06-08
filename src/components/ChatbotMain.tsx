@@ -745,7 +745,7 @@ class Main extends React.Component<{
         if (isApi == false) return;
 
         if (url && !url.match('//')) url = `${protocol}${url}`;
-        console.log(api, init.body)
+        // console.log(api, init.body)
 
         if (init.body && typeof (init.body) == 'object') init.body = JSON.stringify(init.body);
 

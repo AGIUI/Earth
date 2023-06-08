@@ -303,7 +303,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
             setBody(e.data);
             try {
                 let b = JSON.parse(e.data);
-                const init={
+                const init = {
                     ...api.init,
                     body: b
                 };
@@ -345,7 +345,10 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
         let nodeOpts: any[] = [];
         if (data.getNodes) nodeOpts = [...data.getNodes(id)]
-        let selectNodeValue = nodeInputId || nodeOpts[0].value
+        if (nodeOpts.filter(n => n.value === nodeInputId).length === 0) {
+            // setNodeInputId('')
+        }
+        let selectNodeValue = nodeInputId;
         // console.log(nodeOpts)
         return <Card
             key={id}

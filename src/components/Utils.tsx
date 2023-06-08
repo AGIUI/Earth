@@ -252,10 +252,10 @@ function addCss() {
       z-index: 99999999 !important;
     }
     .ant-image-preview-mask{
-        z-index: 120000000000000;
+        z-index: 120000000000000!important
     }
     .ant-image-preview-wrap{
-        z-index: 9999999999;
+        z-index: 9999999999!important
     }
     .ant-input-affix-wrapper::before {
       width: 0;
