@@ -5,7 +5,7 @@
 import { chromeStorageSet } from '@components/Utils'
 
 async function base(combo) {
-    const markdown = '完成任务：打开网页'
+    const markdown = '打开网页'
     const data = {
         markdown,
         combo

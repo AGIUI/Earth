@@ -102,7 +102,12 @@ const Talks = {
                 if (t.type == "suggest") countSuggest--;
                 if (t.type == 'suggest' && countSuggest == 0) {
                     newTalks.push(t);
-                } else if (t.type == 'talk' || t.type == 'markdown' || t.type == 'done' || t.type == 'images') {
+                } else if (t.type == 'talk' ||
+                    t.type == 'markdown' ||
+                    t.type == 'done' ||
+                    t.type == 'images' ||
+                    t.type == 'task'
+                ) {
                     newTalks.push(t);
                 }
             }
@@ -117,10 +122,13 @@ const Talks = {
             if (v.user && value[index - 1] && v.html == value[index - 1].html) {
                 return
             }
-            // 去除空内容
-            const d = document.createElement('div');
-            d.innerHTML = v.html;
-            if (d.innerText.trim() === "") return;
+
+            if (v.type != 'images') {
+                // 去除空内容
+                const d = document.createElement('div');
+                d.innerHTML = v.html;
+                if (d.innerText.trim() === "") return;
+            }
 
             return v
         }).filter(m => m);
@@ -210,6 +218,17 @@ const Talks = {
 
         let json = { html: dom.innerHTML };
         return json
+    },
+    createTaskStatus: (from: string, id: string, text: string) => {
+        return {
+            export: false,
+            from,
+            id,
+            markdown: '任务：' + text,
+            tId: id,
+            type: "task",
+            user: false,
+        }
     },
     createShowInChatInterfaces: async () => {
         const buttons = Array.from(
@@ -384,7 +403,7 @@ class Main extends React.Component<{
                 const ttype = responseExtract.type;
 
                 const markdown = `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`;
-                
+
                 const items: any = [{
                     type: 'done',
                     markdown,
@@ -443,13 +462,11 @@ class Main extends React.Component<{
 
         Talks.get().then(talks => {
             if (this.props.agents) {
-                talks.push({
-                    type: 'done',
-                    html: '自动化执行任务ing',
-                    user: false,
-                    tId: (new Date()).getTime() + '02',
-                    export: false
-                })
+                talks.push(Talks.createTaskStatus(
+                    '_start',
+                    (new Date()).getTime() + '02',
+                    '开始'
+                ))
             }
 
             if (talks && talks.length > 0) {
@@ -475,8 +492,11 @@ class Main extends React.Component<{
             this.initChatBot();
         }
         if (prevProps.debugData) {
-            // console.log(prevProps.debugData, this.props.debugData)
-            if (this.props.debugData.id != prevProps.debugData.id) {
+            let isNew = false;
+            for (const key in this.props.debugData) {
+                if (prevProps.debugData[key] != this.props.debugData[key]) isNew = true;
+            }
+            if (isNew) {
                 const { autoRun } = this.props.debugData;
                 if (autoRun) {
                     // 新建
@@ -499,7 +519,7 @@ class Main extends React.Component<{
 
     _getAgentsResult() {
         chromeStorageGet('run-agents-result').then((res: any) => {
-            console.log('_getAgentsResult', res)
+            // console.log('_getAgentsResult', res)
             if (res && res['run-agents-result']) {
 
                 const combo = res['run-agents-result'].combo;
@@ -509,12 +529,11 @@ class Main extends React.Component<{
                     data: { prompt: combo, from: "fromFlow" }
                 });
                 setTimeout(() => {
-                    this._updateChatBotTalksResult([{
-                        type: 'done',
-                        markdown: res['run-agents-result'].markdown,
-                        tId: (new Date()).getTime(),
-                        export: false
-                    }]);
+
+                    this._updateChatBotTalksResult([
+                        Talks.createTaskStatus('run-agents-result', (new Date()).getTime() + '', res['run-agents-result'].markdown)
+                    ]);
+
                     chromeStorageSet({ 'run-agents-result': null })
                 }, 1000)
 
@@ -755,15 +774,11 @@ class Main extends React.Component<{
         // 当前页面
         clickByQueryBase(query)
         const id = md5(query + (new Date()))
-        const data = {
-            export: false,
-            from: "_queryClickRun",
+        const data = Talks.createTaskStatus(
+            '_queryClickRun',
             id,
-            markdown: '完成任务：模拟点击',
-            tId: id,
-            type: "done",
-            user: false
-        }
+            '模拟点击'
+        )
         this._updateChatBotTalksResult([data]);
     }
 
@@ -784,22 +799,18 @@ class Main extends React.Component<{
         // 当前页面
         inputByQueryBase(query, text)
         const id = md5(query + text + (new Date()))
-        const data = {
-            export: false,
-            from: "_queryInputRun",
+        const data = Talks.createTaskStatus(
+            '_queryInputRun',
             id,
-            markdown: '完成任务：文本输入',
-            tId: id,
-            type: "done",
-            user: false
-        }
+            '文本输入'
+        )
         this._updateChatBotTalksResult([data]);
 
     }
 
     _queryDefaultRun(queryObj: any, combo: any) {
-
-        if (queryObj && queryObj.url && !this.props.agents) {
+        // console.log('_queryDefaultRun',queryObj && !this.props.agents,queryObj)
+        if (queryObj) {
             // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
             let {
                 url, protocol, delay
@@ -828,15 +839,13 @@ class Main extends React.Component<{
             } else {
                 // url没有填写
                 let id = md5("_queryDefaultRun" + (new Date()))
-                setTimeout(() => this._updateChatBotTalksResult([{
-                    export: false,
-                    from: "_queryDefaultRun",
-                    id: id + 'r',
-                    markdown: '完成任务：延时' + delay + '毫秒',
-                    tId: id + 'r',
-                    type: "done",
-                    user: false,
-                }]), delay);
+                setTimeout(() => this._updateChatBotTalksResult([
+                    Talks.createTaskStatus(
+                        '_queryDefaultRun',
+                        id + 'r',
+                        '延时' + delay + '毫秒'
+                    )
+                ]), delay);
             }
 
         }
@@ -844,6 +853,7 @@ class Main extends React.Component<{
 
     _queryReadRun(queryObj: any) {
         const { content, query, url, protocol } = queryObj;
+        console.log('_queryReadRun', queryObj)
         let markdown = '';
         if (content == 'bindCurrentPage') {
             // 绑定全文
@@ -856,28 +866,20 @@ class Main extends React.Component<{
             markdown = this._promptBindCurrentSite('', 'url', query)
         } else if (content == 'bindCurrentPageImages') {
             markdown = this._promptBindCurrentSite('', 'images', query)
+        } else if (content == "bindCurrentPageTitle") {
+            markdown = this._promptBindCurrentSite('', 'title', query)
         }
 
         const id = md5(query + markdown + (new Date()))
-        // {
-        //     export: false,
-        //     from: "_queryReadRun",
-        //     id,
-        //     markdown: '完成任务：从网页获取',
-        //     tId: id,
-        //     type: "done",
-        //     user: false
-        // }, 
-        setTimeout(() => this._updateChatBotTalksResult([{
-            export: true,
-            from: "_queryReadRun",
-            id: id + 'r',
-            markdown: markdown,
-            tId: id + 'r',
-            type: "done",
-            user: false,
-        }]), 500);
 
+        setTimeout(() => this._updateChatBotTalksResult([{
+            ...Talks.createTaskStatus(
+                '_queryReadRun',
+                id + 'r',
+                markdown
+            ),
+            export: true
+        }]), 500);
 
 
         // 传递给父级
@@ -1034,7 +1036,7 @@ class Main extends React.Component<{
                 console.log('对话状态开启', data)
                 this.updateChatBotStatus(true);
 
-            } else if ((data.type == 'markdown' || data.type == 'done')) {
+            } else if (data.type == 'markdown' || data.type == 'done' || data.type == 'task') {
                 // markdown 如果 data.from == 'local' 则isNew=true
                 isCanClearThinking = !!data.markdown;
 
@@ -1074,10 +1076,10 @@ class Main extends React.Component<{
 
                 }
 
-                if (data.type == 'done') {
+                if (data.type == 'done' || data.type == 'task') {
 
                     let PromptIndex = this.state.PromptIndex;
-                    console.log('done', data, this.state.currentCombo, PromptIndex)
+                    console.log('done/task', data, this.state.currentCombo, PromptIndex)
 
                     // 上一个节点
                     let prePrompt = this.state.currentCombo[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]
@@ -1170,7 +1172,8 @@ class Main extends React.Component<{
                 // 图像
                 const talk = {
                     html: Array.from(data.images, url => `<img src='${url}' />`).join(''),
-                    export: true
+                    export: true,
+                    type: 'done'
                 }
                 delete data.images;
                 let d = { ...data, ...talk };

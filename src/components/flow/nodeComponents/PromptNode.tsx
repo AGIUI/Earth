@@ -304,16 +304,9 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
   const createNode = () => {
     const node = [];
 
-    let allNodes: any[] = [];
-    if (data.getNodes) allNodes = [...data.getNodes(id)]
-
-    const nodeOpts = Array.from(allNodes, (node, i) => {
-      return {
-        value: node.id, label: node.type
-      }
-    });
-
-    let selectNodeValue = nodeInputId || nodeOpts[0].value
+    let nodeOpts: any[] = [];
+    if (data.getNodes) nodeOpts = [...data.getNodes()]
+    let selectNodeValue = input === "nodeInput" ? (nodeInputId || nodeOpts[0].value) : null
     // console.log('selectNodeValue',selectNodeValue,nodeInputId,nodeOpts[0],data)
 
     node.push(createTextAndInput(menuNames.userInput, text, input, nodeOpts, selectNodeValue, updateTextAndInput))

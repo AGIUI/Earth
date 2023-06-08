@@ -20,7 +20,7 @@ const menuNames = {
 
 // 从上一节点获取文本
 export const selectNodeInput = (nodeInputId: string, nodeOpts: any, onChange: any) => {
-    const [checked, setChecked] = React.useState(false)
+    const [checked, setChecked] = React.useState(!!nodeInputId)
     return <>
         <Checkbox
             style={{ marginTop: '12px' }}

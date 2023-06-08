@@ -287,6 +287,13 @@ const promptBindCurrentSite = (userInput: string, type = 'text', query: string) 
             prompt = `${t}<text>${cropText(text)}</text>`;
         }
 
+    } else if (type == 'title') {
+        const t = `<title>${title}</title>`
+        if (prompt) {
+            prompt = `${t}${prompt}`;
+        } else {
+            prompt = t;
+        }
     } else if (type == 'html') {
         const htmls = Array.from(elements, (t: any) => t.html)
         if (prompt) {

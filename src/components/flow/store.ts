@@ -108,8 +108,8 @@ const useStore = create<RFState>((set, get) => ({
     set({ tag })
   },
   debugStatus: (event: any) => {
-    // console.log('debugStatus', event)
     const nodes = onChangeForNodes(event, get().nodes);
+    // console.log('debugStatus', nodes)
     set({ nodes })
   },
   // 完成调试状态和节点的导入、初始化等

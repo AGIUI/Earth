@@ -226,11 +226,11 @@ const createPPT = (data: any) => {
 }
 
 const createListItem = (data: any, index: number, debug: boolean) => {
-
+    // console.log('createListItem',data)
     return <div style={{ margin: '5px 0' }} className={`chatbot-talk-card-${data.type}`}>{
         // 状态判断：思考、建议选项、对话
         data.type == 'thinking' ? thinkingBtn(data.hi) : (
-            data.type == 'suggest'&& !debug ? <>
+            data.type == 'suggest' && !debug ? <>
                 {
                     data.hi ?
                         createAvatar(data.avatarUrl || chrome.runtime.getURL('public/icon-34.png'), data.hi) : ''
@@ -254,7 +254,7 @@ const createListItem = (data: any, index: number, debug: boolean) => {
             </> : (data.html ?
                 data.user ? <p
                     style={createTalkBubbleStyle(data.user)}
-                    className={`chatbot-text-bubble${data.user ? '-user' : ''}`}
+                    className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
                     key={index}
                     dangerouslySetInnerHTML={{ __html: data.html }}>
                 </p> : <Card title={""}
@@ -284,7 +284,7 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                     }}>
                     <p
                         style={createTalkBubbleStyle(data.user)}
-                        className={`chatbot-text-bubble${data.user ? '-user' : ''}`}
+                        className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
                         key={index}
                         dangerouslySetInnerHTML={{ __html: data.html }}>
                     </p>

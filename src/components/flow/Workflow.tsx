@@ -301,7 +301,8 @@ const parsePrompt2ControlEvent = (id: string, prompt: any) => {
         debugInfo: d,
         newTalk: true,
         autoRun: true,
-        id: id
+        id: id,
+        createTime:(new Date()).getTime()
     }
     return controlEvent
 }
