@@ -6,6 +6,8 @@ import type { MenuProps } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
+import { createDebug } from './Debug';
+
 
 const menuNames = {
   title: '提示工程',
@@ -331,9 +333,13 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     node.push(createTranslate(menuNames.translate, 'translate', translate, translates, updateTranslate))
     node.push(createOutput(menuNames.output, 'output', output, outputs, updateOutput))
 
+
+
+
     if (data.debug) {
       node.push(<Divider dashed />)
       node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
+      // node.push(createDebug('text', data, updateTextAndInput))
     }
 
     return <Card

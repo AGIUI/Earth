@@ -9,10 +9,14 @@ const { Option } = Select;
 
 const menuNames = {
   title: '进入网页',
-  second: 'URL',
+  url: 'URL',
+  urlPlaceholder: "请填写url",
+  delay: "等待时间",
+  delayPlaceholder: "输入时间",
+  ms: '毫秒',
+  s: '秒',
   debug: '调试'
 }
-
 
 export type NodeData = {
   debug: any;
@@ -22,9 +26,8 @@ export type NodeData = {
 };
 
 
-const createUrl = (title: string, json: any, onChange: any) => {
-  const { protocol, url, init, query, isApi, isQuery } = json;
-  const key = 'query';
+const createUI = (json: any, delay: number, delayFormat: string, onChange: any) => {
+  const { protocol, url } = json;
 
   return <div onMouseOver={() => {
     onChange({
@@ -38,11 +41,12 @@ const createUrl = (title: string, json: any, onChange: any) => {
         data: true
       })
     }}>
-    <p>{title}</p>
+
+    <p>{menuNames.url}</p>
     <Input addonBefore={
       <Select defaultValue={protocol} onChange={(e: string) => {
         onChange({
-          key,
+          key: 'query',
           data: {
             ...json, protocol: e
           }
@@ -53,16 +57,45 @@ const createUrl = (title: string, json: any, onChange: any) => {
         <Option value="https://">https://</Option>
       </Select>
     }
-      placeholder={`请填写url`}
+      placeholder={menuNames.urlPlaceholder}
       defaultValue={url}
       onChange={(e: any) => {
         // console.log('input url',e)
         onChange({
-          key,
+          key: 'query',
           data: {
             ...json,
             url: e.target.value,
             action: 'default'
+          }
+        })
+      }}
+    />
+
+    <p>{menuNames.delay}</p>
+    <Input addonAfter={
+      <Select defaultValue={delayFormat} onChange={(e: string) => {
+
+        onChange({
+          key: 'delayFormat',
+          data: e
+        })
+
+      }}>
+        <Option value="ms">{menuNames.ms}</Option>
+        <Option value="s">{menuNames.s}</Option>
+      </Select>
+    }
+      placeholder={menuNames.delayPlaceholder}
+      defaultValue={delay}
+      onChange={(e: any) => {
+        let t = parseFloat(e.target.value);
+        if (delayFormat == 's') t = 1000 * t;
+        onChange({
+          key: 'delay',
+          data: {
+            ...json,
+            delay: t,
           }
         })
       }}
@@ -73,12 +106,18 @@ const createUrl = (title: string, json: any, onChange: any) => {
 
 
 function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
+  // console.log(data)
   const [type, setType] = React.useState(data.type)
   // console.log('QueryDefaultNode', data)
 
   // queryObj
   data.queryObj.isQuery = type === "query";
   const [queryObj, setQueryObj] = React.useState(data.queryObj)
+
+  const [delay, setDelay] = React.useState(queryObj.delay || 1000)
+  const [delayFormat, setDelayFormat] = React.useState('ms')
+
+
   const updateQueryObj = (e: any) => {
     // console.log(e)
     if (e.key === 'query') {
@@ -86,11 +125,21 @@ function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
       data.onChange({ id, data: { queryObj: e.data } })
     }
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
+
+    if (e.key === "delay") {
+      setQueryObj(e.data);
+      data.onChange({ id, data: { queryObj: e.data } })
+    }
+    if (e.key == "delayFormat") {
+      setDelayFormat(e.data);
+    }
+
   }
 
 
   const createNode = () => {
-    const node = [createUrl(menuNames.second, queryObj, updateQueryObj)];
+
+    const node = [createUI(queryObj, delay, delayFormat, updateQueryObj)];
 
     if (data.debug) {
       node.push(<Divider dashed />)

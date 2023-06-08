@@ -779,26 +779,42 @@ class Main extends React.Component<{
         if (queryObj && queryObj.url && !this.props.agents) {
             // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
             let {
-                url, protocol
+                url, protocol, delay
             } = queryObj;
+
+            if (delay === 0) delay = 1;
 
             this.updateChatBotStatus(false);
 
-            // 对url进行处理
-            if (url && !url.match('//')) url = `${protocol}${url}`
+            if (url) {
+                // 对url进行处理
+                if (url && !url.match('//')) url = `${protocol}${url}`;
 
-            const data = JSON.parse(JSON.stringify({
-                type: 'queryDefault',
-                url,
-                delay: 2000,
-                combo: { ...combo } //用来传递combo数据
-            }));
-            console.log('_queryDefaultRun', data)
+                const data = JSON.parse(JSON.stringify({
+                    type: 'queryDefault',
+                    url,
+                    delay: delay || 2000,
+                    combo: { ...combo } //用来传递combo数据
+                }));
+                console.log('_queryDefaultRun', data)
 
-            // 需要把当前面板的状态停止
-            this._promptControl({ cmd: 'stop-combo' });
+                // 需要把当前面板的状态停止
+                this._promptControl({ cmd: 'stop-combo' });
 
-            sendMessageToBackground['run-agents'](data)
+                sendMessageToBackground['run-agents'](data)
+            } else {
+                // url没有填写
+                let id = md5("_queryDefaultRun" + (new Date()))
+                setTimeout(() => this._updateChatBotTalksResult([{
+                    export: false,
+                    from: "_queryDefaultRun",
+                    id: id + 'r',
+                    markdown: '完成任务：延时' + delay + '毫秒',
+                    tId: id + 'r',
+                    type: "done",
+                    user: false,
+                }]), delay);
+            }
 
         }
     }
@@ -815,7 +831,7 @@ class Main extends React.Component<{
         } else if (content == 'bindCurrentPageURL') {
             // 绑定url
             markdown = this._promptBindCurrentSite('', 'url', query)
-        }else if(content == 'bindCurrentPageImages'){
+        } else if (content == 'bindCurrentPageImages') {
             markdown = this._promptBindCurrentSite('', 'images', query)
         }
 
@@ -1146,10 +1162,10 @@ class Main extends React.Component<{
 
         if (promptFromLocal) {
             // 因为是从本地获取的数据,需要添加是否新建对话?
-             
+
             nTalks.push(ChatBotConfig.createTalkData('send-talk-refresh', {
                 data: {
-                    tag: promptFromLocal.slice(0,10)+(promptFromLocal.length>10?'...':''),
+                    tag: promptFromLocal.slice(0, 10) + (promptFromLocal.length > 10 ? '...' : ''),
                     prompt: {
                         text: promptFromLocal,
                         type: 'prompt',

@@ -2,21 +2,26 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Card, Select, Collapse, Checkbox, Dropdown, Divider, Space, Button } from 'antd';
 const { Panel } = Collapse;
-import { DownOutlined } from '@ant-design/icons';
+import { DownOutlined, CaretRightOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-
 
 const { TextArea } = Input;
 const { Option } = Select;
+
+import { createDebug } from './Debug';
 
 const menuNames = {
     title: 'API调用',
     url: 'URL',
     method: '方法',
-    parama: '参数',
+    parama: '参数(字符串)',
+    getFromBefore:"从上一节点获取文本 ${text} ",
     responseType: '返回的数据类型',
     output: '输出',
-    debug: '调试'
+    outputKeyword: "输出字段",
+    more: "调试",
+    debugRun: '运行',
+    debugParama: '请求参数'
 }
 
 
@@ -103,6 +108,7 @@ const createText = (title: string, text: string, onChange: any) => <>
             })
         }}
     /></>;
+
 
 
 
@@ -207,7 +213,7 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
         />
 
         <Checkbox
-            style={{ marginTop: '8px' }}
+            style={{ marginTop: '12px' }}
             defaultChecked={input == "nodeInput"}
             // checked={input == "nodeInput"}
             onChange={(e) => {
@@ -216,11 +222,11 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
                     key: 'input',
                     data: e.target.checked ? 'nodeInput' : 'default'
                 })
-            }}>从上一节点获取文本</Checkbox>
+            }}>{menuNames.getFromBefore}</Checkbox>
         {
             input === "nodeInput" ? <Select
                 value={selectNodeValue}
-                style={{ width: '100%', marginTop: '8px' }}
+                style={{ width: '100%', marginTop: '8px',marginBottom:'12px' }}
                 onChange={(e) => {
                     onChange({
                         key: 'nodeInput',
@@ -234,7 +240,7 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
         <p>{menuNames.responseType}</p>
         <Select
             defaultValue={responseType}
-            style={{ width: 120 }}
+            style={{ width: 120,marginBottom:'12px' }}
             onChange={(e) => {
                 // console.log(e)
                 const data = {
@@ -288,7 +294,9 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
                 { value: 'audio', label: '音频', disabled: true }
             ]}
         />
+        <p>{menuNames.outputKeyword}</p>
         <TextArea
+            // style={{marginTop:'8px'}}
             value={extract.key}
             rows={4}
             placeholder={extract.key}
@@ -315,33 +323,10 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
             }}
         />
 
-        <Collapse bordered={false} style={{
-            padding: 0
-        }}>
-            <Panel header="More" key="1">
-                <p>{menuNames.parama}</p>
-                <TextArea
-                    value={JSON.stringify(init, null, 2)}
-                    rows={4}
-                    placeholder={JSON.stringify(init, null, 2)}
-                    autoSize
-                    onChange={(e) => {
-                        const data = {
-                            ...json,
-                            init: JSON.parse(e.target.value)
-                        }
-                        onChange({
-                            key,
-                            data
-                        })
-                    }}
-                />
-                {data.debug ? <><Divider dashed />
-                    <Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button></> : ''}
+        {
+            createDebug(key, data, onChange)
+        }
 
-            </Panel>
-
-        </Collapse>
 
     </div>
 

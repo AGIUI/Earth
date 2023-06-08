@@ -59,8 +59,9 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
         { value: 'bindCurrentPageHTML', label: '网页HTML' },
         { value: 'bindCurrentPage', label: '网页正文' },
         { value: 'bindCurrentPageURL', label: '网页URL' },
-        { value: 'bindCurrentPageTitle', label: '网页标题', disabled: true },
+        { value: 'bindCurrentPageTitle', label: '网页标题'},
         { value: 'bindCurrentPageImages', label: '网页图片' },
+        // { value: 'bindCurrentPage', label: '网页标题', disabled: true },
       ]}
     />
     <p>{title2}</p>
