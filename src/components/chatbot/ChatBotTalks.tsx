@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, Card, message } from 'antd';
+import { Button, Card, message, Image } from 'antd';
 import {
     CopyOutlined, FilePptOutlined
 } from '@ant-design/icons';
@@ -234,6 +234,28 @@ const createPPT = (data: any) => {
 
 }
 
+const createImages = (html: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    const text = div.innerText;
+    const urls = Array.from(div.querySelectorAll('img'), img => img.src);
+    return <Image.PreviewGroup
+        preview={{
+            onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
+        }}
+    >
+        {
+            Array.from(urls, (u: string) => <Image width={180} src={u} style={{
+                margin:'8px'
+            }}/>)
+        }
+        {
+            text && <p>{text}</p>
+        }
+    </Image.PreviewGroup>
+
+}
+
 const createListItem = (data: any, index: number, debug: boolean) => {
     // console.log('createListItem',data)
     return <div style={{ margin: '5px 0' }} className={`chatbot-talk-card-${data.type}`}>{
@@ -291,12 +313,17 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                         width: '100%', background: 'rgba(255, 255, 255, 0.00)', marginTop: '10px',
                         marginBottom: '10px', padding: '0px', boxShadow: 'none',
                     }}>
-                    <p
-                        style={createTalkBubbleStyle(data.user)}
-                        className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
-                        key={index}
-                        dangerouslySetInnerHTML={{ __html: data.html }}>
-                    </p>
+                    {
+                        data.type == "images" ?
+                            createImages(data.html)
+                            : <p
+                                style={createTalkBubbleStyle(data.user)}
+                                className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
+                                key={index}
+                                dangerouslySetInnerHTML={{ __html: data.html }}>
+                            </p>
+                    }
+
                 </Card> : '')
         )
 

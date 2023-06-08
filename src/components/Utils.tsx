@@ -234,8 +234,15 @@ function addCss() {
     background: #d8e7fd!important;
   }
    .chatbot-talks img{
-      width: 200px;
-      height: fit-content;
+    width: 180px;
+    height: fit-content;
+  
+    cursor: pointer;
+  }
+  
+  .chatbot-text-bubble-images{
+    display: flex;
+    flex-wrap: wrap;
   }
   ._agi_ui .logo{
       width: 34px!important;
@@ -244,7 +251,12 @@ function addCss() {
     .ant-select-dropdown-placement-bottomLeft{
       z-index: 99999999 !important;
     }
-  
+    .ant-image-preview-mask{
+        z-index: 120000000000000;
+    }
+    .ant-image-preview-wrap{
+        z-index: 9999999999;
+    }
     .ant-input-affix-wrapper::before {
       width: 0;
       content: "" !important;
@@ -275,13 +287,13 @@ function addCss() {
     .chatbot-text-bubble-task{
       background: #d9d9d9!important;
       width: fit-content!important;
-      padding: 0 10px!important;
+      padding:4px 10px!important;
     }
      
     `
     dom.appendChild(s);
-  
-  }
+
+}
 
 
 export {
