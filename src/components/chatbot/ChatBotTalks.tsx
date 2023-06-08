@@ -123,6 +123,15 @@ const Content: any = styled(Flex)`
       -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
       background:rgba(0, 0,0, 0.2);
     }
+    &title{
+        display:block;
+    }
+    &url{
+        display:block;
+    }
+    &text{
+        display:block;
+    }
 `
 
 const createAvatar = (avatar: string, text = 'Data Not Found') => (

@@ -160,6 +160,21 @@ function addCss() {
       -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
       background:rgba(0, 0,0, 0.2);
     }
+  .chatbot-talk-card-task{
+    margin: 0px!important;
+  }
+  .chatbot-talk-card-task .ant-card{
+    margin: 0!important;
+  }
+  .chatbot-talk-card-task .ant-card-body{
+    padding: 0 10px!important;
+  }
+  .chatbot-text-bubble-task{
+    background: #d9d9d9!important;
+    width: fit-content!important;
+    padding: 0 10px!important;
+  }
+   
   `
   dom.appendChild(s);
 

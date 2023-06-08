@@ -280,7 +280,8 @@ const promptBindCurrentSite = (userInput: string, type = 'text', query: string) 
 
     if (type == 'text') {
         const text = textContent.trim().replace(/\s+/ig, ' ');
-        const t = `<title>${title}</title><url>${href}</url>`
+        // const t = `<title>${title}</title><url>${href}</url>`
+        const t = "";
         if (prompt) {
             prompt = `${t}<text>${cropText(text)}</text>${prompt}`;
         } else {
@@ -296,10 +297,11 @@ const promptBindCurrentSite = (userInput: string, type = 'text', query: string) 
         }
     } else if (type == 'html') {
         const htmls = Array.from(elements, (t: any) => t.html)
+        const t = `<title>${title}</title>`
         if (prompt) {
-            prompt = `<html>${cropText(JSON.stringify(htmls))}</html>${prompt}`;
+            prompt = `${t}<html>${cropText(JSON.stringify(htmls))}</html>${prompt}`;
         } else {
-            prompt = `<html>${cropText(JSON.stringify(htmls))}</html>`;
+            prompt = `${t}<html>${cropText(JSON.stringify(htmls))}</html>`;
         }
 
     } else if (type == 'url') {

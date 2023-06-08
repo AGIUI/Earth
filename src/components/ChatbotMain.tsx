@@ -551,6 +551,10 @@ class Main extends React.Component<{
             }
         }
 
+        window.oncontextmenu = function(e){
+            sendMessageToBackground['hi']({})
+        }
+
         // 监听当前页面的显示状态
         document.addEventListener("visibilitychange", () => {
             var visibilityState = document.visibilityState == 'hidden' ? 0 : 1
@@ -872,13 +876,16 @@ class Main extends React.Component<{
 
         const id = md5(query + markdown + (new Date()))
 
+        // 需要被下一节点使用到，需要设置成done类型
         setTimeout(() => this._updateChatBotTalksResult([{
             ...Talks.createTaskStatus(
                 '_queryReadRun',
                 id + 'r',
                 markdown
             ),
-            export: true
+            markdown,
+            export: true,
+            type: 'done'
         }]), 500);
 
 
