@@ -47,10 +47,12 @@ const createUI = (
     data: any,
     json: any,
     init: string,
-    input: string,
+    body: string,
     selectNodeValue: string,
     nodeOpts: any,
-    onChange: any, statusInput: string) => {
+    onChange: any,
+    bodyStatus: any,
+    statusInput: string) => {
 
     const { protocol, url, responseType } = json;
     const key = 'api';
@@ -106,7 +108,7 @@ const createUI = (
         />
         <p>{menuNames.method}</p>
         <Select
-            defaultValue={"post"}
+            value={json.init.method || 'POST'}
             style={{ width: 120 }}
             onChange={(e) => {
                 console.log(e)
@@ -131,51 +133,21 @@ const createUI = (
 
         <p>{menuNames.parama}</p>
         <TextArea
-            value={JSON.stringify(json.init.body, null, 2)}
+            value={body}
             rows={4}
-            placeholder={JSON.stringify(json.init.body, null, 2)}
+            placeholder={body}
             autoSize
+            status={bodyStatus}
             onChange={(e) => {
-                const data = {
-                    ...json,
-                    init: {
-                        ...json.init,
-                        body: JSON.parse(e.target.value)
-                    }
-                }
                 onChange({
-                    key,
-                    data
+                    key: "body",
+                    data: e.target.value
                 })
             }}
         />
         {
             selectNodeInput(selectNodeValue, nodeOpts, onChange)
         }
-        {/* <Checkbox
-            style={{ marginTop: '12px' }}
-            defaultChecked={input == "nodeInput"}
-            // checked={input == "nodeInput"}
-            onChange={(e) => {
-                // console.log(e)
-                onChange({
-                    key: 'input',
-                    data: e.target.checked ? 'nodeInput' : 'default'
-                })
-            }}>{menuNames.getFromBefore}</Checkbox>
-        {
-            input === "nodeInput" ? <Select
-                value={selectNodeValue}
-                style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
-                onChange={(e) => {
-                    onChange({
-                        key: 'nodeInput',
-                        data: e
-                    })
-                }}
-                options={nodeOpts}
-            /> : ''
-        } */}
 
         <p>{menuNames.responseType}</p>
         <Select
@@ -302,7 +274,17 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     data.api.isApi = type === "api";
     const [api, setApi] = React.useState(data.api)
 
-    const [init, setInit] = React.useState(JSON.stringify(api.init, null, 2))
+    const [init, setInit] = React.useState(JSON.stringify(api.init, null, 2));
+
+    const [input, setInput] = React.useState(data.input)
+    const [nodeInputId, setNodeInputId] = React.useState(data.nodeInputId)
+
+    const [statusInput, setStatusInput] = React.useState('')
+
+    const [body, setBody] = React.useState(JSON.stringify(api.init.body, null, 2))
+
+
+    const [bodyStatus, setBodyStatus] = React.useState('');
 
     const updateApi = (e: any) => {
         if (e.key === 'api') {
@@ -317,15 +299,29 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
             setInit(e.data)
         }
 
-        // if (e.key === 'input') {
-        //     setInput(e.data);
-        //     data.onChange({
-        //         id,
-        //         data: {
-        //             input: e.data
-        //         }
-        //     })
-        // }
+        if (e.key === 'body') {
+            setBody(e.data);
+            try {
+                let b = JSON.parse(e.data);
+                const init={
+                    ...api.init,
+                    body: b
+                };
+                data.onChange({
+                    id,
+                    data: {
+                        api: {
+                            ...api,
+                            init
+                        }
+                    }
+                })
+                setInit(JSON.stringify(init, null, 2))
+                setBodyStatus('')
+            } catch (error) {
+                setBodyStatus('error')
+            }
+        }
 
         if (e.key == "nodeInput") {
             setNodeInputId(e.data);
@@ -343,10 +339,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
     }
 
-    const [input, setInput] = React.useState(data.input)
-    const [nodeInputId, setNodeInputId] = React.useState(data.nodeInputId)
 
-    const [statusInput, setStatusInput] = React.useState('')
 
     const createNode = () => {
 
@@ -364,10 +357,11 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                 data,
                 api,
                 init,
-                input,
+                body,
                 selectNodeValue,
                 nodeOpts,
                 updateApi,
+                bodyStatus,
                 statusInput
             )}
         </Card>

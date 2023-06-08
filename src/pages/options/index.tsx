@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { message, FloatButton } from 'antd';
 import { RobotOutlined } from '@ant-design/icons';
-import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry } from "@components/Utils"
+import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry,addCss } from "@components/Utils"
 import Flow from '@components/flow/index'
 import Chatbot from "@src/components/ChatbotMain";
 
@@ -233,7 +233,8 @@ async function init() {
     const page = React.createElement(options, {});
     root.render(page);
   };
-  renderRoot()
+  renderRoot();
+  addCss()
 }
 
 init();

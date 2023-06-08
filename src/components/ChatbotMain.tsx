@@ -405,7 +405,7 @@ class Main extends React.Component<{
                 const markdown = `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`;
 
                 const items: any = [{
-                    type: 'done',
+                    type: 'task',
                     markdown,
                     tId: (new Date()).getTime(),
                     export: false
@@ -551,7 +551,7 @@ class Main extends React.Component<{
             }
         }
 
-        window.oncontextmenu = function(e){
+        window.oncontextmenu = function (e) {
             sendMessageToBackground['hi']({})
         }
 
@@ -1180,7 +1180,7 @@ class Main extends React.Component<{
                 const talk = {
                     html: Array.from(data.images, url => `<img src='${url}' />`).join(''),
                     export: true,
-                    type: 'done'
+                    type: 'images'
                 }
                 delete data.images;
                 let d = { ...data, ...talk };
@@ -1197,19 +1197,6 @@ class Main extends React.Component<{
                 this.updateChatBotStatus(false);
 
             }
-
-            //TODO 检查
-            //  let urls=[{tag:'xxx',url:'https://www.baidu.com'}]
-            // nTalks.push(ChatBotConfig.createTalkData('urls', {
-            //     buttons: Array.from(  urls, (url: any) => {
-            //         return {
-            //             from:'open-url',
-            //             data: {
-            //                 ...url
-            //             }
-            //         }
-            //     }),
-            // }))
 
 
             // 清空type thinking 的状态
