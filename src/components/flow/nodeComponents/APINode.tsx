@@ -8,14 +8,14 @@ import type { MenuProps } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
-import { createDebug } from './Debug';
+import { createDebug, selectNodeInput } from './Base';
 
 const menuNames = {
     title: 'API调用',
     url: 'URL',
     method: '方法',
     parama: '参数(字符串)',
-    getFromBefore:"从上一节点获取文本 ${text} ",
+    getFromBefore: "从上一节点获取文本 ${text} ",
     responseType: '返回的数据类型',
     output: '输出',
     outputKeyword: "输出字段",
@@ -41,84 +41,22 @@ export type NodeData = {
     onChange: any
 };
 
-const createType = (type: string, agents: any, onChange: any) => {
-    const label = agents.filter((a: any) => a.key == type)[0]?.label || '-';
 
-    const parents: any = {};
-    for (const agent of agents) {
-        if (!parents[agent.parent]) parents[agent.parent] = {
-            key: agent.parent,
-            type: 'group',
-            label: agent.parent,
-            children: []
-        }
-        parents[agent.parent].children.push(agent)
-    }
+const createUI = (
+    id: string,
+    data: any,
+    json: any,
+    init: string,
+    input: string,
+    selectNodeValue: string,
+    nodeOpts: any,
+    onChange: any, statusInput: string) => {
 
-    const items = [];
-    for (const key in parents) {
-        items.push(parents[key])
-    }
-
-    return <Dropdown
-        trigger={['click']}
-        menu={{
-            items,
-            onClick: (e) => {
-                // console.log(e)
-                onChange({
-                    data: e.key,
-                    key: 'type'
-                })
-            }
-        }}>
-        <Space>
-            {label}
-            <DownOutlined />
-        </Space>
-
-    </Dropdown>
-}
-
-const createText = (title: string, text: string, onChange: any) => <>
-    <p>{title}</p>
-    <TextArea
-        defaultValue={text}
-        showCount
-        allowClear
-        autoSize
-        placeholder="maxLength is 6"
-        // maxLength={6}
-        onMouseOver={() => {
-            onChange({
-                key: 'draggable',
-                data: false
-            })
-        }}
-        onMouseLeave={() => {
-            onChange({
-                key: 'draggable',
-                data: true
-            })
-        }}
-        onChange={(e) => {
-            onChange({
-                key: 'text',
-                data: e.target.value
-            })
-        }}
-    /></>;
-
-
-
-
-const createUI = (data: any, json: any, input: string, selectNodeValue: string, nodeOpts: any, onChange: any) => {
-
-    const { protocol, url, init, responseType } = json;
+    const { protocol, url, responseType } = json;
     const key = 'api';
 
     const extract = {
-        ...(init.extract || {
+        ...(json.init.extract || {
             key: '', type: ''
         })
     }
@@ -175,7 +113,7 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
                 const data = {
                     ...json,
                     init: {
-                        ...init,
+                        ...json.init,
                         method: e,
                     }
                 }
@@ -193,15 +131,15 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
 
         <p>{menuNames.parama}</p>
         <TextArea
-            value={JSON.stringify(init.body, null, 2)}
+            value={JSON.stringify(json.init.body, null, 2)}
             rows={4}
-            placeholder={JSON.stringify(init.body, null, 2)}
+            placeholder={JSON.stringify(json.init.body, null, 2)}
             autoSize
             onChange={(e) => {
                 const data = {
                     ...json,
                     init: {
-                        ...init,
+                        ...json.init,
                         body: JSON.parse(e.target.value)
                     }
                 }
@@ -211,8 +149,10 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
                 })
             }}
         />
-
-        <Checkbox
+        {
+            selectNodeInput(selectNodeValue, nodeOpts, onChange)
+        }
+        {/* <Checkbox
             style={{ marginTop: '12px' }}
             defaultChecked={input == "nodeInput"}
             // checked={input == "nodeInput"}
@@ -226,7 +166,7 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
         {
             input === "nodeInput" ? <Select
                 value={selectNodeValue}
-                style={{ width: '100%', marginTop: '8px',marginBottom:'12px' }}
+                style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
                 onChange={(e) => {
                     onChange({
                         key: 'nodeInput',
@@ -235,18 +175,18 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
                 }}
                 options={nodeOpts}
             /> : ''
-        }
+        } */}
 
         <p>{menuNames.responseType}</p>
         <Select
             defaultValue={responseType}
-            style={{ width: 120,marginBottom:'12px' }}
+            style={{ width: 120, marginBottom: '12px' }}
             onChange={(e) => {
                 // console.log(e)
                 const data = {
                     ...json,
                     init: {
-                        ...init,
+                        ...json.init,
                         responseType: e
                     },
                     responseType: e
@@ -269,7 +209,7 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
             style={{ width: 120 }}
             onChange={(e) => {
                 const extract = {
-                    ...(init.extract || {
+                    ...(json.init.extract || {
                         key: '', type: ''
                     }),
                     type: e
@@ -277,7 +217,7 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
                 const data = {
                     ...json,
                     init: {
-                        ...init,
+                        ...json.init,
                         extract
                     }
                 };
@@ -304,7 +244,7 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
             onChange={(e) => {
 
                 const extract = {
-                    ...(init.extract || {
+                    ...(json.init.extract || {
                         key: '', type: ''
                     }),
                     key: e.target.value
@@ -312,7 +252,7 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
                 const data = {
                     ...json,
                     init: {
-                        ...init,
+                        ...json.init,
                         extract
                     }
                 };
@@ -324,7 +264,27 @@ const createUI = (data: any, json: any, input: string, selectNodeValue: string, 
         />
 
         {
-            createDebug(key, data, onChange)
+            createDebug(id, init, json.debugOutput, (event: any) => {
+                if (event.key == 'input') {
+                    try {
+                        onChange({
+                            key,
+                            data: {
+                                ...data.api,
+                                init: JSON.parse(event.data)
+                            }
+                        })
+                    } catch (error) {
+                        onChange({
+                            key: 'error-input',
+                            data: event.data
+                        })
+                    }
+                }
+            }, () => data.debug ? data.debug(data) : '', {
+                statusInput: statusInput,
+                statusOutput: ''
+            })
         }
 
 
@@ -342,64 +302,74 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     data.api.isApi = type === "api";
     const [api, setApi] = React.useState(data.api)
 
+    const [init, setInit] = React.useState(JSON.stringify(api.init, null, 2))
+
     const updateApi = (e: any) => {
         if (e.key === 'api') {
-            setApi(e.data);
             data.onChange({ id, data: { api: e.data } })
+            setApi(e.data);
+            setInit(JSON.stringify(e.data.init, null, 2))
+            setStatusInput('success');
         }
 
-        if (e.key === 'input') {
-            setInput(e.data);
-            data.onChange({
-                id, data: {
-                    input: e.data
-                }
-            })
+        if (e.key === 'error-input') {
+            setStatusInput('error');
+            setInit(e.data)
         }
+
+        // if (e.key === 'input') {
+        //     setInput(e.data);
+        //     data.onChange({
+        //         id,
+        //         data: {
+        //             input: e.data
+        //         }
+        //     })
+        // }
 
         if (e.key == "nodeInput") {
             setNodeInputId(e.data);
             data.onChange({
-                id, data: {
-                    nodeInputId: e.data
+                id,
+                data: {
+                    nodeInputId: e.data,
+                    input: e.data ? 'nodeInput' : 'default'
                 }
             })
         }
 
-
-
         if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
+
+
     }
 
     const [input, setInput] = React.useState(data.input)
     const [nodeInputId, setNodeInputId] = React.useState(data.nodeInputId)
 
+    const [statusInput, setStatusInput] = React.useState('')
+
     const createNode = () => {
 
-        let allNodes: any[] = [];
-        if (data.getNodes) allNodes = [...data.getNodes()]
-
-        const nodeOpts = Array.from(allNodes, (node, i) => {
-            return {
-                value: node.id, label: node.type
-            }
-        });
-
+        let nodeOpts: any[] = [];
+        if (data.getNodes) nodeOpts = [...data.getNodes(id)]
         let selectNodeValue = nodeInputId || nodeOpts[0].value
-
-
+        // console.log(nodeOpts)
         return <Card
             key={id}
             title={menuNames.title}
             bodyStyle={{ paddingTop: 0 }}
             style={{ width: 300 }}>
             {createUI(
+                id,
                 data,
                 api,
+                init,
                 input,
                 selectNodeValue,
                 nodeOpts,
-                updateApi)}
+                updateApi,
+                statusInput
+            )}
         </Card>
     }
 

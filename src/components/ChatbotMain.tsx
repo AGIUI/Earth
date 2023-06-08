@@ -106,7 +106,6 @@ const Talks = {
                     newTalks.push(t);
                 }
             }
-
         }
         // const nt = [...talks].filter((t: any) => t.type == 'suggest' || t.type == 'talk' || t.type == 'markdown' || t.type == 'done' || t.type == 'images');
         return newTalks
@@ -118,6 +117,11 @@ const Talks = {
             if (v.user && value[index - 1] && v.html == value[index - 1].html) {
                 return
             }
+            // 去除空内容
+            const d = document.createElement('div');
+            d.innerHTML = v.html;
+            if (d.innerText.trim() === "") return;
+
             return v
         }).filter(m => m);
         if (talks && talks.length > 0) {
@@ -379,9 +383,11 @@ class Main extends React.Component<{
                     responseType, data: result } = data;
                 const ttype = responseExtract.type;
 
+                const markdown = `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`;
+                
                 const items: any = [{
                     type: 'done',
-                    markdown: `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`,
+                    markdown,
                     tId: (new Date()).getTime(),
                     export: false
                 }];
@@ -395,6 +401,12 @@ class Main extends React.Component<{
                 }
 
                 this._updateChatBotTalksResult(items);
+
+                // 传递给父级结果
+                setTimeout(() => this.props.callback({
+                    cmd: 'stop-talk',
+                    data: markdown || 'debug'
+                }), 1200)
 
             } else if (cmd === 'contextMenus') {
                 this._control(data);
@@ -725,6 +737,17 @@ class Main extends React.Component<{
         sendMessageToBackground['api-run']({
             url, init, combo
         })
+
+        // 传递给父级
+        setTimeout(() => this.props.callback({
+            cmd: 'send-talk',
+            data: {
+                url, init
+            }
+        }), 500)
+
+
+
     }
 
     _queryClickRun(prompt: any) {
@@ -820,7 +843,7 @@ class Main extends React.Component<{
     }
 
     _queryReadRun(queryObj: any) {
-        const { content, query } = queryObj;
+        const { content, query, url, protocol } = queryObj;
         let markdown = '';
         if (content == 'bindCurrentPage') {
             // 绑定全文
@@ -845,7 +868,6 @@ class Main extends React.Component<{
         //     type: "done",
         //     user: false
         // }, 
-
         setTimeout(() => this._updateChatBotTalksResult([{
             export: true,
             from: "_queryReadRun",
@@ -854,8 +876,26 @@ class Main extends React.Component<{
             tId: id + 'r',
             type: "done",
             user: false,
-
         }]), 500);
+
+
+
+        // 传递给父级
+        setTimeout(() => this.props.callback({
+            cmd: 'send-talk',
+            data: {
+                content,
+                query,
+                protocol,
+                url
+            }
+        }), 500)
+
+        setTimeout(() => this.props.callback({
+            cmd: 'stop-talk',
+            data: markdown || 'debug'
+        }), 1200)
+
 
         return
     }
@@ -905,7 +945,7 @@ class Main extends React.Component<{
      */
 
     _llmRun(prompt: any, newTalk: boolean) {
-        console.log('this.state.chatBotStyle', this.state.chatBotStyle)
+        // console.log('this.state.chatBotStyle', this.state.chatBotStyle)
         const { temperature, model, text, type } = prompt;
 
         let newText = text,
@@ -933,13 +973,21 @@ class Main extends React.Component<{
 
         console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, newText)
 
-        sendMessageToBackground['chat-bot-talk']({
+        const data = {
             systemContent: systemContent,
-            prompt: newText,
+            prompt: newText || "",
             type: chatBotType,
             style,
             newTalk: !!newTalk
+        }
+        sendMessageToBackground['chat-bot-talk'](data);
+
+        // 传递给父级
+        this.props.callback({
+            cmd: 'send-talk',
+            data
         })
+
     }
 
     //['user']
@@ -1048,7 +1096,6 @@ class Main extends React.Component<{
 
                         PromptIndex = PromptIndex + 1;
                         const prompt = JSON.parse(JSON.stringify(this.state.currentCombo[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]));
-
 
                         // 下一个节点
                         let data: any = {
@@ -1358,8 +1405,8 @@ class Main extends React.Component<{
                     if (this.state.chatBotStyle && this.state.chatBotStyle.value) prompt.temperature = this.state.chatBotStyle.value;
                 }
 
-                // 
-                if (prompt.type == 'prompt') this._llmRun(prompt, newTalk);
+                // role 给调试用
+                if (prompt.type == 'prompt' || prompt.type == 'role') this._llmRun(prompt, newTalk);
 
 
                 // 标记当前执行状态，以及下一条
@@ -1386,11 +1433,13 @@ class Main extends React.Component<{
                     // this._agentHighlightTextRun(lastTalk)
                 }
 
+
+
                 // 提取 <lastTalk> 里的传给api\send-to-zsxq\query
                 let d = document.createElement('div');
                 d.innerHTML = prompt.text;
                 const t: any = d.querySelector('lastTalk');
-                prompt.text = t?.innerText || ''
+                prompt.text = t?.innerText || '';
 
                 if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, currentCombo)
 
@@ -1512,6 +1561,11 @@ class Main extends React.Component<{
 
                     // 把对话内容保存到本地
                     Talks.save(nTalks)
+                    // 传到父级 - 完成把对话结果
+                    this.props.callback({
+                        cmd: 'stop-talk',
+                        data: Talks.getLastTalk(nTalks)
+                    })
                     break;
                 // 新建对话
                 case "new-talk":

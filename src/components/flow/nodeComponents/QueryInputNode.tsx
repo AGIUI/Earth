@@ -7,6 +7,8 @@ import type { MenuProps } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
+import { selectInput, createDebug } from "./Base"
+
 const menuNames = {
   title: '文本输入',
   selectQuery: 'SelectQuery',
@@ -16,6 +18,7 @@ const menuNames = {
 }
 
 export type NodeData = {
+  input: string;
   getNodes: any;
   debug: any;
   queryObj: any,
@@ -25,22 +28,15 @@ export type NodeData = {
 
 
 
-const createUrl = (title1: string, placeholder1: string, title2: string, json: any, onChange: any) => {
+const createUrl = (title1: string, placeholder1: string, title2: string, input: string, json: any, onChange: any) => {
 
-  let allNodes: any[] = []
-  if (json.getNodes) allNodes = [...json.getNodes()]
-
-  const { queryObj, userInput, input, nodeInputId } = json;
+  const { queryObj, userInput, nodeInputId } = json;
   const { query, action } = queryObj;
 
-  const nodeOpts = Array.from(allNodes, node => {
-    return {
-      value: node.id, label: node.type
-    }
-  });
-
-  let selectNodeValue = nodeInputId || nodeOpts[0].value
-
+  let nodeOpts: any[] = [];
+  if (json.getNodes) nodeOpts = [...json.getNodes()]
+  let selectNodeValue = input === "nodeInput" ? (nodeInputId || nodeOpts[0].value) : null
+  // console.log(input, selectNodeValue)
   return <div onMouseOver={() => {
     onChange({
       key: 'draggable',
@@ -76,78 +72,10 @@ const createUrl = (title1: string, placeholder1: string, title2: string, json: a
       }}
     />
     <Divider dashed />
-    <p>{title2}</p>
-    <Select
-      defaultValue={input}
-      style={{ width: '100%' }}
-      onChange={(e) => {
-        const data = {
-          ...json,
-          queryObj: {
-            ...json.queryObj,
-            content: '',
-            action: 'input'
-          },
-          input: e
-        };
-        if (e === "nodeInput") data['userInput'] = "";
-        onChange({
-          key: 'data',
-          data
-        })
-      }}
-      options={[
-        { value: 'nodeInput', label: '从上一节点获取文本' },
-        { value: 'userInput', label: '输入文本' },
-      ]}
-    />
     {
-      input === "userInput" ? <TextArea
-        style={{ marginTop: '8px' }}
-        value={userInput}
-        rows={4}
-        placeholder={placeholder1}
-        autoSize
-        onChange={(e) => {
-          const data = {
-            ...json,
-            queryObj: {
-              ...json.queryObj,
-              content: '',
-            },
-            input: "userInput",
-            userInput: e.target.value
-          }
-          onChange({
-            key: 'data',
-            data
-          })
-        }}
-      /> : ''
+      selectInput(selectNodeValue, userInput, nodeOpts, onChange)
     }
-    {
-      input === "nodeInput" ? <Select
-        value={selectNodeValue}
-        style={{ width: '100%' }}
-        onChange={(e) => {
-          const data = {
-            ...json,
-            queryObj: {
-              ...json.queryObj,
-              content: '',
-            },
-            input: 'nodeInput',
-            nodeInputId: e
-          };
 
-          onChange({
-            key: 'data',
-            data
-          })
-        }}
-        options={nodeOpts}
-      /> : ''
-    }
   </div>
 }
 
@@ -159,15 +87,43 @@ function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
 
   // queryObj
   data.queryObj.isQuery = type === "query";
-  const [queryObj, setQueryObj] = React.useState(data.queryObj)
+  const [queryObj, setQueryObj] = React.useState(data.queryObj);
+
+  const [input, setInput] = React.useState(data.input);
 
   // 更新数据
   const updateData = (e: any) => {
-    // console.log(e)
+
     if (e.key === 'data') {
       if (e.data.queryObj) setQueryObj(e.data.queryObj);
       data.onChange({ id, data: { ...data, ...e.data } })
     }
+
+
+    if (e.key === "setInput") {
+      setInput(e.data);
+      const d: any = {
+        ...data,
+        input: e.data
+      };
+      if (e.data == 'userInput' && e.userInput) {
+        d.userInput = e.userInput;
+      };
+      data.onChange({
+        id,
+        data: d
+      })
+    }
+    if (e.key === "nodeInput") {
+      data.onChange({
+        id,
+        data: {
+          ...data,
+          nodeInputId: e.data
+        }
+      })
+    }
+
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
 
@@ -179,14 +135,13 @@ function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
         menuNames.selectQuery,
         menuNames.selectQueryPlaceholder,
         menuNames.inputText,
+        input,
         data,
-        updateData)
+        updateData),
+      createDebug(id, "", '', (event: any) => {
+        if (event.key == 'input') { }
+      }, () => data.debug ? data.debug(data) : '', {})
     ];
-
-    if (data.debug) {
-      node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
-    }
 
     return <Card
       key={id}

@@ -5,7 +5,8 @@ import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
 const { TextArea } = Input;
-const { Option } = Select;
+
+import { createDebug } from './Base'
 
 const menuNames = {
   title: '内容读取',
@@ -16,6 +17,8 @@ const menuNames = {
 }
 
 export type NodeData = {
+  debugInput:any;
+  debugOutput:any;
   debug: any;
   queryObj: any,
   type: string,
@@ -59,7 +62,7 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
         { value: 'bindCurrentPageHTML', label: '网页HTML' },
         { value: 'bindCurrentPage', label: '网页正文' },
         { value: 'bindCurrentPageURL', label: '网页URL' },
-        { value: 'bindCurrentPageTitle', label: '网页标题'},
+        { value: 'bindCurrentPageTitle', label: '网页标题' },
         { value: 'bindCurrentPageImages', label: '网页图片' },
         // { value: 'bindCurrentPage', label: '网页标题', disabled: true },
       ]}
@@ -109,10 +112,9 @@ function QueryReadNode({ id, data, selected }: NodeProps<NodeData>) {
       createUrl(menuNames.content, menuNames.selectQuery, menuNames.placeholder, queryObj, updateQueryObj)
     ];
 
-    if (data.debug) {
-      node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
-    }
+    node.push(createDebug(id, data.debugInput, data.debugOutput, (event: any) => {
+      if (event.key == 'input') { }
+    }, () => data.debug ? data.debug(data) : '', {}))
 
     return <Card
       key={id}

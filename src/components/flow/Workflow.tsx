@@ -276,7 +276,7 @@ const debugInfo = (prompt: any) => {
     console.log('debugInfo', prompt)
     let info = '';
     if (prompt.type == 'role') {
-        info = `<p>${prompt.role.name}</p><br><p>${prompt.role.text}</p>`
+        info = `${prompt.role.name ? `<p>${prompt.role.name}</p><br>` : ''}<p>${prompt.role.text}</p>`
     } else {
         info = `<p>${JSON.stringify({
             text: prompt.text,
@@ -291,16 +291,17 @@ const debugInfo = (prompt: any) => {
 }
 
 //   把一条prompt包装成_control可以执行的数据格式
-const parsePrompt2ControlEvent = (prompt: any) => {
+const parsePrompt2ControlEvent = (id: string, prompt: any) => {
+    const d = debugInfo(prompt);
     const controlEvent = {
         from: 'debug',
         prompt,
         // 调试状态的显示
-        tag: debugInfo(prompt),
-        debugInfo: debugInfo(prompt),
+        tag: d,
+        debugInfo: d,
         newTalk: true,
         autoRun: true,
-        id: (new Date()).getTime()
+        id: id
     }
     return controlEvent
 }
@@ -309,6 +310,7 @@ const parsePrompt2ControlEvent = (prompt: any) => {
 const parseCombo2ControlEvent = (combo: any) => {
 
     const { prompt } = combo;
+    const d = debugInfo(prompt);
     const controlEvent = {
         '_combo': {
             ..._DEFAULTCOMBO,
@@ -318,8 +320,8 @@ const parseCombo2ControlEvent = (combo: any) => {
         from: 'combo',
         prompt: prompt,
         // 调试状态的显示
-        tag: debugInfo(prompt),
-        debugInfo: debugInfo(prompt),
+        tag: d,
+        debugInfo: d,
         newTalk: true,
         autoRun: true,
         id: (new Date()).getTime()

@@ -5,6 +5,7 @@ import type { MenuProps } from 'antd';
 
 const { TextArea } = Input;
 
+import { createDebug } from './Base'
 
 const menuNames = {
   title: '模拟点击事件',
@@ -79,10 +80,10 @@ function QueryBySelectNode({ id, data, selected }: NodeProps<NodeData>) {
 
   const createNode = () => {
     const node = [createUrl(menuNames.selectQuery, queryObj, updateQueryObj)];
-    if (data.debug) {
-      node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
-    }
+    
+    node.push(createDebug(id, "", '', (event: any) => {
+      if (event.key == 'input') { }
+    }, () => data.debug ? data.debug(data) : '', {}))
 
     return <Card
       key={id}

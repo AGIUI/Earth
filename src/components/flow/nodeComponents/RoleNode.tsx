@@ -3,12 +3,12 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Avatar, Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider } from 'antd';
 import { DownOutlined, UserOutlined } from '@ant-design/icons';
 
-const { TextArea } = Input;
-const { Option } = Select;
-
 import { roleAvatars } from '../Workflow'
+import { createDebug, createText } from './Base'
 
 export type NodeData = {
+    debugInput: any;
+    debugOutput: any;
     role: any;
     debug: any;
     text: string,
@@ -25,7 +25,8 @@ export type NodeData = {
 
 const menuName = {
     cardTitle: '角色',
-    createText: '角色定义'
+    createText: '角色定义',
+    placeholder: '输入...'
 }
 
 const createType = (type: string, agents: any, onChange: any) => {
@@ -56,32 +57,6 @@ const createName = (title: string, name: string, onChange: any) =>
             })
         }} />
 
-const createText = (title: string, text: string, onChange: any) => <>
-    <p>{menuName.createText}</p>
-    <TextArea
-        defaultValue={text}
-        rows={4}
-        onMouseOver={() => {
-            onChange({
-                key: 'draggable',
-                data: false
-            })
-        }}
-        onMouseLeave={() => {
-            onChange({
-                key: 'draggable',
-                data: true
-            })
-        }}
-        autoSize
-        placeholder={title}
-        onChange={(e) => {
-            onChange({
-                key: 'text',
-                data: e.target.value
-            })
-        }}
-    /></>;
 
 
 function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
@@ -90,7 +65,7 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
     // text
     const [role, setRole] = React.useState(data.role)
     const updateRole = (e: any) => {
-        // console.log(e)
+        console.log(e)
         let r = { ...role };
         if (e.key == 'text' || e.key == 'name' || e.key == 'avatar') {
             r[e.key] = e.data;
@@ -154,13 +129,22 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
 
             {/* {createName(keys['name'], role.name, updateRole)} */}
 
-            {createText(keys['text'], role.text, updateRole)}
+            {/* {createText(keys['text'], role.text, updateRole)} */}
+            {
+                createText('text', menuName.createText, menuName.placeholder, role.text, '', updateRole)
+            }
 
             {/* {createModel(model, temperature, models, updateModel)} */}
 
             {/* <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
                     {data.debug ? <Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button> : ''}
                 </Space> */}
+
+            {
+                createDebug(id, data.debugInput, data.debugOutput, (event: any) => {
+                    if (event.key == 'input') { }
+                }, () => data.debug ? data.debug(data) : '', {})
+            }
 
         </Card>
     }

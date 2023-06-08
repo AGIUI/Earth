@@ -114,7 +114,9 @@ function promptParse(prompt: string) {
         output: "输出格式"
     }
 
-    const prompts: any = {};
+    const prompts: any = {
+        userInput: ""
+    };
 
     for (const key of keys) {
         let v = str(key);
@@ -132,7 +134,9 @@ function promptParse(prompt: string) {
         }
     }
 
-    prompt = `${promptNew ? promptNew + '\nuserInput:' : ''}${prompts['userInput']}`
+    let userInput = prompts['userInput'] ? '\nuserInput:' + prompts['userInput'] : "";
+
+    prompt = (promptNew + userInput).trim();
 
     return { system, prompt }
 

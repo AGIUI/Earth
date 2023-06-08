@@ -6,7 +6,7 @@ import type { MenuProps } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
-import { createDebug } from './Debug';
+import { createDebug, selectNodeInput, createText } from './Base';
 
 
 const menuNames = {
@@ -21,6 +21,8 @@ const menuNames = {
 
 
 export type NodeData = {
+  debugInput: any;
+  debugOutput: any;
   getNodes: any;
   nodeInputId: string;
   debug: any;
@@ -57,46 +59,28 @@ const createTextAndInput = (
       })
     }}
   >
-    <p>{title}</p>
+    {/* <p>{title}</p>
     <TextArea
       defaultValue={text}
       showCount
       allowClear
       autoSize
-      placeholder="maxLength is 6"
+      placeholder=""
       // maxLength={6}
-
       onChange={(e) => {
         onChange({
           key: 'text',
           data: e.target.value
         })
       }}
-    />
-    <Checkbox
-      style={{ marginTop: '8px' }}
-      defaultChecked={input == "nodeInput"}
-      // checked={input == "nodeInput"}
-      onChange={(e) => {
-        // console.log(e)
-        onChange({
-          key: 'input',
-          data: e.target.checked ? 'nodeInput' : 'default'
-        })
-      }}>从上一节点获取文本</Checkbox>
+    /> */}
+
     {
-      input === "nodeInput" ? <Select
-        value={selectNodeValue}
-        style={{ width: '100%', marginTop: '8px' }}
-        onChange={(e) => {
-          onChange({
-            key: 'nodeInput',
-            data: e
-          })
-        }}
-        options={nodeOpts}
-      /> : ''
+      createText('text', title, '', text, '', onChange)
     }
+
+    {selectNodeInput(selectNodeValue, nodeOpts, onChange)}
+
   </div>;
 
 
@@ -274,14 +258,18 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
       })
     }
 
+
     if (e.key == "nodeInput") {
       setNodeInputId(e.data);
       data.onChange({
-        id, data: {
-          nodeInputId: e.data
+        id,
+        data: {
+          nodeInputId: e.data,
+          input: e.data ? 'nodeInput' : 'default'
         }
       })
     }
+
 
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
 
@@ -317,7 +305,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     const node = [];
 
     let allNodes: any[] = [];
-    if (data.getNodes) allNodes = [...data.getNodes()]
+    if (data.getNodes) allNodes = [...data.getNodes(id)]
 
     const nodeOpts = Array.from(allNodes, (node, i) => {
       return {
@@ -334,13 +322,9 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     node.push(createOutput(menuNames.output, 'output', output, outputs, updateOutput))
 
 
-
-
-    if (data.debug) {
-      node.push(<Divider dashed />)
-      node.push(<Button onClick={(e) => data.debug ? data.debug(data) : ''} >{menuNames.debug}</Button>)
-      // node.push(createDebug('text', data, updateTextAndInput))
-    }
+    node.push(createDebug(id, data.debugInput, data.debugOutput, (event: any) => {
+      if (event.key == 'input') { }
+    }, () => data.debug ? data.debug(data) : '', {}))
 
     return <Card
       key={id}

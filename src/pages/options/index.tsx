@@ -28,7 +28,7 @@ const config = getConfig();
 
 // 保存combo
 function saveCombos(combos: any = []) {
-  console.log('saveCombos',combos)
+  console.log('saveCombos', combos)
   chromeStorageGet(['user']).then((items: any) => {
     let newUser: any = []
     if (items && items.user) {
@@ -60,8 +60,8 @@ function saveCombos(combos: any = []) {
 
 
 function options() {
-
-  const [debugData, setDebugData] = React.useState({});
+  // 用来收集节点的debug输入输出 
+  const [debugData, setDebugData]: any = React.useState({});
   const [flowWidth, setFlowWidth] = React.useState('100%');
 
   const [loadData, setLoadData] = React.useState({});
@@ -120,15 +120,44 @@ function options() {
 
   const chatbotCallbacks = (event: any) => {
     const { cmd, data } = event;
-    // console.log(event)
+    console.log('chatbotCallbacks:', event)
     if (cmd == "debug-combo") {
+
+      sendMessageCanRetry('open-chatbot-panel', {}, console.log)
+
       if (exportDataToEarth) exportDataToEarth().then((combo: any) => {
-        console.log('exportDataToEarth',combo)
+        // console.log('exportDataToEarth', combo)
         const event = parseCombo2ControlEvent(combo);
         setIsNew(false);
         setDebugData(event);
-      })
+      });
+
     }
+
+    if (cmd === 'send-talk') {
+      // console.log('send-talk debugResult', data, debugData);
+      if (debugData && debugData.onChange) {
+        debugData.onChange({
+          id: debugData.id,
+          data: {
+            debugInput: JSON.stringify(data, null, 2)
+          }
+        })
+      }
+    }
+
+    if (cmd === "stop-talk") {
+      if (debugData && debugData.onChange) {
+        debugData.onChange({
+          id: debugData.id,
+          data: {
+            debugOutput: data
+          }
+        })
+      }
+
+    }
+
     // if (cmd == 'open-chatbot-panel') {
     //   setFlowWidth('calc(100% - 500px)')
     // } else if (cmd == "close-insight") {
@@ -144,7 +173,8 @@ function options() {
       loadData={loadData}
       debug={{
         callback: (event: any) => {
-          // console.log('debug-callback-from-parent', event)
+          sendMessageCanRetry('open-chatbot-panel', {}, console.log)
+          console.log('debug-callback-for-parent', event)
           if (event) setTimeout(() => {
             setDebugData(event)
           }, 100)
