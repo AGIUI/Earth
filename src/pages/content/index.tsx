@@ -99,6 +99,10 @@ function addCss() {
   opacity: 0.8;
 }
 
+.ant-btn-primary span{
+  color:white;
+}
+
 ._agi_ui h1,h2{
   margin: 12px 0;
   font-weight: 800;

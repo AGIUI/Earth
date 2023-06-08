@@ -334,48 +334,49 @@ class ChatBotInput extends React.Component {
                 ]}
             >
 
-                <Collapse expandIconPosition={'start'} size="small">
-                    <Panel header={node} key="node" >
-                        <div style={flexStyle}>
-                            <LoginOutlined style={{ marginRight: '10px' }} />
-                            <Radio.Group
-                                options={this.state.input}
-                                onChange={(e) => this._change(e.target.value, 'input')}
-                                value={this.state.input.filter((m: any) => m.checked)[0].value}
+                {
+                    this.props.debug ? '' : <Collapse expandIconPosition={'start'} size="small">
+                        <Panel header={node} key="node" >
+                            <div style={flexStyle}>
+                                <LoginOutlined style={{ marginRight: '10px' }} />
+                                <Radio.Group
+                                    options={this.state.input}
+                                    onChange={(e) => this._change(e.target.value, 'input')}
+                                    value={this.state.input.filter((m: any) => m.checked)[0].value}
+                                    optionType="button"
+                                    buttonStyle="solid"
+                                    size="small"
+                                />
+                            </div>
+                            <div style={flexStyle}>
+                                <RobotOutlined style={{ marginRight: '10px' }} />
+                                <Radio.Group
+                                    options={this.state.agent}
+                                    onChange={(e) => this._change(e.target.value, 'agent')}
+                                    value={this.state.agent.filter((m: any) => m.checked)[0].value}
+                                    optionType="button"
+                                    buttonStyle="solid"
+                                    size="small"
+                                />
+                            </div>
+                            <div style={flexStyle}><LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
+                                options={this.state.output}
+                                onChange={(e) => this._change(e.target.value, 'output')}
+                                value={this.state.output.filter((m: any) => m.checked)[0].value}
                                 optionType="button"
                                 buttonStyle="solid"
                                 size="small"
-                            />
-                        </div>
-                        <div style={flexStyle}>
-                            <RobotOutlined style={{ marginRight: '10px' }} />
-                            <Radio.Group
-                                options={this.state.agent}
-                                onChange={(e) => this._change(e.target.value, 'agent')}
-                                value={this.state.agent.filter((m: any) => m.checked)[0].value}
-                                optionType="button"
-                                buttonStyle="solid"
-                                size="small"
-                            />
-                        </div>
-                        <div style={flexStyle}><LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
-                            options={this.state.output}
-                            onChange={(e) => this._change(e.target.value, 'output')}
-                            value={this.state.output.filter((m: any) => m.checked)[0].value}
-                            optionType="button"
-                            buttonStyle="solid"
-                            size="small"
-                        /></div>
+                            /></div>
 
-                        <ChatBotSelect
-                            callback={(res: any) => this._changeChatbot(res)}
-                            isLoading={this.state.isLoading}
-                            config={this.props.config}
-                            name={''} />
+                            <ChatBotSelect
+                                callback={(res: any) => this._changeChatbot(res)}
+                                isLoading={this.state.isLoading}
+                                config={this.props.config}
+                                name={''} />
 
-                    </Panel>
-                </Collapse>
-
+                        </Panel>
+                    </Collapse>
+                }
 
 
                 <TextArea
