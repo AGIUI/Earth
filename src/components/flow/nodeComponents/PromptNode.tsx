@@ -305,7 +305,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     const node = [];
 
     let nodeOpts: any[] = [];
-    if (data.getNodes) nodeOpts = [...data.getNodes()]
+    if (data.getNodes) nodeOpts = [...data.getNodes(id)]
     let selectNodeValue = input === "nodeInput" ? (nodeInputId || nodeOpts[0].value) : null
     // console.log('selectNodeValue',selectNodeValue,nodeInputId,nodeOpts[0],data)
 
