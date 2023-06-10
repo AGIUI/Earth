@@ -415,7 +415,8 @@ class Main extends React.Component<{
                     items.push({
                         type: 'images',
                         images: result,
-                        tId: (new Date()).getTime()
+                        tId: (new Date()).getTime()+'2',
+                        id: (new Date()).getTime()+'1',
                     })
                 }
 
@@ -702,52 +703,27 @@ class Main extends React.Component<{
     }
 
 
-    // role 的功能
-    _promptBindRole(prompt: string, role: any) {
-        prompt = promptBindRole(prompt, role)
-        return prompt
-    }
+    _agentApiRun(prompt: any, nTalks: any, combo: any) {
 
-    // 用户剪切板
-    async _promptBindUserClipboard(prompt: string) {
-        return await promptBindUserClipboard(prompt);
-    }
-
-    // 用户划选
-    _promptBindUserSelection(prompt: string) {
-        return promptBindUserSelection(prompt);
-    }
-
-    /**
-     * 绑定当前页面信息
-     */
-    _promptBindCurrentSite(prompt: string, type: string, query: string) {
-        return promptBindCurrentSite(prompt, type, query)
-    }
-
-    _promptBindTranslate(prompt: string, type: string) {
-        console.log('_promptBindTranslate', prompt, type, promptBindTranslate(prompt, type))
-        return promptBindTranslate(prompt, type)
-    }
-
-    _promptBindPrevOutput(prompt: string, lastTalk: string) {
-        return promptUseLastTalk(prompt, lastTalk)
-    }
-
-    // 
-    _promptOutput(prompt: string, type: string) {
-        return promptBindOutput(prompt, type)
-    }
-
-
-    _agentApiRun(api: any, prePromptText: string, combo: any) {
-        let { url, init, isApi, protocol } = api;
+        let { url, init, isApi, protocol } = prompt.api;
         if (isApi == false) return;
 
         if (url && !url.match('//')) url = `${protocol}${url}`;
         // console.log(api, init.body)
 
         if (init.body && typeof (init.body) == 'object') init.body = JSON.stringify(init.body);
+
+        let prePromptText = "";
+        if (prompt.input == "nodeInput") {
+            // 从上一个节点输出获取
+            if (!prompt.nodeInputId) {
+                prePromptText = Talks.getLastTalk([...nTalks]) || "";
+            } else {
+                prePromptText = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]) || "";
+
+            }
+        }
+
 
         if (init.body && typeof (init.body) == 'string' && prePromptText) {
             // 替换${text} 表示从上一个节点传递来的text
@@ -768,9 +744,6 @@ class Main extends React.Component<{
                 url, init
             }
         }), 500)
-
-
-
     }
 
     _queryClickRun(prompt: any) {
@@ -787,7 +760,9 @@ class Main extends React.Component<{
     }
 
     _queryInputRun(prompt: any, nTalks: any) {
-        let text: any = '', query = prompt.queryObj.query;
+
+        let text: any = '',
+            query = prompt.queryObj.query;
         if (prompt.input == "nodeInput") {
             // 从上一个节点输出获取
             if (!prompt.nodeInputId) {
@@ -809,7 +784,6 @@ class Main extends React.Component<{
             '文本输入'
         )
         this._updateChatBotTalksResult([data]);
-
     }
 
     _queryDefaultRun(queryObj: any, combo: any) {
@@ -858,23 +832,25 @@ class Main extends React.Component<{
     _queryReadRun(queryObj: any) {
         const { content, query, url, protocol } = queryObj;
         console.log('_queryReadRun', queryObj)
-        let markdown = '';
+        let prompt = {};
         if (content == 'bindCurrentPage') {
             // 绑定全文
-            markdown = this._promptBindCurrentSite('', 'text', query)
+            prompt = promptBindCurrentSite('', 'text', query)
         } else if (content == 'bindCurrentPageHTML') {
             // 绑定网页
-            markdown = this._promptBindCurrentSite('', 'html', query)
+            prompt = promptBindCurrentSite('', 'html', query)
         } else if (content == 'bindCurrentPageURL') {
             // 绑定url
-            markdown = this._promptBindCurrentSite('', 'url', query)
+            prompt = promptBindCurrentSite('', 'url', query)
         } else if (content == 'bindCurrentPageImages') {
-            markdown = this._promptBindCurrentSite('', 'images', query)
+            prompt = promptBindCurrentSite('', 'images', query)
         } else if (content == "bindCurrentPageTitle") {
-            markdown = this._promptBindCurrentSite('', 'title', query)
+            prompt = promptBindCurrentSite('', 'title', query)
         }
 
-        const id = md5(query + markdown + (new Date()))
+        const { id, system, user } = promptParse(prompt);
+
+        const markdown = user.content;
 
         // 需要被下一节点使用到，需要设置成done类型
         setTimeout(() => this._updateChatBotTalksResult([{
@@ -957,17 +933,7 @@ class Main extends React.Component<{
         // console.log('this.state.chatBotStyle', this.state.chatBotStyle)
         const { temperature, model, text, type } = prompt;
 
-        let newText = text,
-            systemContent = "";
-
-        if (type === 'tasks') {
-            newText = promptBindTasks(text);
-        } else {
-            console.log('_llmRun:', type)
-            const { system, prompt } = promptParse(text);
-            newText = prompt;
-            systemContent = system;
-        }
+        const { system, user } = promptParse(prompt);
 
         let chatBotType = this.state.chatBotType,
             style: any = temperature;
@@ -980,11 +946,10 @@ class Main extends React.Component<{
         // 增加一个Bing的转化
         if (model == "Bing" && typeof (temperature) == 'number' && temperature > -1) style = this._temperature2BingStyle(temperature);
 
-        console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, newText)
+        console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, system, user)
 
         const data = {
-            systemContent: systemContent,
-            prompt: newText || "",
+            prompt: [system, user],
             type: chatBotType,
             style,
             newTalk: !!newTalk
@@ -1349,98 +1314,123 @@ class Main extends React.Component<{
                 // combo==-1 用户对话框里的输入
 
                 // userinput的初始化
-                prompt.text = bindUserInput(prompt.text);
+
+                // userinput的初始化
+                let promptJson: any = {
+                    role: {
+                        name: "", text: ""
+                    },
+                    userInput: "",
+                    type: prompt.type,
+                    model: prompt.model,
+                    temperature: prompt.temperature,
+                    //input:prompt.input,
+                    queryObj: prompt.queryObj,
+                    api: prompt.api,
+                    input: prompt.input,
+                    nodeInputId: prompt.nodeInputId,
+                }
+                promptJson = { ...promptJson, ...bindUserInput(prompt.text) };
 
                 // role的处理
                 if (prompt.role && (prompt.role.name || prompt.role.text)) {
-                    prompt.text = this._promptBindRole(prompt.text, prompt.role);
+                    promptJson = { ...promptJson, ...promptBindRole(promptJson.userInput, prompt.role) }
                 }
 
                 // input的处理
-                if (prompt.input == 'bindCurrentPage') {
-                    // 绑定全文
-                    prompt.text = this._promptBindCurrentSite(prompt.text, 'text', '')
-                } else if (prompt.input == 'bindCurrentPageHTML') {
-                    // 绑定网页
-                    prompt.text = this._promptBindCurrentSite(prompt.text, 'html', '')
-                } else if (prompt.input == 'bindCurrentPageURL') {
-                    // 绑定url
-                    prompt.text = this._promptBindCurrentSite(prompt.text, 'url', '')
-                } else if (prompt.input == 'userSelection') {
+                if (['bindCurrentPage',
+                    'bindCurrentPageHTML',
+                    'bindCurrentPageURL']
+                    .includes(prompt.input)) {
+                    let type = 'text', query = "";
+                    if (prompt.input == 'bindCurrentPage') {
+                        // 绑定全文
+                        type = 'text';
+                    } else if (prompt.input == 'bindCurrentPageHTML') {
+                        // 绑定网页
+                        type = 'html';
+                    } else if (prompt.input == 'bindCurrentPageURL') {
+                        // 绑定url
+                        type = 'url';
+                    }
+                    query = "";
+                    promptJson = { ...promptJson, ...promptBindCurrentSite(promptJson.userInput, type, query) }
+                }
+
+                if (prompt.input == 'userSelection') {
                     // 从用户划选
-                    prompt.text = this._promptBindUserSelection(prompt.text)
+                    promptJson = { ...promptJson, ...promptBindUserSelection(promptJson.userInput) }
                 } else if (prompt.input == 'clipboard') {
                     // 从剪切板
-                    prompt.text = await this._promptBindUserClipboard(prompt.text)
+                    promptJson = { ...promptJson, ...await promptBindUserClipboard(promptJson.userInput) }
                 } else if (prompt.input == 'nodeInput') {
-
                     // 从上一节点获取文本，prompt的输入从上一个节点输入
                     console.log('从上一节点获取文本', prompt, prompt.nodeInputId, nTalks)
                     if (!prompt.nodeInputId) {
                         let lastTalk: any = Talks.getLastTalk([...nTalks]);
-                        prompt.text = this._promptBindPrevOutput(prompt.text, lastTalk);
+                        promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, lastTalk) }
                     } else {
                         let talk: any = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
-                        prompt.text = this._promptBindPrevOutput(prompt.text, talk);
+                        promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, talk) }
                     }
                 }
 
                 // translate的处理
-                if (prompt.translate != "default") prompt.text = this._promptBindTranslate(prompt.text, prompt.translate)
+                if (prompt.translate != "default") {
+                    promptJson = { ...promptJson, ...promptBindTranslate(promptJson.userInput, prompt.translate) }
+                }
 
 
                 // output的处理
-                prompt.text = this._promptOutput(prompt.text, prompt.output)
+                promptJson = { ...promptJson, ...promptBindOutput(promptJson.userInput, prompt.output) }
 
 
                 // 运行时
-                console.log('prompt.type------', prompt.type, prompt.text, from)
+                console.log('prompt.type------', promptJson, from)
 
                 // 如果是用户输入的，from==chatbot-input
                 if (from === "chatbot-input") {
-                    prompt.model = this.state.chatBotType;
-                    if (this.state.chatBotStyle && this.state.chatBotStyle.value) prompt.temperature = this.state.chatBotStyle.value;
+                    promptJson.model = this.state.chatBotType;
+                    if (this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.temperature = this.state.chatBotStyle.value;
                 }
 
                 // role 给调试用
-                if (prompt.type == 'prompt' || prompt.type == 'role') this._llmRun(prompt, newTalk);
+                if (promptJson.type == 'prompt' || promptJson.type == 'role') this._llmRun(promptJson, newTalk);
 
 
                 // 标记当前执行状态，以及下一条
                 const currentCombo = { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex };
 
                 // queryInput 
-                if (prompt.type == "queryInput" && prompt.queryObj) {
-                    this._queryInputRun(prompt, nTalks);
+                if (promptJson.type == "queryInput" && promptJson.queryObj) {
+                    // {queryObj,input,nodeInputId,userInput}
+                    promptJson.userInput = prompt.userInput;
+                    this._queryInputRun(promptJson, nTalks);
                 };
 
                 // queryClick
-                if (prompt.type == "queryClick" && prompt.queryObj) {
+                if (promptJson.type == "queryClick" && promptJson.queryObj) {
                     this._queryClickRun(prompt);
                 };
 
                 // queryDefault 跳转页面
-                if (prompt.type === 'queryDefault') this._queryDefaultRun(prompt.queryObj, currentCombo);
+                if (promptJson.type === 'queryDefault') this._queryDefaultRun(promptJson.queryObj, currentCombo);
 
                 // queryRead 读取
-                if (prompt.type == "queryRead") this._queryReadRun(prompt.queryObj);
+                if (promptJson.type == "queryRead") this._queryReadRun(promptJson.queryObj);
 
+                if (promptJson.type === 'api') this._agentApiRun(promptJson, nTalks, currentCombo);
 
-                if (prompt.type === 'highlight') {
+                if (promptJson.type === 'highlight') {
                     // this._agentHighlightTextRun(lastTalk)
                 }
 
-
-
                 // 提取 <lastTalk> 里的传给api\send-to-zsxq\query
-                let d = document.createElement('div');
-                d.innerHTML = prompt.text;
-                const t: any = d.querySelector('lastTalk');
-                prompt.text = t?.innerText || '';
-
-                if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, currentCombo)
-
-                if (prompt.type === 'api') this._agentApiRun(prompt.api, prompt.text, currentCombo);
+                // let d = document.createElement('div');
+                // d.innerHTML = prompt.text;
+                // const t: any = d.querySelector('lastTalk');
+                // prompt.text = t?.innerText || '';
+                // if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, currentCombo)
 
             }
 

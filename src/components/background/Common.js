@@ -132,9 +132,10 @@ class Common {
                 } else if (cmd == 'chat-bot-talk') {
                     // console.log(cmd, data)
                     // prompt, style, type, callback
+                    // prompt:{system,user}
+                    // data.newTalk=true ,强制刷新
                     try {
                         chatBot.doSendMessage(
-                            data.systemContent,
                             data.prompt,
                             data.style,
                             data.type,

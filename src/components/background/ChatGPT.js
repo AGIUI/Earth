@@ -133,7 +133,7 @@ export default class ChatGPT {
         })
     }
 
-    buildMessages(systemContent = null) {
+    buildMessages(systemContent) {
         const date = new Date().toISOString().split('T')[0]
         if (systemContent === "undefined") systemContent = null;
         if (systemContent === "null") systemContent = null;
@@ -243,7 +243,7 @@ export default class ChatGPT {
         this.conversationContext = null
     }
 
-    async doSendMessageForBg(prompt, temperature, callback, systemContent) {
+    async doSendMessageForBg(prompt, temperature, callback) {
         // 支持传style
         if (!temperature) temperature = 0.6
             // style = style.toLowerCase();
@@ -251,7 +251,6 @@ export default class ChatGPT {
         let id = v4()
         try {
             this.doSendMessage({
-                systemContent: systemContent,
                 prompt: prompt,
                 temperature,
                 onEvent: async d => {
@@ -269,7 +268,6 @@ export default class ChatGPT {
 
     async doSendMessage(params) {
         let token = params.token || this.token;
-        let systemContent = params.systemContent;
         let temperature = params.temperature;
         if (temperature === undefined || temperature === null) temperature = 0.6;
         if (!token) {
@@ -279,12 +277,8 @@ export default class ChatGPT {
         }
         if (!this.conversationContext) {
             this.conversationContext = { messages: [] };
-
         }
-        this.conversationContext.messages.push({
-            role: 'user',
-            content: params.prompt
-        })
+        this.conversationContext.messages = params.prompt;
 
         const controller = new AbortController()
         const signal = controller.signal
@@ -295,7 +289,7 @@ export default class ChatGPT {
             params.url || this.baseUrl,
             token, {
                 model: params.model || this.model,
-                messages: this.buildMessages(systemContent),
+                messages: params.prompt,
                 temperature: temperature,
                 stream: true
             },
@@ -327,9 +321,7 @@ export default class ChatGPT {
             };
 
             if (isDone) {
-
                 this.conversationContext.messages.push(result);
-
                 params.onEvent({ type: 'DONE' })
                 return
             }

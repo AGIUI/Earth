@@ -1,4 +1,5 @@
 import { Md5 } from 'ts-md5'
+const hash=require('object-hash');
 import app from '@src/config/app.json'
 
 function chromeStorageGet(k: any) {
@@ -92,6 +93,9 @@ function md5(text: string) {
     return Md5.hashStr(text)
 }
 
+function hashJson(json:any){
+    return hash(json)
+}
 
 const parseUrl = () => {
     let paramsString = window.location.href.split('?')[1];
@@ -289,19 +293,22 @@ function addCss() {
       width: fit-content!important;
       padding:4px 10px!important;
     }
-     
+    .ant-dropdown{
+        z-index: 99999999;
+    }
     `
     dom.appendChild(s);
 
 }
 
+ 
 
 export {
     chromeStorageGet,
     chromeStorageSet,
     chromeStorageSyncGet,
     chromeStorageSyncSet,
-    md5,
+    md5,hashJson,
     parseUrl,
     getConfig,
     getConfigFromUrl,

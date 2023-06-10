@@ -3,7 +3,7 @@
 // 提供了初始化、结果回调、缓存机制
 
 
-import { md5 } from "@components/Utils"
+import { md5, hashJson } from "@components/Utils"
 
 import {
     chromeStorageGet,
@@ -116,11 +116,11 @@ class ChatBotBackground {
             let id = this.createKeyIdForInit(type, {})
             chrome.storage.sync.get(id).then(data => {
                 let chatBotAvailable = data[id]
-                    // 24h 缓存
+                    //7* 24h 缓存
                 if (
                     chatBotAvailable &&
                     chatBotAvailable.available && chatBotAvailable.available.success &&
-                    new Date().getTime() - chatBotAvailable.time < 48 * 60 * 60 * 1000
+                    new Date().getTime() - chatBotAvailable.time < 7 * 24 * 60 * 60 * 1000
                 ) {
                     res(chatBotAvailable)
                 }
@@ -182,7 +182,7 @@ class ChatBotBackground {
     // style ：bing的，chatgpt的
     // 开始对话，需要给一个start的记录
     // this.talksRecord=[];
-    async doSendMessage(systemContent = null, prompt, style, type, newTalk = false, callback) {
+    async doSendMessage(prompt, style, type, newTalk = false, callback) {
         let item = this.items.filter(item => item.type == type)[0]
 
         // 从缓存中读取
@@ -267,7 +267,7 @@ class ChatBotBackground {
             }
             callback(...args)
 
-        }, systemContent)
+        })
 
         return this.getCurrentTalks()
     }
@@ -284,7 +284,7 @@ class ChatBotBackground {
     }
 
     createKeyId(prompt, style, type) {
-            return 'prompt_' + md5(`${this.keyPrefix}_${type}_${prompt}_${style}`)
+            return 'prompt_' + md5(`${this.keyPrefix}_${type}_${hashJson(prompt)}_${style}`)
         }
         // 获取本地保存的prompt结果
         // type 聊天机器人名称

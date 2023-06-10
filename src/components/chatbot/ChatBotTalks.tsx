@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Button, Card, message, Image } from 'antd';
+import { Button, Card, message, Image, Dropdown } from 'antd';
 import {
-    CopyOutlined, FilePptOutlined
+    CopyOutlined, FilePptOutlined, DownOutlined, SmileOutlined
 } from '@ant-design/icons';
 
 import styled from 'styled-components';
@@ -182,7 +182,10 @@ const suggestBtn = (i: string, name: string, callback: any) => <Button
 const copy = async (data: any) => {
     console.log('copy', data)
     const div = document.createElement('div');
-    div.innerHTML = data.html;
+    for (const d of data) {
+        div.innerHTML += d.html;
+    }
+
     const copyText = div.innerText;
 
     let type = "text/plain"
@@ -199,36 +202,36 @@ const copy = async (data: any) => {
 
 const createPPT = (data: any) => {
     console.log('createPPT', data)
-    const { type, html } = data;
+
     let div = document.createElement('div');
-    div.innerHTML = html;
-
-    let items: any = [];
-
-    if (type === 'markdown') {
-
-        items.push(
-            {
-                title: div.innerText,
-
-            }
-        );
-
-    } else if (type == 'images') {
-        items.push(
-            {
-                title: type,
-                images: Array.from(div.querySelectorAll('img'), im => {
-                    return {
-                        title: type,
-                        base64: im.src
-                    }
-                })
-            }
-        );
+    for (const d of data) {
+        const { type, html } = d;
+        div.innerHTML += html;
     }
 
 
+    let items: any = [];
+
+    items.push(
+        {
+            title: div.innerText,
+        }
+    );
+
+    if (div.querySelectorAll('img')) items.push(
+        {
+            title: '',
+            images: Array.from(div.querySelectorAll('img'), im => {
+                return {
+                    title: '',
+                    base64: im.src
+                }
+            })
+        }
+    );
+
+
+    console.log('createPPT', items)
     const p = new PPT();
     p.create('test-by-shadow', items)
 
@@ -245,7 +248,7 @@ const createImages = (html: string) => {
         }}
     >
         {
-            Array.from(urls, (u: string) => <Image width={180} src={u}  />)
+            Array.from(urls, (u: string) => <Image width={180} src={u} />)
         }
         {
             text && <p>{text}</p>
@@ -255,6 +258,33 @@ const createImages = (html: string) => {
 }
 
 const createListItem = (data: any, index: number, debug: boolean) => {
+    // console.log('createListItem', data.id)
+    let items: any = [
+        {
+            label: '拷贝纯文本',
+            key: 'copy-text',
+        },
+    ];
+
+    if (!debug) items.push({
+        label: '导出PPT',
+        key: 'ppt',
+    })
+
+    items = [...items, {
+        type: 'divider',
+    },
+    ];
+
+    items.push({
+        label: data.selected ? '已选' : "选择",
+        key: 'select',
+        icon: data.selected ? <SmileOutlined /> : '',
+    })
+
+
+
+
     // console.log('createListItem',data)
     return <div style={{ margin: '5px 0' }} className={`chatbot-talk-card-${data.type}`}>{
         // 状态判断：思考、建议选项、对话
@@ -288,35 +318,64 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                     dangerouslySetInnerHTML={{ __html: data.html }}>
                 </p> : <Card title={""}
                     headStyle={{
-                        minHeight: '10px', 
-                        backgroundColor: 'white', 
-                        border: "none", 
+                        minHeight: '10px',
+                        backgroundColor: 'white',
+                        border: "none",
                         marginBottom: -20,
                         width: '100%'
                     }}
                     bordered={false}
                     size={'small'}
+                    key={index}
                     extra={data.export ?
                         <>
-                            <Button type="text"
-                                style={{ margin: '5px 0' }}
-                                icon={<CopyOutlined />}
-                                size={'small'}
-                                onClick={() => copy(data)} />
-                            {!debug ? <Button type="text"
+                            <Dropdown menu={{
+                                items, onClick: (e) => {
+                                    let key = e.key;
+                                    let d;
+                                    if (data.getAll) {
+                                        d = [...data.getAll(), data];
+                                    }
+                                    if (key == "select") {
+                                        data.select && data.select(data.id)
+                                    } else if (key === "copy-text") {
+                                        copy(d)
+                                    } else if (key == 'ppt') {
+                                        createPPT(d)
+                                    }
+                                }
+                            }} trigger={['click']}
+
+                            >
+                                {/* <a onClick={(e) => e.preventDefault()}>
+                                    <DownOutlined />
+                                </a> */}
+                                <Button type="text"
+                                    style={{ margin: '5px 0' }}
+                                    icon={<DownOutlined />}
+                                    size={'small'}
+                                    onClick={(e) => e.preventDefault()} />
+                            </Dropdown>
+
+                            {/* <Button type="text"
+                        style={{ margin: '5px 0' }}
+                        icon={<CopyOutlined />}
+                        size={'small'}
+                        onClick={() => console.log(1111)} /> */}
+                            {/* {!debug ? <Button type="text"
                                 style={{ margin: '5px 0' }}
                                 icon={<FilePptOutlined />}
                                 size={'small'}
-                                onClick={() => createPPT(data)} /> : ''}
+                                onClick={() => createPPT(data)} /> : ''} */}
                         </> : ''
                     }
 
                     style={{
-                        width: '100%', 
-                        background: 'rgba(255, 255, 255, 0.00)', 
+                        width: '100%',
+                        background: 'rgba(255, 255, 255, 0.00)',
                         marginTop: '10px',
-                        marginBottom: '10px', 
-                        padding: '0px', 
+                        marginBottom: '10px',
+                        padding: '0px',
                         boxShadow: 'none',
                         display: 'flex',
                         flexWrap: 'wrap'
@@ -335,7 +394,7 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                 </Card> : '')
         )
 
-    }</div>
+    }</div >
 }
 
 
@@ -422,8 +481,28 @@ class ChatBotTalks extends React.Component {
                 return
             }
 
+            if (item.user == false && item.id) {
+                item.select = (id: string) => {
+                    console.log(id, this.state.items)
+                    const items = Array.from(this.state.items, (i: any) => {
+                        if (i.id == id) i.selected = !i.selected;
+                        return i
+                    })
+                    this.setState({
+                        items
+                    })
+                }
+                item.getAll = () => {
+                    return this.state.items.filter((i: any) => i.selected);
+                }
+            }
+
             return {
-                ...item, user, html, buttons
+                ...item,
+                user,
+                html,
+                buttons,
+
             }
         }).filter(item => item);
 

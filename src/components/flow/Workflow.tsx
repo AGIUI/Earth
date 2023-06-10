@@ -103,7 +103,7 @@ const workflow = {
         },
     ],
     "outputs": [{
-        "label": "默认",
+        "label": "纯文本",
         "value": "default",
         "checked": true,
         "display": ["chatbot", "editor", "debug"]
@@ -117,11 +117,16 @@ const workflow = {
         "label": "MarkDown格式",
         "value": "markdown",
         "display": ["chatbot", "editor", "debug"]
+    },{
+        "label": "表格",
+        "value": "table",
+        "disabled": false,
+        "display": ["chatbot", "editor", "debug"]
     },
     {
         "label": "列表",
         "value": "list",
-        "disabled": true,
+        "disabled": false,
         "display": ["chatbot", "editor", "debug"]
     },
     ],

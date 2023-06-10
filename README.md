@@ -120,6 +120,8 @@ npm run build [browser]
     
 - 允许自由连线
 
+- 节点实现
+
 
 #### v0.3.3
 - 去除newtab

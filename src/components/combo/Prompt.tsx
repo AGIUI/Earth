@@ -14,7 +14,7 @@ import { encode, decode } from '@nem035/gpt-3-encoder'
 
 
 
-import { md5, textSplitByLength } from '@components/Utils'
+import { hashJson, md5, textSplitByLength } from '@components/Utils'
 
 const MAX_LENGTH = 2800;
 
@@ -90,61 +90,74 @@ const cropText = (
  * @returns 
  */
 
-function promptParse(prompt: string) {
-    console.log('promptParse::::', prompt)
-    let div = document.createElement('div');
-    div.innerHTML = prompt;
-    const str = (q: string) => {
-        const n: any = div.querySelector(q);
-        return n && n.innerText.trim();
-    }
+function promptParse(prompt: any) {
+    prompt = {
+        role: {
+            name: "",
+            text: ""
+        }
+        , ...prompt
+    };
 
-    const keys = Array.from(`name, role, title, url, text, html, task,translate, context,output,userInput`.split(','), k => k.trim()).filter(f => f);
-    const desc: any = {
-        name: "是扮演的角色名称",
-        role: "扮演的角色背景信息",
-        title: "当前网页标题",
-        url: "当前网页链接",
-        text: "当前网页正文",
-        html: "当前网页",
+    const systemKeys: any = {
+        role: "扮演的角色信息",
         task: "具体的任务",
         context: "上一次聊天信息",
-        userInput: "用户输入的信息",
         translate: "翻译",
         output: "输出格式"
     }
 
-    const prompts: any = {
-        userInput: ""
-    };
-
-    for (const key of keys) {
-        let v = str(key);
-        if (v) prompts[key] = v;
+    const userKeys: any = {
+        title: "当前网页标题",
+        url: "当前网页链接",
+        text: "当前网页正文",
+        html: "当前网页",
+        userInput: "用户输入的信息",
     }
 
-    console.log('promptParse:::::', JSON.stringify(prompts, null, 2))
+    console.log('promptParse:::::', JSON.stringify(prompt, null, 2))
 
-    let system = (prompts['name'] ? prompts['name'] + ',' : '') + prompts['role'];
-    let promptNew = '';
 
-    for (const key in prompts) {
-        if (key != "userInput" && key != 'role' && key != 'name') {
-            promptNew += `\n${key}:${prompts[key]}`
+    let system = {
+        role: "system",
+        content: `
+        ####role:${(prompt['role'].name ? prompt['role'].name + ',' : '') + prompt['role'].text}
+        `
+    };
+
+    for (const key in prompt) {
+        if (key != 'role' && Object.keys(systemKeys).includes(key)) {
+            if (prompt[key] && prompt[key].trim()) system.content += `\n####${key}:${prompt[key]}`
         }
     }
 
-    let userInput = prompts['userInput'] ? '\nuserInput:' + prompts['userInput'] : "";
+    system.content = system.content.trim();
 
-    prompt = (promptNew + userInput).trim();
 
-    return { system, prompt }
+    const user = {
+        role: 'user',
+        content: ''
+    };
+
+    for (const key in prompt) {
+        if (key != "userInput" && Object.keys(userKeys).includes(key)) {
+            if (prompt[key] && prompt[key].trim()) user.content += `\n####${key}:${prompt[key]}`
+        }
+    }
+
+    user.content += prompt['userInput'] ? '\n####userInput:' + prompt['userInput'] : "";
+    user.content = user.content.trim();
+
+    const id = hashJson([system, user, new Date()])
+
+    return { system, user, id }
 
 }
 
 const bindUserInput = (userInput: string) => {
-    userInput = userInput.trim();
-    return `<userInput>${cropText(userInput)}</userInput>`
+    return {
+        userInput: cropText(userInput.trim())
+    }
 }
 
 
@@ -179,7 +192,7 @@ const checkClipboard = async () => {
 
 // 绑定用户划选的内容
 const promptBindUserSelection = (userInput: string) => {
-    const userText = localStorage.getItem('___userSelection') || ''
+    const userText = localStorage.getItem('___userSelection') || '';
     const prompt = promptBindText(userText, userInput)
     return prompt
 }
@@ -195,7 +208,10 @@ const promptBindUserClipboard = async (userInput: string) => {
 const promptBindText = (bindText: string, userInput: string) => {
     const text = bindText.replace(/\s+/ig, ' ');
     userInput = userInput.trim();
-    const prompt = `<text>${cropText(text)}</text>${userInput}`;
+    let prompt = {
+        userInput,
+        text: text
+    }
     return prompt
 }
 
@@ -207,6 +223,7 @@ const extractArticle = (query = "") => {
     documentClone.querySelector('._agi_ui')?.remove();
 
     if (window.location.hostname === 'mail.qq.com') {
+        // 针对qq邮箱的处理 
         const doc: any = document.querySelector('#mainFrameContainer iframe');
         if (doc) documentClone = doc.contentDocument.cloneNode(true)
         // console.log(doc.contentDocument.body)
@@ -228,14 +245,22 @@ const extractArticle = (query = "") => {
         }
     }
 
-    divs = divs.filter((d: any) => d.className != '_agi_ui')
+    divs = divs.filter((d: any) => d.className != '_agi_ui');
 
-    let elements = Array.from(divs, (div: any) => [
-        ...div.querySelectorAll('p'),
-        ...div.querySelectorAll('span'),
-        ...div.querySelectorAll('h1'),
-        ...div.querySelectorAll('section'),
-    ].flat()).flat().filter((f: any) => f);
+    const textsTag = ['p', 'span', 'h1', 'section', 'a'];
+
+
+    let elements: any = [];
+
+    for (const div of divs) {
+        Array.from(
+            textsTag,
+            t => elements = [...elements, ...div.querySelectorAll(t)])
+    }
+
+    elements = elements.flat().filter((f: any) => f);
+
+    // console.log(elements)
 
     article.elements = Array.from(elements, (element: any, index) => {
         const tagName = element.tagName.toLowerCase();
@@ -255,7 +280,15 @@ const extractArticle = (query = "") => {
         let d = document.createElement('div');
         d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
         article.title = document.title;
-        article.textContent = (Array.from(['p', 'span', 'h1', 'section'], e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
+        article.textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
+    }
+
+    if (window.location.hostname === 'mail.qq.com') {
+        // 针对qq邮箱的处理 
+        let d = document.createElement('div');
+        d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
+        article.title = document.title;
+        article.textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
     }
 
     // 图片
@@ -276,70 +309,65 @@ const extractArticle = (query = "") => {
 const promptBindCurrentSite = (userInput: string, type = 'text', query: string) => {
     // 获取当前网页正文信息
     const { length, title, textContent, href, elements, images } = extractArticle(query);
-    let prompt = userInput.trim();
+    let prompt = {
+        userInput: userInput.trim(),
+        text: "",
+        title: "",
+        html: "",
+        url: "",
+        images: ""
+    }
 
     if (type == 'text') {
         const text = textContent.trim().replace(/\s+/ig, ' ');
-        // const t = `<title>${title}</title><url>${href}</url>`
-        const t = "";
-        if (prompt) {
-            prompt = `${t}<text>${cropText(text)}</text>${prompt}`;
-        } else {
-            prompt = `${t}<text>${cropText(text)}</text>`;
-        }
-
+        prompt.text = cropText(text)
     } else if (type == 'title') {
-        const t = `<title>${title}</title>`
-        if (prompt) {
-            prompt = `${t}${prompt}`;
-        } else {
-            prompt = t;
-        }
+        prompt.title = cropText(title)
     } else if (type == 'html') {
-        const htmls = Array.from(elements, (t: any) => t.html)
-        const t = `<title>${title}</title>`
-        if (prompt) {
-            prompt = `${t}<html>${cropText(JSON.stringify(htmls))}</html>${prompt}`;
-        } else {
-            prompt = `${t}<html>${cropText(JSON.stringify(htmls))}</html>`;
-        }
-
+        const html = Array.from(elements, (t: any) => t.html)
+        prompt.title = cropText(title)
+        prompt.html = cropText(JSON.stringify(html))
     } else if (type == 'url') {
-        // const htmls = Array.from(elements, (t: any) => t.html)
-        if (prompt) {
-            prompt = `<title>${title}</title><url>${href}</url>${prompt}`;
-        } else {
-            prompt = `<title>${title}</title><url>${href}</url>`;
-        }
+        prompt.title = cropText(title)
+        prompt.url = cropText(href)
     } else if (type == 'images') {
-        if (prompt) {
-            prompt = `${Array.from(images, im => `<img src="${im}"/>`).join("")}${prompt}`;
-        } else {
-            prompt = Array.from(images, im => `<img src="${im}"/>`).join("");
-        }
+        prompt.images = Array.from(images, im => `<img src="${im}"/>`).join("")
     }
     return prompt
 }
 
 const promptBindTranslate = (userInput: string, type: string) => {
-    if (type == 'translate-zh') {
-        userInput = `<translate>翻译成中文</translate>${userInput}`
-    } else if (type == 'translate-en') {
-        userInput = `<translate>翻译成英文</translate>${userInput}`
+    let prompt = {
+        userInput,
+        translate: ""
     }
-    return userInput
+    if (type == 'translate-zh') {
+        prompt.translate = `翻译成中文`
+    } else if (type == 'translate-en') {
+        prompt.translate = `翻译成英文`
+    }
+    return prompt
 }
 
 const promptBindOutput = (userInput: string, type: string) => {
-    if (type == 'markdown') {
-        userInput = `<output>按照markdown格式输出</output>${userInput}`
+    let prompt = {
+        userInput,
+        output: ''
+    }
+    if (type == 'text' || type == 'default') {
+        prompt.output = '不允许出现####{xxx}'
+    } else if (type == 'table') {
+        prompt.output = '回答user的结果只允许是table结构'
+    } else if (type == 'markdown') {
+        prompt.output = `输出Markdown格式，不允许出现####{xxx}`
     } else if (type == 'json') {
-        userInput = `<output>按照json格式输出</output>${userInput}`
-
+        prompt.output = `回答user的结果只允许是JSON数组或对象`
+    } else if (type == 'list') {
+        prompt.output = '回答user的结果只允许是list数组'
     } else if (type == 'extract') {
-        userInput = `<output>分析实体词，并分类</output>${userInput}`
+        prompt.output = `分析实体词，并分类`
     };
-    return userInput
+    return prompt
 }
 
 // 拆解任务目标
@@ -364,24 +392,27 @@ const extractDomElement = (query: string) => {
 
 
 const promptBindRole = (userInput: string, role: any) => {
-    let prompt = userInput
+    let prompt = {
+        userInput, role: {
+            text: '', name: ''
+        }
+    }
     if (role.text) {
-        prompt = `<role>你的角色背景是${cropText(role.text)}</role>${prompt}`
+        prompt.role.text = cropText(role.text);
     }
     if (role.name) {
-        prompt = `<name>你的名字是${role.name}</name>${prompt}`
+        prompt.role.name = cropText(role.text);
     };
     return prompt
 }
 
-const promptUseLastTalk = (prompt: string, context: string) => {
-    prompt = prompt.trim()
+const promptUseLastTalk = (userInput: string, context: string) => {
+    userInput = userInput.trim()
     context = cropText(context.trim())
-    if (context && prompt) {
-        prompt = `<context>${context}</context>${prompt}`
-    } else if (context) {
-        prompt = `<context>${context}</context>`;
+    let prompt = {
+        userInput, context
     }
+
     return prompt
 }
 

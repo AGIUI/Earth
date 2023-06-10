@@ -385,7 +385,6 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
         {
             label: '调试',
             key: 'debug',
-
         }
     ];
 
