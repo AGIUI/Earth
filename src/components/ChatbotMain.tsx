@@ -264,6 +264,7 @@ const sendMessageToBackground = {
     'api-run': (data: any) => sendMessageCanRetry('api-run', data, console.log),
     'open-options-page': (data: any) => sendMessageCanRetry('open-options-page', data, console.log),
     'hi': (data: any) => sendMessageCanRetry('hi', data, console.log),
+     
 }
 
 
@@ -589,7 +590,8 @@ class Main extends React.Component<{
                 })
             } else if (cmd == 'chat-bot-init-result') {
                 this.initChatBot(false);
-            }
+            } 
+            
 
             sendResponse('我是content，已收到消息')
             return true;
@@ -1376,7 +1378,7 @@ class Main extends React.Component<{
                     promptJson = { ...promptJson, ...await promptBindUserClipboard(promptJson.userInput) }
                 } else if (prompt.input == 'nodeInput') {
                     // 从上一节点获取文本，prompt的输入从上一个节点输入
-                    console.log('从上一节点获取文本', prompt, prompt.nodeInputId, nTalks)
+                    console.log('从上一节点获取文本', prompt.nodeInputId, nTalks)
                     if (!prompt.nodeInputId) {
                         let lastTalk: any = Talks.getLastTalk([...nTalks]);
                         promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, lastTalk) }
@@ -1384,6 +1386,7 @@ class Main extends React.Component<{
                         let talk: any = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
                         promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, talk) }
                     }
+                    console.log('从上一节点获取文本', prompt.nodeInputId, promptJson.context)
                 }
 
                 // translate的处理

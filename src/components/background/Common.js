@@ -15,6 +15,8 @@
 
  */
 
+import { fetchImage } from '../Utils'
+
 
 class Common {
     constructor(json, chatBot, Agent, Credit) {
@@ -275,7 +277,7 @@ class Common {
                     Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
-                }
+                };
                 sendResponse('我是后台，已收到消息：' + JSON.stringify(request))
                 return true
             }
