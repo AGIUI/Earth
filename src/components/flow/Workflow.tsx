@@ -59,6 +59,7 @@ const workflow = {
     "inputs": [{
         "label": "默认",
         "value": "default",
+        "checked": true,
         "display": ["chatbot", "editor", "debug"]
     }, {
         "label": "绑定网页正文",
@@ -89,112 +90,107 @@ const workflow = {
         "display": ["chatbot", "editor"]
     }
     ],
+    "translates": [
+        {
+            "label": "中文",
+            "value": "translate-zh",
+            "display": ["chatbot", "editor", "debug"]
+        },
+        {
+            "label": "英文",
+            "value": "translate-en",
+            "display": ["chatbot", "editor", "debug"]
+        },
+    ],
     "outputs": [{
-        "label": "默认",
+        "label": "纯文本",
         "value": "default",
-        "display": ["chatbot", "editor", "debug"]
-
-    }, {
-        "label": "作为上下文",
-        "value": "isNextUse",
-        "display": ["editor"]
-    }],
-    "agents": [{
-        "key": "prompt",
-        "label": "Prompt",
         "checked": true,
-        "parent": "prompt",
         "display": ["chatbot", "editor", "debug"]
-    },
-    {
-        "key": "tasks",
-        "label": "目标拆解",
-        "parent": "prompt",
-        "disabled": true,
-        "display": ["chatbot", "editor", "debug"]
-    },
-    {
-        "key": "query",
-        "label": "根据选择器获取网页信息",
-        "parent": "query",
-        "display": ["editor"]
-    },
-    {
-        "key": "query-click",
-        "label": "模拟点击",
-        "disabled": true,
-        "parent": "query",
-        "display": ["chatbot", "editor", "debug"]
-    },
-    {
-        "key": "send-to-zsxq",
-        "label": "发布内容至知识星球",
-        "parent": "query",
-        "display": ["editor"]
-    },
-    {
-        "key": "highlight",
-        "label": "高亮网页内容",
-        "disabled": true,
-        "parent": "query",
-        "display": ["chatbot", "editor", "debug"]
-    },
-    {
-        "key": "api",
-        "label": "API",
-        "parent": "api",
-        "display": ["editor"]
     },
     {
         "label": "JSON格式",
-        "key": "json",
-        "parent": "formatter",
-        "display": ["chatbot", "editor", "debug"]
-    },
-    {
-        "label": "列表",
-        "key": "list",
-        "parent": "formatter",
-        "disabled": true,
+        "value": "json",
         "display": ["chatbot", "editor", "debug"]
     },
     {
         "label": "MarkDown格式",
-        "key": "markdown",
-        "parent": "formatter",
+        "value": "markdown",
+        "display": ["chatbot", "editor", "debug"]
+    }, {
+        "label": "表格",
+        "value": "table",
+        "disabled": false,
         "display": ["chatbot", "editor", "debug"]
     },
     {
-        "label": "中文",
-        "key": "translate-zh",
-        "parent": "translate",
+        "label": "列表",
+        "value": "list",
+        "disabled": false,
         "display": ["chatbot", "editor", "debug"]
     },
-    {
-        "label": "英文",
-        "key": "translate-en",
-        "parent": "translate",
-        "display": ["chatbot", "editor", "debug"]
-    },
-    // {
-    //     "label": "提取结构化数据",
-    //     "key": "extract",
-    //     "temperature": 0
-    // },
-    {
-        "label": "条件判断",
-        "key": "if-else",
-        "parent": "logic",
-        "disabled": true,
-        "display": ["chatbot", "editor", "debug"]
-    },
-    {
-        "label": "循环",
-        "key": "for-of",
-        "parent": "logic",
-        "disabled": true,
-        "display": ["chatbot", "editor", "debug"]
-    }
+    ],
+    "agents": [
+        {
+            "key": "prompt",
+            "label": "Prompt",
+            "checked": true,
+            "parent": "prompt",
+            "display": ["chatbot", "editor", "debug"]
+        },
+        {
+            "key": "tasks",
+            "label": "目标拆解",
+            "parent": "prompt",
+            "disabled": true,
+            "display": ["chatbot", "editor", "debug"]
+        },
+        {
+            "key": "query",
+            "label": "根据选择器获取网页信息",
+            "parent": "query",
+            "display": ["editor"]
+        },
+        {
+            "key": "query-click",
+            "label": "模拟点击",
+            "disabled": true,
+            "parent": "query",
+            "display": ["chatbot", "editor", "debug"]
+        },
+        {
+            "key": "send-to-zsxq",
+            "label": "发布内容至知识星球",
+            "parent": "query",
+            "display": ["editor"]
+        },
+        {
+            "key": "highlight",
+            "label": "高亮网页内容",
+            "disabled": true,
+            "parent": "query",
+            "display": ["chatbot", "editor", "debug"]
+        },
+        {
+            "key": "api",
+            "label": "API",
+            "parent": "api",
+            "display": ["editor"]
+        },
+        {
+            "label": "条件判断",
+            "key": "if-else",
+            "parent": "logic",
+            "disabled": true,
+            "display": ["chatbot", "editor", "debug"]
+        },
+        {
+            "label": "循环",
+            "key": "for-of",
+            "parent": "logic",
+            "disabled": true,
+            "display": ["chatbot", "editor", "debug"]
+        }
     ]
 
 }
@@ -211,18 +207,16 @@ const comboOptions = [
     {
         label: '首页',
         value: 'home',
+        disabled: true
     },
     {
         label: '无限循环',
         value: 'infinite',
+        disabled: true
     }
 ];
 
 const defaultNode = {
-    role: {
-        name: '',
-        text: ''
-    },
     text: '',
     url: '',
     api: {
@@ -235,19 +229,30 @@ const defaultNode = {
             },
             body: "{}",
             mode: 'cors',
-            cache: 'default',
-            responseType: 'text'
+            cache: 'default'
         },
+        responseType: 'text',
+        extract: {
+            "key": "images",
+            "type": "images"
+        },//responseExtract
         isApi: false
     },
     queryObj: {
-        query: '', url: '', protocol: 'https://', isQuery: false
+        query: '',
+        url: '',
+        protocol: 'https://',
+        content: 'bindCurrentPage',//给read使用
+        action: 'default', // 网页跳转 default、模拟点击click 、输入input、读取read
+        isQuery: false
     },
     temperature: 0.6,
     model: 'ChatGPT',
-    input: 'default',
+    input: 'nodeInput',// nodeInput、userInput
+    userInput: '',
+    translate: 'default',
     output: 'default',
-    type: 'prompt',
+    type: 'prompt',//运行时使用
     // 以下是选项
     opts: {
         ...workflow
@@ -257,6 +262,10 @@ const defaultNode = {
 
 const _DEFAULTCOMBO = {
     tag: 'default',
+    role: {
+        name: '',
+        text: ''
+    },
     combo: 1,
     interfaces: [],
     isInfinite: false,
@@ -272,33 +281,50 @@ const debugInfo = (prompt: any) => {
     console.log('debugInfo', prompt)
     let info = '';
     if (prompt.type == 'role') {
-        info = `<p>${prompt.role.name}</p><br><p>${prompt.role.text}</p>`
+        info = `${prompt.role.name ? `<p>${prompt.role.name}</p><br>` : ''}<p>${prompt.role.text}</p>`
     } else {
+        // prompt
         info = `<p>${JSON.stringify({
-            text: prompt.text,
-            input: prompt.input,
-            output: prompt.output,
-            type: prompt.type,
-            model: prompt.model,
-            temperature: prompt.temperature
+            id: prompt.id,
+            type: prompt.type
         }, null, 2)}</p>`;
     }
     return info
 }
 
 //   把一条prompt包装成_control可以执行的数据格式
-const parsePrompt2ControlEvent = (prompt: any) => {
+const parsePrompt2ControlEvent = (id: string, prompt: any) => {
+    const d = debugInfo(prompt);
     const controlEvent = {
-        '_combo': {
-            ..._DEFAULTCOMBO,
-            prompt,
-            createDate: (new Date()).getTime()
-        },
         from: 'debug',
         prompt,
         // 调试状态的显示
-        tag: debugInfo(prompt),
-        debugInfo: debugInfo(prompt),
+        tag: d,
+        debugInfo: d,
+        newTalk: true,
+        autoRun: true,
+        id: id,
+        createTime: (new Date()).getTime()
+    }
+    return controlEvent
+}
+
+//   把多条prompt包装成_control可以执行的数据格式
+const parseCombo2ControlEvent = (combo: any) => {
+
+    const { prompt } = combo;
+    const d = debugInfo(prompt);
+    const controlEvent = {
+        '_combo': {
+            ..._DEFAULTCOMBO,
+            ...combo,
+            createDate: (new Date()).getTime()
+        },
+        from: 'combo',
+        prompt: prompt,
+        // 调试状态的显示
+        tag: d,
+        debugInfo: d,
         newTalk: true,
         autoRun: true,
         id: (new Date()).getTime()
@@ -308,8 +334,10 @@ const parsePrompt2ControlEvent = (prompt: any) => {
 
 export {
     roleAvatars,
-    workflow, defaultNode,
+    workflow,
+    defaultNode,
     comboOptions,
     _DEFAULTCOMBO,
-    parsePrompt2ControlEvent
+    parsePrompt2ControlEvent,
+    parseCombo2ControlEvent
 }

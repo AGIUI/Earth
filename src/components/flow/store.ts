@@ -12,20 +12,12 @@ import {
 import { create } from 'zustand';
 import { nanoid } from 'nanoid/non-secure';
 
-declare const window: Window &
-  typeof globalThis & {
-    _brainwave_import: any,
-    _brainwave_get_current_node_for_workflow: any,
-    _brainwave_get_workflow_data: any,
-    _brainwave_save_callback: any,
-    _brainwave_save_callback_init: any,
-    _brainwave_debug_callback: any
-  }
-
 import { defaultNode, comboOptions, _DEFAULTCOMBO, parsePrompt2ControlEvent } from './Workflow'
+import { node } from 'prop-types';
 
 
 export type RFState = {
+  debugStatus: any;
   defaultNode: any;
   id: string;
   debug: any;
@@ -39,7 +31,47 @@ export type RFState = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   addChildNode: (parentNode: Node, position: XYPosition) => void;
+  changeChildNode: any;
+  addNode: any
 };
+
+const createId = (type: string, id: string) => `${type}_${id}`.toLocaleUpperCase()
+
+const getNodes = (currentId: string, nodes: any) => {
+  const nodeOpts = Array.from(nodes, (node: any, i) => {
+    return {
+      value: node.id,
+      label: node.type + '_' + node.id,
+      id: node.id
+    }
+  }).filter((n: any) => n.id != currentId)
+  return nodeOpts
+}
+
+const onChangeForNodes = (event: any, getNodes: any) => {
+  const nodes = [];
+  for (const node of getNodes) {
+    if (node.id === event.id) {
+      nodes.push({
+        ...node, data: {
+          ...node.data, ...event.data
+        },
+        draggable: !!event.data.draggable
+      })
+    } else {
+      nodes.push(node)
+    }
+  }
+  return nodes
+}
+
+
+const debugRun = (id: string, prompt: any, debug: any, onChange: any) => {
+  const controlEvent: any = parsePrompt2ControlEvent(id, prompt)
+  controlEvent.onChange = onChange
+  debug.callback(controlEvent)
+}
+
 
 
 /**
@@ -55,6 +87,7 @@ const useStore = create<RFState>((set, get) => ({
     type: 'role',
     data: {
       ...defaultNode,
+      role: { ..._DEFAULTCOMBO.role },
       type: 'role',
     },
     position: { x: 0, y: 0 },
@@ -74,6 +107,11 @@ const useStore = create<RFState>((set, get) => ({
   onTagChange: (tag: string) => {
     set({ tag })
   },
+  debugStatus: (event: any) => {
+    const nodes = onChangeForNodes(event, get().nodes);
+    // console.log('debugStatus', nodes)
+    set({ nodes })
+  },
   // 完成调试状态和节点的导入、初始化等
   newCombo: (id: string, tag: string, interfaces: any, ns: any, edges: any, debug: any) => {
     const oId = get().id;
@@ -87,37 +125,19 @@ const useStore = create<RFState>((set, get) => ({
       nd.data = {
         ...defaultNode,
         ...nd.data,
+        getNodes: (currentId: string) => getNodes(currentId, get().nodes),
         onChange: (e: any) => {
-          // console.log('store-onchange', e)
-          const nodes = [];
-          for (const node of get().nodes) {
-            if (node.id === e.id) {
-              nodes.push({
-                ...node, data: {
-                  ...node.data, ...e.data
-                }
-              })
-            } else {
-              nodes.push(node)
-            }
-          }
+          const nodes = onChangeForNodes(e, get().nodes);
           set({
             nodes
           });
         },
       }
 
-      if (nd.data.type == 'role') {
-        nd.type = 'role';
-      } else {
-        nd.type = 'brainwave'
-      }
+      nd.type = nd.data.type;
 
       if (debug && debug.open && debug.callback) {
-        nd.data['debug'] = (prompt: any) => {
-          const controlEvent = parsePrompt2ControlEvent(prompt)
-          debug.callback(controlEvent)
-        }
+        nd.data['debug'] = (prompt: any) => debugRun(nd.id, prompt, debug, get().debugStatus);
       }
       return nd
     })]
@@ -137,7 +157,7 @@ const useStore = create<RFState>((set, get) => ({
       debug,
       tag,
       comboOptions
-    }), 800)
+    }), 200)
 
   },
   onNodesChange: (changes: any) => {
@@ -153,6 +173,60 @@ const useStore = create<RFState>((set, get) => ({
       edges: applyEdgeChanges(changes, get().edges),
     });
   },
+  addNode: (nodeType: string, dataType: string, position = { x: 0, y: 0 }) => {
+    // role 只能放一张
+    if (nodeType == 'role' && get().nodes.filter((n: any) => n.type == nodeType).length > 0) return
+
+    const newNode: any = {
+      id: createId(nodeType, nanoid()),
+      type: nodeType,
+      data: {
+        ...defaultNode,
+        type: dataType,
+        getNodes: (currentId: string) => getNodes(currentId, get().nodes),
+        onChange: (e: any) => {
+          const nodes = onChangeForNodes(e, get().nodes);
+          set({
+            nodes
+          });
+        },
+      },
+      position,
+      deletable: true,
+    };
+
+    const debug = get().debug;
+    if (debug && debug.open && debug.callback) {
+      newNode.data['debug'] = (prompt: any) => debugRun(newNode.id, prompt, debug, get().debugStatus)
+    }
+
+
+    set({
+      nodes: [...get().nodes, newNode]
+    });
+  },
+  changeChildNode: (source: string, target: string) => {
+    const nodes = get().nodes;
+
+    // source 
+    const edges = get().edges.filter(e => e.source != source && e.target != target)
+    // console.log(edges)
+
+    const newEdge = {
+      id: createId('edge', nanoid()),
+      source,
+      target,
+      type: 'straight',
+      // animated: true,
+      label: nodes.filter((node: any) => node.id == source)[0].data.output,
+      deletable: true,
+    };
+
+    set({
+      edges: [...edges, newEdge],
+    });
+
+  },
   addChildNode: (parentNode: Node, position: XYPosition) => {
     // console.log('addChildNode', parentNode, get().edges)
     const pId = parentNode.id;
@@ -163,46 +237,37 @@ const useStore = create<RFState>((set, get) => ({
     // 可根据 parentNode 判断下一个节点类型
 
     const newNode: any = {
-      id: nanoid(),
-      type: 'brainwave',
+      id: createId('prompt', nanoid()),
+      type: 'prompt',
       data: {
         ...defaultNode,
+        getNodes: (currentId: string) => getNodes(currentId, get().nodes),
         onChange: (e: any) => {
-          const nodes = [];
-          for (const node of get().nodes) {
-            if (node.id === e.id) {
-              nodes.push({
-                ...node, data: {
-                  ...node.data, ...e.data
-                }
-              })
-            } else {
-              nodes.push(node)
-            }
-          }
+          const nodes = onChangeForNodes(e, get().nodes);
           set({
             nodes
           });
-        }
+        },
       },
       position,
-      parentNode: parentNode.id,
+      // parentNode: parentNode.id,
       deletable: true
     };
 
     const debug = get().debug;
     if (debug && debug.open && debug.callback) {
-      newNode.data['debug'] = (prompt: any) => {
-        const controlEvent = parsePrompt2ControlEvent(prompt)
-        debug.callback(controlEvent)
-      }
+      newNode.data['debug'] = (prompt: any) => debugRun(newNode.id, prompt, debug, get().debugStatus)
     }
 
     // console.log('addChildNode', parentNode)
     const newEdge = {
-      id: nanoid(),
+      id: createId('edge', nanoid()),
       source: parentNode.id,
       target: newNode.id,
+      type: 'straight',
+      // animated: true,
+      label: get().nodes.filter((node: any) => node.id == parentNode.id)[0].data.output,
+      deletable: true,
     };
 
     set({

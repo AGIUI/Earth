@@ -35,7 +35,7 @@ function get() {
 function getInput() {
     return Array.from(workflow.inputs, inp => {
         if (inp.display.includes('chatbot')) return {
-            ...inp, checked: inp.value == 'default'
+            ...inp
         }
     }).filter(i => i)
 }
@@ -43,19 +43,25 @@ function getInput() {
 function getOutput() {
     return Array.from(workflow.outputs, out => {
         if (out.display.includes('chatbot')) return {
-            ...out, checked: out.value == 'default'
+            ...out
         }
     }).filter(i => i)
 }
 
-
+function getTranslate() {
+    return Array.from(workflow.translates, translate => {
+        if (translate.display.includes('chatbot')) return {
+            ...translate
+        }
+    }).filter(i => i)
+}
 
 function getAgentOpts() {
     return Array.from(workflow.agents, (agent: any) => {
         if (!agent.disabled && agent.display.includes('chatbot')) return {
             value: agent.key,
             label: agent.label,
-            checked: agent.key == 'prompt'
+            checked: agent.checked
         }
     }).filter(a => a)
 }
@@ -176,7 +182,7 @@ function createTalkData(type: string, json: any) {
                 hi,
                 user: false,
                 html: json.html,
-                avatarUrl:json.avatarUrl
+                avatarUrl: json.avatarUrl
             }
             break;
         default:
@@ -186,5 +192,5 @@ function createTalkData(type: string, json: any) {
 }
 
 export default {
-    get, createTalkData, getOutput, getInput, getAgentOpts
+    get, createTalkData, getOutput, getInput, getAgentOpts,getTranslate
 }

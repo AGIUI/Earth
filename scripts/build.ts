@@ -632,6 +632,7 @@ async function Init() {
       ...config,
       app: p.displayName,
       version: p.version,
+      dev,
       browsers,
     }
 

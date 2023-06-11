@@ -3,7 +3,9 @@ import { Card, Button, Input, Collapse, Radio, message } from 'antd';
 import { PlusOutlined, SendOutlined, BranchesOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Panel } = Collapse;
-import { defaultCombo, defaultPrompt } from "@components/combo/ComboData";
+
+import { _DEFAULTCOMBO, defaultNode } from "@components/flow/Workflow";
+
 import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ChatBotSelect from "@components/chatbot/ChatBotSelect"
 
@@ -12,7 +14,14 @@ import ChatBotSelect from "@components/chatbot/ChatBotSelect"
  * 
  */
 
+const defaultPrompt: any = { ...defaultNode }
+delete defaultPrompt.opts;
 
+const menuNames = {
+    debug: '调试全部',
+    new: '新建',
+    send: '发送'
+}
 
 type PropType = {
     /** 回调
@@ -52,7 +61,7 @@ type StateType = {
     agent: any;
     chatBotType: string;
     chatBotStyle: any;
-    debug:boolean
+    debug: boolean
 }
 
 interface ChatBotInput {
@@ -87,8 +96,9 @@ class ChatBotInput extends React.Component {
             agent: any = ChatBotConfig.getAgentOpts();
 
 
-        const config = this.props.config.filter((c: any) => c.checked)[0]
-
+        let config = this.props.config.filter((c: any) => c.checked)[0];
+        if (!config) config = this.props.config[0]
+        // console.log('ChatBotInput',this.props.config,config)
         this.state = {
             name: 'ChatBotInput',
             isLoading: this.props.isLoading,
@@ -107,7 +117,7 @@ class ChatBotInput extends React.Component {
             chatBotType: config.type,
             chatBotStyle: config.style,
 
-            debug:this.props.debug
+            debug: this.props.debug
         }
 
     }
@@ -142,7 +152,7 @@ class ChatBotInput extends React.Component {
         if (prompt) {
             const output = this.state.output.filter((oup: any) => oup.checked)[0].value;
             const combo = {
-                ...defaultCombo,
+                ..._DEFAULTCOMBO,
                 prompt: {
                     ...defaultPrompt,
                     text: prompt,
@@ -274,10 +284,23 @@ class ChatBotInput extends React.Component {
                                 onClick={() => this._leftBtnClick()}
                                 disabled={this.state.isLoading}
                             >
-                            工作流
+                                工作流
                             </Button> : ''
                         }
 
+                        {
+                            this.props.debug ? <Button
+                                style={buttonStyle}
+                                type="dashed"
+                                icon={<BranchesOutlined />}
+                                onClick={() => this.props.callback({
+                                    cmd: 'debug-combo'
+                                })}
+                                disabled={this.state.isLoading}
+                            >
+                                {menuNames.debug}
+                            </Button> : ''
+                        }
 
                     </div>
                     ,
@@ -285,7 +308,7 @@ class ChatBotInput extends React.Component {
                         display: 'flex',
                         alignItems: 'center',
                         padding: '10px',
-                        paddingRight:'0px',
+                        paddingRight: '0px',
                         justifyContent: 'flex-end'
                     }}
                     >
@@ -312,48 +335,49 @@ class ChatBotInput extends React.Component {
                 ]}
             >
 
-                <Collapse expandIconPosition={'start'} size="small">
-                    <Panel header={node} key="node" >
-                        <div style={flexStyle}>
-                            <LoginOutlined style={{ marginRight: '10px' }} />
-                            <Radio.Group
-                                options={this.state.input}
-                                onChange={(e) => this._change(e.target.value, 'input')}
-                                value={this.state.input.filter((m: any) => m.checked)[0].value}
+                {
+                    this.props.debug ? '' : <Collapse expandIconPosition={'start'} size="small">
+                        <Panel header={node} key="node" >
+                            <div style={flexStyle}>
+                                <LoginOutlined style={{ marginRight: '10px' }} />
+                                <Radio.Group
+                                    options={this.state.input}
+                                    onChange={(e) => this._change(e.target.value, 'input')}
+                                    value={this.state.input.filter((m: any) => m.checked)[0].value}
+                                    optionType="button"
+                                    buttonStyle="solid"
+                                    size="small"
+                                />
+                            </div>
+                            <div style={flexStyle}>
+                                <RobotOutlined style={{ marginRight: '10px' }} />
+                                <Radio.Group
+                                    options={this.state.agent}
+                                    onChange={(e) => this._change(e.target.value, 'agent')}
+                                    value={this.state.agent.filter((m: any) => m.checked)[0].value}
+                                    optionType="button"
+                                    buttonStyle="solid"
+                                    size="small"
+                                />
+                            </div>
+                            <div style={flexStyle}><LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
+                                options={this.state.output}
+                                onChange={(e) => this._change(e.target.value, 'output')}
+                                value={this.state.output.filter((m: any) => m.checked)[0].value}
                                 optionType="button"
                                 buttonStyle="solid"
                                 size="small"
-                            />
-                        </div>
-                        <div style={flexStyle}>
-                            <RobotOutlined style={{ marginRight: '10px' }} />
-                            <Radio.Group
-                                options={this.state.agent}
-                                onChange={(e) => this._change(e.target.value, 'agent')}
-                                value={this.state.agent.filter((m: any) => m.checked)[0].value}
-                                optionType="button"
-                                buttonStyle="solid"
-                                size="small"
-                            />
-                        </div>
-                        <div style={flexStyle}><LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
-                            options={this.state.output}
-                            onChange={(e) => this._change(e.target.value, 'output')}
-                            value={this.state.output.filter((m: any) => m.checked)[0].value}
-                            optionType="button"
-                            buttonStyle="solid"
-                            size="small"
-                        /></div>
+                            /></div>
 
-                        <ChatBotSelect
-                            callback={(res: any) => this._changeChatbot(res)}
-                            isLoading={this.state.isLoading}
-                            config={this.props.config}
-                            name={''} />
+                            <ChatBotSelect
+                                callback={(res: any) => this._changeChatbot(res)}
+                                isLoading={this.state.isLoading}
+                                config={this.props.config}
+                                name={''} />
 
-                    </Panel>
-                </Collapse>
-
+                        </Panel>
+                    </Collapse>
+                }
 
 
                 <TextArea
@@ -373,7 +397,7 @@ class ChatBotInput extends React.Component {
                     placeholder={this.state.placeholder}
                     autoSize={{ minRows: 2, maxRows: 15 }}
                     disabled={this.state.isLoading}
-                    style={this.state.userInput.prompt ? { height: 'auto',marginTop:5 } : {marginTop:5}}
+                    style={this.state.userInput.prompt ? { height: 'auto', marginTop: 5 } : { marginTop: 5 }}
                 />
 
             </Card>

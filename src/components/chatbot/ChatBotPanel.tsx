@@ -149,9 +149,9 @@ class ChatBotPanel extends React.Component {
                     paddingTop: '10px'
                 }}>
 
-                    <ChatBotTalks 
-                    debug={this.props.debug}
-                    callback={(e: any) => this.props.callback(e)}
+                    <ChatBotTalks
+                        debug={this.props.debug}
+                        callback={(e: any) => this.props.callback(e)}
                         items={datas[subject.index + 1]} />
 
                     <ChatBotInput
@@ -205,7 +205,8 @@ class ChatBotPanel extends React.Component {
                 })} />
         ];
 
-        if (!this.props.debug) btns.push(<CloseButton
+        // if (!this.props.debug) 
+        btns.push(<CloseButton
             disabled={false}
             callback={() => this.props.callback({
                 cmd: 'close-chatbot-panel'
@@ -230,8 +231,8 @@ class ChatBotPanel extends React.Component {
                     //flexDirection: 'column',
                     //justifyContent: 'space-around',
                     cursor: 'auto',
-                    paddingTop:0,
-                    paddingBottom:20
+                    paddingTop: 0,
+                    paddingBottom: 20
                 }}
                 style={{
                     width: this.state.fullscreen ? '100vw' : '500px',
@@ -244,11 +245,11 @@ class ChatBotPanel extends React.Component {
                 }}
                 title={this.state.name}
                 extra={btns}
-                // tabList={this.state.tabList}
-                // activeTabKey={activeTabKey}
-                // onTabChange={(key: string) => {
-                //     this._switchSubject(this.state.tabList.filter((s: any) => s.key == key)[0].index)
-                // }}
+            // tabList={this.state.tabList}
+            // activeTabKey={activeTabKey}
+            // onTabChange={(key: string) => {
+            //     this._switchSubject(this.state.tabList.filter((s: any) => s.key == key)[0].index)
+            // }}
             >
                 {this.state.loading ? <Spin tip="Loading" size="large">
                     <div className="content" />
