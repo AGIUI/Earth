@@ -126,7 +126,7 @@ function options() {
       sendMessageCanRetry('open-chatbot-panel', {}, console.log)
 
       if (exportDataToEarth) exportDataToEarth().then((combo: any) => {
-        // console.log('exportDataToEarth', combo)
+        console.log('exportDataToEarth', combo)
         const event = parseCombo2ControlEvent(combo);
         setIsNew(false);
         setDebugData(event);
@@ -175,6 +175,8 @@ function options() {
         callback: (event: any) => {
           sendMessageCanRetry('open-chatbot-panel', {}, console.log)
           console.log('debug-callback-for-parent', event)
+          // 修复flow重新新建的bug
+          setIsNew(false)
           if (event) setTimeout(() => {
             setDebugData(event)
           }, 100)

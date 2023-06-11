@@ -608,10 +608,12 @@ class Main extends React.Component<{
     _updateCurrentTalks() {
         if (this.state.disabledAll) return
         Talks.get().then(async talks => {
-            if (!this.props.debug) {
-                let talk = await Talks.createShowInChatInterfaces()
-                talks.push(talk);
-            }
+            
+            // 当激活窗口的时候，弹出提示
+            // if (!this.props.debug) {
+            //     let talk = await Talks.createShowInChatInterfaces()
+            //     talks.push(talk);
+            // }
 
             talks = Talks.filter(talks);
             if (talks.length > 0) this.setState({

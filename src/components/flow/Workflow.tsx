@@ -117,7 +117,7 @@ const workflow = {
         "label": "MarkDown格式",
         "value": "markdown",
         "display": ["chatbot", "editor", "debug"]
-    },{
+    }, {
         "label": "表格",
         "value": "table",
         "disabled": false,
@@ -283,14 +283,7 @@ const debugInfo = (prompt: any) => {
     if (prompt.type == 'role') {
         info = `${prompt.role.name ? `<p>${prompt.role.name}</p><br>` : ''}<p>${prompt.role.text}</p>`
     } else {
-        info = `<p>${JSON.stringify({
-            text: prompt.text,
-            input: prompt.input,
-            output: prompt.output,
-            type: prompt.type,
-            model: prompt.model,
-            temperature: prompt.temperature
-        }, null, 2)}</p>`;
+        info = `<p>${JSON.stringify(prompt, null, 2)}</p>`;
     }
     return info
 }
@@ -307,7 +300,7 @@ const parsePrompt2ControlEvent = (id: string, prompt: any) => {
         newTalk: true,
         autoRun: true,
         id: id,
-        createTime:(new Date()).getTime()
+        createTime: (new Date()).getTime()
     }
     return controlEvent
 }

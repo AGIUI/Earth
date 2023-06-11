@@ -301,6 +301,10 @@ function addCss() {
 
 }
 
+function getNowDate(){
+   let d= new Date();
+    return `${d.getFullYear}-${d.getMonth()+1}-${d.getDate()}`
+}
  
 
 export {
@@ -315,5 +319,6 @@ export {
     textSplitByLength,
     sendMessageCanRetry,
     checkImageUrl,
-    addCss
+    addCss,
+    getNowDate
 }

@@ -104,7 +104,7 @@ function promptParse(prompt: any) {
         task: "具体的任务",
         context: "上一次聊天信息",
         translate: "翻译",
-        output: "输出格式"
+        output: "输出要求"
     }
 
     const userKeys: any = {
@@ -120,14 +120,17 @@ function promptParse(prompt: any) {
 
     let system = {
         role: "system",
-        content: `
-        ####role:${(prompt['role'].name ? prompt['role'].name + ',' : '') + prompt['role'].text}
-        `
+        content: ""
     };
+
+    const roleText = (prompt['role'].name ? prompt['role'].name + ',' : '') + prompt['role'].text;
+    if (roleText.trim()) {
+        system.content += `\n####role:${roleText}`
+    }
 
     for (const key in prompt) {
         if (key != 'role' && Object.keys(systemKeys).includes(key)) {
-            if (prompt[key] && prompt[key].trim()) system.content += `\n####${key}:${prompt[key]}`
+            if (prompt[key] && prompt[key].trim()) system.content += `\n####${systemKeys[key]}:${prompt[key]}`
         }
     }
 
@@ -355,7 +358,7 @@ const promptBindOutput = (userInput: string, type: string) => {
         output: ''
     }
     if (type == 'text' || type == 'default') {
-        prompt.output = '不允许出现####{xxx}'
+        prompt.output = ''
     } else if (type == 'table') {
         prompt.output = '回答user的结果只允许是table结构'
     } else if (type == 'markdown') {

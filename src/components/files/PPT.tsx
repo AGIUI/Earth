@@ -3,38 +3,53 @@ import * as React from "react";
 import pptxgen from "pptxgenjs";
 
 
-class PPT{
-    constructor() {}
+class PPT {
+    constructor() { }
     _createTitle(slide: any, text: string) {
         let opts: any = {
-            x: 0,
-            y: 1,
-            w: "100%",
-            h: 2,
-            align: "center",
+            x: '10%',
+            y: '5%',
+            w: "80%",
+            h: "20%",
+            align: "left",
             color: "0088CC",
             fill: "F1F1F1",
             fontSize: 24,
+            autoFit: true,
+            fit: "resize",
+            valign: "top"
         }
         slide.addText(text, opts);
         return slide
     }
 
-    _createImage(slide: pptxgen.Slide, title: any, base64: any) {
-        slide.addText(title, {
-            x: 6.9,
-            y: 0.6,
-            w: 2.75,
-            h: 2.5,
-            margin: 4,
-            fill: { color: "F1F1F1" },
-            fontSize: 12,
-            fontFace: "Segoe UI",
+    _createText(slide: any, text: string) {
+        slide.addText(text, {
+            x: '10%',
+            y: '28%',
+            w: "80%",
+            h: "60%",
+            align: "left",
             color: "0088CC",
-            valign: "top",
-            align: "center",
+            fill: "F1F1F1",
+            fontSize: 14,
+            autoFit: true,
+            fit: "resize",
+            valign: "top"
         });
-        slide.addImage({ x: 7.53, y: 1.1, w: 1.5, h: 1.5, data: base64 });
+        return slide
+    }
+
+    _createImage(slide: pptxgen.Slide, pos: any, base64: any) {
+        slide.addImage({
+            x: pos.x,
+            y: pos.y,
+            w: pos.w,
+            h: pos.h,
+            data: base64,
+            sizing: { type: "contain", w: pos.w, h: pos.h }
+        });
+        return slide
     }
 
     create(fileName: string, items: any = [{
@@ -45,13 +60,47 @@ class PPT{
         }]
     }]) {
         let pptx = new pptxgen();
+        // pptx.layout = 'LAYOUT_16x9'; 
+        // 10 x 5.625 inches
+        let layoutW = 10, layoutH = 5.625;
 
         for (const item of items) {
             let slide = pptx.addSlide();
-            this._createTitle(slide, item.title)
-            if(item.images) for (const image of item.images) {
-                this._createImage(slide, image.title, image.base64)
+
+            if (item.title) {
+                slide = this._createTitle(slide, item.title)
             }
+
+            if (item.text) {
+                slide = this._createText(slide, item.text)
+            }
+
+            if (item.images) {
+
+                const getPos = (index: number) => {
+                    let count = item.images.length;
+                    let padding = 10;
+                    let w = layoutW *0.01* (100 - padding) / count,
+                        h = w,
+                        x = layoutW *0.01* (index + 1) * (padding * 0.5 / count) + index * w,
+                        y = (layoutH - w)/2;
+                  
+                    return {
+                        x: x,
+                        y: y,
+                        w: w,
+                        h: h
+                    }
+                }
+
+                for (let index = 0; index < item.images.length; index++) {
+                    let image = item.images[index];
+                    slide = this._createImage(slide, getPos(index), image.base64)
+                }
+            }
+
+
+
         }
 
 
