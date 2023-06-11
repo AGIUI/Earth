@@ -319,8 +319,9 @@ class NewBing {
         this.available = null;
     }
 
-
+    // 确保输入prompt是string
     async doSendMessageForBg(prompt, style, callback) {
+        if (typeof(prompt) == 'object') prompt = JSON.stringify(prompt);
         // 支持传style
         if (!style) style = this.conversationStyle;
         style = style.toLowerCase();

@@ -1,13 +1,14 @@
 import * as React from "react";
-import { Button, Card, message } from 'antd';
+import { Button, Card, message, Image, Dropdown } from 'antd';
 import {
-    CopyOutlined, FilePptOutlined
+    CopyOutlined, FilePptOutlined, DownSquareOutlined, SmileOutlined
 } from '@ant-design/icons';
 
 import styled from 'styled-components';
 import ChatBotConfig from "./ChatBotConfig";
 
 import PPT from "@components/files/PPT"
+import { hashJson, getNowDate } from "../Utils";
 
 
 /** < ChatBotTalks  callback={} items={}/>
@@ -123,6 +124,16 @@ const Content: any = styled(Flex)`
       -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
       background:rgba(0, 0,0, 0.2);
     }
+    &title{
+        display:block;
+    }
+    &url{
+        display:block;
+    }
+    &text{
+        display:block;
+    }
+ 
 `
 
 const createAvatar = (avatar: string, text = 'Data Not Found') => (
@@ -173,7 +184,10 @@ const suggestBtn = (i: string, name: string, callback: any) => <Button
 const copy = async (data: any) => {
     console.log('copy', data)
     const div = document.createElement('div');
-    div.innerHTML = data.html;
+    for (const d of data) {
+        div.innerHTML += d.html;
+    }
+
     const copyText = div.innerText;
 
     let type = "text/plain"
@@ -189,48 +203,99 @@ const copy = async (data: any) => {
 }
 
 const createPPT = (data: any) => {
-    console.log('createPPT', data)
-    const { type, html } = data;
-    let div = document.createElement('div');
-    div.innerHTML = html;
+    // console.log('createPPT', data)
 
     let items: any = [];
 
-    if (type === 'markdown') {
+    for (const d of data) {
+        let div = document.createElement('div');
+        const { type, html } = d;
+        div.innerHTML = html;
+        // div.querySelector('h1');
 
-        items.push(
-            {
-                title: div.innerText,
+        if (div.querySelectorAll('img').length > 0) {
+            items.push(
+                {
+                    title: '',
+                    images: Array.from(div.querySelectorAll('img'), im => {
+                        return {
+                            title: '',
+                            base64: im.src
+                        }
+                    })
+                }
+            );
+        } else {
+            if (div.innerText) items.push(
+                {
+                    text: div.innerText,
+                }
+            );
+        }
 
-            }
-        );
-
-    } else if (type == 'images') {
-        items.push(
-            {
-                title: type,
-                images: Array.from(div.querySelectorAll('img'), im => {
-                    return {
-                        title: type,
-                        base64: im.src
-                    }
-                })
-            }
-        );
     }
 
-
+    console.log('createPPT', items)
     const p = new PPT();
-    p.create('test-by-shadow', items)
+    p.create(getNowDate(), items)
+
+}
+
+const createImages = (html: string, selected: boolean) => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    const text = div.innerText;
+    const urls = Array.from(div.querySelectorAll('img'), img => img.src);
+    return <Image.PreviewGroup
+        preview={{
+            onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
+        }}
+    >
+        {
+            Array.from(urls, (u: string) => <Image width={180} src={u}
+                style={selected ? { outline: '1px dashed gray' } : {}}
+            />)
+        }
+        {
+            text && <p>{text}</p>
+        }
+    </Image.PreviewGroup>
 
 }
 
 const createListItem = (data: any, index: number, debug: boolean) => {
+    // console.log('createListItem', data.id)
+    let items: any = [
+        {
+            label: '拷贝纯文本',
+            key: 'copy-text',
+        },
+    ];
 
+    if (!debug) items.push({
+        label: '导出PPT',
+        key: 'ppt',
+    })
+
+    items = [...items, {
+        type: 'divider',
+    },
+    ];
+
+    items.push({
+        label: data.selected ? '已选' : "选择",
+        key: 'select',
+        icon: data.selected ? <SmileOutlined /> : '',
+    })
+
+
+
+
+    // console.log('createListItem',data)
     return <div style={{ margin: '5px 0' }} className={`chatbot-talk-card-${data.type}`}>{
         // 状态判断：思考、建议选项、对话
         data.type == 'thinking' ? thinkingBtn(data.hi) : (
-            data.type == 'suggest' ? <>
+            data.type == 'suggest' && !debug ? <>
                 {
                     data.hi ?
                         createAvatar(data.avatarUrl || chrome.runtime.getURL('public/icon-34.png'), data.hi) : ''
@@ -254,44 +319,91 @@ const createListItem = (data: any, index: number, debug: boolean) => {
             </> : (data.html ?
                 data.user ? <p
                     style={createTalkBubbleStyle(data.user)}
-                    className={`chatbot-text-bubble${data.user ? '-user' : ''}`}
+                    className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
                     key={index}
                     dangerouslySetInnerHTML={{ __html: data.html }}>
                 </p> : <Card title={""}
                     headStyle={{
-                        minHeight: '10px', backgroundColor: 'white', border: "none", marginBottom: -20
+                        minHeight: '10px',
+                        backgroundColor: 'white',
+                        border: "none",
+                        marginBottom: -20,
+                        width: "100%"
                     }}
                     bordered={false}
                     size={'small'}
+                    key={index}
                     extra={data.export ?
                         <>
-                            <Button type="text"
-                                style={{ margin: '5px 0' }}
-                                icon={<CopyOutlined />}
-                                size={'small'}
-                                onClick={() => copy(data)} />
-                            {!debug ? <Button type="text"
+                            <Dropdown menu={{
+                                items, onClick: (e) => {
+                                    let key = e.key;
+                                    let ds = [data];
+                                    if (data.getAll) {
+                                        ds = data.getAll(data.id);
+                                    }
+                                    if (key == "select") {
+                                        data.select && data.select(data.id)
+                                    } else if (key === "copy-text") {
+                                        copy(ds)
+                                    } else if (key == 'ppt') {
+                                        createPPT(ds)
+                                    }
+                                }
+                            }} trigger={['click']}
+
+                            >
+                                {/* <a onClick={(e) => e.preventDefault()}>
+                                    <DownOutlined />
+                                </a> */}
+                                <Button type="text"
+                                    style={{ margin: '5px 0' }}
+                                    icon={<DownSquareOutlined />}
+                                    size={'small'}
+                                    onClick={(e) => e.preventDefault()} />
+                            </Dropdown>
+
+                            {/* <Button type="text"
+                        style={{ margin: '5px 0' }}
+                        icon={<CopyOutlined />}
+                        size={'small'}
+                        onClick={() => console.log(1111)} /> */}
+                            {/* {!debug ? <Button type="text"
                                 style={{ margin: '5px 0' }}
                                 icon={<FilePptOutlined />}
                                 size={'small'}
-                                onClick={() => createPPT(data)} /> : ''}
+                                onClick={() => createPPT(data)} /> : ''} */}
                         </> : ''
                     }
 
                     style={{
-                        width: '100%', background: 'rgba(255, 255, 255, 0.00)', marginTop: '10px',
-                        marginBottom: '10px', padding: '0px', boxShadow: 'none',
+                        width: '100%',
+                        background: 'rgba(255, 255, 255, 0.00)',
+                        marginTop: '10px',
+                        marginBottom: '10px',
+                        padding: '0px',
+                        boxShadow: 'none',
+                        display: 'flex',
+                        flexWrap: 'wrap',
                     }}>
-                    <p
-                        style={createTalkBubbleStyle(data.user)}
-                        className={`chatbot-text-bubble${data.user ? '-user' : ''}`}
-                        key={index}
-                        dangerouslySetInnerHTML={{ __html: data.html }}>
-                    </p>
+                    {
+                        data.type == "images" ?
+                            createImages(data.html, data.selected)
+                            : <p
+                                style={data.selected ? {
+                                    ...createTalkBubbleStyle(data.user),
+                                    outline: '1px dashed gray'
+                                } : createTalkBubbleStyle(data.user)}
+                                className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
+                                key={index}
+                                dangerouslySetInnerHTML={{ __html: data.html }}>
+                            </p>
+                    }
+
                 </Card> : '')
         )
 
-    }</div>
+    }</div >
 }
 
 
@@ -319,7 +431,7 @@ class ChatBotTalks extends React.Component {
 
         this.state = {
             name: 'ChatBotTalks',
-            items: this._updateItems()
+            items: this._updateItems({})
         }
 
         this.contentDom = React.createRef();
@@ -333,11 +445,32 @@ class ChatBotTalks extends React.Component {
     }
 
     componentDidUpdate(prevProps: { items: any; }, prevState: any) {
+        const itemsId = hashJson(Array.from(this.props.items, (i: any) => {
+            return {
+                id: i.id,
+                html: i.html,
+                markdown: i.markdown
+            }
+        })),
+            prevItemsId = hashJson(Array.from(prevProps.items, (i: any) => {
+                return {
+                    id: i.id,
+                    html: i.html,
+                    markdown: i.markdown
+                }
+            }));
         if (
-            this.props.items !== prevProps.items
+            itemsId !== prevItemsId
         ) {
+            console.log('componentDidUpdate', this.props.items, prevProps.items)
+
+            let oldItemsMap: any = {}
+            Array.from(this.state.items, (item: any) => {
+                oldItemsMap[item.id] = item.selected
+            })
+
             this.setState({
-                items: this._updateItems()
+                items: this._updateItems(oldItemsMap)
             })
         }
         if (
@@ -351,9 +484,10 @@ class ChatBotTalks extends React.Component {
         // this.destroyConnection();
     }
 
-    _updateItems() {
+    _updateItems(oldItemsMap: any) {
         // 当this.props.items 为空
-        const defaultItems = [ChatBotConfig.createTalkData('help', {})];
+
+        const defaultItems = [!this.props.debug ? ChatBotConfig.createTalkData('help', {}) : null].filter(f => f);
 
         // 当this.props.items 为空
         let items: any = (!(this.props.items && this.props.items.length > 0) ? defaultItems : [...this.props.items]).filter(i => i);
@@ -377,8 +511,29 @@ class ChatBotTalks extends React.Component {
                 return
             }
 
+            if (item.export && item.id) {
+                console.log(item.id, item.type)
+                item.select = (id: string) => {
+                    const items = Array.from(this.state.items, (i: any) => {
+                        if (i.id == id) i.selected = !i.selected;
+                        return i
+                    })
+                    this.setState({
+                        items
+                    })
+                }
+                item.getAll = (id: string) => {
+                    return this.state.items.filter((i: any) => i.selected || i.id == id);
+                }
+            }
+
+            if (item.id && oldItemsMap && oldItemsMap[item.id]) item.selected = oldItemsMap[item.id]
+
             return {
-                ...item, user, html, buttons
+                ...item,
+                user,
+                html,
+                buttons,
             }
         }).filter(item => item);
 

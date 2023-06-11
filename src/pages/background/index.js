@@ -70,7 +70,7 @@ async function loadContextMenuData() {
     });
 
     chrome.contextMenus.create({
-        id: 'open-insight',
+        id: 'open-chatbot-panel',
         title: "打开面板",
         type: 'normal',
 
@@ -173,11 +173,11 @@ async function loadContextMenuData() {
     //     let isNew = true
     //     for (let command of commands) {
     //         // console.log('command', command)
-    //         if (command.name == 'open-insight') isNew = false
+    //         if (command.name == 'open-chatbot-panel') isNew = false
     //     }
     //     if (isNew) {
     //         chrome.contextMenus.create({
-    //             id: 'open-insight',
+    //             id: 'open-chatbot-panel',
     //             title: json.app,
     //             type: 'normal',
     //             contexts: ['page']
@@ -216,10 +216,10 @@ async function loadContextMenuData() {
         const id = item.menuItemId
         if (!tab.url.match('http')) return
 
-        if (id === 'open-insight') {
+        if (id === 'open-chatbot-panel') {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd: 'open-insight',
+                    cmd: 'open-chatbot-panel',
                     success: true,
                     data: true
                 },
@@ -230,7 +230,7 @@ async function loadContextMenuData() {
         } else {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd: 'open-insight',
+                    cmd: 'open-chatbot-panel',
                     success: true,
                     data: true
                 },

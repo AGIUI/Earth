@@ -14,7 +14,7 @@ import {
 } from '@ant-design/icons';
 
 import { chromeStorageGet, chromeStorageSet, md5, getConfig } from "@components/Utils"
-import { defaultCombo } from '@components/combo/ComboData'
+import { _DEFAULTCOMBO } from '@components/flow/Workflow'
 
 import DownloadButton from '@components/buttons/DownloadButton';
 import { FlexRow } from "@components/Style";
@@ -136,7 +136,7 @@ class ComboEditor extends React.Component {
         const isNew = !!prompt.isNew;
         const data = {
             prompt: {
-                ...defaultCombo,
+                ..._DEFAULTCOMBO,
                 ...prompt
             },
             from: 'combo-editor',

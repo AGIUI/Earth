@@ -1,9 +1,17 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { message } from 'antd';
-import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry } from "@components/Utils"
+import { message, FloatButton } from 'antd';
+import { RobotOutlined } from '@ant-design/icons';
+import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry,addCss } from "@components/Utils"
 import Flow from '@components/flow/index'
-import Main from "@pages/content/Main";
+import Chatbot from "@src/components/ChatbotMain";
+
+import { parseCombo2ControlEvent } from '@components/flow/Workflow'
+
+const menuNames = {
+  devTooltip: '调试窗口'
+}
+
 
 declare const window: Window &
   typeof globalThis & {
@@ -20,6 +28,7 @@ const config = getConfig();
 
 // 保存combo
 function saveCombos(combos: any = []) {
+  console.log('saveCombos', combos)
   chromeStorageGet(['user']).then((items: any) => {
     let newUser: any = []
     if (items && items.user) {
@@ -51,13 +60,14 @@ function saveCombos(combos: any = []) {
 
 
 function options() {
-
-  const [debugData, setDebugData] = React.useState({});
-  const [flowWidth, setFlowWidth] = React.useState('calc(100% - 500px)');
+  // 用来收集节点的debug输入输出 
+  const [debugData, setDebugData]: any = React.useState({});
+  const [flowWidth, setFlowWidth] = React.useState('100%');
 
   const [loadData, setLoadData] = React.useState({});
   const [isNew, setIsNew] = React.useState(true);
 
+  let exportDataToEarth: any;
 
   chrome.storage.local.onChanged.addListener((changes) => {
     // console.log('changes')
@@ -108,26 +118,65 @@ function options() {
     });
   }
 
-
-
-
   const chatbotCallbacks = (event: any) => {
     const { cmd, data } = event;
-    if (cmd == 'open-insight') {
-      setFlowWidth('calc(100% - 500px)')
-    } else if (cmd == "close-insight") {
-      setFlowWidth('100%')
+    console.log('chatbotCallbacks:', event)
+    if (cmd == "debug-combo") {
+
+      sendMessageCanRetry('open-chatbot-panel', {}, console.log)
+
+      if (exportDataToEarth) exportDataToEarth().then((combo: any) => {
+        console.log('exportDataToEarth', combo)
+        const event = parseCombo2ControlEvent(combo);
+        setIsNew(false);
+        setDebugData(event);
+      });
+
     }
+
+    if (cmd === 'send-talk') {
+      // console.log('send-talk debugResult', data, debugData);
+      if (debugData && debugData.onChange) {
+        debugData.onChange({
+          id: debugData.id,
+          data: {
+            debugInput: JSON.stringify(data, null, 2)
+          }
+        })
+      }
+    }
+
+    if (cmd === "stop-talk") {
+      if (debugData && debugData.onChange) {
+        debugData.onChange({
+          id: debugData.id,
+          data: {
+            debugOutput: data
+          }
+        })
+      }
+
+    }
+
+    // if (cmd == 'open-chatbot-panel') {
+    //   setFlowWidth('calc(100% - 500px)')
+    // } else if (cmd == "close-insight") {
+    //   setFlowWidth('100%')
+    // }
   }
 
-  return (<div style={{
-    width: flowWidth, height: '100%'
-  }}>
+  return (<div
+    style={{
+      width: flowWidth, height: '100%'
+    }}>
     <Flow
       loadData={loadData}
       debug={{
         callback: (event: any) => {
-          // console.log('debug-callback-from-parent', event)
+          sendMessageCanRetry('open-chatbot-panel', {}, console.log)
+          console.log('debug-callback-for-parent', event)
+          // 修复flow重新新建的bug
+          setIsNew(false)
           if (event) setTimeout(() => {
             setDebugData(event)
           }, 100)
@@ -135,6 +184,7 @@ function options() {
         open: true
       }}
       isNew={isNew}
+      exportData={(e: any) => (exportDataToEarth = e)}
       saveCallback={
         (combo: any) => saveCombos([combo])
       }
@@ -142,7 +192,15 @@ function options() {
         (comboId: any) => deleteCombos(comboId)
       }
     />
-    <Main
+    <FloatButton
+      type="primary"
+      icon={<RobotOutlined />}
+      tooltip={<div>{menuNames.devTooltip}</div>}
+      onClick={() => {
+        sendMessageCanRetry('open-chatbot-panel', {}, console.log)
+      }}
+    />
+    <Chatbot
       className="_agi_ui"
       appName={config.app}
       // 代理器
@@ -157,7 +215,7 @@ function options() {
         tag: ''
       }}
       // 默认是否开启
-      initIsOpen={true}
+      initIsOpen={false}
       // 初始引擎
       initChatBotType={
         'ChatGPT'
@@ -177,7 +235,8 @@ async function init() {
     const page = React.createElement(options, {});
     root.render(page);
   };
-  renderRoot()
+  renderRoot();
+  addCss()
 }
 
 init();

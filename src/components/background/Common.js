@@ -15,6 +15,8 @@
 
  */
 
+import { fetchImage } from '../Utils'
+
 
 class Common {
     constructor(json, chatBot, Agent, Credit) {
@@ -32,8 +34,8 @@ class Common {
          *
          */
         chrome.commands.onCommand.addListener(async command => {
-            if (command == 'open-insight') {
-                sendMessage('open-insight', true, true, null)
+            if (command == 'open-chatbot-panel') {
+                sendMessage('open-chatbot-panel', true, true, null)
             }
             // chrome.tabs.create({ url: "https://developer.mozilla.org" });
         })
@@ -50,7 +52,7 @@ class Common {
             // 当点击扩展图标时，执行...
             console.log('当点击扩展图标时，执行...')
                 // let available = await chatBot.getAvailable(chatBot.currentName)
-            this.sendMessage('open-insight', true, true, tab.id)
+            this.sendMessage('open-chatbot-panel', true, true, tab.id)
                 // if (!available) chatBot.init(chatBot.currentName)
                 // 检查newtab有没有打开，没有的话打开
                 // const newTabUrl = `${chrome.runtime.getURL('')}/${chrome.runtime.getManifest().chrome_url_overrides.newtab}`
@@ -132,6 +134,8 @@ class Common {
                 } else if (cmd == 'chat-bot-talk') {
                     // console.log(cmd, data)
                     // prompt, style, type, callback
+                    // prompt:{system,user}
+                    // data.newTalk=true ,强制刷新
                     try {
                         chatBot.doSendMessage(
                             data.prompt,
@@ -174,9 +178,9 @@ class Common {
                         },
                         tabId
                     )
-                } else if (cmd == 'open-insight') {
+                } else if (cmd == 'open-chatbot-panel') {
                     this.sendMessage(
-                        'open-insight',
+                        'open-chatbot-panel',
                         true, {
                             tabId: data.tabId
                         },
@@ -273,7 +277,7 @@ class Common {
                     Credit.getPoints(token, apiName).then(res => {
                         chrome.storage.sync.set({ myPoints: res })
                     })
-                }
+                };
                 sendResponse('我是后台，已收到消息：' + JSON.stringify(request))
                 return true
             }
