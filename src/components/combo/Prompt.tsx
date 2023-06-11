@@ -102,7 +102,6 @@ function promptParse(prompt: any) {
     const systemKeys: any = {
         role: "角色模拟",
         task: "具体的任务",
-        context: "上一次聊天信息",
         output: "输出要求"
     }
 
@@ -112,6 +111,7 @@ function promptParse(prompt: any) {
         text: "当前网页正文",
         html: "当前网页",
         images: "当前网页图片",
+        context: "上一次聊天信息",
         userInput: "用户输入",
         translate: "翻译",
     }
@@ -149,8 +149,12 @@ function promptParse(prompt: any) {
         }
     }
 
+    if (!user.content) {
+        user.content += prompt['userInput'];
+    } else {
+        user.content += prompt['userInput'] ? `\n####${userKeys['userInput']}:` + prompt['userInput'] : "";
+    }
 
-    user.content += prompt['userInput'] ? `\n####${userKeys['userInput']}:` + prompt['userInput'] : "";
     user.content = user.content.trim();
 
     const id = hashJson([system, user, new Date()])
@@ -415,7 +419,8 @@ const promptUseLastTalk = (userInput: string, context: string) => {
     userInput = userInput.trim()
     context = cropText(context.trim())
     let prompt = {
-        userInput, context
+        userInput,
+        context
     }
 
     return prompt

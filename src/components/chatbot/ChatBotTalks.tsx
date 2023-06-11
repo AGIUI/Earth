@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import ChatBotConfig from "./ChatBotConfig";
 
 import PPT from "@components/files/PPT"
-import { hashJson,getNowDate } from "../Utils";
+import { hashJson, getNowDate } from "../Utils";
 
 
 /** < ChatBotTalks  callback={} items={}/>
@@ -212,24 +212,26 @@ const createPPT = (data: any) => {
         const { type, html } = d;
         div.innerHTML = html;
         // div.querySelector('h1');
-        if (div.innerText) items.push(
-            {
-                text: div.innerText,
-            }
-        );
 
-
-        if (div.querySelectorAll('img').length > 0) items.push(
-            {
-                title: '',
-                images: Array.from(div.querySelectorAll('img'), im => {
-                    return {
-                        title: '',
-                        base64: im.src
-                    }
-                })
-            }
-        );
+        if (div.querySelectorAll('img').length > 0) {
+            items.push(
+                {
+                    title: '',
+                    images: Array.from(div.querySelectorAll('img'), im => {
+                        return {
+                            title: '',
+                            base64: im.src
+                        }
+                    })
+                }
+            );
+        } else {
+            if (div.innerText) items.push(
+                {
+                    text: div.innerText,
+                }
+            );
+        }
 
     }
 

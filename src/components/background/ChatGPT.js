@@ -112,7 +112,7 @@ export default class ChatGPT {
     constructor() {
         this.type = 'ChatGPT'
         this.conversationContext = { messages: [] }
-        this.contextSize = 11
+        this.contextSize = 3
         this.baseUrl = createAPIUrl('https://api.openai.com')
         this.models = ['gpt-3.5-turbo']
 
@@ -278,7 +278,8 @@ export default class ChatGPT {
         if (!this.conversationContext) {
             this.conversationContext = { messages: [] };
         }
-        this.conversationContext.messages = params.prompt;
+        this.conversationContext.messages = [...this.conversationContext.messages, ...params.prompt];
+
 
         const controller = new AbortController()
         const signal = controller.signal
@@ -289,7 +290,7 @@ export default class ChatGPT {
             params.url || this.baseUrl,
             token, {
                 model: params.model || this.model,
-                messages: params.prompt,
+                messages: [...this.conversationContext.messages.slice(-this.contextSize)],
                 temperature: temperature,
                 stream: true
             },
