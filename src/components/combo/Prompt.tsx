@@ -112,6 +112,7 @@ function promptParse(prompt: any) {
         url: "当前网页链接",
         text: "当前网页正文",
         html: "当前网页",
+        images:"当前网页图片",
         userInput: "用户输入的信息",
     }
 

@@ -96,8 +96,9 @@ class ChatBotInput extends React.Component {
             agent: any = ChatBotConfig.getAgentOpts();
 
 
-        const config = this.props.config.filter((c: any) => c.checked)[0]
-
+        let config = this.props.config.filter((c: any) => c.checked)[0];
+        if (!config) config = this.props.config[0]
+        // console.log('ChatBotInput',this.props.config,config)
         this.state = {
             name: 'ChatBotInput',
             isLoading: this.props.isLoading,

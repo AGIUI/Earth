@@ -283,7 +283,11 @@ const debugInfo = (prompt: any) => {
     if (prompt.type == 'role') {
         info = `${prompt.role.name ? `<p>${prompt.role.name}</p><br>` : ''}<p>${prompt.role.text}</p>`
     } else {
-        info = `<p>${JSON.stringify(prompt, null, 2)}</p>`;
+        // prompt
+        info = `<p>${JSON.stringify({
+            id: prompt.id,
+            type: prompt.type
+        }, null, 2)}</p>`;
     }
     return info
 }

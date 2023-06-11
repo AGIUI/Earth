@@ -334,6 +334,9 @@ class Main extends React.Component<{
     constructor(props: any) {
         super(props)
 
+        // 聊天机器人类型
+        const chatBotTypes = Array.from(defaultChatbots, (d: any) => d.type)
+
         const defaultChatbot = {
             chatBotType: defaultChatbots[0].type,
             chatBotStyle: {
@@ -362,7 +365,7 @@ class Main extends React.Component<{
             disabledAll: true,
 
             loadingChatBot: true,
-            chatBotType: this.props.initChatBotType || chatBotType,
+            chatBotType: chatBotTypes.includes(this.props.initChatBotType || chatBotType) ? (this.props.initChatBotType || chatBotType) : chatBotType,
             chatBotIsAvailable: undefined,
             chatBotStyle: chatBotStyle,
             chatbotInitPrompt: '',
@@ -415,8 +418,8 @@ class Main extends React.Component<{
                     items.push({
                         type: 'images',
                         images: result,
-                        tId: (new Date()).getTime()+'2',
-                        id: (new Date()).getTime()+'1',
+                        tId: (new Date()).getTime() + '2',
+                        id: (new Date()).getTime() + '1',
                     })
                 }
 
@@ -608,7 +611,7 @@ class Main extends React.Component<{
     _updateCurrentTalks() {
         if (this.state.disabledAll) return
         Talks.get().then(async talks => {
-            
+
             // 当激活窗口的时候，弹出提示
             // if (!this.props.debug) {
             //     let talk = await Talks.createShowInChatInterfaces()
@@ -626,10 +629,10 @@ class Main extends React.Component<{
         return new Promise((res: any, rej) => {
             chrome.storage.sync.get('chatBotAvailables').then((data) => {
                 if (data.chatBotAvailables && data.chatBotAvailables.length > 0) {
+                    // console.log('this.state.chatBotType', this.state.chatBotType)
                     let chatBotAvailables = data.chatBotAvailables.filter((n: any) => n && n.type == this.state.chatBotType && n.available);
                     let isHas = chatBotAvailables.length > 0;
-
-                    // const availables = data.chatBotAvailables.filter((c: any) => c.available && c.available.success)
+                    if (!isHas) chatBotAvailables = data.chatBotAvailables.filter((c: any) => c.available)
 
                     console.log('##聊天服务状态', Array.from(chatBotAvailables, (a: any) => {
                         if (a && a.available) {
@@ -748,20 +751,22 @@ class Main extends React.Component<{
         }), 500)
     }
 
-    _queryClickRun(prompt: any) {
+    _queryClickRun(prompt: any, delay = 1000) {
         let query = prompt.queryObj.query;
         // 当前页面
-        clickByQueryBase(query)
-        const id = md5(query + (new Date()))
-        const data = Talks.createTaskStatus(
-            '_queryClickRun',
-            id,
-            '模拟点击'
-        )
-        this._updateChatBotTalksResult([data]);
+        setTimeout(() => {
+            clickByQueryBase(query)
+            const id = md5(query + (new Date()))
+            const data = Talks.createTaskStatus(
+                '_queryClickRun',
+                id,
+                '模拟点击'
+            )
+            this._updateChatBotTalksResult([data]);
+        }, delay)
     }
 
-    _queryInputRun(prompt: any, nTalks: any) {
+    _queryInputRun(prompt: any, nTalks: any, delay = 1000) {
 
         let text: any = '',
             query = prompt.queryObj.query;
@@ -777,15 +782,19 @@ class Main extends React.Component<{
         } else if (prompt.input == "userInput") {
             text = prompt.userInput;
         }
-        // 当前页面
-        inputByQueryBase(query, text)
-        const id = md5(query + text + (new Date()))
-        const data = Talks.createTaskStatus(
-            '_queryInputRun',
-            id,
-            '文本输入'
-        )
-        this._updateChatBotTalksResult([data]);
+
+        setTimeout(() => {
+            // 当前页面
+            inputByQueryBase(query, text)
+            const id = md5(query + text + (new Date()))
+            const data = Talks.createTaskStatus(
+                '_queryInputRun',
+                id,
+                '文本输入'
+            )
+            this._updateChatBotTalksResult([data]);
+        }, delay)
+
     }
 
     _queryDefaultRun(queryObj: any, combo: any) {
@@ -1729,11 +1738,20 @@ class Main extends React.Component<{
         let talks: any = [...this.state.talks];
 
         // 聊天服务无效,补充提示
+        console.log('_doChatBotData', this.state.chatBotIsAvailable)
         if (!this.state.chatBotIsAvailable && activeIndex == -1) {
-            talks = Talks.filter(talks)
+            talks = Talks.filter(talks);
+
             talks.push(ChatBotConfig.createTalkData('chatbot-is-available-false', {
                 hi: this.state.chatBotType
             }))
+
+            this._getChatBotFromLocal().then((data: any) => {
+                console.log('_getChatBotFromLocal', data)
+                console.log(chrome.storage.sync.get('chatBotAvailables'))
+            })
+
+            // this.initChatBot(true)
         }
 
         const datas = [talks]

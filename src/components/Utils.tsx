@@ -1,5 +1,5 @@
 import { Md5 } from 'ts-md5'
-const hash=require('object-hash');
+const hash = require('object-hash');
 import app from '@src/config/app.json'
 
 function chromeStorageGet(k: any) {
@@ -93,7 +93,7 @@ function md5(text: string) {
     return Md5.hashStr(text)
 }
 
-function hashJson(json:any){
+function hashJson(json: any) {
     return hash(json)
 }
 
@@ -301,18 +301,18 @@ function addCss() {
 
 }
 
-function getNowDate(){
-   let d= new Date();
-    return `${d.getFullYear}-${d.getMonth()+1}-${d.getDate()}`
+function getNowDate() {
+    let d = new Date();
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
 }
- 
+
 
 export {
     chromeStorageGet,
     chromeStorageSet,
     chromeStorageSyncGet,
     chromeStorageSyncSet,
-    md5,hashJson,
+    md5, hashJson,
     parseUrl,
     getConfig,
     getConfigFromUrl,
