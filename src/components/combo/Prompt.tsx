@@ -100,10 +100,9 @@ function promptParse(prompt: any) {
     };
 
     const systemKeys: any = {
-        role: "扮演的角色信息",
+        role: "角色模拟",
         task: "具体的任务",
         context: "上一次聊天信息",
-        translate: "翻译",
         output: "输出要求"
     }
 
@@ -112,8 +111,9 @@ function promptParse(prompt: any) {
         url: "当前网页链接",
         text: "当前网页正文",
         html: "当前网页",
-        images:"当前网页图片",
-        userInput: "用户输入的信息",
+        images: "当前网页图片",
+        userInput: "用户输入",
+        translate: "翻译",
     }
 
     console.log('promptParse:::::', JSON.stringify(prompt, null, 2))
@@ -126,11 +126,11 @@ function promptParse(prompt: any) {
 
     const roleText = (prompt['role'].name ? prompt['role'].name + ',' : '') + prompt['role'].text;
     if (roleText.trim()) {
-        system.content += `\n####role:${roleText}`
+        system.content += `\n####${systemKeys['role']}:${roleText}`
     }
 
-    for (const key in prompt) {
-        if (key != 'role' && Object.keys(systemKeys).includes(key)) {
+    for (const key in systemKeys) {
+        if (key != 'role') {
             if (prompt[key] && prompt[key].trim()) system.content += `\n####${systemKeys[key]}:${prompt[key]}`
         }
     }
@@ -143,13 +143,14 @@ function promptParse(prompt: any) {
         content: ''
     };
 
-    for (const key in prompt) {
-        if (key != "userInput" && Object.keys(userKeys).includes(key)) {
-            if (prompt[key] && prompt[key].trim()) user.content += `\n####${key}:${prompt[key]}`
+    for (const key in userKeys) {
+        if (key != "userInput") {
+            if (prompt[key] && prompt[key].trim()) user.content += `\n####${userKeys[key]}:${prompt[key]}`
         }
     }
 
-    user.content += prompt['userInput'] ? '\n####userInput:' + prompt['userInput'] : "";
+
+    user.content += prompt['userInput'] ? `\n####${userKeys['userInput']}:` + prompt['userInput'] : "";
     user.content = user.content.trim();
 
     const id = hashJson([system, user, new Date()])
