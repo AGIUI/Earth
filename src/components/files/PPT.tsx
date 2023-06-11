@@ -41,14 +41,20 @@ class PPT {
     }
 
     _createImage(slide: pptxgen.Slide, pos: any, base64: any) {
-        slide.addImage({
+        const data: any = {
             x: pos.x,
             y: pos.y,
             w: pos.w,
             h: pos.h,
-            data: base64,
+
             sizing: { type: "contain", w: pos.w, h: pos.h }
-        });
+        }
+        if (!base64.match('base64,')) {
+            data.path = base64;
+        } else {
+            data.data = base64;
+        }
+        slide.addImage(data);
         return slide
     }
 
@@ -80,11 +86,11 @@ class PPT {
                 const getPos = (index: number) => {
                     let count = item.images.length;
                     let padding = 10;
-                    let w = layoutW *0.01* (100 - padding) / count,
+                    let w = layoutW * 0.01 * (100 - padding) / count,
                         h = w,
-                        x = layoutW *0.01* (index + 1) * (padding * 0.5 / count) + index * w,
-                        y = (layoutH - w)/2;
-                  
+                        x = layoutW * 0.01 * (index + 1) * (padding * 0.5 / count) + index * w,
+                        y = (layoutH - w) / 2;
+
                     return {
                         x: x,
                         y: y,
