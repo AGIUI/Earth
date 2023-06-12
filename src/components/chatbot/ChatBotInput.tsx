@@ -3,7 +3,9 @@ import { Card, Button, Input, Collapse, Radio, message } from 'antd';
 import { PlusOutlined, SendOutlined, BranchesOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Panel } = Collapse;
+
 import i18n from 'i18next';
+
 import { _DEFAULTCOMBO, defaultNode } from "@components/flow/Workflow";
 
 import ChatBotConfig from "@components/chatbot/ChatBotConfig";
@@ -17,7 +19,6 @@ import ChatBotSelect from "@components/chatbot/ChatBotSelect"
 const defaultPrompt: any = { ...defaultNode }
 delete defaultPrompt.opts;
 
- 
 
 type PropType = {
     /** 回调

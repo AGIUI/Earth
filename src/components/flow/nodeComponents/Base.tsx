@@ -1,9 +1,12 @@
 import React from 'react'
+
 import { Input, Collapse, Divider, Button, Checkbox, Select, Radio, Slider } from 'antd';
+
 const { Panel } = Collapse;
 import { CaretRightOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
+
 const { Option } = Select;
 
 export const createName = (title: string, name: string, onChange: any) =>
@@ -96,6 +99,7 @@ export const createOutput = (title: string, key: string, value: string, opts: an
 export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: any, onChange: any) => {
 
     const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0)
+
     // console.log(nodeOpts.filter((n: any) => n.value === nodeInputId))
     return <>
         <Checkbox
@@ -110,6 +114,7 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
                 })
 
             }}>{title}</Checkbox>
+
         {
             checked ? <Select
                 value={nodeInputId}
@@ -127,7 +132,9 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
 }
 
 // 选择输入，从用户输入 or 从节点
+
 export const selectInput = (nodeInputLabel: string, userInputLabel: string, nodeInputId: string, userInput: string, nodeOpts: any, onChange: any) => {
+
     // const [inp, setInp] = React.useState(nodeInputId ? 'nodeInput' : "userInput");
     // console.log(inp)
     const [uinp, setUserInput] = React.useState(userInput);
@@ -258,7 +265,6 @@ export const createDebug = (
         </Panel>
     </Collapse>
 }
-
 
 export const createModel = (model: string, temperature: number, opts: any, onChange: any) => <>
     <p>{opts.filter((m: any) => m.value == 'model')[0].label}</p>

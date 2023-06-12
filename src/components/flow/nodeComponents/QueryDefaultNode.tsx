@@ -2,6 +2,7 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
+
 import type { MenuProps } from 'antd';
 const { Option } = Select;
 
@@ -15,13 +16,12 @@ import { createDebug, createURL, createDelay } from './Base'
 export type NodeData = {
   debugInput: any;
   debugOutput: any;
+
   debug: any;
   queryObj: any,
   type: string,
   onChange: any
 };
-
-
 
 const resources = {
   zh: {
@@ -131,11 +131,13 @@ const createUI = (json: any, delay: number, delayFormat: string, onChange: any) 
         })
     }
 
+
   </div>
 }
 
 
 function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
+
   i18n
     .use(LanguageDetector)
     .use(initReactI18next)
@@ -155,6 +157,7 @@ function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
       key: 'debug',
     }
   ];
+
 
   const [type, setType] = React.useState(data.type)
   // console.log('QueryDefaultNode', data)
@@ -198,6 +201,7 @@ function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
       outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
       debugRun: i18n.t('debugRun'),
     }, id, data.debugInput, data.debugOutput, (event: any) => {
+
       if (event.key == 'input') { }
     }, () => data.debug ? data.debug(data) : '', {}))
 
@@ -209,6 +213,7 @@ function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
       {...node}
     </Card>
   }
+
 
   return (
     <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>

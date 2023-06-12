@@ -82,6 +82,7 @@ const createTextAndInput = (
   title: string,
   text: string,
   input: string,
+
   nodeOpts: any,
   selectNodeValue: string,
   onChange: any) => < div
@@ -108,8 +109,6 @@ const createTextAndInput = (
   </div>;
 
 
-
-
 const createTranslate = (title: string, key: string, value: string, opts: any, onChange: any) => {
   return <div
     onMouseOver={() => {
@@ -125,6 +124,7 @@ const createTranslate = (title: string, key: string, value: string, opts: any, o
       })
     }}
   >
+
     {
       createSelect(title, value, opts, (e: any) => {
         onChange({
@@ -139,7 +139,6 @@ const createTranslate = (title: string, key: string, value: string, opts: any, o
 
 
 function Main({ id, data, selected }: NodeProps<NodeData>) {
-
   // console.log('RoleNode', JSON.stringify(data, null, 2))
   i18n
     .use(LanguageDetector)
@@ -160,6 +159,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
       key: 'debug',
     }
   ];
+
 
   // 模型
   const models = data.opts.models;
@@ -264,6 +264,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
       outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
       debugRun: i18n.t('debugRun'),
     }, id, data.debugInput, data.debugOutput, (event: any) => {
+
       if (event.key == 'input') { }
     }, () => data.debug ? data.debug(data) : '', {}))
 
@@ -277,10 +278,6 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     </Card>
   }
 
-
-
-
-
   return (
     <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
       <div style={selected ? {
@@ -288,6 +285,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
         backgroundColor: 'cornflowerblue'
       } : nodeStyle} 
       key={id}>
+
         {createNode()}
         <Handle type="target" position={Position.Left} />
         <Handle type="source" position={Position.Right} />

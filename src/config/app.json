@@ -1,1 +1,3 @@
+
 {"app":"Earth","version":"0.3.5","browsers":["chrome"],"discord":"https://discord.gg/SGwA9anUrr","issues":"https://discord.gg/VtRmJCb8wh","chatGPT":{"token":"","apis":[{"value":"https://api.openai.com","label":"openai"}],"api":"https://api.openai.com","displayApiName":"openai","models":["gpt-3.5-turbo"],"model":"gpt-3.5-turbo","canImport":true},"dev":true}
+

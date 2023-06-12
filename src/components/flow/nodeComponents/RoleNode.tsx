@@ -2,9 +2,11 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Avatar, Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider } from 'antd';
 import { DownOutlined, UserOutlined } from '@ant-design/icons';
+
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
+
 import { roleAvatars } from '../Workflow'
 import { createDebug, createText } from './Base'
 
@@ -64,8 +66,10 @@ const nodeStyle = {
 };
 
 
+
 function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
     // console.log('RoleNode', JSON.stringify(data, null, 2))
+
     i18n
         .use(LanguageDetector)
         .use(initReactI18next)
@@ -78,6 +82,7 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
                 escapeValue: false, // 不需要对翻译文本进行转义
             },
         });
+
 
     // text
     const [role, setRole] = React.useState(data.role)
@@ -150,6 +155,7 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
                     outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
                     debugRun: i18n.t('debugRun'),
                 }, id, data.debugInput, data.debugOutput, (event: any) => {
+
                     if (event.key == 'input') { }
                 }, () => data.debug ? data.debug(data) : '', {})
             }
@@ -157,14 +163,13 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
         </Card>
     }
 
-    
-
 
     return (
         <div style={selected ? {
             ...nodeStyle,
             backgroundColor: 'cornflowerblue'
         } : nodeStyle}>
+
 
             {createNode(role, updateRole)}
             {/* <Handle type="target" position={Position.Left} /> */}
