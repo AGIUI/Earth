@@ -4,7 +4,7 @@
  */
 
 import i18n from "i18next";
-
+import "@src/locales/i18nConfig";
 
 /**
  * workflow的开关
