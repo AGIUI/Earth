@@ -197,5 +197,11 @@ npm run build [browser]
 
 [mix-copilot](http://www.mix-copilot.com)
 
+## 隐私权政策
+Earth不会收集任何用户隐私数据，并保证：
+- 不会出于已获批准的用途之外的用途向第三方出售或传输用户数据
+- 不会为实现与我的产品的单一用途无关的目的而使用或转移用户数据
+- 不会为确定信用度或实现贷款而使用或转移用户数据
+
 ## Licence
 此代码在 MIT 许可证下分发。 请参阅此目录中的[许可证](https://github.com/AGIUI/Earth/blob/main/LICENSE)。
