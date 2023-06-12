@@ -4,7 +4,7 @@
  */
 
 import i18n from "i18next";
-import "@src/locales/i18nConfig";
+
 
 /**
  * workflow的开关
@@ -43,13 +43,13 @@ const roleAvatars = [
 const workflow = {
     "models": [
         {
-            "label": "发散程度",
+            "label": i18n.t("divergenceDegree"),
             "value": "temperature",
             "defaultValue": 0.7,
             "display": ["chatbot", "editor", "debug"]
         },
         {
-            "label": "模型",
+            "label": i18n.t("model"),
             "value": "model",
             "options": [
                 { "value": "ChatGPT", "label": "ChatGPT" },
@@ -59,74 +59,74 @@ const workflow = {
         }
     ],
     "inputs": [{
-        "label": "默认",
+        "label": i18n.t("default"),
         "value": "default",
         "checked": true,
         "display": ["chatbot", "editor", "debug"]
     }, {
-        "label": "绑定网页正文",
+        "label": i18n.t("bindWebContent"),
         "value": "bindCurrentPage",
         "display": ["chatbot", "editor"]
     },
     {
-        "label": "绑定网页HTML",
+        "label": i18n.t("bindWebHTML"),
         "value": "bindCurrentPageHTML",
         "display": ["chatbot", "editor"]
 
     },
     {
-        "label": "绑定网页URL",
+        "label": i18n.t("bindWebURL"),
         "value": "bindCurrentPageURL",
         "display": ["chatbot", "editor"]
 
     },
     {
         "ask": true,
-        "label": "用户划选",
+        "label": i18n.t("userSelection"),
         "value": "userSelection",
         "display": ["chatbot", "editor"]
     },
     {
-        "label": "剪切板",
+        "label": i18n.t("clipboard"),
         "value": "clipboard",
         "display": ["chatbot", "editor"]
     }
     ],
     "translates": [
         {
-            "label": "中文",
+            "label": i18n.t("chinese"),
             "value": "translate-zh",
             "display": ["chatbot", "editor", "debug"]
         },
         {
-            "label": "英文",
+            "label": i18n.t("english"),
             "value": "translate-en",
             "display": ["chatbot", "editor", "debug"]
         },
     ],
     "outputs": [{
-        "label": "纯文本",
+        "label": i18n.t('text'),
         "value": "default",
         "checked": true,
         "display": ["chatbot", "editor", "debug"]
     },
     {
-        "label": "JSON格式",
+        "label": i18n.t("jsonFormat"),
         "value": "json",
         "display": ["chatbot", "editor", "debug"]
     },
     {
-        "label": "MarkDown格式",
+        "label": i18n.t("markdownFormat"),
         "value": "markdown",
         "display": ["chatbot", "editor", "debug"]
     }, {
-        "label": "表格",
+        "label": i18n.t("table"),
         "value": "table",
         "disabled": false,
         "display": ["chatbot", "editor", "debug"]
     },
     {
-        "label": "列表",
+        "label": i18n.t("list"),
         "value": "list",
         "disabled": false,
         "display": ["chatbot", "editor", "debug"]
@@ -142,33 +142,27 @@ const workflow = {
         },
         {
             "key": "tasks",
-            "label": "目标拆解",
+            "label": i18n.t("taskDecomposition"),
             "parent": "prompt",
             "disabled": true,
             "display": ["chatbot", "editor", "debug"]
         },
         {
             "key": "query",
-            "label": "根据选择器获取网页信息",
+            "label": i18n.t("getWebInfoBySelector"),
             "parent": "query",
             "display": ["editor"]
         },
         {
             "key": "query-click",
-            "label": "模拟点击",
+            "label": i18n.t("autoClick"),
             "disabled": true,
             "parent": "query",
             "display": ["chatbot", "editor", "debug"]
         },
         {
-            "key": "send-to-zsxq",
-            "label": "发布内容至知识星球",
-            "parent": "query",
-            "display": ["editor"]
-        },
-        {
             "key": "highlight",
-            "label": "高亮网页内容",
+            "label": i18n.t("highlightWebContent"),
             "disabled": true,
             "parent": "query",
             "display": ["chatbot", "editor", "debug"]
@@ -180,14 +174,14 @@ const workflow = {
             "display": ["editor"]
         },
         {
-            "label": "条件判断",
+            "label": i18n.t('ifelse'),
             "key": "if-else",
             "parent": "logic",
             "disabled": true,
             "display": ["chatbot", "editor", "debug"]
         },
         {
-            "label": "循环",
+            "label": i18n.t('for'),
             "key": "for-of",
             "parent": "logic",
             "disabled": true,
@@ -199,20 +193,20 @@ const workflow = {
 
 const comboOptions = [
     {
-        label: '作为对话流选项',
+        label: i18n.t('showInChatOption'),
         value: 'showInChat',
     },
     {
-        label: '作为右键菜单选项',
+        label: i18n.t('contextMenusOption'),
         value: 'contextMenus',
     },
     {
-        label: '首页',
+        label: i18n.t('homeOption'),
         value: 'home',
         disabled: true
     },
     {
-        label: '无限循环',
+        label: i18n.t('infiniteLoopOption'),
         value: 'infinite',
         disabled: true
     }

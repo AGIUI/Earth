@@ -95,7 +95,7 @@ class Setup extends React.Component<{
             loading: false,
             checked: false,
             credit: '',
-            name:`${json.app} _${i18n.t('versionNow')}: ${json.version}`,
+            name: `${json.app} _${i18n.t('versionNow')}: ${json.version}`,
             isChange: false
         }
 
@@ -177,16 +177,16 @@ class Setup extends React.Component<{
         let { team, api, apis, model, models, token, helpUrl, modelsFreezed, apisFreezed, creditUrl, creditHelpUrl, canImport } = config || this.state.chatGPTConfig;
 
         let myConfig: any = { api, model, token }
-
-        if (team) myConfig['team'] = team;
-        if (apis) myConfig['apis'] = apis;
-        if (models) myConfig['models'] = models;
-        if (helpUrl) myConfig['helpUrl'] = helpUrl;
-        if (creditUrl) myConfig['creditUrl'] = creditUrl;
-        if (creditHelpUrl) myConfig['creditHelpUrl'] = creditHelpUrl;
-        if (modelsFreezed) myConfig['modelsFreezed'] = modelsFreezed;
-        if (apisFreezed) myConfig['apisFreezed'] = apisFreezed;
-        if (canImport) myConfig['canImport'] = canImport;
+        // console.log(myConfig)
+        myConfig['team'] = team;
+        myConfig['apis'] = apis;
+        myConfig['models'] = models;
+        myConfig['helpUrl'] = helpUrl;
+        myConfig['creditUrl'] = creditUrl;
+        myConfig['creditHelpUrl'] = creditHelpUrl;
+        myConfig['modelsFreezed'] = modelsFreezed;
+        myConfig['apisFreezed'] = apisFreezed;
+        myConfig['canImport'] = canImport;
 
         chromeStorageSet({ myConfig });
         return myConfig

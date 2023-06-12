@@ -17,11 +17,7 @@ import ChatBotSelect from "@components/chatbot/ChatBotSelect"
 const defaultPrompt: any = { ...defaultNode }
 delete defaultPrompt.opts;
 
-const menuNames = {
-    debug: '调试全部',
-    new: '新建',
-    send: '发送'
-}
+ 
 
 type PropType = {
     /** 回调
@@ -284,7 +280,7 @@ class ChatBotInput extends React.Component {
                                 onClick={() => this._leftBtnClick()}
                                 disabled={this.state.isLoading}
                             >
-                                工作流
+                                {i18n.t('workflow')}
                             </Button> : ''
                         }
 
@@ -298,7 +294,7 @@ class ChatBotInput extends React.Component {
                                 })}
                                 disabled={this.state.isLoading}
                             >
-                                {menuNames.debug}
+                                {i18n.t('debug')}
                             </Button> : ''
                         }
 
@@ -320,7 +316,7 @@ class ChatBotInput extends React.Component {
                             icon={<PlusOutlined />}
                             onClick={() => this._newTalk()}
                             disabled={this.state.isLoading}
-                            >{i18n.t('reset')}</Button>
+                        >{i18n.t('reset')}</Button>
 
                         <Button
                             style={buttonMainStyle}
@@ -328,7 +324,7 @@ class ChatBotInput extends React.Component {
                             icon={this.state.isLoading ? <LoadingOutlined /> : <SendOutlined key="ellipsis" />}
                             onClick={() => this._sendBtnClick()}
                         >
-                             {!this.state.isLoading ? i18n.t('send') : i18n.t('stop')}
+                            {!this.state.isLoading ? i18n.t('send') : i18n.t('stop')}
                         </Button>
                     </div>
 

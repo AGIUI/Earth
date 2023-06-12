@@ -9,6 +9,9 @@ import {
 
 const { Text } = Typography;
 
+import i18n from 'i18next';
+
+
 import {
     CloseOutlined
 } from '@ant-design/icons';
@@ -74,7 +77,7 @@ class ComboEditor extends React.Component {
         super(props);
         this.state = {
             name: 'comboEditor',
-            secondTitle: '我的工作流',
+            secondTitle: i18n.t('myWorkflow'),
             myPrompts: this.props.myPrompts,
             showImportModal: false,
             version: '',
@@ -324,13 +327,13 @@ class ComboEditor extends React.Component {
                                                 type={"text"}
                                                 style={{ color: '#grey', border: "none", boxShadow: "none" }}
                                             >
-                                                编辑
+                                                {i18n.t('edit')}
                                             </Button>,
                                             <Button
                                                 type={"primary"}
                                                 style={{ background: '#1677ff' }}
                                                 onClick={() => this._comboHandle(p, "comboEditor")}
-                                            >运行</Button>
+                                            >{i18n.t('run')}</Button>
                                         ]}
                                     >
                                         <Text style={{ fontWeight: 'bold', color: "black" }}>
@@ -356,7 +359,7 @@ class ComboEditor extends React.Component {
                         id: (new Date()).getTime(),
                         isNew: true
                     })}>
-                    新建
+                    {i18n.t('new')}
                 </Button>
 
                 {/* {this.state.showEdit && ReactDOM.createPortal(showEditModal(), document.body as HTMLElement)} */}

@@ -72,9 +72,7 @@ class ChatBotBackground {
             item.model = null;
             item.baseUrl = null;
         });
-        chrome.storage.sync.set({
-            chatBotAvailables: null
-        })
+        chrome.storage.sync.clear()
     }
     async getAvailables() {
         let res = []
