@@ -139,7 +139,6 @@
     "debug": "调试全部",
 
 
-
     "findCoreInfoAndQueryLinks": "###相关任务###\n帮我找到相关内容中的核心信息,并查询相关百科介绍和相关资讯的链接,你需要用以下格式输出：\n<百科>\nxxxx\n<相关资讯>\n1.xxxx\n2.xxxx",
     "translateToUnderstandableLanguage": "###相关任务###\n帮我将相关内容翻译成中文。",
     "expandRelatedContent": "###相关任务###\n帮我将相关内容进行扩写,重点内容不能发生变化。",

@@ -8,20 +8,71 @@ import type { MenuProps } from 'antd';
 const { TextArea } = Input;
 const { Option } = Select;
 
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+
+const resources = {
+    zh: {
+        translation: {
+            title: 'API Call',
+            url: 'URL',
+            method: 'Method',
+            parama: 'Parameters (String)',
+            getFromBefore: "Get text from previous node ${text}",
+            responseType: 'Response Data Type',
+            output: 'Output',
+            outputKeyword: "Output Field",
+            more: "Debug",
+            debugRun: 'Run',
+            debugParama: 'Request Parameters'
+        },
+    },
+    en: {
+        translation: {
+            title: 'API调用',
+            url: 'URL',
+            method: '方法',
+            parama: '参数(字符串)',
+            getFromBefore: "从上一节点获取文本 ${text} ",
+            responseType: '返回的数据类型',
+            output: '输出',
+            outputKeyword: "输出字段",
+            more: "调试",
+            debugRun: '运行',
+            debugParama: '请求参数'
+        },
+    },
+};
+
+i18n
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .init({
+        resources,
+        fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
+        lng: navigator.language,
+        debug: false,
+        interpolation: {
+            escapeValue: false, // 不需要对翻译文本进行转义
+        },
+    });
+
+
 import { createDebug, selectNodeInput } from './Base';
 
 const menuNames = {
-    title: 'API调用',
-    url: 'URL',
-    method: '方法',
-    parama: '参数(字符串)',
-    getFromBefore: "从上一节点获取文本 ${text} ",
-    responseType: '返回的数据类型',
-    output: '输出',
-    outputKeyword: "输出字段",
-    more: "调试",
-    debugRun: '运行',
-    debugParama: '请求参数'
+    title: i18n.t('title'),
+    url: i18n.t('url'),
+    method: i18n.t('method'),
+    parama:i18n.t('parama'),
+    getFromBefore:i18n.t('getFromBefore'),
+    responseType: i18n.t('responseType'),
+    output: i18n.t('output'),
+    outputKeyword: i18n.t('outputKeyword'),
+    more: i18n.t('more'),
+    debugRun: i18n.t('debugRun'),
+    debugParama:i18n.t('debugParama'),
 }
 
 
