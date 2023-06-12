@@ -1,23 +1,13 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
-import { Input, Card, Select, Radio, Checkbox, Slider, Dropdown, Divider, Space, Button } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
+import { Card, Select, Radio, Slider, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-const { TextArea } = Input;
-const { Option } = Select;
 
-import { createDebug, selectNodeInput, createText } from './Base';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
-
-const menuNames = {
-  title: '提示工程',
-  userInput: '指令',
-  input: '输入',
-  output: '输出',
-  translate: '翻译',
-  format: '-',
-  debug: '调试'
-}
+import { createDebug, selectNodeInput, createText, createSelect,createOutput,createModel } from './Base';
 
 
 export type NodeData = {
@@ -41,8 +31,57 @@ export type NodeData = {
 
 
 
+const resources = {
+  zh: {
+    translation: {
+      title: '提示工程',
+      userInput: '指令',
+      input: '输入',
+      output: '输出',
+      translate: '翻译',
+      format: '-',
+
+      getFromBefore: "从上一节点获取文本 ${text} ",
+
+      debug: "调试",
+      debugRun: '运行',
+      inputText: '输入',
+      inputTextPlaceholder: '',
+      outputText: '输出',
+      outputTextPlaceholder: '',
+    },
+  },
+  en: {
+    translation: {
+      title: 'Prompt',
+      userInput: 'UserInput',
+      input: 'Input',
+      output: 'Output',
+      translate: 'Translate',
+      format: '-',
+
+      getFromBefore: "Get text from previous node ${text}",
+
+      debug: "Debug",
+      debugRun: 'Run',
+      inputText: 'Input',
+      inputTextPlaceholder: '',
+      outputText: 'Output',
+      outputTextPlaceholder: '',
+    },
+  },
+};
+
+const nodeStyle = {
+  border: '1px solid transparent',
+  padding: '2px 5px',
+  borderRadius: '12px',
+};
+
 const createTextAndInput = (
-  title: string, text: string, input: string,
+  title: string,
+  text: string,
+  input: string,
   nodeOpts: any,
   selectNodeValue: string,
   onChange: any) => < div
@@ -59,112 +98,17 @@ const createTextAndInput = (
       })
     }}
   >
-    {/* <p>{title}</p>
-    <TextArea
-      defaultValue={text}
-      showCount
-      allowClear
-      autoSize
-      placeholder=""
-      // maxLength={6}
-      onChange={(e) => {
-        onChange({
-          key: 'text',
-          data: e.target.value
-        })
-      }}
-    /> */}
 
     {
       createText('text', title, '', text, '', onChange)
     }
 
-    {selectNodeInput(selectNodeValue, nodeOpts, onChange)}
+    {selectNodeInput(i18n.t('getFromBefore'), selectNodeValue, nodeOpts, onChange)}
 
   </div>;
 
 
 
-const createModel = (model: string, temperature: number, opts: any, onChange: any) => <>
-  <p>{opts.filter((m: any) => m.value == 'model')[0].label}</p>
-  <Radio.Group
-    onChange={(e) => {
-
-      onChange({
-        key: 'model',
-        data: e.target.value
-      })
-
-    }}
-    defaultValue={model}
-  >
-    {Array.from(opts.filter((m: any) => m.value == 'model')[0].options,
-      (p: any, i: number) => {
-        return <Radio.Button
-          key={i}
-          value={p.value}
-        >{p.label}</Radio.Button>
-      })}
-  </Radio.Group>
-
-  <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}</p>
-
-  <div
-    onMouseOver={() => {
-      onChange({
-        key: 'draggable',
-        data: false
-      })
-    }}
-    onMouseLeave={() => {
-      onChange({
-        key: 'draggable',
-        data: true
-      })
-    }}
-  >
-    <Slider
-      style={{ width: '200px' }}
-      range={false}
-      max={1}
-      min={0}
-      step={0.02}
-      defaultValue={temperature}
-      value={temperature}
-      onChange={(e: any) => {
-        // console.log('temperature', e)
-        onChange({
-          key: 'temperature',
-          data: e
-        })
-
-      }}
-
-    />
-  </div>
-
-
-</>
-
-const createInput = (title: string, key: string, value: string, opts: any, onChange: any) => <>
-  <p>{title}</p>
-  <Radio.Group
-    style={{
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'baseline'
-    }}
-    defaultValue={value}
-    value={value}
-    options={opts}
-    onChange={(e: any) => {
-      // console.log(e)
-      onChange({
-        key: key,
-        data: e.target.value
-      })
-    }} />
-</>
 
 const createTranslate = (title: string, key: string, value: string, opts: any, onChange: any) => {
   return <div
@@ -181,43 +125,41 @@ const createTranslate = (title: string, key: string, value: string, opts: any, o
       })
     }}
   >
-    <p>{title}</p>
-    <Select
-      defaultValue={value}
-      style={{ width: 120 }}
-      onChange={(e) => {
+    {
+      createSelect(title, value, opts, (e: any) => {
         onChange({
           key: key,
-          data: e
+          data: e.data
         })
-      }}
-      options={opts}
-    /></div>
-}
-
-const createOutput = (title: string, key: string, value: string, opts: any, onChange: any) => <>
-  <p>{title}</p>
-  <Radio.Group
-    style={{
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'baseline'
-    }}
-    defaultValue={value}
-    value={value}
-    options={opts}
-    onChange={(e: any) => {
-      // console.log(e)
-      onChange({
-        key: key,
-        data: e.target.value
       })
-    }} />
-</>
+    }
 
+  </div>
+}
 
 
 function Main({ id, data, selected }: NodeProps<NodeData>) {
+
+  // console.log('RoleNode', JSON.stringify(data, null, 2))
+  i18n
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .init({
+      resources,
+      fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
+      lng: navigator.language,
+      debug: false,
+      interpolation: {
+        escapeValue: false, // 不需要对翻译文本进行转义
+      },
+    });
+
+  const contextMenus: MenuProps['items'] = [
+    {
+      label: i18n.t('debug'),
+      key: 'debug',
+    }
+  ];
 
   // 模型
   const models = data.opts.models;
@@ -237,7 +179,6 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
   }
 
   // input
-  const inputs = data.opts.inputs;
   const [input, setInput] = React.useState(data.input)
   const [nodeInputId, setNodeInputId] = React.useState(data.nodeInputId)
   // text
@@ -309,19 +250,26 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     let selectNodeValue = input === "nodeInput" ? (nodeInputId || nodeOpts[0].value) : null
     // console.log('selectNodeValue',selectNodeValue,nodeInputId,nodeOpts[0],data)
 
-    node.push(createTextAndInput(menuNames.userInput, text, input, nodeOpts, selectNodeValue, updateTextAndInput))
+    node.push(createTextAndInput(i18n.t('userInput'), text, input, nodeOpts, selectNodeValue, updateTextAndInput))
     node.push(createModel(model, temperature, models, updateModel))
-    node.push(createTranslate(menuNames.translate, 'translate', translate, translates, updateTranslate))
-    node.push(createOutput(menuNames.output, 'output', output, outputs, updateOutput))
+    node.push(createTranslate(i18n.t('translate'), 'translate', translate, translates, updateTranslate))
+    node.push(createOutput(i18n.t('output'), 'output', output, outputs, updateOutput))
 
 
-    node.push(createDebug(id, data.debugInput, data.debugOutput, (event: any) => {
+    node.push(createDebug({
+      header: i18n.t('debug'),
+      inputText: i18n.t('inputText'),
+      inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
+      outputText: i18n.t('outputText'),
+      outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
+      debugRun: i18n.t('debugRun'),
+    }, id, data.debugInput, data.debugOutput, (event: any) => {
       if (event.key == 'input') { }
     }, () => data.debug ? data.debug(data) : '', {}))
 
     return <Card
       key={id}
-      title={menuNames.title}
+      title={i18n.t('title')}
       bodyStyle={{ paddingTop: 0 }}
       // extra={createType(type, agents, updateType)}
       style={{ width: 300 }}>
@@ -329,29 +277,17 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     </Card>
   }
 
-  const nodeStyle = selected ? {
-    border: '1px solid transparent',
-    padding: '2px 5px',
-    borderRadius: '12px',
-    backgroundColor: 'cornflowerblue'
-  } : {
-    border: '1px solid transparent',
-    padding: '2px 5px'
-  };
 
 
-  const items: MenuProps['items'] = [
-    {
-      label: '调试',
-      key: 'debug',
-
-    }
-  ];
 
 
   return (
-    <Dropdown menu={{ items, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
-      <div style={nodeStyle} key={id}>
+    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
+      <div style={selected ? {
+        ...nodeStyle,
+        backgroundColor: 'cornflowerblue'
+      } : nodeStyle} 
+      key={id}>
         {createNode()}
         <Handle type="target" position={Position.Left} />
         <Handle type="source" position={Position.Right} />

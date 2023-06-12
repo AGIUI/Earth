@@ -2,7 +2,9 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Avatar, Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider } from 'antd';
 import { DownOutlined, UserOutlined } from '@ant-design/icons';
-
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 import { roleAvatars } from '../Workflow'
 import { createDebug, createText } from './Base'
 
@@ -23,44 +25,59 @@ export type NodeData = {
     onChange: any
 };
 
-const menuName = {
-    cardTitle: '角色',
-    createText: '角色定义',
-    placeholder: '输入...'
-}
 
-const createType = (type: string, agents: any, onChange: any) => {
-    const label = agents.filter((a: any) => a.key == type)[0]?.label || '-';
-    return <Dropdown menu={{
-        items: agents, onClick: (e) => {
-            onChange({
-                data: e.key,
-                key: 'type'
-            })
-        }
-    }}>
-        <Space>
-            {label}
-            <DownOutlined />
-        </Space>
+const resources = {
+    zh: {
+        translation: {
+            cardTitle: '角色',
+            createText: '角色定义',
+            placeholder: '输入...',
 
-    </Dropdown>
-}
+            debug: "调试",
+            debugRun: '运行',
+            inputText: '输入',
+            inputTextPlaceholder: '',
+            outputText: '输出',
+            outputTextPlaceholder: '',
+        },
+    },
+    en: {
+        translation: {
+            cardTitle: 'Role',
+            createText: 'Create Role',
+            placeholder: 'Enter...',
 
-const createName = (title: string, name: string, onChange: any) =>
-    <Input addonBefore="@" defaultValue={name}
-        placeholder={title}
-        onChange={(e) => {
-            onChange({
-                key: 'name',
-                data: e.target.value
-            })
-        }} />
+            debug: "Debug",
+            debugRun: 'Run',
+            inputText: 'Input',
+            inputTextPlaceholder: '',
+            outputText: 'Output',
+            outputTextPlaceholder: '',
+        },
+    },
+};
 
+const nodeStyle = {
+    border: '1px solid transparent',
+    padding: '2px 5px',
+    borderRadius: '12px',
+};
 
 
 function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
     // console.log('RoleNode', JSON.stringify(data, null, 2))
+    i18n
+        .use(LanguageDetector)
+        .use(initReactI18next)
+        .init({
+            resources,
+            fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
+            lng: navigator.language,
+            debug: false,
+            interpolation: {
+                escapeValue: false, // 不需要对翻译文本进行转义
+            },
+        });
 
     // text
     const [role, setRole] = React.useState(data.role)
@@ -114,34 +131,25 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
         };
         return <Card
             key={id}
-            title={menuName.cardTitle}
+            title={i18n.t('cardTitle')}
             bodyStyle={{ paddingTop: 0 }}
             //   extra={createType(type, agents, updateType)}
             style={{ width: 300 }}>
-            {/* <Dropdown menu={menuProps}>
-                    <Button>
-                        <Space>
-                            {avatarCheckedLabel}
-                            <DownOutlined />
-                        </Space>
-                    </Button>
-                </Dropdown> */}
 
-            {/* {createName(keys['name'], role.name, updateRole)} */}
 
-            {/* {createText(keys['text'], role.text, updateRole)} */}
             {
-                createText('text', menuName.createText, menuName.placeholder, role.text, '', updateRole)
+                createText('text', i18n.t('createText'), i18n.t('placeholder'), role.text, '', updateRole)
             }
 
-            {/* {createModel(model, temperature, models, updateModel)} */}
-
-            {/* <Space direction="horizontal" size="middle" style={{ display: 'flex' }}>
-                    {data.debug ? <Button onClick={(e) => data.debug ? data.debug(data) : ''} >调试</Button> : ''}
-                </Space> */}
-
             {
-                createDebug(id, data.debugInput, data.debugOutput, (event: any) => {
+                createDebug({
+                    header: i18n.t('debug'),
+                    inputText: i18n.t('inputText'),
+                    inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
+                    outputText: i18n.t('outputText'),
+                    outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
+                    debugRun: i18n.t('debugRun'),
+                }, id, data.debugInput, data.debugOutput, (event: any) => {
                     if (event.key == 'input') { }
                 }, () => data.debug ? data.debug(data) : '', {})
             }
@@ -149,18 +157,14 @@ function RoleNode({ id, data, selected }: NodeProps<NodeData>) {
         </Card>
     }
 
-    const nodeStyle = selected ? {
-        border: '1px solid transparent',
-        padding: '2px 5px',
-        borderRadius: '12px',
-        backgroundColor: 'cornflowerblue'
-    } : {
-        border: '1px solid transparent',
-        padding: '2px 5px'
-    };
+    
+
 
     return (
-        <div style={nodeStyle}>
+        <div style={selected ? {
+            ...nodeStyle,
+            backgroundColor: 'cornflowerblue'
+        } : nodeStyle}>
 
             {createNode(role, updateRole)}
             {/* <Handle type="target" position={Position.Left} /> */}
