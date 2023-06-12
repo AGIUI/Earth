@@ -1,19 +1,27 @@
 import * as React from "react";
 import { Card, Button, Input, Collapse, Radio, message } from 'antd';
-import { PlusOutlined, SendOutlined, SettingOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
+import { PlusOutlined, SendOutlined, BranchesOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Panel } = Collapse;
-import { defaultCombo, defaultPrompt } from "@components/combo/ComboData";
+import i18n from 'i18next';
+import { _DEFAULTCOMBO, defaultNode } from "@components/flow/Workflow";
+
 import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ChatBotSelect from "@components/chatbot/ChatBotSelect"
-import i18n from 'i18next';
-
 
 /**
  * <ChatBotInput callback={({data,cmd})=>{console.log(cmd,data)}} isLoading={false} leftButton={label:'My Prompts'}/>
  * 
  */
 
+const defaultPrompt: any = { ...defaultNode }
+delete defaultPrompt.opts;
+
+const menuNames = {
+    debug: '调试全部',
+    new: '新建',
+    send: '发送'
+}
 
 type PropType = {
     /** 回调
@@ -34,6 +42,9 @@ type PropType = {
         label: string
     };
 
+    // debug状态
+    debug: boolean;
+
     [propName: string]: any;
 }
 
@@ -50,6 +61,7 @@ type StateType = {
     agent: any;
     chatBotType: string;
     chatBotStyle: any;
+    debug: boolean
 }
 
 interface ChatBotInput {
@@ -73,6 +85,8 @@ const buttonStyle = {
     marginTop: '4px'
 }
 
+
+
 class ChatBotInput extends React.Component {
     constructor(props: any) {
         super(props);
@@ -82,8 +96,9 @@ class ChatBotInput extends React.Component {
             agent: any = ChatBotConfig.getAgentOpts();
 
 
-        const config = this.props.config.filter((c: any) => c.checked)[0]
-
+        let config = this.props.config.filter((c: any) => c.checked)[0];
+        if (!config) config = this.props.config[0]
+        // console.log('ChatBotInput',this.props.config,config)
         this.state = {
             name: 'ChatBotInput',
             isLoading: this.props.isLoading,
@@ -100,7 +115,9 @@ class ChatBotInput extends React.Component {
             // agent
             agent,
             chatBotType: config.type,
-            chatBotStyle: config.style
+            chatBotStyle: config.style,
+
+            debug: this.props.debug
         }
 
     }
@@ -135,13 +152,13 @@ class ChatBotInput extends React.Component {
         if (prompt) {
             const output = this.state.output.filter((oup: any) => oup.checked)[0].value;
             const combo = {
-                ...defaultCombo,
+                ..._DEFAULTCOMBO,
                 prompt: {
                     ...defaultPrompt,
                     text: prompt,
                     input: this.state.input.filter((inp: any) => inp.checked)[0].value,
                     output,
-                    type:this.state.agent.filter((a: any) => a.checked)[0].value,
+                    type: this.state.agent.filter((a: any) => a.checked)[0].value,
                 },
                 combo: -1
             }
@@ -233,7 +250,7 @@ class ChatBotInput extends React.Component {
         // console.log(this.state, this.props.config)
         const flexStyle = {
             display: 'flex', justifyContent: 'flex-start',
-            alignItems: 'center', padding: '8px'
+            alignItems: 'center', padding: '10px'
         }
 
         const { input, output, agent, chatBotType, chatBotStyle } = this.state;
@@ -249,47 +266,61 @@ class ChatBotInput extends React.Component {
                 translate="no"
                 style={{ boxShadow: 'none' }}
                 bodyStyle={{
-                    padding: '8px',
-                    paddingBottom: '24px',
+                    padding: '10px',
+                    paddingBottom: '25px',
                     background: 'rgb(245, 245, 245)',
-                    marginBottom: '8px',
+                    marginBottom: '10px',
                     border: 'none',
-                    borderRadius: '8px'
+                    borderRadius: '10px'
                 }}
                 actions={[
                     <div style={flexStyle} >
 
                         {
-                            this.props.leftButton && this.props.leftButton.label ? <Button
+                            !this.props.debug && this.props.leftButton && this.props.leftButton.label ? <Button
                                 style={buttonStyle}
                                 type="dashed"
-                                icon={<SettingOutlined />}
+                                icon={<BranchesOutlined />}
                                 onClick={() => this._leftBtnClick()}
                                 disabled={this.state.isLoading}
                             >
-                                {
-                                    this.props.leftButton.label
-                                }
+                                工作流
                             </Button> : ''
                         }
 
+                        {
+                            this.props.debug ? <Button
+                                style={buttonStyle}
+                                type="dashed"
+                                icon={<BranchesOutlined />}
+                                onClick={() => this.props.callback({
+                                    cmd: 'debug-combo'
+                                })}
+                                disabled={this.state.isLoading}
+                            >
+                                {menuNames.debug}
+                            </Button> : ''
+                        }
 
                     </div>
                     ,
                     <div style={{
-                        ...flexStyle,
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '10px',
+                        paddingRight: '0px',
                         justifyContent: 'flex-end'
                     }}
                     >
 
                         <Button
                             style={{
-                                ...buttonStyle, marginRight: '12px'
+                                ...buttonStyle, marginRight: '10px'
                             }}
                             icon={<PlusOutlined />}
                             onClick={() => this._newTalk()}
                             disabled={this.state.isLoading}
-                        >{i18n.t('reset')}</Button>
+                            >{i18n.t('reset')}</Button>
 
                         <Button
                             style={buttonMainStyle}
@@ -297,55 +328,56 @@ class ChatBotInput extends React.Component {
                             icon={this.state.isLoading ? <LoadingOutlined /> : <SendOutlined key="ellipsis" />}
                             onClick={() => this._sendBtnClick()}
                         >
-                            {!this.state.isLoading ? i18n.t('send') : i18n.t('stop')}
+                             {!this.state.isLoading ? i18n.t('send') : i18n.t('stop')}
                         </Button>
                     </div>
 
                 ]}
             >
 
-                <Collapse expandIconPosition={'start'} size="small">
-                    <Panel header={node} key="node" >
-                        <div style={flexStyle}>
-                            <LoginOutlined style={{ marginRight: '12px' }} />
-                            <Radio.Group
-                                options={this.state.input}
-                                onChange={(e) => this._change(e.target.value, 'input')}
-                                value={this.state.input.filter((m: any) => m.checked)[0].value}
+                {
+                    this.props.debug ? '' : <Collapse expandIconPosition={'start'} size="small">
+                        <Panel header={node} key="node" >
+                            <div style={flexStyle}>
+                                <LoginOutlined style={{ marginRight: '10px' }} />
+                                <Radio.Group
+                                    options={this.state.input}
+                                    onChange={(e) => this._change(e.target.value, 'input')}
+                                    value={this.state.input.filter((m: any) => m.checked)[0].value}
+                                    optionType="button"
+                                    buttonStyle="solid"
+                                    size="small"
+                                />
+                            </div>
+                            <div style={flexStyle}>
+                                <RobotOutlined style={{ marginRight: '10px' }} />
+                                <Radio.Group
+                                    options={this.state.agent}
+                                    onChange={(e) => this._change(e.target.value, 'agent')}
+                                    value={this.state.agent.filter((m: any) => m.checked)[0].value}
+                                    optionType="button"
+                                    buttonStyle="solid"
+                                    size="small"
+                                />
+                            </div>
+                            <div style={flexStyle}><LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
+                                options={this.state.output}
+                                onChange={(e) => this._change(e.target.value, 'output')}
+                                value={this.state.output.filter((m: any) => m.checked)[0].value}
                                 optionType="button"
                                 buttonStyle="solid"
                                 size="small"
-                            />
-                        </div>
-                        <div style={flexStyle}>
-                            <RobotOutlined style={{ marginRight: '12px' }} />
-                            <Radio.Group
-                                options={this.state.agent}
-                                onChange={(e) => this._change(e.target.value, 'agent')}
-                                value={this.state.agent.filter((m: any) => m.checked)[0].value}
-                                optionType="button"
-                                buttonStyle="solid"
-                                size="small"
-                            />
-                        </div>
-                        <div style={flexStyle}><LogoutOutlined style={{ marginRight: '12px' }} /><Radio.Group
-                            options={this.state.output}
-                            onChange={(e) => this._change(e.target.value, 'output')}
-                            value={this.state.output.filter((m: any) => m.checked)[0].value}
-                            optionType="button"
-                            buttonStyle="solid"
-                            size="small"
-                        /></div>
+                            /></div>
 
-                        <ChatBotSelect
-                            callback={(res: any) => this._changeChatbot(res)}
-                            isLoading={this.state.isLoading}
-                            config={this.props.config}
-                            name={''} />
+                            <ChatBotSelect
+                                callback={(res: any) => this._changeChatbot(res)}
+                                isLoading={this.state.isLoading}
+                                config={this.props.config}
+                                name={''} />
 
-                    </Panel>
-                </Collapse>
-
+                        </Panel>
+                    </Collapse>
+                }
 
 
                 <TextArea
@@ -365,7 +397,7 @@ class ChatBotInput extends React.Component {
                     placeholder={this.state.placeholder}
                     autoSize={{ minRows: 2, maxRows: 15 }}
                     disabled={this.state.isLoading}
-                    style={this.state.userInput.prompt ? { height: 'auto',marginTop:2 } : {marginTop:2}}
+                    style={this.state.userInput.prompt ? { height: 'auto', marginTop: 5 } : { marginTop: 5 }}
                 />
 
             </Card>

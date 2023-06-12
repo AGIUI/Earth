@@ -9,7 +9,6 @@ import { getConfig, chromeStorageGet } from '@components/Utils';
 import commonsConfig from '@src/config/commonsConfig.json'
 import editableConfig from '@src/config/editableConfig.json'
 import selectionConfig from '@src/config/selectionConfig.json'
-
 import i18n from 'i18next';
 import '../../locales/i18nConfig'
 
@@ -73,8 +72,8 @@ async function loadContextMenuData() {
     });
 
     chrome.contextMenus.create({
-        id: 'toggle-insight',
-        title: i18n.t('openPanel'),
+        id: 'open-chatbot-panel',
+        title: "打开面板",
         type: 'normal',
 
         parentId: 'Earth',
@@ -85,7 +84,7 @@ async function loadContextMenuData() {
     if (commonsConfig.length !== 0) {
         chrome.contextMenus.create({
             id: 'commonsConfig',
-            title: i18n.t('commonFeatures'),
+            title: '常用功能',
             type: 'normal',
 
             parentId: 'Earth',
@@ -96,7 +95,7 @@ async function loadContextMenuData() {
         for (let i in commonsConfig) {
             chrome.contextMenus.create({
                 id: String(commonsConfig[i].id),
-                title: i18n.t(commonsConfig[i].tag),
+                title: commonsConfig[i].tag,
                 type: 'normal',
                 parentId: 'commonsConfig'
             })
@@ -106,7 +105,7 @@ async function loadContextMenuData() {
     if (Workflow.length !== 0) {
         chrome.contextMenus.create({
             id: 'Workflow',
-            title: i18n.t('workflow'),
+            title: '工作流',
             type: 'normal',
 
             parentId: 'Earth',
@@ -127,7 +126,7 @@ async function loadContextMenuData() {
         for (let i in selectionConfig) {
             chrome.contextMenus.create({
                 id: String(selectionConfig[i].id),
-                title: i18n.t(selectionConfig[i].tag),
+                title: selectionConfig[i].tag,
                 contexts: ['selection']
             })
         }
@@ -176,11 +175,11 @@ async function loadContextMenuData() {
     //     let isNew = true
     //     for (let command of commands) {
     //         // console.log('command', command)
-    //         if (command.name == 'toggle-insight') isNew = false
+    //         if (command.name == 'open-chatbot-panel') isNew = false
     //     }
     //     if (isNew) {
     //         chrome.contextMenus.create({
-    //             id: 'toggle-insight',
+    //             id: 'open-chatbot-panel',
     //             title: json.app,
     //             type: 'normal',
     //             contexts: ['page']
@@ -219,10 +218,10 @@ async function loadContextMenuData() {
         const id = item.menuItemId
         if (!tab.url.match('http')) return
 
-        if (id === 'toggle-insight') {
+        if (id === 'open-chatbot-panel') {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd: 'toggle-insight',
+                    cmd: 'open-chatbot-panel',
                     success: true,
                     data: true
                 },
@@ -233,7 +232,7 @@ async function loadContextMenuData() {
         } else {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd: 'toggle-insight',
+                    cmd: 'open-chatbot-panel',
                     success: true,
                     data: true
                 },
@@ -248,12 +247,9 @@ async function loadContextMenuData() {
                     if (PromptJson.input === "userSelection") {
                         const context = item.selectionText;
                         if (context) {
-                            PromptJson.text = `###${i18n.t('relatedContent')}###\n` + context + "\n" + PromptJson.text
+                            PromptJson.text = "###相关内容###\n" + context + "\n" + PromptJson.text
                         }
                     }
-
-                    PromptJson.prompt.text = i18n.t(PromptJson.prompt.text);
-                    
                     chrome.tabs.sendMessage(
                         tabId, {
                             cmd: 'contextMenus',
@@ -264,7 +260,7 @@ async function loadContextMenuData() {
                                     '_combo': PromptJson,
                                     from,
                                     prompt: PromptJson.prompt,
-                                    tag: i18n.t(PromptJson.tag),
+                                    tag: PromptJson.tag,
                                     newTalk: true
                                 }
                             }

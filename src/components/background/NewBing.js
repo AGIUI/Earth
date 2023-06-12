@@ -104,11 +104,11 @@ class NewBing {
         if (!this.conversationContext) {
             const { resp: conversation, info } = await createConversation()
             if (conversation == null) {
-                this.available = null;
-                return {
+                this.available = {
                     success: false,
                     info: info
-                }
+                };
+                return this.available
             }
             this.conversationContext = {
                 conversationId: conversation.conversationId,
@@ -121,7 +121,7 @@ class NewBing {
 
         this.available = {
             success: true,
-            style: 'Creative',
+            style: { label: 'Creative', value: 'Creative' },
             styles: [
                 { en: 'Creative', zh: '创造力', value: 'Creative', label: 'Creative' },
                 { en: 'Balanced', zh: '平衡', value: 'Balanced', label: 'Balanced' },
@@ -135,16 +135,17 @@ class NewBing {
     clearAvailable() {
         this.available = null;
     }
-    async getAvailable() {
-        let res = {
-            success: false,
-            info: ''
-        }
+    getAvailable() {
 
-        if (!this.available) res = await this.init()
-        if (this.available && this.available.success == false) res = await this.init()
-        if (this.available && this.available.success) res = this.available
-        return res
+        // let res = {
+        //     success: false,
+        //     info: ''
+        // }
+
+        // if (!this.available) res = await this.init()
+        // if (this.available && this.available.success == false) res = await this.init()
+        // if (this.available && this.available.success) res = this.available
+        return this.available;
     }
 
 
@@ -318,8 +319,9 @@ class NewBing {
         this.available = null;
     }
 
-
+    // 确保输入prompt是string
     async doSendMessageForBg(prompt, style, callback) {
+        if (typeof(prompt) == 'object') prompt = JSON.stringify(prompt);
         // 支持传style
         if (!style) style = this.conversationStyle;
         style = style.toLowerCase();

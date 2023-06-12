@@ -1,10 +1,9 @@
-import { workflow } from '@components/Workflow'
+import { workflow } from '@components/flow/Workflow'
 import { getConfig } from '@components/Utils';
 import i18n from 'i18next';
 
-
-const json:any=getConfig();
-let discord= json.discord 
+const json: any = getConfig();
+let discord = json.discord
 
 
 function get() {
@@ -27,7 +26,8 @@ function get() {
                 { label: i18n.t('preciseStyleLabel'), value: 'Precise' }
             ],
             value: 'Creative'
-        }, checked: true
+        },
+        checked: true
     }]
 
 }
@@ -36,28 +36,34 @@ function get() {
 
 function getInput() {
     return Array.from(workflow.inputs, inp => {
-        return {
-            ...inp, checked: inp.value == 'default'
+        if (inp.display.includes('chatbot')) return {
+            ...inp
         }
-    })
+    }).filter(i => i)
 }
 
 function getOutput() {
     return Array.from(workflow.outputs, out => {
-        return {
-            ...out, checked: out.value == 'default'
+        if (out.display.includes('chatbot')) return {
+            ...out
         }
-    })
+    }).filter(i => i)
 }
 
-
+function getTranslate() {
+    return Array.from(workflow.translates, translate => {
+        if (translate.display.includes('chatbot')) return {
+            ...translate
+        }
+    }).filter(i => i)
+}
 
 function getAgentOpts() {
     return Array.from(workflow.agents, (agent: any) => {
-        if (!agent.disabled) return {
+        if (!agent.disabled && agent.display.includes('chatbot')) return {
             value: agent.key,
             label: agent.label,
-            checked: agent.key == 'prompt'
+            checked: agent.checked
         }
     }).filter(a => a)
 }
@@ -71,7 +77,6 @@ function getAgentOpts() {
  * @param json {hi,buttons,user,html}
  * @returns 
  */
-
 function createTalkData(type: string, json: any) {
     let data;
     switch (type) {
@@ -150,6 +155,13 @@ function createTalkData(type: string, json: any) {
                 html: json.html
             }
             break;
+        case 'debug':
+            data = {
+                type: 'talk',
+                user: false,
+                html: json.html
+            }
+            break;
         case 'help':
             data = {
                 type: 'suggest',
@@ -165,12 +177,22 @@ function createTalkData(type: string, json: any) {
                 html: ''
             }
             break;
+        case 'role-start':
+            const hi = json.name ? `hi我是${json.name}` : `hi，让我思考下`
+            data = {
+                type: 'suggest',
+                hi,
+                user: false,
+                html: json.html,
+                avatarUrl: json.avatarUrl
+            }
+            break;
         default:
             break;
     }
-    return data;
+    return data
 }
 
 export default {
-    get, createTalkData, getOutput, getInput, getAgentOpts
+    get, createTalkData, getOutput, getInput, getAgentOpts,getTranslate
 }
