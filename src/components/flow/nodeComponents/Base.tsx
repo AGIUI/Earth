@@ -1,27 +1,105 @@
 import React from 'react'
-import { Input, Collapse, Divider, Button, Checkbox, Select } from 'antd';
+
+import { Input, Collapse, Divider, Button, Checkbox, Select, Radio, Slider } from 'antd';
+
 const { Panel } = Collapse;
 import { CaretRightOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
+const { Option } = Select;
 
-const menuNames = {
-    header: "调试",
-    inputText: '输入',
-    inputTextPlaceholder: '',
-    outputText: '输出',
-    outputTextPlaceholder: '',
-    debugRun: '运行',
-    getFromBefore: "从上一节点获取文本",
-    getUserInput: '输入文本',
-    userInput: "请输入任意文本"
-}
+export const createName = (title: string, name: string, onChange: any) =>
+    <Input addonBefore="@" defaultValue={name}
+        placeholder={title}
+        onChange={(e) => {
+            onChange({
+                key: 'name',
+                data: e.target.value
+            })
+        }} />
+
+export const createURL = (urlTitle: string, urlPlaceholder: string, protocol: string, url: string, onChange: any) => <>
+    <p>{urlTitle}</p>
+    <Input addonBefore={
+        <Select defaultValue={protocol} onChange={(e: string) => {
+            onChange({
+                key: 'protocol',
+                data: e
+            })
+        }}>
+            <Option value="http://">http://</Option>
+            <Option value="https://">https://</Option>
+        </Select>
+    }
+        placeholder={urlPlaceholder}
+        defaultValue={url}
+        onChange={(e: any) => {
+            onChange({
+                key: 'url',
+                data: e.target.value
+            })
+        }}
+    />
+</>
+
+export const createSelect = (title: string, value: string, opts: any, onChange: any) => <>
+    <p>{title}</p>
+    <Select
+        value={value}
+        style={{ width: 120 }}
+        onChange={(e) => {
+            onChange({
+                key: title,
+                data: e,
+            })
+        }}
+        options={opts}
+    />
+</>
+
+export const createTextArea = (title: string, value: string, status: any, onChange: any) => <>
+    <p>{title}</p>
+    <TextArea
+        value={value}
+        rows={4}
+        placeholder={value}
+        autoSize
+        status={status}
+        onChange={(e) => {
+            onChange({
+                key: title,
+                data: e.target.value
+            })
+        }}
+    /></>
+
+
+export const createOutput = (title: string, key: string, value: string, opts: any, onChange: any) => <>
+    <p>{title}</p>
+    <Radio.Group
+        style={{
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'baseline'
+        }}
+        defaultValue={value}
+        value={value}
+        options={opts}
+        onChange={(e: any) => {
+            // console.log(e)
+            onChange({
+                key: key,
+                data: e.target.value
+            })
+        }} />
+</>
 
 // 从上一节点获取文本
-export const selectNodeInput = (nodeInputId: string, nodeOpts: any, onChange: any) => {
+export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: any, onChange: any) => {
 
-    const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length >0)
+    const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0)
+
     // console.log(nodeOpts.filter((n: any) => n.value === nodeInputId))
     return <>
         <Checkbox
@@ -35,7 +113,8 @@ export const selectNodeInput = (nodeInputId: string, nodeOpts: any, onChange: an
                     data: e.target.checked ? nodeInputId : ""
                 })
 
-            }}>{menuNames.getFromBefore}</Checkbox>
+            }}>{title}</Checkbox>
+
         {
             checked ? <Select
                 value={nodeInputId}
@@ -53,7 +132,9 @@ export const selectNodeInput = (nodeInputId: string, nodeOpts: any, onChange: an
 }
 
 // 选择输入，从用户输入 or 从节点
-export const selectInput = (nodeInputId: string, userInput: string, nodeOpts: any, onChange: any) => {
+
+export const selectInput = (nodeInputLabel: string, userInputLabel: string, nodeInputId: string, userInput: string, nodeOpts: any, onChange: any) => {
+
     // const [inp, setInp] = React.useState(nodeInputId ? 'nodeInput' : "userInput");
     // console.log(inp)
     const [uinp, setUserInput] = React.useState(userInput);
@@ -69,8 +150,8 @@ export const selectInput = (nodeInputId: string, userInput: string, nodeOpts: an
                 })
             }}
             options={[
-                { value: 'nodeInput', label: menuNames.getFromBefore + ' ${text}' },
-                { value: 'userInput', label: menuNames.getUserInput },
+                { value: 'nodeInput', label: nodeInputLabel },
+                { value: 'userInput', label: userInputLabel },
             ]}
         />
         {
@@ -88,7 +169,7 @@ export const selectInput = (nodeInputId: string, userInput: string, nodeOpts: an
                 style={{ marginTop: '8px' }}
                 value={uinp}
                 rows={4}
-                placeholder={menuNames.userInput}
+                placeholder={""}
                 autoSize
                 onChange={(e) => {
                     setUserInput(e.target.value)
@@ -142,6 +223,7 @@ export const createText = (key: string, header: string, placeholder: string, val
 
 // debug组件
 export const createDebug = (
+    menuNames: any,
     id: string,
     input: string,
     output: string,
@@ -183,3 +265,90 @@ export const createDebug = (
         </Panel>
     </Collapse>
 }
+
+export const createModel = (model: string, temperature: number, opts: any, onChange: any) => <>
+    <p>{opts.filter((m: any) => m.value == 'model')[0].label}</p>
+    <Radio.Group
+        onChange={(e) => {
+
+            onChange({
+                key: 'model',
+                data: e.target.value
+            })
+
+        }}
+        defaultValue={model}
+    >
+        {Array.from(opts.filter((m: any) => m.value == 'model')[0].options,
+            (p: any, i: number) => {
+                return <Radio.Button
+                    key={i}
+                    value={p.value}
+                >{p.label}</Radio.Button>
+            })}
+    </Radio.Group>
+
+    <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}</p>
+
+    <div
+        onMouseOver={() => {
+            onChange({
+                key: 'draggable',
+                data: false
+            })
+        }}
+        onMouseLeave={() => {
+            onChange({
+                key: 'draggable',
+                data: true
+            })
+        }}
+    >
+        <Slider
+            style={{ width: '200px' }}
+            range={false}
+            max={1}
+            min={0}
+            step={0.01}
+            defaultValue={temperature}
+            value={temperature}
+            onChange={(e: any) => {
+                // console.log('temperature', e)
+                onChange({
+                    key: 'temperature',
+                    data: e
+                })
+
+            }}
+
+        />
+    </div>
+</>
+
+
+export const createDelay = (title: string, delayFormat: string, delay: string, opts: any, onChange: any) => <>
+    <p>{title}</p>
+    <Input addonAfter={
+        <Select defaultValue={delayFormat} onChange={(e: string) => {
+            onChange({
+                key: 'delayFormat',
+                data: e
+            })
+        }}>
+            {
+                Array.from(opts, (o: any) => <Option value={o.value}>{o.label}</Option>)
+            }
+        </Select>
+    }
+        // placeholder={i18n.t('delayPlaceholder')}
+        defaultValue={delay}
+        onChange={(e: any) => {
+            let t = parseFloat(e.target.value);
+            if (delayFormat == 's') t = 1000 * t;
+            onChange({
+                key: 'delay',
+                data: t
+            })
+        }}
+    />
+</>

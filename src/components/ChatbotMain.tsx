@@ -712,9 +712,9 @@ class Main extends React.Component<{
 
     _agentApiRun(prompt: any, nTalks: any, combo: any) {
 
-        let { url, init, isApi, protocol } = prompt.api;
-        if (isApi == false) return;
 
+        let { url, init, protocol } = prompt.api;
+     
         if (url && !url.match('//')) url = `${protocol}${url}`;
         // console.log(api, init.body)
 

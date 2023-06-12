@@ -15,7 +15,9 @@
 
  */
 
-import { fetchImage } from '../Utils'
+
+import i18n from 'i18next';
+
 
 
 class Common {
@@ -149,7 +151,7 @@ class Common {
                             }
                         );
                     } catch (error) {
-                        this.sendMessage('chat-bot-talk-result', false, [{ type: 'error', markdown: '出错了，请重试' }], tabId)
+                        this.sendMessage('chat-bot-talk-result', false, [{ type: 'error', markdown: i18n.t('retryError') }], tabId)
                     }
 
                     sendResponse({

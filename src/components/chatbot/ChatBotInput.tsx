@@ -4,6 +4,8 @@ import { PlusOutlined, SendOutlined, BranchesOutlined, LoadingOutlined, LoginOut
 const { TextArea } = Input;
 const { Panel } = Collapse;
 
+import i18n from 'i18next';
+
 import { _DEFAULTCOMBO, defaultNode } from "@components/flow/Workflow";
 
 import ChatBotConfig from "@components/chatbot/ChatBotConfig";
@@ -17,11 +19,6 @@ import ChatBotSelect from "@components/chatbot/ChatBotSelect"
 const defaultPrompt: any = { ...defaultNode }
 delete defaultPrompt.opts;
 
-const menuNames = {
-    debug: '调试全部',
-    new: '新建',
-    send: '发送'
-}
 
 type PropType = {
     /** 回调
@@ -212,7 +209,7 @@ class ChatBotInput extends React.Component {
     _toast() {
         message.open({
             type: 'warning',
-            content: '可能会消耗大量Token，建议在需要时绑定',
+            content: i18n.t('tokenConsumptionWarning'),
         });
     }
 
@@ -284,7 +281,7 @@ class ChatBotInput extends React.Component {
                                 onClick={() => this._leftBtnClick()}
                                 disabled={this.state.isLoading}
                             >
-                                工作流
+                                {i18n.t('workflow')}
                             </Button> : ''
                         }
 
@@ -298,7 +295,7 @@ class ChatBotInput extends React.Component {
                                 })}
                                 disabled={this.state.isLoading}
                             >
-                                {menuNames.debug}
+                                {i18n.t('debug')}
                             </Button> : ''
                         }
 
@@ -320,7 +317,7 @@ class ChatBotInput extends React.Component {
                             icon={<PlusOutlined />}
                             onClick={() => this._newTalk()}
                             disabled={this.state.isLoading}
-                        >新建</Button>
+                        >{i18n.t('reset')}</Button>
 
                         <Button
                             style={buttonMainStyle}
@@ -328,7 +325,7 @@ class ChatBotInput extends React.Component {
                             icon={this.state.isLoading ? <LoadingOutlined /> : <SendOutlined key="ellipsis" />}
                             onClick={() => this._sendBtnClick()}
                         >
-                            {!this.state.isLoading ? '发送' : '停止'}
+                            {!this.state.isLoading ? i18n.t('send') : i18n.t('stop')}
                         </Button>
                     </div>
 

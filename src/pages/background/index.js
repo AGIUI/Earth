@@ -9,6 +9,8 @@ import { getConfig, chromeStorageGet } from '@components/Utils';
 import commonsConfig from '@src/config/commonsConfig.json'
 import editableConfig from '@src/config/editableConfig.json'
 import selectionConfig from '@src/config/selectionConfig.json'
+import i18n from 'i18next';
+import '../../locales/i18nConfig'
 
 const _CONFIG_JSON = getConfig()
 

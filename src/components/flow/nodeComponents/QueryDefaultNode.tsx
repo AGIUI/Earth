@@ -2,31 +2,73 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
 import { DownOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd'; 
+
+import type { MenuProps } from 'antd';
 const { Option } = Select;
 
-import {createDebug} from './Base'
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
-const menuNames = {
-  title: '进入网页',
-  url: 'URL',
-  urlPlaceholder: "请填写url",
-  delay: "等待时间",
-  delayPlaceholder: "输入时间",
-  ms: '毫秒',
-  s: '秒',
-  debug: '调试'
-}
+import { createDebug, createURL, createDelay } from './Base'
+
 
 export type NodeData = {
-  debugInput:any;
-  debugOutput:any;
+  debugInput: any;
+  debugOutput: any;
+
   debug: any;
   queryObj: any,
   type: string,
   onChange: any
 };
 
+const resources = {
+  zh: {
+    translation: {
+      title: '进入网页',
+      url: 'URL',
+      urlPlaceholder: "请填写url",
+      delay: "等待时间",
+      delayPlaceholder: "输入时间",
+      ms: '毫秒',
+      s: '秒',
+
+
+      debug: "调试",
+      debugRun: '运行',
+      inputText: '输入',
+      inputTextPlaceholder: '',
+      outputText: '输出',
+      outputTextPlaceholder: '',
+    },
+  },
+  en: {
+    translation: {
+      title: 'Enter Webpage',
+      url: 'URL',
+      urlPlaceholder: "Please enter URL",
+      delay: "Delay",
+      delayPlaceholder: "Enter time",
+      ms: 'ms',
+      s: 's',
+
+      debug: "Debug",
+      debugRun: 'Run',
+      inputText: 'Input',
+      inputTextPlaceholder: '',
+      outputText: 'Output',
+      outputTextPlaceholder: '',
+    },
+  },
+};
+
+
+const nodeStyle = {
+  border: '1px solid transparent',
+  padding: '2px 5px',
+  borderRadius: '12px',
+};
 
 const createUI = (json: any, delay: number, delayFormat: string, onChange: any) => {
   const { protocol, url } = json;
@@ -44,71 +86,79 @@ const createUI = (json: any, delay: number, delayFormat: string, onChange: any) 
       })
     }}>
 
-    <p>{menuNames.url}</p>
-    <Input addonBefore={
-      <Select defaultValue={protocol} onChange={(e: string) => {
-        onChange({
-          key: 'query',
-          data: {
-            ...json, protocol: e
-          }
-        })
-
-      }}>
-        <Option value="http://">http://</Option>
-        <Option value="https://">https://</Option>
-      </Select>
-    }
-      placeholder={menuNames.urlPlaceholder}
-      defaultValue={url}
-      onChange={(e: any) => {
-        // console.log('input url',e)
-        onChange({
-          key: 'query',
-          data: {
+    {
+      createURL(i18n.t('url'), i18n.t('urlPlaceholder'), protocol, url, (e: any) => {
+        let d = {
+          ...json,
+          protocol: e.data
+        }
+        if (e.key == 'url') {
+          d = {
             ...json,
-            url: e.target.value,
+            url: e.data,
             action: 'default'
           }
-        })
-      }}
-    />
-
-    <p>{menuNames.delay}</p>
-    <Input addonAfter={
-      <Select defaultValue={delayFormat} onChange={(e: string) => {
-
+        }
         onChange({
-          key: 'delayFormat',
-          data: e
+          key: 'query',
+          data: d
         })
-
-      }}>
-        <Option value="ms">{menuNames.ms}</Option>
-        <Option value="s">{menuNames.s}</Option>
-      </Select>
+      })
     }
-      placeholder={menuNames.delayPlaceholder}
-      defaultValue={delay}
-      onChange={(e: any) => {
-        let t = parseFloat(e.target.value);
-        if (delayFormat == 's') t = 1000 * t;
-        onChange({
-          key: 'delay',
-          data: {
-            ...json,
-            delay: t,
+
+    {
+      createDelay(i18n.t('delay'), delayFormat, delay.toString(), [
+        { value: 'ms', label: i18n.t('ms') },
+        { value: 's', label: i18n.t('s') }], (e: any) => {
+          if (e.key == 'delayFormat') onChange({
+            key: 'delayFormat',
+            data: e.data
+          })
+
+          if (e.key == 'delay') {
+            let t = parseFloat(e.data);
+            if (delayFormat == 's') t = 1000 * t;
+            onChange({
+              key: 'delay',
+              data: {
+                ...json,
+                delay: t,
+              }
+            })
           }
+
+
         })
-      }}
-    />
+    }
+
 
   </div>
 }
 
 
 function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
-  // console.log(data)
+
+  i18n
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .init({
+      resources,
+      fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
+      lng: navigator.language,
+      debug: false,
+      interpolation: {
+        escapeValue: false, // 不需要对翻译文本进行转义
+      },
+    });
+
+  const contextMenus: MenuProps['items'] = [
+    {
+      label: i18n.t('debug'),
+      key: 'debug',
+    }
+  ];
+
+
   const [type, setType] = React.useState(data.type)
   // console.log('QueryDefaultNode', data)
 
@@ -143,39 +193,35 @@ function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
 
     const node = [createUI(queryObj, delay, delayFormat, updateQueryObj)];
 
-    node.push(createDebug(id, data.debugInput, data.debugOutput, (event: any) => {
+    node.push(createDebug({
+      header: i18n.t('debug'),
+      inputText: i18n.t('inputText'),
+      inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
+      outputText: i18n.t('outputText'),
+      outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
+      debugRun: i18n.t('debugRun'),
+    }, id, data.debugInput, data.debugOutput, (event: any) => {
+
       if (event.key == 'input') { }
     }, () => data.debug ? data.debug(data) : '', {}))
 
     return <Card
       key={id}
-      title={menuNames.title}
+      title={i18n.t('title')}
       bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}
     </Card>
   }
 
-  const nodeStyle = selected ? {
-    border: '1px solid transparent',
-    padding: '2px 5px',
-    borderRadius: '12px',
-    backgroundColor: 'cornflowerblue'
-  } : {
-    border: '1px solid transparent',
-    padding: '2px 5px'
-  };
-
-  const items: MenuProps['items'] = [
-    {
-      label: menuNames.debug,
-      key: 'debug',
-    }
-  ];
 
   return (
-    <Dropdown menu={{ items, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
-      <div style={nodeStyle} key={id}>
+    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
+      <div style={selected ? {
+        ...nodeStyle,
+        backgroundColor: 'cornflowerblue'
+      } : nodeStyle}
+        key={id}>
         {createNode()}
         <Handle type="target" position={Position.Left} />
         <Handle type="source" position={Position.Right} />
