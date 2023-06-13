@@ -107,12 +107,29 @@ const useStore = create<RFState>((set, get) => ({
       defaultNode: initRootNode
     })
   },
-  onComboOptionsChange: (changes: any) => {
+  onComboOptionsChange: (type: number, changes: any) => {
+    console.log('onComboOptionsChange', type, changes);
+
     let comboOptions = get().comboOptions;
-    comboOptions = Array.from(comboOptions, (c: any) => {
-      c.checked = changes.includes(c.value);
-      return c
-    })
+
+    if (type === 0) {
+      // 父级
+      comboOptions = Array.from(comboOptions, (c: any) => {
+        c.checked = changes.includes(c.value);
+        return c
+      })
+    } else if (type == 1) {
+      // 子级
+      comboOptions = Array.from(comboOptions, (c: any) => {
+        if (c.children && changes.includes(c.value)) {
+          c.children = Array.from(c.children, (child: any) => {
+            child.checked = changes.includes(child.value);
+            return child
+          })
+        }
+        return c
+      })
+    }
     // console.log(changes, comboOptions)
     set({ comboOptions })
   },
@@ -152,11 +169,30 @@ const useStore = create<RFState>((set, get) => ({
         nd.data['debug'] = (prompt: any) => debugRun(nd.id, prompt, debug, get().debugStatus);
       }
       return nd
-    })]
+    })];
+
+    // interfaces的处理，把子级提出来
+    const interfacesChildren: any = {};
+    for (const inf of interfaces) {
+      const infs = inf.split("-");
+      if (infs.length === 2) {
+        if (!interfacesChildren[infs[0]]) {
+          interfacesChildren[infs[0]] = []
+        }
+        interfacesChildren[infs[0]].push(infs[1])
+      }
+    };
 
     let comboOpts = comboOptions();
     comboOpts = Array.from(comboOpts, (c: any) => {
       c.checked = interfaces.includes(c.value);
+      if (c.children) {
+        c.checked = !!interfacesChildren[c.value];
+        if (interfacesChildren[c.value]) c.children = Array.from(c.children, (child: any) => {
+          child.checked = interfacesChildren[c.value].includes(child.value);
+          return child
+        })
+      }
       return c
     })
     // console.log(changes, comboOptions)

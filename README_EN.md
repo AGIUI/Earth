@@ -72,13 +72,14 @@ npm run build [browser]
 
 ## Examples of Combos
 
-To be updated
+[Example 1: Comic Generation](/examples/combo/%E6%BC%AB%E7%94%BB%E7%94%9F%E6%88%90_hxTElLdYiylK18tU5cPtf.json)
 
-<!-- [示例1：获取微博信息-创作科幻故事.json](/examples/example01.json)
+[Example 2: SD Image Generation API](/examples/combo/sd%E5%9B%BE%E5%83%8F%E7%94%9F%E6%88%90API_4c35df6f7513b1ed1926b9b7b1415ab3.json)
 
-[示例2：获取微博最新消息，写一个访谈提纲](/examples/example02.json)
+[Example 3: Extracting Email Information](/examples/combo/%E6%8F%90%E5%8F%96%E9%82%AE%E4%BB%B6%E4%BF%A1%E6%81%AF_2f77d6ca8eaec9534233812874e6f202.json)
 
-[示例3：chirper上的shadowai行为解读](/examples/example03.json) -->
+<!-- [Example 4: Knowledge Planet Assistant](/examples/combo/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83%E5%8A%A9%E6%89%8B_mFnsueSPO86CkHudr6sD2.json) -->
+
 
 
 ## Example of Combo Data

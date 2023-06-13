@@ -383,8 +383,8 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                         marginBottom: '10px',
                         padding: '0px',
                         boxShadow: 'none',
-                        display: 'flex',
-                        flexWrap: 'wrap',
+                        // display: 'flex',
+                        // flexWrap: 'wrap',
                     }}>
                     {
                         data.type == "images" ?

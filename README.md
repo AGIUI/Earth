@@ -69,49 +69,97 @@ npm run build [browser]
 
 
 ## Combo的一些示例
+[示例1：漫画生成](/examples/combo/%E6%BC%AB%E7%94%BB%E7%94%9F%E6%88%90_hxTElLdYiylK18tU5cPtf.json)
 
-待更新
+[示例2：sd图像生成API](/examples/combo/sd%E5%9B%BE%E5%83%8F%E7%94%9F%E6%88%90API_4c35df6f7513b1ed1926b9b7b1415ab3.json)
 
-<!-- [示例1：获取微博信息-创作科幻故事.json](/examples/example01.json)
+[示例3：提取邮件信息](/examples/combo/%E6%8F%90%E5%8F%96%E9%82%AE%E4%BB%B6%E4%BF%A1%E6%81%AF_2f77d6ca8eaec9534233812874e6f202.json)
 
-[示例2：获取微博最新消息，写一个访谈提纲](/examples/example02.json)
-
-[示例3：chirper上的shadowai行为解读](/examples/example03.json) -->
+[示例4：知识星球助手](/examples/combo/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83%E5%8A%A9%E6%89%8B_mFnsueSPO86CkHudr6sD2.json)
 
 
 ## combo的数据示例
 ```
-[{
-    "interfaces": [],
-    "combo": 3,
-    "id": "1881e7d386e",
-    "isInfinite": false,
-    "owner": "user",
-    "prompt": {
-        "input":'default',
-        "output": 'default',
-        "agent":'default'
-        "api": {},
-        "queryObj": {
-            "isQuery": false,
-            "query": "",
-            "url": ""
+[
+    {
+        "tag": "提取邮件信息",
+        "role": {
+            "text": "麦肯锡咨询专家，掌握了非常多的方法，擅长分析整理信息。"
         },
-        "text": "给我一个科幻故事，和植物、机器人、爱情有关",
-        temperature: 0.6,
-        model: 'ChatGPT',
-    },
-    "prompt3": {
-        "text": "嗯",
-        temperature: 0.6,
-        model: 'ChatGPT',
-    },
-    "role": "",
-    "tag": "科幻故事"
-}]
+        "combo": 3,
+        "interfaces": [
+            "showInChat",
+            "contextMenus",
+            "home"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "prompt22f77d6ca8eaec9534233812874e6f202",
+            "nextId": "prompt32f77d6ca8eaec9534233812874e6f202",
+            "nodeInputId": "",
+            "role": {
+                "text": "麦肯锡咨询专家，掌握了非常多的方法，擅长分析整理信息。"
+            },
+            "text": "",
+            "url": "",
+            "queryObj": {
+                "action": "default",
+                "content": "bindCurrentPage",
+            },
+            "temperature": 0.6,
+            "model": "ChatGPT",
+            "input": "nodeInput",
+            "translate": "default",
+            "output": "default",
+            "type": "queryRead"
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "2f77d6ca8eaec9534233812874e6f202",
+        "createDate": 1686640915993,
+        "prompt2": {
+            "id": "prompt32f77d6ca8eaec9534233812874e6f202",
+            "nextId": "prompt42f77d6ca8eaec9534233812874e6f202",
+            "nodeInputId": "prompt22f77d6ca8eaec9534233812874e6f202",
+            "role": {
+                "text": "麦肯锡咨询专家，掌握了非常多的方法，擅长分析整理信息。"
+            },
+            "text": "用中文回答，提取摘要，时间、地点、人物、事件、链接等信息。",
+            "temperature": 0.3,
+            "model": "ChatGPT",
+            "input": "nodeInput",
+            "userInput": "",
+            "translate": "translate-zh",
+            "output": "markdown",
+            "type": "prompt"
+        },
+        "prompt3": {
+            "id": "prompt42f77d6ca8eaec9534233812874e6f202",
+            "nextId": "",
+            "nodeInputId": "prompt32f77d6ca8eaec9534233812874e6f202",
+            "role": {
+                "text": "麦肯锡咨询专家，掌握了非常多的方法，擅长分析整理信息。"
+            },
+            "text": "提取AI相关的信息，给这些信息评分，满分是5分，并写一句推荐文案推荐给我这个内容。输出格式：\n分数、AI信息、推荐文案",
+            "temperature": 0.24,
+            "model": "ChatGPT",
+            "input": "nodeInput",
+            "translate": "translate-zh",
+            "output": "default",
+            "type": "prompt"
+        }
+    }
+]
 ```
 
 ## 版本记录
+
+#### v0.3.5
+- 多国语言支持 i18n
+
+- 提供combo示例
+
 
 #### v0.3.4
 - 增加整体调试功能

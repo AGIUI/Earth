@@ -25,33 +25,45 @@ async function loadContextMenuData() {
 
     if (res['user'] && res['user'].length > 0) {
         for (let i in res['user']) {
-            if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus')) {
+            const infs = res['user'][i].interfaces && res['user'][i].interfaces;
+
+            if (infs.includes('contextMenus') ||
+                infs.includes('contextMenus-page') ||
+                infs.includes('contextMenus-all')
+            ) {
                 Workflow.push(res['user'][i])
-            } else if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Selection')) {
+            } else if (infs.includes('contextMenus-selection')) {
                 selectionConfig.push(res['user'][i]);
-            } else if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Editable')) {
+            } else if (infs.includes('contextMenus_editable')) {
                 editableConfig.push(res['user'][i]);
-            } else if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_PDF')) {
+            } else if (infs.includes('contextMenus-pdf')) {
                 pdfConfig.push(res['user'][i])
-            } else if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Link')) {
+            } else if (infs.includes('contextMenus-link')) {
                 linkConfig.push(res['user'][i])
             }
+
         }
     }
 
     if (res['official'] && res['official'].length > 0) {
         for (let i in res['official']) {
-            if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus')) {
+
+            const infs = res['official'][i].interfaces && res['official'][i].interfaces;
+
+            if (infs.includes('contextMenus') ||
+                infs.includes('contextMenus-page') ||
+                infs.includes('contextMenus-all')) {
                 Workflow.push(res['official'][i])
-            } else if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Selection')) {
+            } else if (infs.includes('contextMenus-selection')) {
                 selectionConfig.push(res['official'][i]);
-            } else if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Editable')) {
+            } else if (infs.includes('contextMenus_editable')) {
                 editableConfig.push(res['official'][i]);
-            } else if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_PDF')) {
+            } else if (infs.includes('contextMenus-pdf')) {
                 pdfConfig.push(res['official'][i])
-            } else if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Link')) {
+            } else if (infs.includes('contextMenus-link')) {
                 linkConfig.push(res['official'][i])
             }
+
         }
     }
 

@@ -116,6 +116,7 @@
     "openPromptsCombo": "开启Prompts Combo",
     "showInChatOption": "作为对话流选项",
     "contextMenusOption": "作为右键菜单选项",
+    "contextMenusOptionChildren": "右键菜单上下文",
     "homeOption": "首页",
     "infiniteLoopOption": "无限循环",
 
