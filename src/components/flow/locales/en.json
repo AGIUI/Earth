@@ -22,6 +22,8 @@
     "bindWebContent": "Bind Web Content",
     "bindWebHTML": "Bind Web HTML",
     "bindWebURL": "Bind Web URL",
+    "bindWebTitle": "Web Title",
+    "bindWebImages": "Web Images",
     "userSelection": "User Selection",
     "clipboard": "Clipboard",
     "asContext": "As Context",

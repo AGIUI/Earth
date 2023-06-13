@@ -22,6 +22,8 @@
     "bindWebContent": "绑定网页正文",
     "bindWebHTML": "绑定网页HTML",
     "bindWebURL": "绑定网页URL",
+    "bindWebTitle": "网页标题",
+    "bindWebImages": "网页图片",
     "userSelection": "用户划选",
     "clipboard": "剪切板",
     "asContext": "作为上下文",
