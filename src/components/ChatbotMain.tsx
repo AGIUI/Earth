@@ -8,6 +8,7 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 
 import ComboEditor from '@components/combo/ComboEditor';
 
+import i18n from 'i18next';
 
 import {
     promptBindCurrentSite,
@@ -221,9 +222,9 @@ const Talks = {
         Array.from(dom.querySelectorAll('td'), (a: any) => {
             a.style = `margin: 8px 0;
             background: #eee;
-            border-right: 1px dashed #bdbdbd;`
+            border-right: 1px dashed #bdbdbd;
+            padding: 4px;`
         });
-        
         
 
         let json = { html: dom.innerHTML };
@@ -416,7 +417,9 @@ class Main extends React.Component<{
                     responseType, data: result } = data;
                 const ttype = responseExtract.type;
 
-                const markdown = `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`;
+                const markdown = `${i18n.t("APISucess")}:
+                TYPE:${data.responseType} ${ttype}
+                CONTENT:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`;
 
                 const items: any = [{
                     type: 'task',
@@ -1360,6 +1363,10 @@ class Main extends React.Component<{
                     promptJson = { ...promptJson, ...promptBindRole(promptJson.userInput, prompt.role) }
                 }
 
+
+                /**
+                 * input的处理，只有特定的type才有
+                 */
                 // input的处理
                 if (['bindCurrentPage',
                     'bindCurrentPageHTML',
@@ -1378,8 +1385,9 @@ class Main extends React.Component<{
                     }
                     query = "";
                     promptJson = { ...promptJson, ...promptBindCurrentSite(promptJson.userInput, type, query) }
-                }
+                };
 
+               
                 if (prompt.input == 'userSelection') {
                     // 从用户划选
                     promptJson = { ...promptJson, ...promptBindUserSelection(promptJson.userInput) }

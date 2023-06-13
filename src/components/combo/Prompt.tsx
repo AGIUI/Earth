@@ -17,6 +17,7 @@ import { encode, decode } from '@nem035/gpt-3-encoder'
 import { hashJson, md5, textSplitByLength } from '@components/Utils'
 
 const MAX_LENGTH = 2800;
+const delimiter = `####`
 
 const cropText = (
     text: string,
@@ -111,7 +112,7 @@ function promptParse(prompt: any) {
         text: "当前网页正文",
         html: "当前网页",
         images: "当前网页图片",
-        context: "上一次聊天信息",
+        context: "最新assistant回复",
         userInput: "用户输入",
         translate: "翻译",
     }
@@ -126,12 +127,12 @@ function promptParse(prompt: any) {
 
     const roleText = (prompt['role'].name ? prompt['role'].name + ',' : '') + prompt['role'].text;
     if (roleText.trim()) {
-        system.content += `\n####${systemKeys['role']}:${roleText}`
+        system.content += `\n${delimiter}${systemKeys['role']}:${roleText}`
     }
 
     for (const key in systemKeys) {
         if (key != 'role') {
-            if (prompt[key] && prompt[key].trim()) system.content += `\n####${systemKeys[key]}:${prompt[key]}`
+            if (prompt[key] && prompt[key].trim()) system.content += `\n${delimiter}${systemKeys[key]}:${prompt[key]}`
         }
     }
 
@@ -145,14 +146,14 @@ function promptParse(prompt: any) {
 
     for (const key in userKeys) {
         if (key != "userInput") {
-            if (prompt[key] && prompt[key].trim()) user.content += `\n####${userKeys[key]}:${prompt[key]}`
+            if (prompt[key] && prompt[key].trim()) user.content += `\n${delimiter}${userKeys[key]}:${prompt[key]}`
         }
     }
 
     if (!user.content) {
         user.content += prompt['userInput'];
     } else {
-        user.content += prompt['userInput'] ? `\n####${userKeys['userInput']}:` + prompt['userInput'] : "";
+        user.content += prompt['userInput'] ? `\n${delimiter}${userKeys['userInput']}:` + prompt['userInput'] : "";
     }
 
     user.content = user.content.trim();
@@ -368,7 +369,7 @@ const promptBindOutput = (userInput: string, type: string) => {
     } else if (type == 'table') {
         prompt.output = '回答user的结果只允许是table结构'
     } else if (type == 'markdown') {
-        prompt.output = `输出Markdown格式，不允许出现####{xxx}`
+        prompt.output = `输出Markdown格式，不允许出现${delimiter}{xxx}`
     } else if (type == 'json') {
         prompt.output = `回答user的结果只允许是JSON数组或对象`
     } else if (type == 'list') {

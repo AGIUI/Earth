@@ -24,6 +24,7 @@
     "bindWebURL": "绑定网页URL",
     "bindWebTitle": "网页标题",
     "bindWebImages": "网页图片",
+    "lastTalk": "最近一条回复",
     "userSelection": "用户划选",
     "clipboard": "剪切板",
     "asContext": "作为上下文",
@@ -225,6 +226,8 @@
     "copyText": "拷贝纯文本",
     "exportPPT": "导出PPT",
     "selected": "已选",
-    "selectIt": "选择"
+    "selectIt": "选择",
+
+    "APISucess": "API请求成功"
 
 }

@@ -82,6 +82,12 @@ const workflow = () => ({
     },
     {
         "ask": true,
+        "label": i18n.t("lastTalk"),
+        "value": "nodeInput",
+        "display": ["chatbot", "editor"]
+    },
+    {
+        "ask": true,
         "label": i18n.t("userSelection"),
         "value": "userSelection",
         "display": ["chatbot", "editor"]

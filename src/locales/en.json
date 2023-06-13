@@ -24,6 +24,7 @@
     "bindWebURL": "Bind Web URL",
     "bindWebTitle": "Web Title",
     "bindWebImages": "Web Images",
+    "lastTalk": "Latest Reply",
     "userSelection": "User Selection",
     "clipboard": "Clipboard",
     "asContext": "As Context",
@@ -219,6 +220,8 @@
     "copyText": "Copy plain text",
     "exportPPT": "Export PPT",
     "selected": "Selected",
-    "selectIt": "Select"
+    "selectIt": "Select",
+
+    "APISucess": "API request successful"
 
 }
