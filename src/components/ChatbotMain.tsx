@@ -210,7 +210,21 @@ const Talks = {
             text-align: center;
             margin: 4px;
             border-radius: 8px;`
-        })
+        });
+
+        // 表格样式
+        Array.from(dom.querySelectorAll('th'), (a: any) => {
+            a.style = `background: #dddddd;
+            padding: 4px;`
+        });
+
+        Array.from(dom.querySelectorAll('tr'), (a: any) => {
+            a.style = `margin: 8px 0;
+            background: #eee;
+            border-right: 1px dashed #bdbdbd;`
+        });
+        
+        
 
         let json = { html: dom.innerHTML };
         return json
