@@ -1749,10 +1749,10 @@ class Main extends React.Component<{
                 hi: this.state.chatBotType
             }))
 
-            this._getChatBotFromLocal().then((data: any) => {
-                console.log('_getChatBotFromLocal', data)
-                console.log(chrome.storage.sync.get('chatBotAvailables'))
-            })
+            // this._getChatBotFromLocal().then((data: any) => {
+            //     // console.log('_getChatBotFromLocal', data)
+            //     // console.log(chrome.storage.sync.get('chatBotAvailables'))
+            // })
 
             // this.initChatBot(true)
         }

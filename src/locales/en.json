@@ -34,6 +34,7 @@
     "autoClick": "Click",
     "jsonFormat": "JSON Format",
     "list": "List",
+    "table": "Table",
     "markdownFormat": "Markdown Format",
     "chinese": "Chinese",
     "english": "English",
@@ -76,6 +77,9 @@
     "updateStatus": "Update Status",
     "modify": "Modify",
     "versionNow": "Version",
+    "detail": "Detail",
+    "questionPost": "Submit question",
+    "buyKey": "Purchase",
 
     "createMyPrompts": "Create My Prompts",
     "myPrompts": "My Prompts",

@@ -26,3 +26,4 @@ i18n
       escapeValue: false, // 不需要对翻译文本进行转义
     },
   });
+// console.log('i18n',i18n)

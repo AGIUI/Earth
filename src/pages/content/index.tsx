@@ -1,6 +1,10 @@
 import { createRoot } from "react-dom/client";
 import Main from "@src/components/ChatbotMain";
-import { getConfigFromUrl, getConfig,addCss } from "@components/Utils"
+import { getConfigFromUrl, getConfig, addCss } from "@components/Utils"
+
+// import i18n from 'i18next';
+import '@src/locales/i18nConfig'
+
 
 let json: any = getConfig() || {};
 let id = json.app + "_dom";
@@ -62,7 +66,7 @@ async function init() {
 
 }
 
- 
+
 // 如果是
 function readerHack(reader: boolean) {
   if (window.location.hostname.match('producthunt.com')) return false

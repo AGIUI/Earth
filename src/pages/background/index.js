@@ -10,7 +10,7 @@ import commonsConfig from '@src/config/commonsConfig.json'
 import editableConfig from '@src/config/editableConfig.json'
 import selectionConfig from '@src/config/selectionConfig.json'
 import i18n from 'i18next';
-import '../../locales/i18nConfig'
+import '@src/locales/i18nConfig'
 
 const _CONFIG_JSON = getConfig()
 
@@ -73,7 +73,7 @@ async function loadContextMenuData() {
 
     chrome.contextMenus.create({
         id: 'open-chatbot-panel',
-        title: "打开面板",
+        title: i18n.t('openPanel'),
         type: 'normal',
 
         parentId: 'Earth',
@@ -84,7 +84,7 @@ async function loadContextMenuData() {
     if (commonsConfig.length !== 0) {
         chrome.contextMenus.create({
             id: 'commonsConfig',
-            title: '常用功能',
+            title: i18n.t('commonFeatures'),
             type: 'normal',
 
             parentId: 'Earth',
@@ -105,7 +105,7 @@ async function loadContextMenuData() {
     if (Workflow.length !== 0) {
         chrome.contextMenus.create({
             id: 'Workflow',
-            title: '工作流',
+            title: i18n.t('workflow'),
             type: 'normal',
 
             parentId: 'Earth',
@@ -247,7 +247,8 @@ async function loadContextMenuData() {
                     if (PromptJson.input === "userSelection") {
                         const context = item.selectionText;
                         if (context) {
-                            PromptJson.text = "###相关内容###\n" + context + "\n" + PromptJson.text
+                            PromptJson.prompt.userInput = context;
+                            // "###相关内容###\n" + context + "\n" + PromptJson.text
                         }
                     }
                     chrome.tabs.sendMessage(

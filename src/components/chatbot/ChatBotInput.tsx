@@ -357,7 +357,8 @@ class ChatBotInput extends React.Component {
                                     size="small"
                                 />
                             </div>
-                            <div style={flexStyle}><LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
+                            <div style={flexStyle}>
+                                <LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
                                 options={this.state.output}
                                 onChange={(e) => this._change(e.target.value, 'output')}
                                 value={this.state.output.filter((m: any) => m.checked)[0].value}
