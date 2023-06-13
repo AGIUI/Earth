@@ -68,11 +68,7 @@ if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack 
 declare const window: Window &
     typeof globalThis & {
         _brainwave_import: any,
-        _brainwave_get_current_node_for_workflow: any,
-        _brainwave_get_workflow_data: any,
-        _brainwave_save_callback: any,
-        _brainwave_save_callback_init: any,
-        _brainwave_debug_callback: any
+       
     }
 
 
@@ -264,7 +260,7 @@ const sendMessageToBackground = {
     'api-run': (data: any) => sendMessageCanRetry('api-run', data, console.log),
     'open-options-page': (data: any) => sendMessageCanRetry('open-options-page', data, console.log),
     'hi': (data: any) => sendMessageCanRetry('hi', data, console.log),
-     
+
 }
 
 
@@ -590,8 +586,8 @@ class Main extends React.Component<{
                 })
             } else if (cmd == 'chat-bot-init-result') {
                 this.initChatBot(false);
-            } 
-            
+            }
+
 
             sendResponse('我是content，已收到消息')
             return true;
@@ -714,7 +710,7 @@ class Main extends React.Component<{
 
 
         let { url, init, protocol } = prompt.api;
-     
+
         if (url && !url.match('//')) url = `${protocol}${url}`;
         // console.log(api, init.body)
 
@@ -1393,8 +1389,7 @@ class Main extends React.Component<{
                 if (prompt.translate != "default") {
                     promptJson = { ...promptJson, ...promptBindTranslate(promptJson.userInput, prompt.translate) }
                 }
-
-
+               
                 // output的处理
                 promptJson = { ...promptJson, ...promptBindOutput(promptJson.userInput, prompt.output) }
 
@@ -1409,7 +1404,10 @@ class Main extends React.Component<{
                 }
 
                 // role 给调试用
-                if (promptJson.type == 'prompt' || promptJson.type == 'role') this._llmRun(promptJson, newTalk);
+                if ([
+                    'prompt',
+                    'role',
+                ].includes(promptJson.type)) this._llmRun(promptJson, newTalk);
 
 
                 // 标记当前执行状态，以及下一条
@@ -1438,6 +1436,7 @@ class Main extends React.Component<{
                 if (promptJson.type === 'highlight') {
                     // this._agentHighlightTextRun(lastTalk)
                 }
+
 
                 // 提取 <lastTalk> 里的传给api\send-to-zsxq\query
                 // let d = document.createElement('div');

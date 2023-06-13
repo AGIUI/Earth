@@ -35,7 +35,7 @@ function get() {
 
 
 function getInput() {
-    return Array.from(workflow.inputs, inp => {
+    return Array.from(workflow().inputs, inp => {
         if (inp.display.includes('chatbot')) return {
             ...inp
         }
@@ -43,7 +43,7 @@ function getInput() {
 }
 
 function getOutput() {
-    return Array.from(workflow.outputs, out => {
+    return Array.from(workflow().outputs, out => {
         if (out.display.includes('chatbot')) return {
             ...out
         }
@@ -51,7 +51,7 @@ function getOutput() {
 }
 
 function getTranslate() {
-    return Array.from(workflow.translates, translate => {
+    return Array.from(workflow().translates, translate => {
         if (translate.display.includes('chatbot')) return {
             ...translate
         }
@@ -59,7 +59,7 @@ function getTranslate() {
 }
 
 function getAgentOpts() {
-    return Array.from(workflow.agents, (agent: any) => {
+    return Array.from(workflow().agents, (agent: any) => {
         if (!agent.disabled && agent.display.includes('chatbot')) return {
             value: agent.key,
             label: agent.label,

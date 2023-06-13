@@ -47,7 +47,7 @@ export const createSelect = (title: string, value: string, opts: any, onChange: 
     <p>{title}</p>
     <Select
         value={value}
-        style={{ width: 120 }}
+        style={{ width: 200 }}
         onChange={(e) => {
             onChange({
                 key: title,
@@ -58,12 +58,12 @@ export const createSelect = (title: string, value: string, opts: any, onChange: 
     />
 </>
 
-export const createTextArea = (title: string, value: string, status: any, onChange: any) => <>
+export const createTextArea = (title: string, value: string,placeholder:string, status: any, onChange: any) => <>
     <p>{title}</p>
     <TextArea
         value={value}
         rows={4}
-        placeholder={value}
+        placeholder={placeholder}
         autoSize
         status={status}
         onChange={(e) => {
@@ -133,7 +133,13 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
 
 // 选择输入，从用户输入 or 从节点
 
-export const selectInput = (nodeInputLabel: string, userInputLabel: string, nodeInputId: string, userInput: string, nodeOpts: any, onChange: any) => {
+export const selectInput = (
+    nodeInputLabel: string, 
+    userInputLabel: string, 
+    nodeInputId: string, 
+    userInput: string, 
+    nodeOpts: any, 
+    onChange: any) => {
 
     // const [inp, setInp] = React.useState(nodeInputId ? 'nodeInput' : "userInput");
     // console.log(inp)
@@ -169,7 +175,7 @@ export const selectInput = (nodeInputLabel: string, userInputLabel: string, node
                 style={{ marginTop: '8px' }}
                 value={uinp}
                 rows={4}
-                placeholder={""}
+                placeholder={"input ..."}
                 autoSize
                 onChange={(e) => {
                     setUserInput(e.target.value)
@@ -288,7 +294,9 @@ export const createModel = (model: string, temperature: number, opts: any, onCha
             })}
     </Radio.Group>
 
-    <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}</p>
+    <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}
+        <span style={{ fontSize: '12px',marginLeft:'12px' }}>: {temperature}</span>
+    </p>
 
     <div
         onMouseOver={() => {

@@ -5,8 +5,6 @@
 
 
 import i18n from "i18next";
-import "@src/locales/i18nConfig"
-
 
 /**
  * workflow的开关
@@ -42,7 +40,7 @@ const roleAvatars = [
 
 
 
-const workflow = {
+const workflow = () => ({
     "models": [
         {
             "label": i18n.t("divergenceDegree"),
@@ -190,31 +188,33 @@ const workflow = {
             "display": ["chatbot", "editor", "debug"]
         }
     ]
+})
 
-}
+const comboOptions = () => {
+    // console.log(i18n,1,i18n.t('showInChatOption'))
+    return [
+        {
+            label: i18n.t('showInChatOption'),
+            value: 'showInChat',
+        },
+        {
+            label: i18n.t('contextMenusOption'),
+            value: 'contextMenus',
+        },
+        {
+            label: i18n.t('homeOption'),
+            value: 'home',
+            disabled: true
+        },
+        {
+            label: i18n.t('infiniteLoopOption'),
+            value: 'infinite',
+            disabled: true
+        }
+    ]
+};
 
-const comboOptions = [
-    {
-        label: i18n.t('showInChatOption'),
-        value: 'showInChat',
-    },
-    {
-        label: i18n.t('contextMenusOption'),
-        value: 'contextMenus',
-    },
-    {
-        label: i18n.t('homeOption'),
-        value: 'home',
-        disabled: true
-    },
-    {
-        label: i18n.t('infiniteLoopOption'),
-        value: 'infinite',
-        disabled: true
-    }
-];
-
-const defaultNode = {
+const defaultNode = () => ({
     text: '',
     url: '',
     api: {
@@ -234,7 +234,7 @@ const defaultNode = {
             "key": "images",
             "type": "images"
         },//responseExtract
-        isApi: false
+
     },
     queryObj: {
         query: '',
@@ -242,7 +242,7 @@ const defaultNode = {
         protocol: 'https://',
         content: 'bindCurrentPage',//给read使用
         action: 'default', // 网页跳转 default、模拟点击click 、输入input、读取read
-        isQuery: false
+
     },
     temperature: 0.6,
     model: 'ChatGPT',
@@ -253,12 +253,12 @@ const defaultNode = {
     type: 'prompt',//运行时使用
     // 以下是选项
     opts: {
-        ...workflow
+        ...workflow()
     },
 
-}
+})
 
-const _DEFAULTCOMBO = {
+const _DEFAULTCOMBO = (app: string, version: string) => ({
     tag: 'default',
     role: {
         name: '',
@@ -269,11 +269,11 @@ const _DEFAULTCOMBO = {
     isInfinite: false,
     owner: 'user',
     prompt: {},
-    version: '0.3.3',
-    app: 'earth',
+    version: version || '0.3.5',
+    app: app || 'earth',
     id: 'default',
     createDate: (new Date()).getTime()
-}
+})
 
 const debugInfo = (prompt: any) => {
     console.log('debugInfo', prompt)

@@ -4,10 +4,9 @@ import { Card, Select, Radio, Slider, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 
 import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
 
-import { createDebug, selectNodeInput, createText, createSelect,createOutput,createModel } from './Base';
+import { createDebug, selectNodeInput, createText, createSelect, createOutput, createModel } from './Base';
+import { i18nInit } from '../locales/i18nConfig';
 
 
 export type NodeData = {
@@ -29,54 +28,20 @@ export type NodeData = {
   translate: any
 };
 
-
-
-const resources = {
-  zh: {
-    translation: {
-      title: '提示工程',
-      userInput: '指令',
-      input: '输入',
-      output: '输出',
-      translate: '翻译',
-      format: '-',
-
-      getFromBefore: "从上一节点获取文本 ${text} ",
-
-      debug: "调试",
-      debugRun: '运行',
-      inputText: '输入',
-      inputTextPlaceholder: '',
-      outputText: '输出',
-      outputTextPlaceholder: '',
-    },
-  },
-  en: {
-    translation: {
-      title: 'Prompt',
-      userInput: 'UserInput',
-      input: 'Input',
-      output: 'Output',
-      translate: 'Translate',
-      format: '-',
-
-      getFromBefore: "Get text from previous node ${text}",
-
-      debug: "Debug",
-      debugRun: 'Run',
-      inputText: 'Input',
-      inputTextPlaceholder: '',
-      outputText: 'Output',
-      outputTextPlaceholder: '',
-    },
-  },
-};
-
 const nodeStyle = {
   border: '1px solid transparent',
   padding: '2px 5px',
   borderRadius: '12px',
 };
+
+
+const contextMenus: MenuProps['items'] = [
+  {
+    label: i18n.t('debug'),
+    key: 'debug',
+  }
+];
+
 
 const createTextAndInput = (
   title: string,
@@ -139,27 +104,8 @@ const createTranslate = (title: string, key: string, value: string, opts: any, o
 
 
 function Main({ id, data, selected }: NodeProps<NodeData>) {
-  // console.log('RoleNode', JSON.stringify(data, null, 2))
-  i18n
-    .use(LanguageDetector)
-    .use(initReactI18next)
-    .init({
-      resources,
-      fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
-      lng: navigator.language,
-      debug: false,
-      interpolation: {
-        escapeValue: false, // 不需要对翻译文本进行转义
-      },
-    });
-
-  const contextMenus: MenuProps['items'] = [
-    {
-      label: i18n.t('debug'),
-      key: 'debug',
-    }
-  ];
-
+  // console.log('RoleNode data.opts', data)
+  i18nInit()
 
   // 模型
   const models = data.opts.models;
@@ -231,6 +177,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
   // output
   const outputs = data.opts.outputs;
+  console.log(data.opts)
   const [output, setOutput] = React.useState(data.output)
   const updateOutput = (e: any) => {
     // console.log(e)
@@ -253,7 +200,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     node.push(createTextAndInput(i18n.t('userInput'), text, input, nodeOpts, selectNodeValue, updateTextAndInput))
     node.push(createModel(model, temperature, models, updateModel))
     node.push(createTranslate(i18n.t('translate'), 'translate', translate, translates, updateTranslate))
-    node.push(createOutput(i18n.t('output'), 'output', output, outputs, updateOutput))
+    node.push(createOutput(i18n.t('outputText'), 'output', output, outputs, updateOutput))
 
 
     node.push(createDebug({
@@ -270,7 +217,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
     return <Card
       key={id}
-      title={i18n.t('title')}
+      title={i18n.t('promptNodeTitle')}
       bodyStyle={{ paddingTop: 0 }}
       // extra={createType(type, agents, updateType)}
       style={{ width: 300 }}>
@@ -279,12 +226,12 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
   }
 
   return (
-    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
+    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug(data) : '' }} trigger={['contextMenu']}>
       <div style={selected ? {
         ...nodeStyle,
         backgroundColor: 'cornflowerblue'
-      } : nodeStyle} 
-      key={id}>
+      } : nodeStyle}
+        key={id}>
 
         {createNode()}
         <Handle type="target" position={Position.Left} />

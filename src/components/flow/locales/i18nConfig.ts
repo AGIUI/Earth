@@ -14,7 +14,8 @@ const resources = {
   },
 };
 
-i18n
+export const i18nInit=()=>{
+  i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
@@ -25,5 +26,5 @@ i18n
     interpolation: {
       escapeValue: false, // 不需要对翻译文本进行转义
     },
-  });
-// console.log('i18n',i18n)
+  }); 
+}

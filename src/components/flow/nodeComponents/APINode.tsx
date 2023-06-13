@@ -2,11 +2,10 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Card, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
-
 import { createDebug, selectNodeInput, createURL, createSelect, createTextArea } from './Base';
+
+import i18n from "i18next";
+import { i18nInit } from '../locales/i18nConfig';
 
 export type NodeData = {
     nodeInputId: string;
@@ -24,90 +23,22 @@ export type NodeData = {
     onChange: any
 };
 
-
-
 const nodeStyle = {
     border: '1px solid transparent',
     padding: '2px 5px',
     borderRadius: '12px',
 };
 
-const resources = {
-    en: {
-        translation: {
-            title: 'API Call',
-            url: 'URL',
-            urlPlaceholder: "Please enter www.xxxx.com",
-            method: 'Method',
-            parama: 'Parameters (String)',
-            getFromBefore: "Get text from previous node ${text}",
-            responseType: 'Response Data Type',
-            output: 'Output',
-            outputKeyword: "Output Field",
-            debug: "Debug",
-            debugRun: 'Run',
-            debugParama: 'Request Parameters',
-            text: 'Text',
-            images: 'Images',
-            audio: 'Audio',
-
-            inputText: 'Input',
-            inputTextPlaceholder: '',
-            outputText: 'Output',
-            outputTextPlaceholder: '',
-
-        },
-    },
-    zh: {
-        translation: {
-            title: 'API调用',
-            url: 'URL',
-            urlPlaceholder: "请输入www.xxxx.com",
-            method: '方法',
-            parama: '参数(字符串)',
-            getFromBefore: "从上一节点获取文本 ${text} ",
-            responseType: '返回的数据类型',
-            output: '输出',
-            outputKeyword: "输出字段",
-            debug: "调试",
-            debugRun: '运行',
-            debugParama: '请求参数',
-            text: '文本',
-            images: '多张图片',
-            audio: '音频',
-
-            inputText: '输入',
-            inputTextPlaceholder: '',
-            outputText: '输出',
-            outputTextPlaceholder: '',
-        },
-    },
-};
+const contextMenus: MenuProps['items'] = [
+    {
+        label: i18n.t('debug'),
+        key: 'debug',
+    }
+];
 
 
 function Main({ id, data, selected }: NodeProps<NodeData>) {
-
-    i18n
-        .use(LanguageDetector)
-        .use(initReactI18next)
-        .init({
-            resources,
-            fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
-            lng: navigator.language,
-            debug: false,
-            interpolation: {
-                escapeValue: false, // 不需要对翻译文本进行转义
-            },
-        });
-
-    const contextMenus: MenuProps['items'] = [
-        {
-            label: i18n.t('debug'),
-            key: 'debug',
-        }
-    ];
-
-
+    i18nInit()
 
     const [api, setApi] = React.useState(data.api)
 
@@ -185,9 +116,8 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
         })
     }
 
-
     return (
-        <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
+        <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug(data) : '' }} trigger={['contextMenu']}>
             <div
                 style={selected ? {
                     ...nodeStyle,
@@ -198,7 +128,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
                 <Card
                     key={id}
-                    title={i18n.t('title')}
+                    title={i18n.t('apiNodeTitle')}
                     bodyStyle={{ paddingTop: 0 }}
                     style={{ width: 300 }}>
                     <div
@@ -257,7 +187,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                         }
 
                         {
-                            createTextArea(i18n.t('parama'), body, bodyStatus, (e: any) => {
+                            createTextArea(i18n.t('parama'), body, '', bodyStatus, (e: any) => {
                                 onChange({
                                     key: "body",
                                     data: e.data
@@ -316,7 +246,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
 
                         {
-                            createTextArea(i18n.t('outputKeyword'), extract.key, "", (e: any) => {
+                            createTextArea(i18n.t('outputKeyword'), extract.key, "key", "", (e: any) => {
                                 const d = {
                                     ...data.api,
                                     init: {
@@ -337,12 +267,12 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
                         {
                             createDebug({
-                                header:i18n.t('debug'),
-                                inputText:i18n.t('inputText'),
-                                inputTextPlaceholder:i18n.t('inputTextPlaceholder'),
-                                outputText:i18n.t('outputText'),
-                                outputTextPlaceholder:i18n.t('outputTextPlaceholder'),
-                                debugRun:i18n.t('debugRun'),
+                                header: i18n.t('debug'),
+                                inputText: i18n.t('inputText'),
+                                inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
+                                outputText: i18n.t('outputText'),
+                                outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
+                                debugRun: i18n.t('debugRun'),
                             }, id, init, data.api.debugOutput, (event: any) => {
                                 if (event.key == 'input') {
                                     try {

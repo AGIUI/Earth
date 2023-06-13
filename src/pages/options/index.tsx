@@ -2,25 +2,24 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { message, FloatButton } from 'antd';
 import { RobotOutlined } from '@ant-design/icons';
-import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry,addCss } from "@components/Utils"
+import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry, addCss } from "@components/Utils"
 import Flow from '@components/flow/index'
 import Chatbot from "@src/components/ChatbotMain";
 
 import { parseCombo2ControlEvent } from '@components/flow/Workflow'
 
+
+import i18n from 'i18next';
+
+
 const menuNames = {
-  devTooltip: '调试窗口'
+  devTooltip: '调试 Debug'
 }
 
 
 declare const window: Window &
   typeof globalThis & {
     _brainwave_import: any,
-    _brainwave_get_current_node_for_workflow: any,
-    _brainwave_get_workflow_data: any,
-    _brainwave_save_callback: any,
-    _brainwave_save_callback_init: any,
-    _brainwave_debug_callback: any
   }
 
 const config = getConfig();
@@ -74,8 +73,14 @@ function options() {
     if (changes['_brainwave_import'] && changes['_brainwave_import'].newValue) {
       // if (window._brainwave_import) window._brainwave_import(changes['_brainwave_import'].newValue)
       const { isNew, data } = changes['_brainwave_import'].newValue;
-      if (data) setLoadData(data)
-      if (isNew) setIsNew(!!isNew)
+      if (data) {
+        setLoadData(data)
+        setIsNew(false);
+      }
+      if (isNew) {
+        setIsNew(!!isNew);
+        setLoadData({})
+      }
       chromeStorageSet({
         '_brainwave_import': {}
       })
@@ -108,7 +113,7 @@ function options() {
       // if (type === 'add') newData.push(data);
 
       if (newData.length > 5) {
-        message.info('已达到最大存储数量')
+        message.info(i18n.t('maximumStorageLimitReached'))
         // message.error('已达到最大存储数量');
       };
 

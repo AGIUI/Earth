@@ -7,10 +7,9 @@ import type { MenuProps } from 'antd';
 const { Option } = Select;
 
 import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
-
+ 
 import { createDebug, createURL, createDelay } from './Base'
+import { i18nInit } from '../locales/i18nConfig';
 
 
 export type NodeData = {
@@ -23,53 +22,19 @@ export type NodeData = {
   onChange: any
 };
 
-const resources = {
-  zh: {
-    translation: {
-      title: '进入网页',
-      url: 'URL',
-      urlPlaceholder: "请填写url",
-      delay: "等待时间",
-      delayPlaceholder: "输入时间",
-      ms: '毫秒',
-      s: '秒',
-
-
-      debug: "调试",
-      debugRun: '运行',
-      inputText: '输入',
-      inputTextPlaceholder: '',
-      outputText: '输出',
-      outputTextPlaceholder: '',
-    },
-  },
-  en: {
-    translation: {
-      title: 'Enter Webpage',
-      url: 'URL',
-      urlPlaceholder: "Please enter URL",
-      delay: "Delay",
-      delayPlaceholder: "Enter time",
-      ms: 'ms',
-      s: 's',
-
-      debug: "Debug",
-      debugRun: 'Run',
-      inputText: 'Input',
-      inputTextPlaceholder: '',
-      outputText: 'Output',
-      outputTextPlaceholder: '',
-    },
-  },
-};
-
-
 const nodeStyle = {
   border: '1px solid transparent',
   padding: '2px 5px',
   borderRadius: '12px',
 };
 
+const contextMenus: MenuProps['items'] = [
+  {
+      label: i18n.t('debug'),
+      key: 'debug',
+  }
+];
+ 
 const createUI = (json: any, delay: number, delayFormat: string, onChange: any) => {
   const { protocol, url } = json;
 
@@ -126,8 +91,6 @@ const createUI = (json: any, delay: number, delayFormat: string, onChange: any) 
               }
             })
           }
-
-
         })
     }
 
@@ -136,39 +99,16 @@ const createUI = (json: any, delay: number, delayFormat: string, onChange: any) 
 }
 
 
-function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
+function Main({ id, data, selected }: NodeProps<NodeData>) {
+  i18nInit()
 
-  i18n
-    .use(LanguageDetector)
-    .use(initReactI18next)
-    .init({
-      resources,
-      fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
-      lng: navigator.language,
-      debug: false,
-      interpolation: {
-        escapeValue: false, // 不需要对翻译文本进行转义
-      },
-    });
-
-  const contextMenus: MenuProps['items'] = [
-    {
-      label: i18n.t('debug'),
-      key: 'debug',
-    }
-  ];
-
-
-  const [type, setType] = React.useState(data.type)
-  // console.log('QueryDefaultNode', data)
-
+ 
   // queryObj
-  data.queryObj.isQuery = type === "query";
+  // data.queryObj.isQuery = type === "query";
   const [queryObj, setQueryObj] = React.useState(data.queryObj)
 
   const [delay, setDelay] = React.useState(queryObj.delay || 1000)
   const [delayFormat, setDelayFormat] = React.useState('ms')
-
 
   const updateQueryObj = (e: any) => {
     // console.log(e)
@@ -207,7 +147,7 @@ function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
 
     return <Card
       key={id}
-      title={i18n.t('title')}
+      title={i18n.t('queryDefaultNodeTitle')}
       bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}
@@ -216,7 +156,7 @@ function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
 
 
   return (
-    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
+    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug(data) : '' }} trigger={['contextMenu']}>
       <div style={selected ? {
         ...nodeStyle,
         backgroundColor: 'cornflowerblue'
@@ -230,4 +170,4 @@ function QueryDefaultNode({ id, data, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default QueryDefaultNode;
+export default Main;

@@ -12,10 +12,6 @@ const { Text } = Typography;
 import i18n from 'i18next';
 
 
-import {
-    CloseOutlined
-} from '@ant-design/icons';
-
 import { chromeStorageGet, chromeStorageSet, md5, getConfig } from "@components/Utils"
 import { _DEFAULTCOMBO } from '@components/flow/Workflow'
 
@@ -139,7 +135,7 @@ class ComboEditor extends React.Component {
         const isNew = !!prompt.isNew;
         const data = {
             prompt: {
-                ..._DEFAULTCOMBO,
+                ..._DEFAULTCOMBO(this.state.app, this.state.version),
                 ...prompt
             },
             from: 'combo-editor',

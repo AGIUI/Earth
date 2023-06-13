@@ -1,9 +1,10 @@
 import React from 'react';
 import { Collapse } from 'antd';
 const { Panel } = Collapse;
-import nodes from '../nodeComponents/index'
+import getNodes from '../nodeComponents/index'
 
-const title = '组件'
+import i18n from "i18next";
+
 
 export default () => {
     const onDragStart = (event: any, nodeType: string, dataType: string) => {
@@ -15,14 +16,17 @@ export default () => {
         console.log(key);
     };
 
+    const nodes=getNodes()
+
     return (
-        <Collapse defaultActiveKey={Array.from(nodes,node=>node.title)}
+        <Collapse 
+        defaultActiveKey={Array.from(nodes,node=>node.title)}
             onChange={onChange}
             style={{
-                width: 180,
+                width: 180,userSelect: 'none',
                 background: 'white'
             }}>
-            <p style={{ paddingLeft: '24px' }}>{title}</p>
+            <p style={{ paddingLeft: '24px' }}>{i18n.t('component')}</p>
             {
                 Array.from(nodes, (node:any) => {
 
