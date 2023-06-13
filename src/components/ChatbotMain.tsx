@@ -218,7 +218,7 @@ const Talks = {
             padding: 4px;`
         });
 
-        Array.from(dom.querySelectorAll('tr'), (a: any) => {
+        Array.from(dom.querySelectorAll('td'), (a: any) => {
             a.style = `margin: 8px 0;
             background: #eee;
             border-right: 1px dashed #bdbdbd;`
