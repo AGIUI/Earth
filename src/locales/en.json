@@ -214,6 +214,11 @@
     "queryInputNodeTitle": "Text Input",
     "queryInputText": "Text Source",
     "nodeInputLabel": "From Node",
-    "userInputLabel": "From User Input"
+    "userInputLabel": "From User Input",
+
+    "copyText": "Copy plain text",
+    "exportPPT": "Export PPT",
+    "selected": "Selected",
+    "selectIt": "Select"
 
 }

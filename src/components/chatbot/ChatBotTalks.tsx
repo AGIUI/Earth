@@ -10,7 +10,7 @@ import ChatBotConfig from "./ChatBotConfig";
 import PPT from "@components/files/PPT"
 import { hashJson, getNowDate } from "../Utils";
 
-
+import i18n from 'i18next';
 /** < ChatBotTalks  callback={} items={}/>
  * 
  * export 是否允许导出
@@ -267,13 +267,13 @@ const createListItem = (data: any, index: number, debug: boolean) => {
     // console.log('createListItem', data.id)
     let items: any = [
         {
-            label: '拷贝纯文本',
+            label: i18n.t("copyText"),
             key: 'copy-text',
         },
     ];
 
     if (!debug) items.push({
-        label: '导出PPT',
+        label: i18n.t("exportPPT"),
         key: 'ppt',
     })
 
@@ -283,13 +283,10 @@ const createListItem = (data: any, index: number, debug: boolean) => {
     ];
 
     items.push({
-        label: data.selected ? '已选' : "选择",
+        label: data.selected ? i18n.t("selected") : i18n.t("selectIt"),
         key: 'select',
         icon: data.selected ? <SmileOutlined /> : '',
     })
-
-
-
 
     // console.log('createListItem',data)
     return <div style={{ margin: '5px 0' }} className={`chatbot-talk-card-${data.type}`}>{

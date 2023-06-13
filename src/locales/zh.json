@@ -220,6 +220,11 @@
     "queryInputNodeTitle": "文本输入",
     "queryInputText": "文本来源",
     "nodeInputLabel": "从节点",
-    "userInputLabel": "从用户输入"
+    "userInputLabel": "从用户输入",
+
+    "copyText": "拷贝纯文本",
+    "exportPPT": "导出PPT",
+    "selected": "已选",
+    "selectIt": "选择"
 
 }

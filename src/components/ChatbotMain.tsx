@@ -197,8 +197,8 @@ const Talks = {
         const dom = document.createElement('div');
         let md = new MarkdownIt();
         dom.innerHTML = md.render(text);
-        const texts = Array.from(dom.innerText.split('\n'), t => t.trim()).filter(f => f);
-        dom.innerHTML = texts.join('<br><br>')
+        // const texts = Array.from(dom.innerText.split('\n'), t => t.trim()).filter(f => f);
+        // dom.innerHTML = texts.join('<br><br>')
         Array.from(dom.querySelectorAll('a'), (a: any) => {
             a.innerText = a.innerText.replace(/\^/ig, '');
             a.style = `background: #1677ff;
