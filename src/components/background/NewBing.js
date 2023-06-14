@@ -279,10 +279,10 @@ class NewBing {
                                 data: 'Sorry, you have reached chat turns limit in this conversation.'
                             })
                         }
-                    } else if (event.item.result && event.item.result.error == "UnauthorizedRequest") {
+                    } else if (event.item.result && event.item.result.error) {
                         params.onEvent({
                             type: 'ERROR',
-                            data: 'UnauthorizedRequest'
+                            data: event.item.result.error
                         })
                     }
 

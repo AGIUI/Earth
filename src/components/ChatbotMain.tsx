@@ -73,7 +73,7 @@ declare const window: Window &
     }
 
 
-const defaultChatbots: any = ChatBotConfig.get();
+
 
 //['user']
 const getPromptsData = async (keys = ['user']) => {
@@ -113,7 +113,8 @@ const Talks = {
         return newTalks
     },
     save: (value: any) => {
-        // console.log(value)
+        console.log('Talks save', value)
+        // TODO from :open-url 
         let talks = Array.from(value, (v: any, index: number) => {
             // 去除user==true的连续重复
             if (v.user && value[index - 1] && v.html == value[index - 1].html) {
@@ -338,12 +339,14 @@ class Main extends React.Component<{
 
     //当前Prompts内有多少个prompt
     PromptIndex: number,
- 
+
 }> {
 
 
     constructor(props: any) {
-        super(props)
+        super(props);
+
+        const defaultChatbots: any = ChatBotConfig.get();
 
         // 聊天机器人类型
         const chatBotTypes = Array.from(defaultChatbots, (d: any) => d.type)
@@ -397,7 +400,7 @@ class Main extends React.Component<{
             showEdit: false,
 
             currentCombo: {},
-            PromptIndex: 0, 
+            PromptIndex: 0,
 
         }
 
@@ -1021,6 +1024,7 @@ class Main extends React.Component<{
             // 如果是本地缓存
             if (data.from == 'local' && !promptFromLocal) {
                 promptFromLocal = data.prompt;
+
                 // console.log('对话状态关闭')
                 isCanClearThinking = true;
                 setTimeout(() => this.updateChatBotStatus(false), 100);
@@ -1194,7 +1198,9 @@ class Main extends React.Component<{
 
         if (promptFromLocal) {
             // 因为是从本地获取的数据,需要添加是否新建对话?
-
+            console.log('promptFromLocal', promptFromLocal)
+            promptFromLocal = promptFromLocal.filter((p: any) => p.role == 'user')[0]?.content
+            //TODO bug需要修复
             nTalks.push(ChatBotConfig.createTalkData('send-talk-refresh', {
                 data: {
                     tag: promptFromLocal.slice(0, 10) + (promptFromLocal.length > 10 ? '...' : ''),
@@ -1836,7 +1842,7 @@ class Main extends React.Component<{
                             disabled={this.state.disabledAll}
                             callback={(e: any) => this._control(e)}
                             config={
-                                Array.from(defaultChatbots, (c: any) => {
+                                Array.from(ChatBotConfig.get(), (c: any) => {
                                     c.checked = (c.type == this.state.chatBotType);
                                     return c
                                 })}
