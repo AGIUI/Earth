@@ -209,12 +209,10 @@ const comboOptions = () => {
             children:
                 // contexts 上下文
                 Array.from([
-                    "all", "page",
-                    "frame",
-                    "selection","pdf",
-                    "link", "editable",
+                    "all", "page", "selection",
+                    "editable","pdf","link",
                     "image", "video", "audio",
-                    "launcher", "browser_action",
+                    "frame", "launcher", "browser_action",
                     "page_action", "action"
                 ], m => {
                     return {
