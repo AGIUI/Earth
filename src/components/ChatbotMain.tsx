@@ -69,7 +69,7 @@ if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack 
 declare const window: Window &
     typeof globalThis & {
         _brainwave_import: any,
-       
+
     }
 
 
@@ -225,7 +225,7 @@ const Talks = {
             border-right: 1px dashed #bdbdbd;
             padding: 4px;`
         });
-        
+
 
         let json = { html: dom.innerHTML };
         return json
@@ -330,7 +330,6 @@ class Main extends React.Component<{
     buttonsDisplay: string,
     expirationTime: number,
 
-
     toggleSetup: boolean,
     openMyPrompts: boolean,
     myPrompts: any,
@@ -339,7 +338,7 @@ class Main extends React.Component<{
 
     //当前Prompts内有多少个prompt
     PromptIndex: number,
-
+ 
 }> {
 
 
@@ -398,8 +397,7 @@ class Main extends React.Component<{
             showEdit: false,
 
             currentCombo: {},
-            PromptIndex: 0,
-
+            PromptIndex: 0, 
 
         }
 
@@ -1115,8 +1113,7 @@ class Main extends React.Component<{
                         )
 
                         // console.log('PromptIndex', PromptIndex);
-
-                        setTimeout(() => this._control({
+                        if (this.state.disabledAll) setTimeout(() => this._control({
                             cmd: 'send-talk',
                             data
                         }), 500)
@@ -1387,7 +1384,7 @@ class Main extends React.Component<{
                     promptJson = { ...promptJson, ...promptBindCurrentSite(promptJson.userInput, type, query) }
                 };
 
-               
+
                 if (prompt.input == 'userSelection') {
                     // 从用户划选
                     promptJson = { ...promptJson, ...promptBindUserSelection(promptJson.userInput) }
@@ -1411,7 +1408,7 @@ class Main extends React.Component<{
                 if (prompt.translate != "default") {
                     promptJson = { ...promptJson, ...promptBindTranslate(promptJson.userInput, prompt.translate) }
                 }
-               
+
                 // output的处理
                 promptJson = { ...promptJson, ...promptBindOutput(promptJson.userInput, prompt.output) }
 
@@ -1571,7 +1568,7 @@ class Main extends React.Component<{
                 // 终止对话
                 case "stop-talk":
                     sendMessageToBackground['chat-bot-talk-stop']({ type: this.state.chatBotType });
-                    this.updateChatBotStatus(false)
+                    this.updateChatBotStatus(false);
                     // 清空type thinking 的状态
                     nTalks = Talks.clearThinking(nTalks)
                     nTalks = nTalks.filter(t => t)

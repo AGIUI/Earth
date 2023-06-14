@@ -158,7 +158,7 @@ npm run build [browser]
 #### v0.3.5
 - 多国语言支持 i18n
 
-- 提供combo示例
+- 提供若干combo示例
 
 
 #### v0.3.4
