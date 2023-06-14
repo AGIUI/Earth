@@ -11,6 +11,7 @@ import PPT from "@components/files/PPT"
 import { hashJson, getNowDate } from "../Utils";
 
 import i18n from 'i18next';
+import DownSquareButton from "@components/buttons/DownSquare";
 /** < ChatBotTalks  callback={} items={}/>
  * 
  * export 是否允许导出
@@ -332,32 +333,39 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                     key={index}
                     extra={data.export ?
                         <>
-                            <Dropdown menu={{
-                                items, onClick: (e) => {
-                                    let key = e.key;
-                                    let ds = [data];
-                                    if (data.getAll) {
-                                        ds = data.getAll(data.id);
+                            <Dropdown
+                                menu={{
+                                    items,
+                                    onClick: (e) => {
+                                        let key = e.key;
+                                        let ds = [data];
+                                        if (data.getAll) {
+                                            ds = data.getAll(data.id);
+                                        }
+                                        if (key == "select") {
+                                            data.select && data.select(data.id)
+                                        } else if (key === "copy-text") {
+                                            copy(ds)
+                                        } else if (key == 'ppt') {
+                                            createPPT(ds)
+                                        }
                                     }
-                                    if (key == "select") {
-                                        data.select && data.select(data.id)
-                                    } else if (key === "copy-text") {
-                                        copy(ds)
-                                    } else if (key == 'ppt') {
-                                        createPPT(ds)
-                                    }
-                                }
-                            }} trigger={['click']}
-
+                                }}
+                                trigger={['click']} // 设置触发方式为 'click'
                             >
-                                {/* <a onClick={(e) => e.preventDefault()}>
-                                    <DownOutlined />
-                                </a> */}
-                                <Button type="text"
+                                <DownSquareButton
+                                    disabled={true}
+                                    callback={() => {
+                                        // 处理回调函数的逻辑
+                                    }}
+                                    type="text"
                                     style={{ margin: '5px 0' }}
-                                    icon={<DownSquareOutlined />}
                                     size={'small'}
-                                    onClick={(e) => e.preventDefault()} />
+                                    onClick={(e: React.MouseEvent) => {
+                                        e.preventDefault();
+                                        // 其他事件处理逻辑
+                                    }}
+                                />
                             </Dropdown>
 
                             {/* <Button type="text"
