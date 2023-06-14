@@ -37,13 +37,14 @@ export default () => {
                                     (child:any) => {
                                         return <div
                                             style={{
-                                                outline: '1px solid gray',
-                                                padding: '12px',
+                                                outline: '1px solid #ddd',
+                                                borderRadius: '5px',
+                                                padding: '10px',
                                                 fontSize: '14px',
                                                 fontWeight: 800,
                                                 background: '#eee',
-                                                margin: '12px 0',
-                                                cursor: 'pointer'
+                                                margin: '10px 0',
+                                                cursor: 'pointer',
                                             }}
                                             onDragStart={(event) => onDragStart(event, child.key, child.parent)}
                                             draggable>

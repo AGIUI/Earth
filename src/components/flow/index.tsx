@@ -36,6 +36,7 @@ import 'reactflow/dist/style.css';
 import { _DEFAULTCOMBO, defaultNode } from './Workflow';
 
 import getNodes from './nodeComponents/index';
+import {size} from "lodash";
 
 // 定义节点类型
 const nodeTypes: any = {};
@@ -618,17 +619,19 @@ function Flow(props: any) {
                 />
               </Space>
               <p style={{ fontWeight: "bold" }}>{i18n.t("comboSetup")}</p>
-              <Checkbox.Group
-                options={comboOptions.filter((c: any) => !c.disabled)}
-                value={
-                  Array.from(comboOptions,
-                    (c: any) => c.checked ? c.value : null)
-                    .filter(f => f)}
-                onChange={(e) => onComboOptionsChange(0, e)}
-              />
-              {
-                comboChildren
-              }
+              <div style={{maxWidth:300}}>
+                <Checkbox.Group
+                  options={comboOptions.filter((c: any) => !c.disabled)}
+                  value={
+                    Array.from(comboOptions,
+                      (c: any) => c.checked ? c.value : null)
+                      .filter(f => f)}
+                  onChange={(e) => onComboOptionsChange(0, e)}
+                />
+                {
+                  comboChildren
+                }
+              </div>
               <Divider dashed />
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button onClick={() => openMyCombo()} style={{ marginRight: '10px' }}>{i18n.t("importCombo")}</Button>
