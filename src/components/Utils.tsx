@@ -178,6 +178,7 @@ function addCss() {
       width: auto !important;
       font-family: fantasy!important;
       letter-spacing: 1px!important;
+      color: black;
     }
    .ant-card{
       background-color: white;
@@ -209,11 +210,16 @@ function addCss() {
   ._agi_ui h1,h2{
     margin: 12px 0;
     font-weight: 800;
-    color: black;
+    color: inherit;
   }
   ._agi_ui p,li{
     margin: 6px 0;
-    color: black;
+    color: inherit;
+  }
+  
+  ._agi_ui .logo{
+    width: 34px!important;
+    height: fit-content!important;
   }
   
   .chatbot-text-bubble p{
@@ -248,10 +254,7 @@ function addCss() {
     display: flex;
     flex-wrap: wrap;
   }
-  ._agi_ui .logo{
-      width: 34px!important;
-      height: fit-content!important;
-  }
+
     .ant-select-dropdown-placement-bottomLeft{
       z-index: 99999999 !important;
     }
