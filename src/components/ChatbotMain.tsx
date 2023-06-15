@@ -197,16 +197,21 @@ const Talks = {
     },
     createTalkBubble: (text: string) => {
         const dom = document.createElement('div');
-        let md = new MarkdownIt();
+        let md = new MarkdownIt({
+            breaks:true,
+            langPrefix:'chatbot-markdown-',
+            linkify:true,
+        });
         dom.innerHTML = md.render(text);
         // const texts = Array.from(dom.innerText.split('\n'), t => t.trim()).filter(f => f);
         // dom.innerHTML = texts.join('<br><br>')
         Array.from(dom.querySelectorAll('a'), (a: any) => {
             a.innerText = a.innerText.replace(/\^/ig, '');
-            a.style = `background: #1677ff;
+            a.style = `background: rgb(22, 119, 255);
             color: white;
-            width: 16px;
-            height: 16px;
+            width: fit-content;
+            height: fit-content;
+            padding: 2px;
             display: inline-block;
             font-size: 12px;
             text-align: center;
@@ -225,6 +230,10 @@ const Talks = {
             background: #eee;
             border-right: 1px dashed #bdbdbd;
             padding: 4px;`
+        });
+
+        Array.from(dom.querySelectorAll('br'), (a: any) => {
+            a.style = `margin:0 8px`
         });
 
 

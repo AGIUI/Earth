@@ -17,23 +17,23 @@ import { encode, decode } from '@nem035/gpt-3-encoder'
 import { hashJson, md5, textSplitByLength } from '@components/Utils'
 
 const MAX_LENGTH = 2800;
-const delimiter = `####`;
+const delimiter = (key: string) => `[${key}]`;
 
 const systemKeys: any = {
     role: "角色模拟",
     task: "具体的任务",
+    context: "上下文",
+    translate: "翻译",
     output: "输出要求"
 }
 
 const userKeys: any = {
-    title: "当前网页标题",
-    url: "当前网页链接",
-    text: "当前网页正文",
-    html: "当前网页",
-    images: "当前网页图片",
-    context: "最新assistant回复",
-    userInput: "用户输入",
-    translate: "翻译",
+    title: "网页标题",
+    url: "网页链接",
+    text: "网页正文",
+    html: "网页",
+    images: "网页图片",
+    userInput: "用户输入"
 }
 
 
@@ -118,48 +118,47 @@ function promptParse(prompt: any) {
         , ...prompt
     };
 
-    
-
     console.log('promptParse:::::', JSON.stringify(prompt, null, 2))
 
-
-    let system = {
+    let system: any = {
         role: "system",
-        content: ""
+        content: []
     };
 
     const roleText = (prompt['role'].name ? prompt['role'].name + ',' : '') + prompt['role'].text;
     if (roleText.trim()) {
-        system.content += `\n${delimiter}${systemKeys['role']}:${roleText}`
+        system.content.push({
+            key: delimiter(systemKeys['role']),
+            value: roleText
+        })
     }
 
     for (const key in systemKeys) {
         if (key != 'role') {
-            if (prompt[key] && prompt[key].trim()) system.content += `\n${delimiter}${systemKeys[key]}:${prompt[key]}`
+            if (prompt[key] && prompt[key].trim()) system.content.push({
+                key: delimiter(systemKeys[key]),
+                value: prompt[key].trim()
+            })
         }
     }
 
-    system.content = system.content.trim();
+    system.content = Array.from(system.content, (c: any, i: number) => `${system.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`).join('\n').trim();
 
-
-    const user = {
+    const user: any = {
         role: 'user',
-        content: ''
+        content: []
     };
 
     for (const key in userKeys) {
-        if (key != "userInput") {
-            if (prompt[key] && prompt[key].trim()) user.content += `\n${delimiter}${userKeys[key]}:${prompt[key]}`
-        }
-    }
+        if (prompt[key]
+            && prompt[key].trim()
+        ) user.content.push({
+            key: userKeys[key],
+            value: prompt[key]
+        });
+    };
 
-    if (!user.content) {
-        user.content += prompt['userInput'];
-    } else {
-        user.content += prompt['userInput'] ? `\n${delimiter}${userKeys['userInput']}:` + prompt['userInput'] : "";
-    }
-
-    user.content = user.content.trim();
+    user.content = Array.from(user.content, (c: any, i: number) => `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`).join('\n').trim();
 
     const id = hashJson([system, user, new Date()])
 
@@ -372,7 +371,7 @@ const promptBindOutput = (userInput: string, type: string) => {
     } else if (type == 'table') {
         prompt.output = '回答user的结果只允许是table结构'
     } else if (type == 'markdown') {
-        prompt.output = `输出Markdown格式`
+        prompt.output = `回答user的结果只允许是Markdown格式`
     } else if (type == 'json') {
         prompt.output = `回答user的结果只允许是JSON数组或对象`
     } else if (type == 'list') {
@@ -381,7 +380,7 @@ const promptBindOutput = (userInput: string, type: string) => {
         prompt.output = `分析实体词，并分类`
     };
 
-    prompt.output+=`,只输出结果,不允许出现${Array.from([...Object.values(userKeys)],(k:any)=>`${delimiter}${k}:`).join(",")}`
+    // prompt.output += `,只输出结果,不允许出现${delimiter("xxx")}`
     // prompt.output+=`,只输出结果,不允许出现这些:(${Array.from(Object.values(systemKeys),(k:any)=>`${delimiter}${k}:`).join(",")},${Array.from(Object.values(userKeys),(k:any)=>`${delimiter}${k}:`).join(",")})`;
     return prompt
 }
