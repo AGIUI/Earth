@@ -8,6 +8,7 @@ import { md5, hashJson } from "@components/Utils"
 import {
     chromeStorageGet,
     chromeStorageSet,
+    chromeStorageClear
 } from "@components/Utils"
 
 
@@ -274,6 +275,17 @@ class ChatBotBackground {
     reset(type) {
             let item = this.items.filter(item => item.type == type)[0]
             if (item) item.resetConversation()
+
+            // 清空本地缓存的prompt
+            chromeStorageGet('myConfig').then(res => {
+                const { myConfig } = res;
+                chromeStorageClear().then(() => {
+                    chromeStorageSet({
+                        myConfig
+                    })
+                })
+            })
+
         }
         // 停止
     stop(type) {

@@ -24,6 +24,10 @@ function chromeStorageSet(json: any) {
     });
 }
 
+function chromeStorageClear(){
+    return chrome.storage.local.clear()
+}
+
 
 function chromeStorageSyncGet(k: any) {
     return new Promise((res, rej) => {
@@ -310,6 +314,7 @@ function getNowDate() {
 export {
     chromeStorageGet,
     chromeStorageSet,
+    chromeStorageClear,
     chromeStorageSyncGet,
     chromeStorageSyncSet,
     md5, hashJson,
