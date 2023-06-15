@@ -381,11 +381,7 @@ const promptBindOutput = (userInput: string, type: string) => {
         prompt.output = `分析实体词，并分类`
     };
 
-    prompt.output=`
-    [Output Rules]
-    1.${prompt.output}
-    2.不允许出现${Array.from([...Object.values(userKeys)],(k:any)=>`${delimiter}${k}:`).join(",")}
-    `
+    prompt.output+=`,只输出结果,不允许出现${Array.from([...Object.values(userKeys)],(k:any)=>`${delimiter}${k}:`).join(",")}`
     // prompt.output+=`,只输出结果,不允许出现这些:(${Array.from(Object.values(systemKeys),(k:any)=>`${delimiter}${k}:`).join(",")},${Array.from(Object.values(userKeys),(k:any)=>`${delimiter}${k}:`).join(",")})`;
     return prompt
 }
