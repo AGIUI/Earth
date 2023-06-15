@@ -42,7 +42,7 @@ import { getConfig } from '@components/Utils';
 import { inputByQueryBase, clickByQueryBase } from "@components/agent/base"
 
 // console
-const config = getConfig();
+const config:any = getConfig();
 if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
     return function () {
         if (!dev) return
