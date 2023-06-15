@@ -1,13 +1,13 @@
 import { createRoot } from "react-dom/client";
 import Main from "@src/components/ChatbotMain";
-import { getConfigFromUrl, getConfig, addCss } from "@components/Utils"
+import { getConfigFromUrl, getConfig, addCss, md5 } from "@components/Utils"
 
 // import i18n from 'i18next';
 import '@src/locales/i18nConfig'
 
 
 let json: any = getConfig() || {};
-let id = json.app + "_dom";
+let id = md5(json.app + "_dom");
 const rootContainer = document.createElement('div');
 rootContainer.id = id;
 

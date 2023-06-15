@@ -42,7 +42,7 @@ import { getConfig } from '@components/Utils';
 import { inputByQueryBase, clickByQueryBase } from "@components/agent/base"
 
 // console
-const config:any = getConfig();
+const config: any = getConfig();
 if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
     return function () {
         if (!dev) return
@@ -1781,9 +1781,8 @@ class Main extends React.Component<{
             // this.initChatBot(true)
         }
 
-        const datas = [talks]
-
-        const tabList = Array.from(subjects, subject => {
+        let datas = [talks];
+        let tabList = Array.from(subjects, subject => {
             return {
                 key: subject.text,
                 tab: subject.text,
