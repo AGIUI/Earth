@@ -33,17 +33,15 @@ const nodeStyle = {
 };
 
 
-const contextMenus: MenuProps['items'] = [
-    {
-        label: i18n.t('debug'),
-        key: 'debug',
-    }
-];
-
-
 function Main({ id, data, selected }: NodeProps<NodeData>) {
 
     i18nInit();
+    const contextMenus: MenuProps['items'] = [
+        {
+            label: i18n.t('debug'),
+            key: 'debug',
+        }
+    ];
 
     // text
     const [role, setRole] = React.useState(data.role)
@@ -112,7 +110,12 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
 
     return (
-        <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug(data) : '' }} trigger={['contextMenu']}>
+        <Dropdown menu={{
+            items: contextMenus,
+            onClick: () => data.debug ? data.debug(data) : ''
+        }}
+            trigger={['contextMenu']}
+        >
             <div style={selected ? {
                 ...nodeStyle,
                 backgroundColor: 'cornflowerblue'

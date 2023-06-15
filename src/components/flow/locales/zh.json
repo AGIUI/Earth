@@ -228,7 +228,10 @@
     "selected": "已选",
     "selectIt": "选择",
 
-    "APISucess": "API请求成功"
+    "APISucess": "API请求成功",
+
+
+    "filePPTNodeTitle": "创建PPT文件"
 
 
 }

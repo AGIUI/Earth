@@ -95,11 +95,28 @@ export const createOutput = (title: string, key: string, value: string, opts: an
         }} />
 </>
 
+
+export const selectNodeInputBase = (nodeInputId: string, nodeOpts: any, onChange: any) => {
+    return  <Select
+                value={nodeInputId}
+                style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
+                onChange={(e) => {
+                    onChange({
+                        key: 'nodeInput',
+                        data: e
+                    })
+                }}
+                options={nodeOpts}
+            /> 
+}
+
+
 // 从上一节点获取文本
 export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: any, onChange: any) => {
-
+    // console.log(nodeInputId,nodeOpts)
+  
     const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0)
-
+ 
     // console.log(nodeOpts.filter((n: any) => n.value === nodeInputId))
     return <>
         <Checkbox

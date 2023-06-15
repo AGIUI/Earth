@@ -206,39 +206,8 @@ const copy = async (data: any) => {
 const createPPT = (data: any) => {
     // console.log('createPPT', data)
 
-    let items: any = [];
-
-    for (const d of data) {
-        let div = document.createElement('div');
-        const { type, html } = d;
-        div.innerHTML = html;
-        // div.querySelector('h1');
-
-        if (div.querySelectorAll('img').length > 0) {
-            items.push(
-                {
-                    title: '',
-                    images: Array.from(div.querySelectorAll('img'), im => {
-                        return {
-                            title: '',
-                            base64: im.src
-                        }
-                    })
-                }
-            );
-        } else {
-            if (div.innerText) items.push(
-                {
-                    text: div.innerText,
-                }
-            );
-        }
-
-    }
-
-    console.log('createPPT', items)
     const p = new PPT();
-    p.create(getNowDate(), items)
+    p.createPPT(data);
 
 }
 

@@ -33,6 +33,8 @@ import Setup from "@components/Setup"
 //@ts-ignore
 import PDF from '@components/files/PDF'
 
+import PPT from '@components/files/PPT'
+
 
 import { chromeStorageGet, chromeStorageSet, sendMessageCanRetry, checkImageUrl, md5 } from "@components/Utils"
 import { message } from 'antd';
@@ -159,25 +161,39 @@ const Talks = {
         };
         return []
     },
+    getTalkInnerText: (data: any) => {
+        // console.log('getTalkInnerText',data)
+        const json = { ...data };
+        const dom = document.createElement('div');
+        if (json && json.html) dom.innerHTML = json.html;
+        dom.innerHTML = dom.innerHTML.replaceAll('<br><br>', '\n')
+        // let texts: any = Array.from(dom.children, (c: any) => c.innerText);
+        // console.log('laskTalk:', dom.innerHTML, dom.innerText)
+        return dom.textContent;
+    },
     getTalkByPromptId: (promptId: string, talks: any) => {
 
-        const getTalkInnerText = (data: any) => {
-            const json = { ...data };
-            const dom = document.createElement('div');
-            if (json && json.html) dom.innerHTML = json.html;
-            dom.innerHTML = dom.innerHTML.replaceAll('<br><br>', '\n')
-            // let texts: any = Array.from(dom.children, (c: any) => c.innerText);
-            // console.log('laskTalk:', dom.innerHTML, dom.innerText)
-            return dom.textContent;
-        };
+        // const getTalkImages = (data: any) => {
+        //     const json = { ...data };
+        //     const dom = document.createElement('div');
+        //     if (json && json.html) dom.innerHTML = json.html;
+        //     return Array.from(dom.querySelectorAll('img'), i => i.src);
+        // };
 
         talks = talks.filter((t: any) => t.promptId == promptId)
 
         // n.type == 'talk' || n.type == 'markdown' || n.type == 'done'
-        const lastTalks = talks.filter((talk: any) => (talk.type == "markdown" || talk.type == "done") && !talk.user);
+
+        const lastTalks = talks.filter((talk: any) => (
+            [
+                'markdown',
+                'done',
+                'images'
+            ].includes(talk.type)) && !talk.user);
         const laskTalk = lastTalks.slice(-1)[0];
 
-        return getTalkInnerText(laskTalk)
+        return laskTalk
+
     },
     getLastTalk: (talks: any) => {
         const getTalkInnerText = (data: any) => {
@@ -198,9 +214,9 @@ const Talks = {
     createTalkBubble: (text: string) => {
         const dom = document.createElement('div');
         let md = new MarkdownIt({
-            breaks:true,
-            langPrefix:'chatbot-markdown-',
-            linkify:true,
+            breaks: true,
+            langPrefix: 'chatbot-markdown-',
+            linkify: true,
         });
         dom.innerHTML = md.render(text);
         // const texts = Array.from(dom.innerText.split('\n'), t => t.trim()).filter(f => f);
@@ -423,7 +439,7 @@ class Main extends React.Component<{
             } else if (cmd === "api-run-result") {
                 console.log('api-run-result', data)
                 // 解析数据格式
-                const { responseExtract,
+                const { responseExtract, promptId,
                     responseType, data: result } = data;
                 const ttype = responseExtract.type;
 
@@ -444,6 +460,7 @@ class Main extends React.Component<{
                         images: result,
                         tId: (new Date()).getTime() + '2',
                         id: (new Date()).getTime() + '1',
+                        promptId
                     })
                 }
 
@@ -743,14 +760,14 @@ class Main extends React.Component<{
 
         if (init.body && typeof (init.body) == 'object') init.body = JSON.stringify(init.body);
 
-        let prePromptText = "";
+        let prePromptText: any = "";
         if (prompt.input == "nodeInput") {
             // 从上一个节点输出获取
             if (!prompt.nodeInputId) {
                 prePromptText = Talks.getLastTalk([...nTalks]) || "";
             } else {
-                prePromptText = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]) || "";
-
+                const d = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
+                if (d) prePromptText = Talks.getTalkInnerText(d) || "";
             }
         }
 
@@ -764,7 +781,11 @@ class Main extends React.Component<{
         }
 
         sendMessageToBackground['api-run']({
-            url, init, combo
+            url, init, combo, promptId: prompt.id
+        })
+
+        console.log("sendMessageToBackground['api-run']", {
+            url, init, combo, promptId: prompt.id
         })
 
         // 传递给父级
@@ -800,8 +821,9 @@ class Main extends React.Component<{
             if (!prompt.nodeInputId) {
                 text = Talks.getLastTalk([...nTalks]);
             } else {
-                text = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
                 // console.log('nodeInput_queryInputRun', nTalks)
+                const d = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
+                if (d) text = Talks.getTalkInnerText(d) || "";
             }
 
         } else if (prompt.input == "userInput") {
@@ -958,6 +980,30 @@ class Main extends React.Component<{
         // if (success) message.info('成功执行')
     }
 
+    _createPPTFile(inputs: any, nTalks: any) {
+        if (inputs && nTalks) {
+            // console.log('_createPPTFile', nTalks, inputs)
+            const items = []
+            for (const nodeInputId of inputs) {
+                let data = Talks.getTalkByPromptId(nodeInputId, [...nTalks]);
+                if (data) {
+                    items.push(data);
+                }
+            }
+            const p = new PPT();
+            
+            p.createPPT(items).then((filename: any) => {
+                const id = md5(filename + (new Date()))
+                const data = Talks.createTaskStatus(
+                    '_createPPTFile',
+                    id,
+                    i18n.t('filePPTNodeTitle')
+                )
+                this._updateChatBotTalksResult([data]);
+            })
+
+        }
+    }
 
     /**
      * 'prompt' ||   'tasks'  
@@ -1367,6 +1413,7 @@ class Main extends React.Component<{
                     api: prompt.api,
                     input: prompt.input,
                     nodeInputId: prompt.nodeInputId,
+                    id: prompt.id
                 }
                 promptJson = { ...promptJson, ...bindUserInput(prompt.text) };
 
@@ -1413,8 +1460,11 @@ class Main extends React.Component<{
                         let lastTalk: any = Talks.getLastTalk([...nTalks]);
                         promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, lastTalk) }
                     } else {
-                        let talk: any = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
-                        promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, talk) }
+                        let data: any = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
+                        if (data) {
+                            let talk: any = Talks.getTalkInnerText(data)
+                            promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, talk) }
+                        }
                     }
                     console.log('从上一节点获取文本', prompt.nodeInputId, promptJson.context)
                 }
@@ -1430,6 +1480,19 @@ class Main extends React.Component<{
 
                 // 运行时
                 console.log('prompt.type------', promptJson, from)
+
+
+                //file 类
+                if (promptJson.type === "file-ppt-create") {
+                    // 创建ppt
+                    const { file } = prompt;
+                    const { inputs, type } = file || {};
+                    if (inputs) {
+                        // 输入的节点
+                        this._createPPTFile(inputs, nTalks);
+                    }
+                }
+
 
                 // 如果是用户输入的，from==chatbot-input
                 if (from === "chatbot-input") {

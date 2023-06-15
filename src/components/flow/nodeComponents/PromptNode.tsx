@@ -35,14 +35,6 @@ const nodeStyle = {
 };
 
 
-const contextMenus: MenuProps['items'] = [
-  {
-    label: i18n.t('debug'),
-    key: 'debug',
-  }
-];
-
-
 const createTextAndInput = (
   title: string,
   text: string,
@@ -105,7 +97,15 @@ const createTranslate = (title: string, key: string, value: string, opts: any, o
 
 function Main({ id, data, selected }: NodeProps<NodeData>) {
   // console.log('RoleNode data.opts', data)
-  i18nInit()
+  i18nInit();
+
+  const contextMenus: MenuProps['items'] = [
+    {
+      label: i18n.t('debug'),
+      key: 'debug',
+    }
+  ];
+  
 
   // 模型
   const models = data.opts.models;

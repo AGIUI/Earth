@@ -16,25 +16,25 @@ export default () => {
         console.log(key);
     };
 
-    const nodes=getNodes()
-
+    const nodes = getNodes()
+    console.log(Array.from(nodes.filter((n: any) => n.open), n => n.title))
     return (
-        <Collapse 
-        defaultActiveKey={Array.from(nodes,node=>node.title)}
+        <Collapse
+            defaultActiveKey={Array.from(nodes.filter((n: any) => n.open), n => n.title)[0]}
             onChange={onChange}
             style={{
-                width: 180,userSelect: 'none',
+                width: 180, userSelect: 'none',
                 background: 'white'
             }}>
             <p style={{ paddingLeft: '24px' }}>{i18n.t('component')}</p>
             {
-                Array.from(nodes, (node:any) => {
+                Array.from(nodes, (node: any) => {
 
                     return <Panel header={node.title} key={node.title}>
                         <aside>
                             {
                                 Array.from(node.children,
-                                    (child:any) => {
+                                    (child: any) => {
                                         return <div
                                             style={{
                                                 outline: '1px solid #ddd',

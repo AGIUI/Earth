@@ -216,14 +216,14 @@ class Common {
                         type: data.type
                     }, data.combo)
                 } else if (cmd == "api-run") {
-                    const { url, init, combo } = data;
+                    const { url, init, combo, promptId } = data;
 
                     // Agent.apiRun(url,init,data.combo)
 
                     if (init.method === 'GET') delete init.body;
 
                     const responseType = init.responseType || 'text';
-                    const responseExtract = init.responseExtract;
+                    const responseExtract = init.extract;
                     console.log('_agentApiRun', url, init)
 
                     fetch(url, init).then(res => {
@@ -250,6 +250,7 @@ class Common {
                         }
                         const result = {
                             data: apiResult,
+                            promptId,
                             responseExtract: responseExtract || { key: '', type: 'text' },
                             responseType,
                             combo

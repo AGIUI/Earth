@@ -192,6 +192,13 @@ const workflow = () => ({
             "parent": "logic",
             "disabled": true,
             "display": ["chatbot", "editor", "debug"]
+        },
+        {
+            "label": i18n.t('ppt'),
+            "key": "file-ppt",
+            "parent": "file",
+            "disabled": false,
+            "display": ["editor", "debug"]
         }
     ]
 })
@@ -210,7 +217,7 @@ const comboOptions = () => {
                 // contexts 上下文
                 Array.from([
                     "all", "page", "selection",
-                    "editable","pdf","link",
+                    "editable", "pdf", "link",
                     "image", "video", "audio",
                     "frame", "launcher", "browser_action",
                     "page_action", "action"
@@ -251,7 +258,12 @@ const defaultNode = () => ({
             },
             body: "{}",
             mode: 'cors',
-            cache: 'default'
+            cache: 'default',
+            responseType: 'text',
+            extract: {
+                "key": "images",
+                "type": "images"
+            },
         },
         responseType: 'text',
         extract: {
@@ -266,6 +278,10 @@ const defaultNode = () => ({
         protocol: 'https://',
         content: 'bindCurrentPage',//给read使用
         action: 'default', // 网页跳转 default、模拟点击click 、输入input、读取read
+    },
+    file: {
+        inputs: [],
+        type: 'ppt'
     },
     temperature: 0.6,
     model: 'ChatGPT',

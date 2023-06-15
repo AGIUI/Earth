@@ -1,21 +1,18 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
 
 import type { MenuProps } from 'antd';
-const { Option } = Select;
+
 
 import i18n from "i18next";
  
 import { createDebug, createURL, createDelay } from './Base'
 import { i18nInit } from '../locales/i18nConfig';
 
-
 export type NodeData = {
   debugInput: any;
   debugOutput: any;
-
   debug: any;
   queryObj: any,
   type: string,
@@ -28,12 +25,7 @@ const nodeStyle = {
   borderRadius: '12px',
 };
 
-const contextMenus: MenuProps['items'] = [
-  {
-      label: i18n.t('debug'),
-      key: 'debug',
-  }
-];
+
  
 const createUI = (json: any, delay: number, delayFormat: string, onChange: any) => {
   const { protocol, url } = json;
@@ -100,8 +92,13 @@ const createUI = (json: any, delay: number, delayFormat: string, onChange: any) 
 
 
 function Main({ id, data, selected }: NodeProps<NodeData>) {
-  i18nInit()
-
+  i18nInit();
+  const contextMenus: MenuProps['items'] = [
+    {
+        label: i18n.t('debug'),
+        key: 'debug',
+    }
+  ];
  
   // queryObj
   // data.queryObj.isQuery = type === "query";

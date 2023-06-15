@@ -277,15 +277,16 @@ class ChatBotBackground {
             if (item) item.resetConversation()
 
             // 清空本地缓存的prompt
-            chromeStorageGet('myConfig').then(res => {
-                const { myConfig } = res;
+            chromeStorageGet(['myConfig', 'user', 'official']).then(res => {
+                const { myConfig, user, official } = res;
                 chromeStorageClear().then(() => {
                     chromeStorageSet({
-                        myConfig
+                        myConfig,
+                        user,
+                        official
                     })
                 })
             })
-
         }
         // 停止
     stop(type) {

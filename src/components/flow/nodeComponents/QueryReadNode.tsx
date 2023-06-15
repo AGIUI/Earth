@@ -26,13 +26,6 @@ const nodeStyle = {
   borderRadius: '12px',
 };
 
-const contextMenus: MenuProps['items'] = [
-  {
-    label: i18n.t('debug'),
-    key: 'debug',
-  }
-];
-
 const createUrl = (title1: string, title2: string, placeholder2: string, json: any, onChange: any) => {
   const { query, content } = json;
   const key = 'query'
@@ -94,7 +87,13 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
 
 function QueryReadNode({ id, data, selected }: NodeProps<NodeData>) {
   i18nInit();
-
+  const contextMenus: MenuProps['items'] = [
+    {
+      label: i18n.t('debug'),
+      key: 'debug',
+    }
+  ];
+  
   const [queryObj, setQueryObj] = React.useState(data.queryObj)
   const updateQueryObj = (e: any) => {
     // console.log(e)

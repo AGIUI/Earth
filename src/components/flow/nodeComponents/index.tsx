@@ -5,6 +5,7 @@ import QueryInputNode from './QueryInputNode';
 import APINode from './APINode';
 import RoleNode from './RoleNode';
 import PromptNode from './PromptNode';
+import FilePPTCreateNode from './FilePPTCreateNode'
 
 import i18n from "i18next";
 
@@ -29,8 +30,8 @@ const getNodes = () => [{
         parent: 'prompt',
         name: i18n.t('promptNodeTitle')
     },
-
-    ]
+    ],
+    open:true
 },
 {
     title: i18n.t('webAgent'),
@@ -70,6 +71,17 @@ const getNodes = () => [{
             component: APINode,
             parent: 'api',
             name: i18n.t('apiNodeTitle')
+        }
+    ]
+},
+{
+    title: 'File',
+    children: [
+        {
+            key: 'file-ppt-create',
+            component: FilePPTCreateNode,
+            parent: 'file',
+            name: i18n.t('filePPTNodeTitle')
         }
     ]
 },

@@ -222,6 +222,8 @@
     "selected": "Selected",
     "selectIt": "Select",
 
-    "APISucess": "API request successful"
+    "APISucess": "API request successful",
+
+    "filePPTNodeTitle": "Create a PPT file"
 
 }
