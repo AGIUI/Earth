@@ -383,9 +383,8 @@ const promptBindOutput = (userInput: string, type: string) => {
 
     prompt.output=`
     [Output Rules]
-    1.根据 ${delimiter}${userKeys.userInput}: 输出
-    2.${prompt.output}
-    3.不允许出现${Array.from([...Object.values(userKeys)],(k:any)=>`${delimiter}${k}:`).join(",")}
+    1.${prompt.output}
+    2.不允许出现${Array.from([...Object.values(userKeys)],(k:any)=>`${delimiter}${k}:`).join(",")}
     `
     // prompt.output+=`,只输出结果,不允许出现这些:(${Array.from(Object.values(systemKeys),(k:any)=>`${delimiter}${k}:`).join(",")},${Array.from(Object.values(userKeys),(k:any)=>`${delimiter}${k}:`).join(",")})`;
     return prompt
