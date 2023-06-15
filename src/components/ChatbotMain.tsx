@@ -233,7 +233,7 @@ const Talks = {
         });
 
         Array.from(dom.querySelectorAll('br'), (a: any) => {
-            a.style = `margin:0 8px`
+            a.style = `line-height: 20px;`
         });
 
 
@@ -1319,7 +1319,7 @@ class Main extends React.Component<{
                     nTalks.push(
                         ChatBotConfig.createTalkData('debug',
                             {
-                                html: debugInfo || '<p>debug</p>'
+                                html: debugInfo || 'debug'
                             }));
                 };
 

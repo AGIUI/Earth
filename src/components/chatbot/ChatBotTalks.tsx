@@ -319,7 +319,8 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                     style={createTalkBubbleStyle(data.user)}
                     className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
                     key={index}
-                    dangerouslySetInnerHTML={{ __html: data.html }}>
+                // dangerouslySetInnerHTML={{ __html: data.html }}
+                >{data.html}
                 </p> : <Card title={""}
                     headStyle={{
                         minHeight: '10px',
