@@ -17,7 +17,25 @@ import { encode, decode } from '@nem035/gpt-3-encoder'
 import { hashJson, md5, textSplitByLength } from '@components/Utils'
 
 const MAX_LENGTH = 2800;
-const delimiter = `####`
+const delimiter = `####`;
+
+const systemKeys: any = {
+    role: "角色模拟",
+    task: "具体的任务",
+    output: "输出要求"
+}
+
+const userKeys: any = {
+    title: "当前网页标题",
+    url: "当前网页链接",
+    text: "当前网页正文",
+    html: "当前网页",
+    images: "当前网页图片",
+    context: "最新assistant回复",
+    userInput: "用户输入",
+    translate: "翻译",
+}
+
 
 const cropText = (
     text: string,
@@ -100,22 +118,7 @@ function promptParse(prompt: any) {
         , ...prompt
     };
 
-    const systemKeys: any = {
-        role: "角色模拟",
-        task: "具体的任务",
-        output: "输出要求"
-    }
-
-    const userKeys: any = {
-        title: "当前网页标题",
-        url: "当前网页链接",
-        text: "当前网页正文",
-        html: "当前网页",
-        images: "当前网页图片",
-        context: "最新assistant回复",
-        userInput: "用户输入",
-        translate: "翻译",
-    }
+    
 
     console.log('promptParse:::::', JSON.stringify(prompt, null, 2))
 
@@ -369,7 +372,7 @@ const promptBindOutput = (userInput: string, type: string) => {
     } else if (type == 'table') {
         prompt.output = '回答user的结果只允许是table结构'
     } else if (type == 'markdown') {
-        prompt.output = `输出Markdown格式，不允许出现${delimiter}{xxx}`
+        prompt.output = `输出Markdown格式`
     } else if (type == 'json') {
         prompt.output = `回答user的结果只允许是JSON数组或对象`
     } else if (type == 'list') {
@@ -377,6 +380,14 @@ const promptBindOutput = (userInput: string, type: string) => {
     } else if (type == 'extract') {
         prompt.output = `分析实体词，并分类`
     };
+
+    prompt.output=`
+    [Output Rules]
+    1.根据 ${delimiter}${userKeys.userInput}: 输出
+    2.${prompt.output}
+    3.不允许出现${Array.from([...Object.values(userKeys)],(k:any)=>`${delimiter}${k}:`).join(",")}
+    `
+    // prompt.output+=`,只输出结果,不允许出现这些:(${Array.from(Object.values(systemKeys),(k:any)=>`${delimiter}${k}:`).join(",")},${Array.from(Object.values(userKeys),(k:any)=>`${delimiter}${k}:`).join(",")})`;
     return prompt
 }
 
