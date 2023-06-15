@@ -11,7 +11,6 @@ import { parseCombo2ControlEvent } from '@components/flow/Workflow'
 
 import i18n from 'i18next';
 
-
 const menuNames = {
   devTooltip: '调试 Debug'
 }

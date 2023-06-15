@@ -372,12 +372,12 @@ class Setup extends React.Component<{
                     <Title level={4} style={{ marginTop: 0 }}>{i18n.t('versionNow')}</Title>
                     <Space direction={"horizontal"} align={"center"}>
                         <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.name}</Text>
-                        <Button
+                        {this.state.issues ? <Button
                             style={{
                                 marginTop: 0
                             }} onClick={() => this._openUrl(this.state.issues)}>
                             {i18n.t('questionPost')}
-                        </Button>
+                        </Button> : ""}
                     </Space>
 
                     <Divider style={{ marginTop: 15, marginBottom: 15 }} />
