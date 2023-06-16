@@ -1,7 +1,3 @@
-import { chromeStorageGet } from "../../components/Utils.js";
-
-console.log('Service Worker')
-
 import NewBing from '@components/background/NewBing'
 import ChatGPT from '@components/background/ChatGPT'
 import ChatBot from '@components/background/ChatBot'
@@ -9,64 +5,193 @@ import Agent from "@components/background/Agent";
 import Credit from "@components/background/Credit"
 import Common from '@components/background/Common'
 
-import { getConfig } from '@components/Utils';
+import { getConfig, chromeStorageGet } from '@components/Utils';
+import commonsConfig from '@src/config/commonsConfig.json'
+import editableConfig from '@src/config/editableConfig.json'
+import selectionConfig from '@src/config/selectionConfig.json'
+import i18n from 'i18next';
+import '@src/locales/i18nConfig'
 
-async function loadContextMenuData(){
-    let json = await getConfig()
-    const res = await chromeStorageGet(['user', 'official']);
+const _CONFIG_JSON = getConfig()
+
+async function loadContextMenuData() {
+
     let Menu = [];
-    for (let i in res['user']) {
-        if (res['user'][i].interfaces.includes('contextMenus')) {
-            Menu.push(res['user'][i])
+    let pdfConfig = [];
+    let linkConfig = [];
+
+    const res = await chromeStorageGet(['user', 'official']);
+    let Workflow = [];
+
+    if (res['user'] && res['user'].length > 0) {
+        for (let i in res['user']) {
+            const infs = res['user'][i].interfaces && res['user'][i].interfaces;
+
+            if (infs.includes('contextMenus') ||
+                infs.includes('contextMenus-page') ||
+                infs.includes('contextMenus-all')
+            ) {
+                Workflow.push(res['user'][i])
+            } else if (infs.includes('contextMenus-selection')) {
+                selectionConfig.push(res['user'][i]);
+            } else if (infs.includes('contextMenus_editable')) {
+                editableConfig.push(res['user'][i]);
+            } else if (infs.includes('contextMenus-pdf')) {
+                pdfConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-link')) {
+                linkConfig.push(res['user'][i])
+            }
+
         }
     }
-    for (let i in res['official']) {
-        if (res['official'][i].interfaces.includes('contextMenus')) {
-            Menu.push(res['official'][i])
+
+    if (res['official'] && res['official'].length > 0) {
+        for (let i in res['official']) {
+
+            const infs = res['official'][i].interfaces && res['official'][i].interfaces;
+
+            if (infs.includes('contextMenus') ||
+                infs.includes('contextMenus-page') ||
+                infs.includes('contextMenus-all')) {
+                Workflow.push(res['official'][i])
+            } else if (infs.includes('contextMenus-selection')) {
+                selectionConfig.push(res['official'][i]);
+            } else if (infs.includes('contextMenus_editable')) {
+                editableConfig.push(res['official'][i]);
+            } else if (infs.includes('contextMenus-pdf')) {
+                pdfConfig.push(res['official'][i])
+            } else if (infs.includes('contextMenus-link')) {
+                linkConfig.push(res['official'][i])
+            }
+
         }
     }
+
+    Menu.push(...commonsConfig);
+    Menu.push(...editableConfig);
+    Menu.push(...selectionConfig);
+    Menu.push(...Workflow);
+    Menu.push(...pdfConfig);
+    Menu.push(...linkConfig);
 
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
-        "id": json.app,
-        "title": json.app,
-        "contexts": ['page']
+
+        id: 'Earth',
+        title: 'Earth',
+
+        contexts: ['page']
     });
 
     chrome.contextMenus.create({
-        id: 'toggle-insight',
-        title: "打开面板",
+        id: 'open-chatbot-panel',
+        title: i18n.t('openPanel'),
         type: 'normal',
-        "parentId": json.app,
+
+        parentId: 'Earth',
+
         contexts: ['page']
     })
 
-    for (let i in Menu) {
+    if (commonsConfig.length !== 0) {
         chrome.contextMenus.create({
-            id: Menu[i].tag,
-            title: Menu[i].tag,
+            id: 'commonsConfig',
+            title: i18n.t('commonFeatures'),
             type: 'normal',
-            "parentId": json.app,
+
+            parentId: 'Earth',
+
             contexts: ['page']
-        })
+        });
+
+        for (let i in commonsConfig) {
+            chrome.contextMenus.create({
+                id: String(commonsConfig[i].id),
+                title: commonsConfig[i].tag,
+                type: 'normal',
+                parentId: 'commonsConfig'
+            })
+        }
     }
+
+    if (Workflow.length !== 0) {
+        chrome.contextMenus.create({
+            id: 'Workflow',
+            title: i18n.t('workflow'),
+            type: 'normal',
+
+            parentId: 'Earth',
+
+            contexts: ['page']
+        });
+        for (let i in Workflow) {
+            chrome.contextMenus.create({
+                id: String(Workflow[i].id),
+                title: Workflow[i].tag,
+                type: 'normal',
+                parentId: 'Workflow'
+            })
+        }
+    }
+
+    if (selectionConfig.length !== 0) {
+        for (let i in selectionConfig) {
+            chrome.contextMenus.create({
+                id: String(selectionConfig[i].id),
+                title: selectionConfig[i].tag,
+                contexts: ['selection']
+            })
+        }
+    }
+
+    if (editableConfig.length !== 0) {
+        for (let i in editableConfig) {
+            chrome.contextMenus.create({
+                id: String(editableConfig[i].id),
+                title: editableConfig[i].tag,
+                contexts: ['editable'],
+            })
+        }
+    }
+
+    if (pdfConfig.length !== 0) {
+        for (let i in pdfConfig) {
+            chrome.contextMenus.create({
+                id: String(pdfConfig[i].id),
+                title: pdfConfig[i].tag,
+                contexts: ["all"],
+                targetUrlPatterns: ["*://*/*.pdf"]
+            })
+        }
+    }
+
+    if (linkConfig.length !== 0) {
+        for (let i in linkConfig) {
+            chrome.contextMenus.create({
+                id: String(linkConfig[i].id),
+                title: linkConfig[i].tag,
+                contexts: ['link'],
+            })
+        }
+    }
+
     return Menu;
 
 }
 
 (async() => {
-    let json = await getConfig()
+
     let Menu = await loadContextMenuData();
 
     // chrome.commands.getAll().then(commands => {
     //     let isNew = true
     //     for (let command of commands) {
     //         // console.log('command', command)
-    //         if (command.name == 'toggle-insight') isNew = false
+    //         if (command.name == 'open-chatbot-panel') isNew = false
     //     }
     //     if (isNew) {
     //         chrome.contextMenus.create({
-    //             id: 'toggle-insight',
+    //             id: 'open-chatbot-panel',
     //             title: json.app,
     //             type: 'normal',
     //             contexts: ['page']
@@ -83,7 +208,7 @@ async function loadContextMenuData(){
             )}`
         )
         if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-            chrome.runtime.setUninstallURL(json.discord)
+            chrome.runtime.setUninstallURL(_CONFIG_JSON.discord)
         }
         return true
     })
@@ -93,7 +218,7 @@ async function loadContextMenuData(){
     //   return true
     // });
 
-    chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener(async(request, sender, sendResponse) => {
         if (request.cmd === 'update-chromeStorage-data') {
             Menu = await loadContextMenuData();
         }
@@ -105,10 +230,10 @@ async function loadContextMenuData(){
         const id = item.menuItemId
         if (!tab.url.match('http')) return
 
-        if (id === 'toggle-insight') {
+        if (id === 'open-chatbot-panel') {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd: 'toggle-insight',
+                    cmd: 'open-chatbot-panel',
                     success: true,
                     data: true
                 },
@@ -119,7 +244,7 @@ async function loadContextMenuData(){
         } else {
             chrome.tabs.sendMessage(
                 tabId, {
-                    cmd: 'toggle-insight',
+                    cmd: 'open-chatbot-panel',
                     success: true,
                     data: true
                 },
@@ -129,7 +254,15 @@ async function loadContextMenuData(){
             )
 
             for (let i in Menu) {
-                if (id === Menu[i].tag) {
+                if (id == Menu[i].id) {
+                    let PromptJson = Menu[i];
+                    if (PromptJson.input === "userSelection") {
+                        const context = item.selectionText;
+                        if (context) {
+                            PromptJson.prompt.userInput = context;
+                            // "###相关内容###\n" + context + "\n" + PromptJson.text
+                        }
+                    }
                     chrome.tabs.sendMessage(
                         tabId, {
                             cmd: 'contextMenus',
@@ -137,10 +270,10 @@ async function loadContextMenuData(){
                             data: {
                                 cmd: 'combo',
                                 data: {
-                                    '_combo': Menu[i],
+                                    '_combo': PromptJson,
                                     from,
-                                    prompt: Menu[i].prompt,
-                                    tag: Menu[i].tag,
+                                    prompt: PromptJson.prompt,
+                                    tag: PromptJson.tag,
                                     newTalk: true
                                 }
                             }
@@ -165,5 +298,5 @@ async function loadContextMenuData(){
         // 初始化
     chatBot.getAvailables()
 
-    new Common(json, chatBot, Agent, Credit)
+    new Common(_CONFIG_JSON, chatBot, Agent, Credit)
 })()

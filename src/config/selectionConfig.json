@@ -1,0 +1,176 @@
+[{
+        "tag": "介绍更多",
+        "role": {
+            "name": "",
+            "text": ""
+        },
+        "combo": 1,
+        "interfaces": [
+            "contextMenus-selection"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "PROMPT_23UADHGBIYEVMPJ4UUL1X",
+            "nextId": "",
+            "nodeInputId": "",
+            "role": {
+                "name": "",
+                "text": ""
+            },
+            "text": "帮我找到相关内容中的核心信息，并查询相关百科介绍和相关资讯的链接，你需要用以下格式输出：\\n<百科>\\nxxxx\\n<相关资讯>\\n1.xxxx\\n2.xxxx",
+            "url": "",
+            "temperature": 0.5,
+            "model": "Bing",
+            "input": "default",
+            "userInput": "",
+            "translate": "default",
+            "output": "default",
+            "type": "prompt"
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "cykmrUlm-N73SCyq5UWlN",
+        "createDate": 1686643444078
+    },
+    {
+        "tag": "翻译成中文",
+        "role": {
+            "name": "",
+            "text": ""
+        },
+        "combo": 1,
+        "interfaces": [
+            "contextMenus-selection"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR",
+            "nextId": "",
+            "nodeInputId": "",
+            "role": {
+                "name": "",
+                "text": ""
+            },
+            "text": "帮我将相关内容翻译成中文。",
+            "url": "",
+            "temperature": 0.31,
+            "model": "ChatGPT",
+            "input": "default",
+            "userInput": "",
+            "translate": "translate-zh",
+            "output": "default",
+            "type": "prompt"
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "XCSlvySpfMYVR1IRDTp4n",
+        "createDate": 1686643579680
+    },
+    {
+        "tag": "内容扩写",
+        "role": {
+            "name": "",
+            "text": ""
+        },
+        "combo": 1,
+        "interfaces": [
+            "contextMenus-selection"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR",
+            "nextId": "",
+            "nodeInputId": "",
+            "role": {
+                "name": "",
+                "text": ""
+            },
+            "text": "帮我将相关内容进行扩写，重点内容不能发生变化。",
+            "url": "",
+            "temperature": 0.7,
+            "model": "ChatGPT",
+            "input": "default",
+            "userInput": "",
+            "translate": "translate-zh",
+            "output": "default",
+            "type": "prompt"
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "XCSlvySpfMYVR1IRDTp4n",
+        "createDate": 1686643683329
+    },
+    {
+        "tag": "内容缩写",
+        "role": {
+            "name": "",
+            "text": ""
+        },
+        "combo": 1,
+        "interfaces": [
+            "contextMenus-selection"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR",
+            "nextId": "",
+            "nodeInputId": "",
+            "role": {
+                "name": "",
+                "text": ""
+            },
+            "text": "帮我将相关内容进行缩写，重点内容不能发生变化。",
+            "url": "",
+            "temperature": 0.7,
+            "model": "ChatGPT",
+            "input": "default",
+            "userInput": "",
+            "translate": "translate-zh",
+            "output": "default",
+            "type": "prompt"
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "XCSlvySpfMYVR1IRDTp4n",
+        "createDate": 1686643724158
+    },
+    {
+        "tag": "内容重写",
+        "role": {
+            "name": "",
+            "text": ""
+        },
+        "combo": 1,
+        "interfaces": [
+            "contextMenus-selection"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR",
+            "nextId": "",
+            "nodeInputId": "",
+            "role": {
+                "name": "",
+                "text": ""
+            },
+            "text": "帮我将相关内容进行文笔优化，字数差不多，重点内容不能发生变化。",
+            "url": "",
+            "temperature": 0.7,
+            "model": "ChatGPT",
+            "input": "default",
+            "userInput": "",
+            "translate": "translate-zh",
+            "output": "default",
+            "type": "prompt"
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "XCSlvySpfMYVR1IRDTp4n",
+        "createDate": 1686643750270
+    }
+]

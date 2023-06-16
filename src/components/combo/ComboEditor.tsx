@@ -4,22 +4,49 @@ import {
     Button,
     Typography,
     Tag,
-    List, Empty,
+    List, Empty, Popconfirm
 } from 'antd';
 
-const {Text} = Typography;
+const { Text } = Typography;
 
-import {
-    CloseOutlined
-} from '@ant-design/icons';
+import i18n from 'i18next';
 
-import {chromeStorageGet, chromeStorageSet, md5, getConfig} from "@components/Utils"
-import {defaultCombo} from '@components/combo/ComboData'
+
+import { chromeStorageGet, chromeStorageSet, md5, getConfig } from "@components/Utils"
+import { _DEFAULTCOMBO } from '@components/flow/Workflow'
 
 import DownloadButton from '@components/buttons/DownloadButton';
-import {FlexRow} from "@components/Style";
+import { FlexRow } from "@components/Style";
 import OpenFileButton from "@components/buttons/OpenFileButton";
 
+import styled from 'styled-components';
+import CloseButton from "@components/buttons/CloseButton";
+
+const Base: any = styled.div`
+    & .ant-card-body::-webkit-scrollbar{
+        width:2px;
+    }
+    & .ant-card-body::-webkit-scrollbar{
+        width:2px;
+    }
+    & .ant-card-body::-webkit-scrollbar-track{
+        border-radius:25px;
+        -webkit-box-shadow:inset 0 0 5px rgba(255,255,255, 0.5);
+        background:rgba(255,255,255, 0.5);
+    }
+    & .ant-card-body::-webkit-scrollbar-thumb{
+        border-radius:15px;
+        -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
+        background:rgba(0, 0,0, 0.2);
+    }
+    & .ant-list-item{
+        width:100%;
+    }
+    & .ant-btn-primary{
+        color: #fff !important;
+        background-color: #1677ff !important;
+    }
+  `
 
 type PropType = {
     myPrompts: any;
@@ -46,16 +73,17 @@ class ComboEditor extends React.Component {
         super(props);
         this.state = {
             name: 'comboEditor',
-            secondTitle: '我的Prompts',
+            secondTitle: i18n.t('myWorkflow'),
             myPrompts: this.props.myPrompts,
             showImportModal: false,
             version: '',
             app: ''
         }
-        getConfig().then(json => this.setState({
+        const json: any = getConfig()
+        this.setState({
             app: json.app,
             version: json.version
-        }))
+        })
     }
 
     componentDidMount() {
@@ -83,12 +111,20 @@ class ComboEditor extends React.Component {
         // this.destroyConnection();
     }
 
+    // _delete(prompt: any) {
+    //     console.log('_delete', prompt)
+    //     this.props.callback({
+    //         cmd: 'delete-combo-confirm', data: { prompt, from: 'combo-editor' }
+    //     })
+    // }
+
     _comboHandle(combo: any, from: string) {
         if (this.props.callback) this.props.callback({
             cmd: 'combo',
             data: {
                 '_combo': combo,
-                from, prompt: combo.prompt,
+                from,
+                prompt: combo.prompt,
                 tag: combo.tag,
                 newTalk: true
             }
@@ -96,12 +132,14 @@ class ComboEditor extends React.Component {
     }
 
     _showModal(event: React.MouseEvent<HTMLButtonElement>, prompt: any) {
+        const isNew = !!prompt.isNew;
         const data = {
             prompt: {
-                ...defaultCombo,
+                ..._DEFAULTCOMBO(this.state.app, this.state.version),
                 ...prompt
             },
-            from: 'combo-editor'
+            from: 'combo-editor',
+            isNew
         }
         // console.log('_showModal', data)
         event.stopPropagation();
@@ -116,8 +154,8 @@ class ComboEditor extends React.Component {
         for (const combo of combos) {
             combo.version = this.state.version;
             combo.app = this.state.app;
-            combo.id = "";
-            combo.id = md5(JSON.stringify(combo));
+            // combo.id = "";
+            if (!combo.id) combo.id = md5(JSON.stringify(combo));
             data.push(combo)
         }
 
@@ -174,9 +212,9 @@ class ComboEditor extends React.Component {
                             ;
                         }
 
-                        chromeStorageSet({'user': newUser});
+                        chromeStorageSet({ 'user': newUser });
 
-                        that.setState({myPrompts})
+                        that.setState({ myPrompts })
 
 
                     });
@@ -189,38 +227,29 @@ class ComboEditor extends React.Component {
     }
 
     render() {
-        return (
+        return (<Base>
             <Card
                 title={'Combo'}
                 bordered={true}
                 headStyle={{
                     userSelect: 'none',
                     border: 'none',
+                    height: '80px',
                     fontSize: 24,
                     fontWeight: "bold",
-                    paddingTop: 16
                 }}
                 bodyStyle={{
                     // flex: 1,
-                    padding: '24px 24px 8px 24px',
-                    height: '100%',
-                    overflowY: 'scroll',
-                    paddingBottom: '99px'
+                    height: 'calc(100% - 80px)',
+                    paddingTop: 0,
                 }}
 
                 extra={<div>
-                    <Button
-                        style={{
-                            outline: 'none',
-                            border: 'none',
-                            margin: '0px 0px 0px 5px',
-                            boxShadow: 'none'
-                        }}
-                        onClick={
-                            () => this.props.callback && this.props.callback({cmd: 'close-combo-editor'})
-                        }
-                        icon={<CloseOutlined style={{fontSize: 20}}/>}
-                    />
+                    <CloseButton
+                        disabled={false}
+                        callback={() => this.props.callback({
+                            cmd: 'close-combo-editor'
+                        })} />
                 </div>}
 
                 style={{
@@ -238,16 +267,19 @@ class ComboEditor extends React.Component {
                 }}>
 
 
-                    <FlexRow display="flex">
-                        <Text style={{fontSize: 20, fontWeight: "bold"}}>{this.state.secondTitle}</Text>
+                    <FlexRow display="flex"
+                        style={{ "marginBottom": "10px" }}
+                    >
+                        <Text style={{ fontSize: 20, fontWeight: "bold", color: "black" }}>{this.state.secondTitle}</Text>
                         <div>
 
                             <DownloadButton
                                 disabled={false}
-                                callback={() => this._downloadMyCombo(this.state.myPrompts.filter((p: any) => p.owner != 'official'))}/>
+                                style={{ marginRight: 10 }}
+                                callback={() => this._downloadMyCombo(this.state.myPrompts.filter((p: any) => p.owner != 'official'))} />
                             <OpenFileButton
                                 disabled={false}
-                                callback={() => this._importMyCombo()}/>
+                                callback={() => this._importMyCombo()} />
 
                         </div>
 
@@ -264,30 +296,47 @@ class ComboEditor extends React.Component {
                                             borderColor: '#d9d9d9',
                                             borderStyle: 'solid',
                                             borderRadius: 5,
-                                            paddingTop: 15,
-                                            paddingBottom: 15,
-                                            paddingLeft: 10,
-                                            paddingRight: 10,
+                                            padding: "5px 0 5px 10px",
                                             marginTop: 10,
                                             marginBottom: 10
                                         }}
                                         actions={[
+                                            // <Popconfirm
+                                            //     placement="bottomRight"
+                                            //     title={'确定删除Prompt？'}
+                                            //     onConfirm={() => this._delete(p)}
+                                            //     okText="是的"
+                                            //     cancelText="取消"
+                                            //     zIndex={100000000}
+                                            // >
+                                            //     <Button danger
+                                            //         style={{ color: '#grey', border: "none", boxShadow: "none" }}
+                                            //     >
+                                            //         删除
+                                            //     </Button>
+
+                                            // </Popconfirm>
+                                            ,
                                             <Button
                                                 onClick={(event: any) => this._showModal(event, p)}
                                                 key={'edit'}
-                                                type={'text'}
+                                                type={"text"}
+                                                style={{ color: '#grey', border: "none", boxShadow: "none" }}
                                             >
-                                                编辑
+                                                {i18n.t('edit')}
                                             </Button>,
-                                            <Button onClick={() => this._comboHandle(p, "getPromptPage")}
-                                            >运行</Button>
+                                            <Button
+                                                type={"primary"}
+                                                style={{ background: '#1677ff' }}
+                                                onClick={() => this._comboHandle(p, "comboEditor")}
+                                            >{i18n.t('run')}</Button>
                                         ]}
                                     >
-                                        <Text style={{fontWeight: 'bold'}}>
+                                        <Text style={{ fontWeight: 'bold', color: "black" }}>
                                             {p.tag}
                                             {
                                                 p.combo > 1 ? (
-                                                    <Tag style={{marginLeft: 10}}>Combo</Tag>) : null
+                                                    <Tag style={{ marginLeft: 10 }}>Combo</Tag>) : null
                                             }
                                         </Text>
                                     </List.Item>
@@ -295,19 +344,23 @@ class ComboEditor extends React.Component {
                             })}
                         </List>
                     ) : (
-                        <Empty style={{marginTop: 100}}/>
+                        <Empty style={{ marginTop: 100 }} />
                     )}
 
                 </div>
                 <Button size={"large"} type={"primary"}
-                        style={{position: "absolute", bottom: 30, width: 450, left: 25}}
-                        onClick={(event: any) => this._showModal(event, {owner: 'user'})}>
-                    新建我的Prompts
+                    style={{ position: "absolute", bottom: 30, width: 450, left: 25 }}
+                    onClick={(event: any) => this._showModal(event, {
+                        owner: 'user',
+                        id: (new Date()).getTime(),
+                        isNew: true
+                    })}>
+                    {i18n.t('new')}
                 </Button>
 
                 {/* {this.state.showEdit && ReactDOM.createPortal(showEditModal(), document.body as HTMLElement)} */}
 
-            </Card>
+            </Card></Base>
         );
     }
 }
