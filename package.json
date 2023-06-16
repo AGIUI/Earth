@@ -1,7 +1,7 @@
 {
     "name": "Earth",
     "displayName": "Earth",
-    "version": "0.3.5",
+    "version": "0.3.5.1",
     "description": "AGIUI for Browser Extension",
     "license": "MIT",
     "repository": {

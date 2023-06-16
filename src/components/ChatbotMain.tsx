@@ -1017,13 +1017,10 @@ class Main extends React.Component<{
 
         const { system, user, assistant } = promptParse(prompt);
 
-        let chatBotType = this.state.chatBotType,
+        let chatBotType = model,
             style: any = temperature;
 
-        if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
-
-        // if (temperature > -1) style = temperature;
-        if (model) chatBotType = model;
+        // if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
 
         // 增加一个Bing的转化
         if (model == "Bing" && typeof (temperature) == 'number' && temperature > -1) style = this._temperature2BingStyle(temperature);
