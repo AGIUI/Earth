@@ -78,10 +78,8 @@ async function loadContextMenuData() {
 
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
-
         id: config.app,
         title: config.app,
-
         contexts: ['page']
     });
 
