@@ -22,9 +22,12 @@ const delimiter = (key: string) => `[${key}]`;
 const systemKeys: any = {
     role: "角色模拟",
     task: "具体的任务",
-    context: "上下文",
     translate: "翻译",
     output: "输出要求"
+}
+
+const assistantKeys: any = {
+    context: "上下文"
 }
 
 const userKeys: any = {
@@ -160,9 +163,28 @@ function promptParse(prompt: any) {
 
     user.content = Array.from(user.content, (c: any, i: number) => `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`).join('\n').trim();
 
-    const id = hashJson([system, user, new Date()])
 
-    return { system, user, id }
+    const assistant: any = {
+        role: 'assistant',
+        content: []
+    }
+
+    for (const key in assistantKeys) {
+        if (prompt[key]
+            && prompt[key].trim()
+        ) assistant.content.push({
+            key: assistantKeys[key],
+            value: prompt[key]
+        });
+    };
+
+    assistant.content = Array.from(
+        assistant.content, (c: any, i: number) => `${assistant.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`).join('\n').trim();
+
+
+    const id = hashJson([system, user, assistant, new Date()]);
+
+    return { system, user,assistant, id }
 
 }
 
@@ -259,8 +281,7 @@ const extractArticle = (query = "") => {
 
     divs = divs.filter((d: any) => d.className != '_agi_ui');
 
-    const textsTag = ['p', 'span', 'h1', 'section', 'a'];
-
+    const textsTag = ['p', 'span', 'h1', 'section', 'a', 'button'];
 
     let elements: any = [];
 
@@ -286,21 +307,27 @@ const extractArticle = (query = "") => {
     }).flat().filter((d: any) => d.text);
     // article.elements = Array.from(elements, (t: any) => t.element)
 
-    try {
-        article = { ...(new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse()), ...article };
-    } catch (error) {
+
+    const updateTitleAndTextContent = () => {
         let d = document.createElement('div');
         d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
         article.title = document.title;
         article.textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
     }
 
+    try {
+        article = { ...(new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse()), ...article };
+    } catch (error) {
+        updateTitleAndTextContent()
+    }
+
     if (window.location.hostname === 'mail.qq.com') {
         // 针对qq邮箱的处理 
-        let d = document.createElement('div');
-        d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
-        article.title = document.title;
-        article.textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
+        updateTitleAndTextContent()
+    }
+
+    if (window.location.hostname === "www.producthunt.com") {
+        updateTitleAndTextContent()
     }
 
     // 图片

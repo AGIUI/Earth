@@ -991,7 +991,7 @@ class Main extends React.Component<{
                 }
             }
             const p = new PPT();
-            
+
             p.createPPT(items).then((filename: any) => {
                 const id = md5(filename + (new Date()))
                 const data = Talks.createTaskStatus(
@@ -1015,7 +1015,7 @@ class Main extends React.Component<{
         // console.log('this.state.chatBotStyle', this.state.chatBotStyle)
         const { temperature, model, text, type } = prompt;
 
-        const { system, user } = promptParse(prompt);
+        const { system, user, assistant } = promptParse(prompt);
 
         let chatBotType = this.state.chatBotType,
             style: any = temperature;
@@ -1031,7 +1031,7 @@ class Main extends React.Component<{
         console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, system, user)
 
         const data = {
-            prompt: [system, user],
+            prompt: [system, assistant, user],
             type: chatBotType,
             style,
             newTalk: !!newTalk
@@ -1277,7 +1277,7 @@ class Main extends React.Component<{
         });
 
         // 把对话内容保存到本地
-        Talks.save(nTalks)
+        // Talks.save(nTalks)
     }
 
     _chatBotSelect(res: any) {
@@ -1376,7 +1376,7 @@ class Main extends React.Component<{
                 nTalks.push(ChatBotConfig.createTalkData('thinking', {}));
 
                 // 把对话内容保存到本地
-                Talks.save(nTalks)
+                // Talks.save(nTalks)
 
                 this.setState({
                     userInput: {
@@ -1684,7 +1684,7 @@ class Main extends React.Component<{
                     });
 
                     // 把对话内容保存到本地
-                    Talks.save(nTalks)
+                    // Talks.save(nTalks)
 
                     break;
                 case "debug-combo":
