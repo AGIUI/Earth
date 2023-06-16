@@ -220,7 +220,11 @@ function addCss() {
     margin: 6px 0;
     color: inherit;
   }
-  
+
+   ._agi_ui dl, ol, ul{
+    margin:0;
+   }
+
   ._agi_ui .logo{
     width: 34px!important;
     height: fit-content!important;

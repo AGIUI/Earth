@@ -12,6 +12,76 @@ import { encode, decode } from '@nem035/gpt-3-encoder'
 // const decoded = decode(encoded)
 // console.log('We can decode it back into:\n', decoded)
 
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+
+const resources = {
+    en: {
+        translation: {
+            role: "Role simulation",
+            task: "Specific task",
+            translate: "Translation",
+            output: "Output requirements",
+            title: "Webpage title",
+            url: "Webpage link",
+            text: "Webpage content",
+            html: "Webpage HTML",
+            images: "Webpage images",
+            context: "Context",
+            userInput: "User input",
+            'translate-zh': 'Translate into Chinese',
+            'translate-en': 'Translate into English',
+
+            'table': 'The answer to the user must be in table format',
+            'markdown': 'The answer to the user must be in Markdown format',
+            'json': 'The answer to the user must be a JSON array or object',
+            'list': 'The answer to the user must be in list format',
+            'extract': 'Analyze entity words and categorize them'
+        },
+    },
+    zh: {
+        translation: {
+            role: "角色模拟",
+            task: "具体的任务",
+            translate: "翻译",
+            output: "输出要求",
+            title: "网页标题",
+            url: "网页链接",
+            text: "网页正文",
+            html: "网页",
+            images: "网页图片",
+            context: "上下文",
+            userInput: "用户输入",
+
+            'translate-zh': `翻译成中文`,
+            'translate-en': `翻译成英文`,
+
+            'table': '回答user的结果只允许是table结构',
+            'markdown': `回答user的结果只允许是Markdown格式`,
+            'json': `回答user的结果只允许是JSON数组或对象`,
+            'list': '回答user的结果只允许是list数组',
+            'extract': `分析实体词，并分类`
+
+
+        },
+    },
+};
+
+i18n
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .init({
+        resources,
+        fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
+        lng: navigator.language,
+        debug: false,
+        interpolation: {
+            escapeValue: false, // 不需要对翻译文本进行转义
+        },
+    });
+
+
 
 
 import { hashJson, md5, textSplitByLength } from '@components/Utils'
@@ -20,20 +90,24 @@ const MAX_LENGTH = 2800;
 const delimiter = (key: string) => `[${key}]`;
 
 const systemKeys: any = {
-    role: "角色模拟",
-    task: "具体的任务",
-    context: "上下文",
-    translate: "翻译",
-    output: "输出要求"
+    role: i18n.t('role'),
+    task: i18n.t('task'),
+    translate: i18n.t('translate'),
+    output: i18n.t('output')
+}
+
+const assistantKeys: any = {
+
 }
 
 const userKeys: any = {
-    title: "网页标题",
-    url: "网页链接",
-    text: "网页正文",
-    html: "网页",
-    images: "网页图片",
-    userInput: "用户输入"
+    title: i18n.t('title'),
+    url: i18n.t('url'),
+    text: i18n.t('text'),
+    html: i18n.t('html'),
+    images: i18n.t('images'),
+    context: i18n.t('context'),
+    userInput: i18n.t('userInput')
 }
 
 
@@ -95,17 +169,7 @@ const cropText = (
 
 /**
  * 
- * @param prompt 说明:
-        <name>是扮演的角色名称
-        <role>扮演的角色背景信息
-        <title>当前网页标题
-        <url>当前网页链接
-        <text>当前网页正文
-        <html>当前网页
-        <task>具体的任务
-        <context>上一次聊天信息
-        <userInput>用户输入的信息
-        请根据以上信息，完成<userInput>和<task>，输出结果`
+ * @param prompt
  * @returns 
  */
 
@@ -118,7 +182,7 @@ function promptParse(prompt: any) {
         , ...prompt
     };
 
-    console.log('promptParse:::::', JSON.stringify(prompt, null, 2))
+    console.log('promptParse:::::',JSON.stringify(prompt, null, 2))
 
     let system: any = {
         role: "system",
@@ -142,7 +206,11 @@ function promptParse(prompt: any) {
         }
     }
 
-    system.content = Array.from(system.content, (c: any, i: number) => `${system.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`).join('\n').trim();
+    system.content = Array.from(
+        system.content, 
+        (c: any, i: number) =>
+         `${system.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+         .join('\n').trim();
 
     const user: any = {
         role: 'user',
@@ -158,11 +226,37 @@ function promptParse(prompt: any) {
         });
     };
 
-    user.content = Array.from(user.content, (c: any, i: number) => `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`).join('\n').trim();
+    user.content = Array.from(
+        user.content, 
+        (c: any, i: number) =>
+         `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+         .join('\n').trim();
 
-    const id = hashJson([system, user, new Date()])
 
-    return { system, user, id }
+    const assistant: any = {
+        role: 'assistant',
+        content: []
+    }
+
+    for (const key in assistantKeys) {
+        if (prompt[key]
+            && prompt[key].trim()
+        ) assistant.content.push({
+            key: assistantKeys[key],
+            value: prompt[key]
+        });
+    };
+
+    assistant.content = Array.from(
+        assistant.content, 
+        (c: any, i: number) =>
+         `${assistant.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+         .join('\n').trim();
+
+
+    const id = hashJson([system, user, assistant, new Date()]);
+
+    return { system, user, assistant, id }
 
 }
 
@@ -259,8 +353,7 @@ const extractArticle = (query = "") => {
 
     divs = divs.filter((d: any) => d.className != '_agi_ui');
 
-    const textsTag = ['p', 'span', 'h1', 'section', 'a'];
-
+    const textsTag = ['p', 'span', 'h1', 'section', 'a', 'button'];
 
     let elements: any = [];
 
@@ -286,21 +379,27 @@ const extractArticle = (query = "") => {
     }).flat().filter((d: any) => d.text);
     // article.elements = Array.from(elements, (t: any) => t.element)
 
-    try {
-        article = { ...(new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse()), ...article };
-    } catch (error) {
+
+    const updateTitleAndTextContent = () => {
         let d = document.createElement('div');
         d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
         article.title = document.title;
         article.textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
     }
 
+    try {
+        article = { ...(new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse()), ...article };
+    } catch (error) {
+        updateTitleAndTextContent()
+    }
+
     if (window.location.hostname === 'mail.qq.com') {
         // 针对qq邮箱的处理 
-        let d = document.createElement('div');
-        d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
-        article.title = document.title;
-        article.textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
+        updateTitleAndTextContent()
+    }
+
+    if (window.location.hostname === "www.producthunt.com") {
+        updateTitleAndTextContent()
     }
 
     // 图片
@@ -354,9 +453,9 @@ const promptBindTranslate = (userInput: string, type: string) => {
         translate: ""
     }
     if (type == 'translate-zh') {
-        prompt.translate = `翻译成中文`
+        prompt.translate = i18n.t('translate-zh')
     } else if (type == 'translate-en') {
-        prompt.translate = `翻译成英文`
+        prompt.translate = i18n.t('translate-en')
     }
     return prompt
 }
@@ -369,15 +468,15 @@ const promptBindOutput = (userInput: string, type: string) => {
     if (type == 'text' || type == 'default') {
         prompt.output = ''
     } else if (type == 'table') {
-        prompt.output = '回答user的结果只允许是table结构'
+        prompt.output = i18n.t('table')
     } else if (type == 'markdown') {
-        prompt.output = `回答user的结果只允许是Markdown格式`
+        prompt.output = i18n.t('markdown')
     } else if (type == 'json') {
-        prompt.output = `回答user的结果只允许是JSON数组或对象`
+        prompt.output = i18n.t('json')
     } else if (type == 'list') {
-        prompt.output = '回答user的结果只允许是list数组'
+        prompt.output = i18n.t('list')
     } else if (type == 'extract') {
-        prompt.output = `分析实体词，并分类`
+        prompt.output = i18n.t('extract')
     };
 
     // prompt.output += `,只输出结果,不允许出现${delimiter("xxx")}`
@@ -387,12 +486,12 @@ const promptBindOutput = (userInput: string, type: string) => {
 
 // 拆解任务目标
 const promptBindTasks = (userInput: string) => {
-    return `${userInput}<task>针对以上的任务目标，一步步思考如何完成，按照可行的步骤列出来</task>`
+    // return `${userInput}<task>针对以上的任务目标，一步步思考如何完成，按照可行的步骤列出来</task>`
 }
 
 // 高亮信息
 const promptBindHighlight = (userInput: string) => {
-    return `${userInput}<task>从以上html元素中选择最值得看的信息，返回top5的元素id号给我</task>`
+    // return `${userInput}<task>从以上html元素中选择最值得看的信息，返回top5的元素id号给我</task>`
 }
 
 /**
@@ -428,7 +527,6 @@ const promptUseLastTalk = (userInput: string, context: string) => {
         userInput,
         context
     }
-
     return prompt
 }
 
