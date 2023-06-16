@@ -169,17 +169,7 @@ const cropText = (
 
 /**
  * 
- * @param prompt 说明:
-        <name>是扮演的角色名称
-        <role>扮演的角色背景信息
-        <title>当前网页标题
-        <url>当前网页链接
-        <text>当前网页正文
-        <html>当前网页
-        <task>具体的任务
-        <context>上一次聊天信息
-        <userInput>用户输入的信息
-        请根据以上信息，完成<userInput>和<task>，输出结果`
+ * @param prompt
  * @returns 
  */
 
@@ -192,7 +182,7 @@ function promptParse(prompt: any) {
         , ...prompt
     };
 
-    console.log('promptParse:::::', systemKeys,JSON.stringify(prompt, null, 2))
+    console.log('promptParse:::::',JSON.stringify(prompt, null, 2))
 
     let system: any = {
         role: "system",
@@ -216,7 +206,11 @@ function promptParse(prompt: any) {
         }
     }
 
-    system.content = Array.from(system.content, (c: any, i: number) => `${system.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`).join('\n').trim();
+    system.content = Array.from(
+        system.content, 
+        (c: any, i: number) =>
+         `${system.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+         .join('\n').trim();
 
     const user: any = {
         role: 'user',
@@ -232,7 +226,11 @@ function promptParse(prompt: any) {
         });
     };
 
-    user.content = Array.from(user.content, (c: any, i: number) => `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`).join('\n').trim();
+    user.content = Array.from(
+        user.content, 
+        (c: any, i: number) =>
+         `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+         .join('\n').trim();
 
 
     const assistant: any = {
@@ -250,7 +248,10 @@ function promptParse(prompt: any) {
     };
 
     assistant.content = Array.from(
-        assistant.content, (c: any, i: number) => `${assistant.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`).join('\n').trim();
+        assistant.content, 
+        (c: any, i: number) =>
+         `${assistant.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+         .join('\n').trim();
 
 
     const id = hashJson([system, user, assistant, new Date()]);
@@ -485,12 +486,12 @@ const promptBindOutput = (userInput: string, type: string) => {
 
 // 拆解任务目标
 const promptBindTasks = (userInput: string) => {
-    return `${userInput}<task>针对以上的任务目标，一步步思考如何完成，按照可行的步骤列出来</task>`
+    // return `${userInput}<task>针对以上的任务目标，一步步思考如何完成，按照可行的步骤列出来</task>`
 }
 
 // 高亮信息
 const promptBindHighlight = (userInput: string) => {
-    return `${userInput}<task>从以上html元素中选择最值得看的信息，返回top5的元素id号给我</task>`
+    // return `${userInput}<task>从以上html元素中选择最值得看的信息，返回top5的元素id号给我</task>`
 }
 
 /**
@@ -526,7 +527,6 @@ const promptUseLastTalk = (userInput: string, context: string) => {
         userInput,
         context
     }
-
     return prompt
 }
 
