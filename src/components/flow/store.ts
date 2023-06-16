@@ -13,10 +13,11 @@ import { create } from 'zustand';
 import { nanoid } from 'nanoid/non-secure';
 
 import { defaultNode, comboOptions, _DEFAULTCOMBO, parsePrompt2ControlEvent } from './Workflow'
-import { node } from 'prop-types';
+
 
 
 export type RFState = {
+  init: any;
   debugStatus: any;
   defaultNode: any;
   id: string;
@@ -72,35 +73,63 @@ const debugRun = (id: string, prompt: any, debug: any, onChange: any) => {
   debug.callback(controlEvent)
 }
 
+const _VERVISON = '0.1.0',
+  _APP = 'brainwave';
 
+const initRootNode = () => {
+  return {
+    id: 'root',
+    type: 'role',
+    data: {
+      ...defaultNode(),
+      role: { ..._DEFAULTCOMBO(_APP, _VERVISON).role },
+      type: 'role',
+    },
+    position: { x: 0, y: 0 },
+    deletable: false
+  }
+}
 
 /**
  * 默认的节点
  */
 const useStore = create<RFState>((set, get) => ({
-  comboOptions,
+  comboOptions: [],
   id: '',
   debug: { open: false },
   tag: 'combo',
-  defaultNode: {
-    id: 'root',
-    type: 'role',
-    data: {
-      ...defaultNode,
-      role: { ..._DEFAULTCOMBO.role },
-      type: 'role',
-    },
-    position: { x: 0, y: 0 },
-    deletable: false
-  },
+  defaultNode: initRootNode(),
   nodes: [],
   edges: [],
-  onComboOptionsChange: (changes: any) => {
-    let comboOptions = get().comboOptions;
-    comboOptions = Array.from(comboOptions, (c: any) => {
-      c.checked = changes.includes(c.value);
-      return c
+  init: () => {
+    set({
+      comboOptions: comboOptions(),
+      defaultNode: initRootNode
     })
+  },
+  onComboOptionsChange: (type: number, changes: any) => {
+    console.log('onComboOptionsChange', type, changes);
+
+    let comboOptions = get().comboOptions;
+
+    if (type === 0) {
+      // 父级
+      comboOptions = Array.from(comboOptions, (c: any) => {
+        c.checked = changes.includes(c.value);
+        return c
+      })
+    } else if (type == 1) {
+      // 子级
+      comboOptions = Array.from(comboOptions, (c: any) => {
+        if (c.children && changes.includes(c.value)) {
+          c.children = Array.from(c.children, (child: any) => {
+            child.checked = changes.includes(child.value);
+            return child
+          })
+        }
+        return c
+      })
+    }
     // console.log(changes, comboOptions)
     set({ comboOptions })
   },
@@ -117,13 +146,13 @@ const useStore = create<RFState>((set, get) => ({
     const oId = get().id;
     if (id == oId) return;
     set({
-      nodes: [], edges: []
+      nodes: [], edges: [],
     });
     console.log('newCombo - tag -debug', tag, interfaces, debug)
 
     const nodes = [...Array.from(ns, (nd: any) => {
       nd.data = {
-        ...defaultNode,
+        ...defaultNode(),
         ...nd.data,
         getNodes: (currentId: string) => getNodes(currentId, get().nodes),
         onChange: (e: any) => {
@@ -140,15 +169,34 @@ const useStore = create<RFState>((set, get) => ({
         nd.data['debug'] = (prompt: any) => debugRun(nd.id, prompt, debug, get().debugStatus);
       }
       return nd
-    })]
+    })];
 
-    let comboOptions = get().comboOptions;
-    comboOptions = Array.from(comboOptions, (c: any) => {
+    // interfaces的处理，把子级提出来
+    const interfacesChildren: any = {};
+    for (const inf of interfaces) {
+      const infs = inf.split("-");
+      if (infs.length === 2) {
+        if (!interfacesChildren[infs[0]]) {
+          interfacesChildren[infs[0]] = []
+        }
+        interfacesChildren[infs[0]].push(infs[1])
+      }
+    };
+
+    let comboOpts = comboOptions();
+    comboOpts = Array.from(comboOpts, (c: any) => {
       c.checked = interfaces.includes(c.value);
+      if (c.children) {
+        c.checked = !!interfacesChildren[c.value];
+        if (interfacesChildren[c.value]) c.children = Array.from(c.children, (child: any) => {
+          child.checked = interfacesChildren[c.value].includes(child.value);
+          return child
+        })
+      }
       return c
     })
     // console.log(changes, comboOptions)
-    console.log('newCombo - nodes', id, tag, nodes, debug, comboOptions)
+    console.log('newCombo - nodes', id, tag, nodes, debug, comboOpts, comboOptions())
 
     setTimeout(() => set({
       id,
@@ -156,7 +204,7 @@ const useStore = create<RFState>((set, get) => ({
       edges,
       debug,
       tag,
-      comboOptions
+      comboOptions: comboOpts
     }), 200)
 
   },
@@ -181,7 +229,7 @@ const useStore = create<RFState>((set, get) => ({
       id: createId(nodeType, nanoid()),
       type: nodeType,
       data: {
-        ...defaultNode,
+        ...defaultNode(),
         type: dataType,
         getNodes: (currentId: string) => getNodes(currentId, get().nodes),
         onChange: (e: any) => {
@@ -240,7 +288,7 @@ const useStore = create<RFState>((set, get) => ({
       id: createId('prompt', nanoid()),
       type: 'prompt',
       data: {
-        ...defaultNode,
+        ...defaultNode(),
         getNodes: (currentId: string) => getNodes(currentId, get().nodes),
         onChange: (e: any) => {
           const nodes = onChangeForNodes(e, get().nodes);

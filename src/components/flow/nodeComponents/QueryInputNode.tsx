@@ -4,18 +4,10 @@ import { Input, Card, Select, Radio, InputNumber, Checkbox, Dropdown, Divider, S
 import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
-const { TextArea } = Input;
-const { Option } = Select;
+import { selectInput, createDebug, createTextArea } from "./Base"
 
-import { selectInput, createDebug } from "./Base"
-
-const menuNames = {
-  title: '文本输入',
-  selectQuery: 'SelectQuery',
-  selectQueryPlaceholder: '- - ',
-  inputText: '文本来源',
-  debug: '调试'
-}
+import i18n from "i18next";
+import { i18nInit } from '../locales/i18nConfig';
 
 export type NodeData = {
   input: string;
@@ -26,9 +18,13 @@ export type NodeData = {
   onChange: any
 };
 
+const nodeStyle = {
+  border: '1px solid transparent',
+  padding: '2px 5px',
+  borderRadius: '12px',
+};
 
-
-const createUrl = (title1: string, placeholder1: string, title2: string, input: string, json: any, onChange: any) => {
+const createUrl = (input: string, json: any, onChange: any) => {
 
   const { queryObj, userInput, nodeInputId } = json;
   const { query, action } = queryObj;
@@ -49,19 +45,15 @@ const createUrl = (title1: string, placeholder1: string, title2: string, input: 
         data: true
       })
     }}>
-    <p>{title1}</p>
-    <TextArea
-      defaultValue={query}
-      rows={4}
-      placeholder={placeholder1}
-      autoSize
-      onChange={(e) => {
+
+    {
+      createTextArea(i18n.t('selectQuery'), query, ".tag", "", (e: any) => {
         const data = {
           ...json,
           queryObj: {
             ...json.queryObj,
             content: '',
-            query: e.target.value,
+            query: e.data,
             action: 'input'
           }
         }
@@ -69,11 +61,13 @@ const createUrl = (title1: string, placeholder1: string, title2: string, input: 
           key: 'data',
           data
         })
-      }}
-    />
+      })
+    }
+
     <Divider dashed />
+    <p>{i18n.t('queryInputText')}</p>
     {
-      selectInput(selectNodeValue, userInput, nodeOpts, onChange)
+      selectInput(i18n.t('nodeInputLabel'), i18n.t('userInputLabel'), selectNodeValue, userInput, nodeOpts, onChange)
     }
 
   </div>
@@ -81,12 +75,15 @@ const createUrl = (title1: string, placeholder1: string, title2: string, input: 
 
 
 
-function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
-  const [type, setType] = React.useState(data.type)
-  // console.log('QueryURLNode', data)
+function Main({ id, data, selected }: NodeProps<NodeData>) {
+  i18nInit();
+  const contextMenus: MenuProps['items'] = [
+    {
+      label: i18n.t('debug'),
+      key: 'debug',
+    }
+  ];
 
-  // queryObj
-  data.queryObj.isQuery = type === "query";
   const [queryObj, setQueryObj] = React.useState(data.queryObj);
 
   const [input, setInput] = React.useState(data.input);
@@ -132,46 +129,37 @@ function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
 
     const node = [
       createUrl(
-        menuNames.selectQuery,
-        menuNames.selectQueryPlaceholder,
-        menuNames.inputText,
         input,
         data,
         updateData),
-      createDebug(id, "", '', (event: any) => {
+      createDebug({
+        header: i18n.t('debug'),
+        inputText: i18n.t('inputText'),
+        inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
+        outputText: i18n.t('outputText'),
+        outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
+        debugRun: i18n.t('debugRun'),
+      }, id, "", '', (event: any) => {
         if (event.key == 'input') { }
       }, () => data.debug ? data.debug(data) : '', {})
     ];
 
     return <Card
       key={id}
-      title={menuNames.title}
+      title={i18n.t('queryInputNodeTitle')}
       bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}
     </Card>
   }
 
-  const nodeStyle = selected ? {
-    border: '1px solid transparent',
-    padding: '2px 5px',
-    borderRadius: '12px',
-    backgroundColor: 'cornflowerblue'
-  } : {
-    border: '1px solid transparent',
-    padding: '2px 5px'
-  };
-
-  const items: MenuProps['items'] = [
-    {
-      label: menuNames.debug,
-      key: 'debug',
-    }
-  ];
 
   return (
-    <Dropdown menu={{ items, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
-      <div style={nodeStyle} key={id}>
+    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug(data) : '' }} trigger={['contextMenu']}>
+      <div style={selected ? {
+        ...nodeStyle,
+        backgroundColor: 'cornflowerblue'
+      } : nodeStyle} key={id}>
         {createNode()}
         <Handle type="target" position={Position.Left} />
         <Handle type="source" position={Position.Right} />
@@ -180,4 +168,4 @@ function QueryInputNode({ id, data, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default QueryInputNode;
+export default Main;

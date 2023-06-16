@@ -1,11 +1,16 @@
 import { createRoot } from "react-dom/client";
 import Main from "@src/components/ChatbotMain";
-import { getConfigFromUrl, getConfig,addCss } from "@components/Utils"
+import { getConfigFromUrl, getConfig, addCss } from "@components/Utils"
+
+// import i18n from 'i18next';
+import '@src/locales/i18nConfig'
+
 
 let json: any = getConfig() || {};
-let id = json.app + "_dom";
+let id = (json.app + "_dom").replace(/\s/ig,'').trim();
 const rootContainer = document.createElement('div');
 rootContainer.id = id;
+
 
 const chatbotCallbacks = (event: any) => {
   const { cmd, data } = event;
@@ -26,7 +31,7 @@ async function init() {
   // 只运行一次
   let h = dom.querySelector('#' + id);
   if (h && h.children.length > 0) return
-
+ 
   const root = createRoot(rootContainer);
   root.render(
     <Main
@@ -62,7 +67,7 @@ async function init() {
 
 }
 
- 
+
 // 如果是
 function readerHack(reader: boolean) {
   if (window.location.hostname.match('producthunt.com')) return false

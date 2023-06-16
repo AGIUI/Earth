@@ -4,24 +4,23 @@ import { PlusOutlined, SendOutlined, BranchesOutlined, LoadingOutlined, LoginOut
 const { TextArea } = Input;
 const { Panel } = Collapse;
 
+import i18n from 'i18next';
+
 import { _DEFAULTCOMBO, defaultNode } from "@components/flow/Workflow";
 
 import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 import ChatBotSelect from "@components/chatbot/ChatBotSelect"
 
+import { getConfig } from "@src/components/Utils"
+const json = getConfig()
 /**
  * <ChatBotInput callback={({data,cmd})=>{console.log(cmd,data)}} isLoading={false} leftButton={label:'My Prompts'}/>
  * 
  */
 
-const defaultPrompt: any = { ...defaultNode }
+const defaultPrompt: any = { ...defaultNode() }
 delete defaultPrompt.opts;
 
-const menuNames = {
-    debug: '调试全部',
-    new: '新建',
-    send: '发送'
-}
 
 type PropType = {
     /** 回调
@@ -93,7 +92,7 @@ class ChatBotInput extends React.Component {
 
         const input: any = ChatBotConfig.getInput(),
             output: any = ChatBotConfig.getOutput(),
-            agent: any = ChatBotConfig.getAgentOpts();
+            agent: any = [...ChatBotConfig.getAgentOpts(), ...ChatBotConfig.getTranslate()];
 
 
         let config = this.props.config.filter((c: any) => c.checked)[0];
@@ -151,14 +150,30 @@ class ChatBotInput extends React.Component {
         if (this.state.output.filter((ot: any) => ot.checked)[0].value !== 'defalut' && !prompt) prompt = "."
         if (prompt) {
             const output = this.state.output.filter((oup: any) => oup.checked)[0].value;
+
+            // 针对translate的类型进行type修正
+            let type = this.state.agent.filter((a: any) => a.checked)[0].value,
+                translate = "default"
+
+            // 如果translate作为agent
+            if ([
+                'translate-en',
+                'translate-zh'
+            ].includes(type)) {
+                translate = type;
+                type = 'prompt';
+
+            }
+
             const combo = {
-                ..._DEFAULTCOMBO,
+                ..._DEFAULTCOMBO(json.app, json.version),
                 prompt: {
                     ...defaultPrompt,
                     text: prompt,
                     input: this.state.input.filter((inp: any) => inp.checked)[0].value,
                     output,
-                    type: this.state.agent.filter((a: any) => a.checked)[0].value,
+                    type,
+                    translate
                 },
                 combo: -1
             }
@@ -212,7 +227,7 @@ class ChatBotInput extends React.Component {
     _toast() {
         message.open({
             type: 'warning',
-            content: '可能会消耗大量Token，建议在需要时绑定',
+            content: i18n.t('tokenConsumptionWarning'),
         });
     }
 
@@ -284,7 +299,7 @@ class ChatBotInput extends React.Component {
                                 onClick={() => this._leftBtnClick()}
                                 disabled={this.state.isLoading}
                             >
-                                工作流
+                                {i18n.t('workflow')}
                             </Button> : ''
                         }
 
@@ -298,7 +313,7 @@ class ChatBotInput extends React.Component {
                                 })}
                                 disabled={this.state.isLoading}
                             >
-                                {menuNames.debug}
+                                {i18n.t('debugAll')}
                             </Button> : ''
                         }
 
@@ -320,7 +335,7 @@ class ChatBotInput extends React.Component {
                             icon={<PlusOutlined />}
                             onClick={() => this._newTalk()}
                             disabled={this.state.isLoading}
-                        >新建</Button>
+                        >{i18n.t('reset')}</Button>
 
                         <Button
                             style={buttonMainStyle}
@@ -328,7 +343,7 @@ class ChatBotInput extends React.Component {
                             icon={this.state.isLoading ? <LoadingOutlined /> : <SendOutlined key="ellipsis" />}
                             onClick={() => this._sendBtnClick()}
                         >
-                            {!this.state.isLoading ? '发送' : '停止'}
+                            {!this.state.isLoading ? i18n.t('send') : i18n.t('stop')}
                         </Button>
                     </div>
 
@@ -360,14 +375,15 @@ class ChatBotInput extends React.Component {
                                     size="small"
                                 />
                             </div>
-                            <div style={flexStyle}><LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
-                                options={this.state.output}
-                                onChange={(e) => this._change(e.target.value, 'output')}
-                                value={this.state.output.filter((m: any) => m.checked)[0].value}
-                                optionType="button"
-                                buttonStyle="solid"
-                                size="small"
-                            /></div>
+                            <div style={flexStyle}>
+                                <LogoutOutlined style={{ marginRight: '10px' }} /><Radio.Group
+                                    options={this.state.output}
+                                    onChange={(e) => this._change(e.target.value, 'output')}
+                                    value={this.state.output.filter((m: any) => m.checked)[0].value}
+                                    optionType="button"
+                                    buttonStyle="solid"
+                                    size="small"
+                                /></div>
 
                             <ChatBotSelect
                                 callback={(res: any) => this._changeChatbot(res)}

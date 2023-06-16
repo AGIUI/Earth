@@ -1,5 +1,6 @@
 import { workflow } from '@components/flow/Workflow'
 import { getConfig } from '@components/Utils';
+import i18n from 'i18next';
 
 const json: any = getConfig();
 let discord = json.discord
@@ -17,11 +18,12 @@ function get() {
         name: 'New Bing',
         icon: chrome.runtime.getURL(`public/bing.svg`),
         style: {
-            type: 'select', label: '风格',
+            type: 'select',
+            label: i18n.t('styleLabel'),
             values: [
-                { label: '创造力', value: 'Creative' },
-                { label: '平衡', value: 'Balanced', },
-                { label: '严谨', value: 'Precise', }
+                { label: i18n.t('creativeStyleLabel'), value: 'Creative' },
+                { label: i18n.t('balancedStyleLabel'), value: 'Balanced' },
+                { label: i18n.t('preciseStyleLabel'), value: 'Precise' }
             ],
             value: 'Creative'
         },
@@ -33,7 +35,7 @@ function get() {
 
 
 function getInput() {
-    return Array.from(workflow.inputs, inp => {
+    return Array.from(workflow().inputs, inp => {
         if (inp.display.includes('chatbot')) return {
             ...inp
         }
@@ -41,7 +43,7 @@ function getInput() {
 }
 
 function getOutput() {
-    return Array.from(workflow.outputs, out => {
+    return Array.from(workflow().outputs, out => {
         if (out.display.includes('chatbot')) return {
             ...out
         }
@@ -49,7 +51,7 @@ function getOutput() {
 }
 
 function getTranslate() {
-    return Array.from(workflow.translates, translate => {
+    return Array.from(workflow().translates, translate => {
         if (translate.display.includes('chatbot')) return {
             ...translate
         }
@@ -57,7 +59,7 @@ function getTranslate() {
 }
 
 function getAgentOpts() {
-    return Array.from(workflow.agents, (agent: any) => {
+    return Array.from(workflow().agents, (agent: any) => {
         if (!agent.disabled && agent.display.includes('chatbot')) return {
             value: agent.key,
             label: agent.label,
@@ -81,12 +83,12 @@ function createTalkData(type: string, json: any) {
         case 'chatbot-is-available-false':
             data = {
                 type: 'suggest',
-                hi: `hi,当前AI:${json.hi},服务异常`,
+                hi: i18n.t('hiCurrentAI', { hi: json.hi }),
                 buttons: [{
                     from: 'open-setup',
                     data: {
-                        tag: '配置or切换AI',
-                        prompt: '配置or切换AI',
+                        tag: i18n.t('configOrSwitchAI'),
+                        prompt: i18n.t('configOrSwitchAI'),
                     }
                 }],
                 user: false,
@@ -96,7 +98,7 @@ function createTalkData(type: string, json: any) {
         case 'send-talk-refresh':
             data = {
                 type: 'suggest',
-                hi: '当前为历史对话记录',
+                hi: i18n.t('historyConversation'),
                 buttons: [{
                     from: 'send-talk-refresh',
                     data: json.data
@@ -108,7 +110,7 @@ function createTalkData(type: string, json: any) {
         case 'new-talk':
             data = {
                 type: 'suggest',
-                hi: 'hi 我可以为你梳理当前页面的知识',
+                hi: i18n.t('hiWelcome'),
                 buttons: json.buttons,
                 user: false,
                 html: ''
@@ -117,7 +119,7 @@ function createTalkData(type: string, json: any) {
         case 'more-prompts':
             data = {
                 type: 'suggest',
-                hi: '相关推荐',
+                hi: i18n.t('relatedRecommendations'),
                 buttons: json.buttons,
                 user: false,
                 html: ''
@@ -126,7 +128,7 @@ function createTalkData(type: string, json: any) {
         case 'urls':
             data = {
                 type: 'suggest',
-                hi: '其他资料',
+                hi: i18n.t('otherMaterials'),
                 buttons: json.buttons,
                 user: false,
                 html: ''
@@ -136,14 +138,14 @@ function createTalkData(type: string, json: any) {
             data = {
                 type: 'thinking',
                 html: '-',
-                hi: json.hi || '思考中'
+                hi: json.hi || i18n.t('thinking')
             }
             break;
         case 'agents':
             data = {
                 type: 'thinking',
                 html: '-',
-                hi: '获取中'
+                hi: i18n.t('fetching')
             }
             break;
         case 'tag':
@@ -163,11 +165,11 @@ function createTalkData(type: string, json: any) {
         case 'help':
             data = {
                 type: 'suggest',
-                hi: '我可以怎么帮到你？',
+                hi: i18n.t('howCanIHelp'),
                 buttons: [{
                     from: 'open-url',
                     data: {
-                        tag: '前往社区',
+                        tag: i18n.t('goToCommunity'),
                         url: discord || 'https://discord.gg/DtAYT2Pt'
                     }
                 }],

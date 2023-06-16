@@ -5,13 +5,10 @@ import type { MenuProps } from 'antd';
 
 const { TextArea } = Input;
 
-import { createDebug } from './Base'
+import { createDebug, createTextArea } from './Base'
 
-const menuNames = {
-  title: '模拟点击事件',
-  selectQuery: 'SelectQuery',
-  debug: '调试'
-}
+import i18n from "i18next";
+import { i18nInit } from '../locales/i18nConfig';
 
 
 export type NodeData = {
@@ -21,9 +18,15 @@ export type NodeData = {
   onChange: any
 };
 
+const nodeStyle = {
+  border: '1px solid transparent',
+  padding: '2px 5px',
+  borderRadius: '12px',
+};
+
 
 const createUrl = (title: string, json: any, onChange: any) => {
-  const { protocol, url, init, query, isApi, isQuery } = json;
+  const { protocol, url, init, query } = json;
   const key = 'query';
   return <div onMouseOver={() => {
     onChange({
@@ -37,16 +40,12 @@ const createUrl = (title: string, json: any, onChange: any) => {
         data: true
       })
     }}>
-    <p>{title}</p>
-    <TextArea
-      defaultValue={query}
-      rows={4}
-      placeholder="xxxx"
-      autoSize
-      onChange={(e) => {
+
+    {
+      createTextArea(title, query, ".tag", "", (e: any) => {
         const data = {
           ...json,
-          query: e.target.value,
+          query: e.data,
           action: 'click'
         }
 
@@ -54,19 +53,22 @@ const createUrl = (title: string, json: any, onChange: any) => {
           key,
           data
         })
+      })
+    }
 
-      }}
-    />
   </div>
 }
 
 
-function QueryBySelectNode({ id, data, selected }: NodeProps<NodeData>) {
-  const [type, setType] = React.useState(data.type)
-  // console.log('QueryURLNode', data)
-
+function Main({ id, data, selected }: NodeProps<NodeData>) {
+  i18nInit();
+  const contextMenus: MenuProps['items'] = [
+    {
+      label: i18n.t('debug'),
+      key: 'debug',
+    }
+  ];
   // queryObj
-  data.queryObj.isQuery = type === "query";
   const [queryObj, setQueryObj] = React.useState(data.queryObj)
   const updateQueryObj = (e: any) => {
     // console.log(e)
@@ -77,43 +79,36 @@ function QueryBySelectNode({ id, data, selected }: NodeProps<NodeData>) {
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
 
-
   const createNode = () => {
-    const node = [createUrl(menuNames.selectQuery, queryObj, updateQueryObj)];
-    
-    node.push(createDebug(id, "", '', (event: any) => {
+    const node = [createUrl(i18n.t('selectQuery'), queryObj, updateQueryObj)];
+
+    node.push(createDebug({
+      header: i18n.t('debug'),
+      inputText: i18n.t('inputText'),
+      inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
+      outputText: i18n.t('outputText'),
+      outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
+      debugRun: i18n.t('debugRun'),
+    }, id, "", '', (event: any) => {
       if (event.key == 'input') { }
     }, () => data.debug ? data.debug(data) : '', {}))
 
     return <Card
       key={id}
-      title={menuNames.title}
+      title={i18n.t("queryClickNodeTitle")}
       bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}
     </Card>
   }
 
-  const nodeStyle = selected ? {
-    border: '1px solid transparent',
-    padding: '2px 5px',
-    borderRadius: '12px',
-    backgroundColor: 'cornflowerblue'
-  } : {
-    border: '1px solid transparent',
-    padding: '2px 5px'
-  };
-
-  const items: MenuProps['items'] = [
-    {
-      label: menuNames.debug,
-      key: 'debug',
-    }
-  ];
-
   return (
-    <Dropdown menu={{ items, onClick: () => data.debug ? data.debug() : '' }} trigger={['contextMenu']}>
-      <div style={nodeStyle} key={id}>
+    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug(data) : '' }} trigger={['contextMenu']}>
+      <div style={selected ? {
+        ...nodeStyle,
+        backgroundColor: 'cornflowerblue'
+      } : nodeStyle}
+        key={id}>
         {createNode()}
         <Handle type="target" position={Position.Left} />
         <Handle type="source" position={Position.Right} />
@@ -122,4 +117,4 @@ function QueryBySelectNode({ id, data, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default QueryBySelectNode;
+export default Main;

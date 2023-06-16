@@ -9,6 +9,8 @@ import { getConfig, chromeStorageGet } from '@components/Utils';
 import commonsConfig from '@src/config/commonsConfig.json'
 import editableConfig from '@src/config/editableConfig.json'
 import selectionConfig from '@src/config/selectionConfig.json'
+import i18n from 'i18next';
+import '@src/locales/i18nConfig'
 
 const _CONFIG_JSON = getConfig()
 
@@ -23,33 +25,45 @@ async function loadContextMenuData() {
 
     if (res['user'] && res['user'].length > 0) {
         for (let i in res['user']) {
-            if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus')) {
+            const infs = res['user'][i].interfaces && res['user'][i].interfaces;
+
+            if (infs.includes('contextMenus') ||
+                infs.includes('contextMenus-page') ||
+                infs.includes('contextMenus-all')
+            ) {
                 Workflow.push(res['user'][i])
-            } else if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Selection')) {
+            } else if (infs.includes('contextMenus-selection')) {
                 selectionConfig.push(res['user'][i]);
-            } else if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Editable')) {
+            } else if (infs.includes('contextMenus_editable')) {
                 editableConfig.push(res['user'][i]);
-            } else if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_PDF')) {
+            } else if (infs.includes('contextMenus-pdf')) {
                 pdfConfig.push(res['user'][i])
-            } else if (res['user'][i].interfaces && res['user'][i].interfaces.includes('contextMenus_Link')) {
+            } else if (infs.includes('contextMenus-link')) {
                 linkConfig.push(res['user'][i])
             }
+
         }
     }
 
     if (res['official'] && res['official'].length > 0) {
         for (let i in res['official']) {
-            if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus')) {
+
+            const infs = res['official'][i].interfaces && res['official'][i].interfaces;
+
+            if (infs.includes('contextMenus') ||
+                infs.includes('contextMenus-page') ||
+                infs.includes('contextMenus-all')) {
                 Workflow.push(res['official'][i])
-            } else if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Selection')) {
+            } else if (infs.includes('contextMenus-selection')) {
                 selectionConfig.push(res['official'][i]);
-            } else if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Editable')) {
+            } else if (infs.includes('contextMenus_editable')) {
                 editableConfig.push(res['official'][i]);
-            } else if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_PDF')) {
+            } else if (infs.includes('contextMenus-pdf')) {
                 pdfConfig.push(res['official'][i])
-            } else if (res['official'][i].interfaces && res['official'][i].interfaces.includes('contextMenus_Link')) {
+            } else if (infs.includes('contextMenus-link')) {
                 linkConfig.push(res['official'][i])
             }
+
         }
     }
 
@@ -71,7 +85,7 @@ async function loadContextMenuData() {
 
     chrome.contextMenus.create({
         id: 'open-chatbot-panel',
-        title: "打开面板",
+        title: i18n.t('openPanel'),
         type: 'normal',
 
         parentId: 'Earth',
@@ -82,7 +96,7 @@ async function loadContextMenuData() {
     if (commonsConfig.length !== 0) {
         chrome.contextMenus.create({
             id: 'commonsConfig',
-            title: '常用功能',
+            title: i18n.t('commonFeatures'),
             type: 'normal',
 
             parentId: 'Earth',
@@ -103,7 +117,7 @@ async function loadContextMenuData() {
     if (Workflow.length !== 0) {
         chrome.contextMenus.create({
             id: 'Workflow',
-            title: '工作流',
+            title: i18n.t('workflow'),
             type: 'normal',
 
             parentId: 'Earth',
@@ -245,7 +259,8 @@ async function loadContextMenuData() {
                     if (PromptJson.input === "userSelection") {
                         const context = item.selectionText;
                         if (context) {
-                            PromptJson.text = "###相关内容###\n" + context + "\n" + PromptJson.text
+                            PromptJson.prompt.userInput = context;
+                            // "###相关内容###\n" + context + "\n" + PromptJson.text
                         }
                     }
                     chrome.tabs.sendMessage(

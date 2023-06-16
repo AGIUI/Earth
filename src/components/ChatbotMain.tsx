@@ -8,6 +8,7 @@ import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 
 import ComboEditor from '@components/combo/ComboEditor';
 
+import i18n from 'i18next';
 
 import {
     promptBindCurrentSite,
@@ -32,6 +33,8 @@ import Setup from "@components/Setup"
 //@ts-ignore
 import PDF from '@components/files/PDF'
 
+import PPT from '@components/files/PPT'
+
 
 import { chromeStorageGet, chromeStorageSet, sendMessageCanRetry, checkImageUrl, md5 } from "@components/Utils"
 import { message } from 'antd';
@@ -41,7 +44,7 @@ import { getConfig } from '@components/Utils';
 import { inputByQueryBase, clickByQueryBase } from "@components/agent/base"
 
 // console
-const config = getConfig();
+const config: any = getConfig();
 if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
     return function () {
         if (!dev) return
@@ -68,15 +71,11 @@ if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack 
 declare const window: Window &
     typeof globalThis & {
         _brainwave_import: any,
-        _brainwave_get_current_node_for_workflow: any,
-        _brainwave_get_workflow_data: any,
-        _brainwave_save_callback: any,
-        _brainwave_save_callback_init: any,
-        _brainwave_debug_callback: any
+
     }
 
 
-const defaultChatbots: any = ChatBotConfig.get();
+
 
 //['user']
 const getPromptsData = async (keys = ['user']) => {
@@ -116,7 +115,8 @@ const Talks = {
         return newTalks
     },
     save: (value: any) => {
-        // console.log(value)
+        console.log('Talks save', value)
+        // TODO from :open-url 
         let talks = Array.from(value, (v: any, index: number) => {
             // 去除user==true的连续重复
             if (v.user && value[index - 1] && v.html == value[index - 1].html) {
@@ -161,25 +161,39 @@ const Talks = {
         };
         return []
     },
+    getTalkInnerText: (data: any) => {
+        // console.log('getTalkInnerText',data)
+        const json = { ...data };
+        const dom = document.createElement('div');
+        if (json && json.html) dom.innerHTML = json.html;
+        dom.innerHTML = dom.innerHTML.replaceAll('<br><br>', '\n')
+        // let texts: any = Array.from(dom.children, (c: any) => c.innerText);
+        // console.log('laskTalk:', dom.innerHTML, dom.innerText)
+        return dom.textContent;
+    },
     getTalkByPromptId: (promptId: string, talks: any) => {
 
-        const getTalkInnerText = (data: any) => {
-            const json = { ...data };
-            const dom = document.createElement('div');
-            if (json && json.html) dom.innerHTML = json.html;
-            dom.innerHTML = dom.innerHTML.replaceAll('<br><br>', '\n')
-            // let texts: any = Array.from(dom.children, (c: any) => c.innerText);
-            // console.log('laskTalk:', dom.innerHTML, dom.innerText)
-            return dom.textContent;
-        };
+        // const getTalkImages = (data: any) => {
+        //     const json = { ...data };
+        //     const dom = document.createElement('div');
+        //     if (json && json.html) dom.innerHTML = json.html;
+        //     return Array.from(dom.querySelectorAll('img'), i => i.src);
+        // };
 
         talks = talks.filter((t: any) => t.promptId == promptId)
 
         // n.type == 'talk' || n.type == 'markdown' || n.type == 'done'
-        const lastTalks = talks.filter((talk: any) => (talk.type == "markdown" || talk.type == "done") && !talk.user);
+
+        const lastTalks = talks.filter((talk: any) => (
+            [
+                'markdown',
+                'done',
+                'images'
+            ].includes(talk.type)) && !talk.user);
         const laskTalk = lastTalks.slice(-1)[0];
 
-        return getTalkInnerText(laskTalk)
+        return laskTalk
+
     },
     getLastTalk: (talks: any) => {
         const getTalkInnerText = (data: any) => {
@@ -199,22 +213,45 @@ const Talks = {
     },
     createTalkBubble: (text: string) => {
         const dom = document.createElement('div');
-        let md = new MarkdownIt();
+        let md = new MarkdownIt({
+            breaks: true,
+            langPrefix: 'chatbot-markdown-',
+            linkify: true,
+        });
         dom.innerHTML = md.render(text);
-        const texts = Array.from(dom.innerText.split('\n'), t => t.trim()).filter(f => f);
-        dom.innerHTML = texts.join('<br><br>')
+        // const texts = Array.from(dom.innerText.split('\n'), t => t.trim()).filter(f => f);
+        // dom.innerHTML = texts.join('<br><br>')
         Array.from(dom.querySelectorAll('a'), (a: any) => {
             a.innerText = a.innerText.replace(/\^/ig, '');
-            a.style = `background: #1677ff;
+            a.style = `background: rgb(22, 119, 255);
             color: white;
-            width: 16px;
-            height: 16px;
+            width: fit-content;
+            height: fit-content;
+            padding: 2px;
             display: inline-block;
             font-size: 12px;
             text-align: center;
             margin: 4px;
             border-radius: 8px;`
-        })
+        });
+
+        // 表格样式
+        Array.from(dom.querySelectorAll('th'), (a: any) => {
+            a.style = `background: #dddddd;
+            padding: 4px;`
+        });
+
+        Array.from(dom.querySelectorAll('td'), (a: any) => {
+            a.style = `margin: 8px 0;
+            background: #eee;
+            border-right: 1px dashed #bdbdbd;
+            padding: 4px;`
+        });
+
+        Array.from(dom.querySelectorAll('br'), (a: any) => {
+            a.style = `line-height: 20px;`
+        });
+
 
         let json = { html: dom.innerHTML };
         return json
@@ -264,7 +301,7 @@ const sendMessageToBackground = {
     'api-run': (data: any) => sendMessageCanRetry('api-run', data, console.log),
     'open-options-page': (data: any) => sendMessageCanRetry('open-options-page', data, console.log),
     'hi': (data: any) => sendMessageCanRetry('hi', data, console.log),
-     
+
 }
 
 
@@ -319,7 +356,6 @@ class Main extends React.Component<{
     buttonsDisplay: string,
     expirationTime: number,
 
-
     toggleSetup: boolean,
     openMyPrompts: boolean,
     myPrompts: any,
@@ -333,7 +369,9 @@ class Main extends React.Component<{
 
 
     constructor(props: any) {
-        super(props)
+        super(props);
+
+        const defaultChatbots: any = ChatBotConfig.get();
 
         // 聊天机器人类型
         const chatBotTypes = Array.from(defaultChatbots, (d: any) => d.type)
@@ -389,7 +427,6 @@ class Main extends React.Component<{
             currentCombo: {},
             PromptIndex: 0,
 
-
         }
 
 
@@ -402,11 +439,13 @@ class Main extends React.Component<{
             } else if (cmd === "api-run-result") {
                 console.log('api-run-result', data)
                 // 解析数据格式
-                const { responseExtract,
+                const { responseExtract, promptId,
                     responseType, data: result } = data;
                 const ttype = responseExtract.type;
 
-                const markdown = `API请求成功:<br>类型:${data.responseType} ${ttype}<br>内容:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`;
+                const markdown = `${i18n.t("APISucess")}:
+                TYPE:${data.responseType} ${ttype}
+                CONTENT:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`;
 
                 const items: any = [{
                     type: 'task',
@@ -421,6 +460,7 @@ class Main extends React.Component<{
                         images: result,
                         tId: (new Date()).getTime() + '2',
                         id: (new Date()).getTime() + '1',
+                        promptId
                     })
                 }
 
@@ -590,8 +630,8 @@ class Main extends React.Component<{
                 })
             } else if (cmd == 'chat-bot-init-result') {
                 this.initChatBot(false);
-            } 
-            
+            }
+
 
             sendResponse('我是content，已收到消息')
             return true;
@@ -712,22 +752,22 @@ class Main extends React.Component<{
 
     _agentApiRun(prompt: any, nTalks: any, combo: any) {
 
-        let { url, init, isApi, protocol } = prompt.api;
-        if (isApi == false) return;
+
+        let { url, init, protocol } = prompt.api;
 
         if (url && !url.match('//')) url = `${protocol}${url}`;
         // console.log(api, init.body)
 
         if (init.body && typeof (init.body) == 'object') init.body = JSON.stringify(init.body);
 
-        let prePromptText = "";
+        let prePromptText: any = "";
         if (prompt.input == "nodeInput") {
             // 从上一个节点输出获取
             if (!prompt.nodeInputId) {
                 prePromptText = Talks.getLastTalk([...nTalks]) || "";
             } else {
-                prePromptText = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]) || "";
-
+                const d = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
+                if (d) prePromptText = Talks.getTalkInnerText(d) || "";
             }
         }
 
@@ -741,7 +781,11 @@ class Main extends React.Component<{
         }
 
         sendMessageToBackground['api-run']({
-            url, init, combo
+            url, init, combo, promptId: prompt.id
+        })
+
+        console.log("sendMessageToBackground['api-run']", {
+            url, init, combo, promptId: prompt.id
         })
 
         // 传递给父级
@@ -777,8 +821,9 @@ class Main extends React.Component<{
             if (!prompt.nodeInputId) {
                 text = Talks.getLastTalk([...nTalks]);
             } else {
-                text = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
                 // console.log('nodeInput_queryInputRun', nTalks)
+                const d = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
+                if (d) text = Talks.getTalkInnerText(d) || "";
             }
 
         } else if (prompt.input == "userInput") {
@@ -935,6 +980,30 @@ class Main extends React.Component<{
         // if (success) message.info('成功执行')
     }
 
+    _createPPTFile(inputs: any, nTalks: any) {
+        if (inputs && nTalks) {
+            // console.log('_createPPTFile', nTalks, inputs)
+            const items = []
+            for (const nodeInputId of inputs) {
+                let data = Talks.getTalkByPromptId(nodeInputId, [...nTalks]);
+                if (data) {
+                    items.push(data);
+                }
+            }
+            const p = new PPT();
+            
+            p.createPPT(items).then((filename: any) => {
+                const id = md5(filename + (new Date()))
+                const data = Talks.createTaskStatus(
+                    '_createPPTFile',
+                    id,
+                    i18n.t('filePPTNodeTitle')
+                )
+                this._updateChatBotTalksResult([data]);
+            })
+
+        }
+    }
 
     /**
      * 'prompt' ||   'tasks'  
@@ -1010,6 +1079,7 @@ class Main extends React.Component<{
             // 如果是本地缓存
             if (data.from == 'local' && !promptFromLocal) {
                 promptFromLocal = data.prompt;
+
                 // console.log('对话状态关闭')
                 isCanClearThinking = true;
                 setTimeout(() => this.updateChatBotStatus(false), 100);
@@ -1102,8 +1172,7 @@ class Main extends React.Component<{
                         )
 
                         // console.log('PromptIndex', PromptIndex);
-
-                        setTimeout(() => this._control({
+                        if (this.state.disabledAll) setTimeout(() => this._control({
                             cmd: 'send-talk',
                             data
                         }), 500)
@@ -1184,7 +1253,9 @@ class Main extends React.Component<{
 
         if (promptFromLocal) {
             // 因为是从本地获取的数据,需要添加是否新建对话?
-
+            console.log('promptFromLocal', promptFromLocal)
+            promptFromLocal = promptFromLocal.filter((p: any) => p.role == 'user')[0]?.content
+            //TODO bug需要修复
             nTalks.push(ChatBotConfig.createTalkData('send-talk-refresh', {
                 data: {
                     tag: promptFromLocal.slice(0, 10) + (promptFromLocal.length > 10 ? '...' : ''),
@@ -1294,7 +1365,7 @@ class Main extends React.Component<{
                     nTalks.push(
                         ChatBotConfig.createTalkData('debug',
                             {
-                                html: debugInfo || '<p>debug</p>'
+                                html: debugInfo || 'debug'
                             }));
                 };
 
@@ -1342,6 +1413,7 @@ class Main extends React.Component<{
                     api: prompt.api,
                     input: prompt.input,
                     nodeInputId: prompt.nodeInputId,
+                    id: prompt.id
                 }
                 promptJson = { ...promptJson, ...bindUserInput(prompt.text) };
 
@@ -1350,6 +1422,10 @@ class Main extends React.Component<{
                     promptJson = { ...promptJson, ...promptBindRole(promptJson.userInput, prompt.role) }
                 }
 
+
+                /**
+                 * input的处理，只有特定的type才有
+                 */
                 // input的处理
                 if (['bindCurrentPage',
                     'bindCurrentPageHTML',
@@ -1368,7 +1444,8 @@ class Main extends React.Component<{
                     }
                     query = "";
                     promptJson = { ...promptJson, ...promptBindCurrentSite(promptJson.userInput, type, query) }
-                }
+                };
+
 
                 if (prompt.input == 'userSelection') {
                     // 从用户划选
@@ -1383,8 +1460,11 @@ class Main extends React.Component<{
                         let lastTalk: any = Talks.getLastTalk([...nTalks]);
                         promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, lastTalk) }
                     } else {
-                        let talk: any = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
-                        promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, talk) }
+                        let data: any = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
+                        if (data) {
+                            let talk: any = Talks.getTalkInnerText(data)
+                            promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, talk) }
+                        }
                     }
                     console.log('从上一节点获取文本', prompt.nodeInputId, promptJson.context)
                 }
@@ -1394,13 +1474,25 @@ class Main extends React.Component<{
                     promptJson = { ...promptJson, ...promptBindTranslate(promptJson.userInput, prompt.translate) }
                 }
 
-
                 // output的处理
                 promptJson = { ...promptJson, ...promptBindOutput(promptJson.userInput, prompt.output) }
 
 
                 // 运行时
                 console.log('prompt.type------', promptJson, from)
+
+
+                //file 类
+                if (promptJson.type === "file-ppt-create") {
+                    // 创建ppt
+                    const { file } = prompt;
+                    const { inputs, type } = file || {};
+                    if (inputs) {
+                        // 输入的节点
+                        this._createPPTFile(inputs, nTalks);
+                    }
+                }
+
 
                 // 如果是用户输入的，from==chatbot-input
                 if (from === "chatbot-input") {
@@ -1409,7 +1501,10 @@ class Main extends React.Component<{
                 }
 
                 // role 给调试用
-                if (promptJson.type == 'prompt' || promptJson.type == 'role') this._llmRun(promptJson, newTalk);
+                if ([
+                    'prompt',
+                    'role',
+                ].includes(promptJson.type)) this._llmRun(promptJson, newTalk);
 
 
                 // 标记当前执行状态，以及下一条
@@ -1438,6 +1533,7 @@ class Main extends React.Component<{
                 if (promptJson.type === 'highlight') {
                     // this._agentHighlightTextRun(lastTalk)
                 }
+
 
                 // 提取 <lastTalk> 里的传给api\send-to-zsxq\query
                 // let d = document.createElement('div');
@@ -1550,7 +1646,7 @@ class Main extends React.Component<{
                 // 终止对话
                 case "stop-talk":
                     sendMessageToBackground['chat-bot-talk-stop']({ type: this.state.chatBotType });
-                    this.updateChatBotStatus(false)
+                    this.updateChatBotStatus(false);
                     // 清空type thinking 的状态
                     nTalks = Talks.clearThinking(nTalks)
                     nTalks = nTalks.filter(t => t)
@@ -1749,17 +1845,16 @@ class Main extends React.Component<{
                 hi: this.state.chatBotType
             }))
 
-            this._getChatBotFromLocal().then((data: any) => {
-                console.log('_getChatBotFromLocal', data)
-                console.log(chrome.storage.sync.get('chatBotAvailables'))
-            })
+            // this._getChatBotFromLocal().then((data: any) => {
+            //     // console.log('_getChatBotFromLocal', data)
+            //     // console.log(chrome.storage.sync.get('chatBotAvailables'))
+            // })
 
             // this.initChatBot(true)
         }
 
-        const datas = [talks]
-
-        const tabList = Array.from(subjects, subject => {
+        let datas = [talks];
+        let tabList = Array.from(subjects, subject => {
             return {
                 key: subject.text,
                 tab: subject.text,
@@ -1818,7 +1913,7 @@ class Main extends React.Component<{
                             disabled={this.state.disabledAll}
                             callback={(e: any) => this._control(e)}
                             config={
-                                Array.from(defaultChatbots, (c: any) => {
+                                Array.from(ChatBotConfig.get(), (c: any) => {
                                     c.checked = (c.type == this.state.chatBotType);
                                     return c
                                 })}

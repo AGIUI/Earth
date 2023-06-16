@@ -14,7 +14,7 @@ import HelpButton from "@components/buttons/HelpButton";
 import styled from 'styled-components';
 import CloseButton from "@components/buttons/CloseButton";
 
-
+import i18n from 'i18next';
 // user-select: none !important;
 // const Base: any = styled.div`
 // box-sizing: border-box;`
@@ -183,15 +183,15 @@ class Setup extends React.Component<{
 
         let myConfig: any = { api, model, token }
 
-        if (team) myConfig['team'] = team;
-        if (apis) myConfig['apis'] = apis;
-        if (models) myConfig['models'] = models;
-        if (helpUrl) myConfig['helpUrl'] = helpUrl;
-        if (creditUrl) myConfig['creditUrl'] = creditUrl;
-        if (creditHelpUrl) myConfig['creditHelpUrl'] = creditHelpUrl;
-        if (modelsFreezed) myConfig['modelsFreezed'] = modelsFreezed;
-        if (apisFreezed) myConfig['apisFreezed'] = apisFreezed;
-        if (canImport) myConfig['canImport'] = canImport;
+        myConfig['team'] = team;
+        myConfig['apis'] = apis;
+        myConfig['models'] = models;
+        myConfig['helpUrl'] = helpUrl;
+        myConfig['creditUrl'] = creditUrl;
+        myConfig['creditHelpUrl'] = creditHelpUrl;
+        myConfig['modelsFreezed'] = !!modelsFreezed;
+        myConfig['apisFreezed'] = !!apisFreezed;
+        myConfig['canImport'] = !!canImport;
 
         chromeStorageSet({ myConfig });
         return myConfig
@@ -312,7 +312,7 @@ class Setup extends React.Component<{
                     })
                 } else {
                     this.setState({
-                        shortcut: '暂未设置'
+                        shortcut: i18n.t('NotSet')
                     })
                 }
             } else if (cmd == 'chat-bot-init-result') {
@@ -333,7 +333,7 @@ class Setup extends React.Component<{
         // console.log(this.state.name)
         return (
             <Card
-                title={'设置'}
+                title={i18n.t('setTitle')}
                 bordered={true}
                 headStyle={{
                     userSelect: 'none',
@@ -369,42 +369,42 @@ class Setup extends React.Component<{
             >
                 <Spin spinning={this.state.loading}>
                     {/*TODO  清空缓存 ，显示缓存的prompt数量 */}
-                    <Title level={4} style={{ marginTop: 0 }}>版本号</Title>
+                    <Title level={4} style={{ marginTop: 0 }}>{i18n.t('versionNow')}</Title>
                     <Space direction={"horizontal"} align={"center"}>
                         <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.name}</Text>
-                        <Button
+                        {this.state.issues ? <Button
                             style={{
                                 marginTop: 0
                             }} onClick={() => this._openUrl(this.state.issues)}>
-                            问题反馈
-                        </Button>
+                            {i18n.t('questionPost')}
+                        </Button> : ""}
                     </Space>
 
                     <Divider style={{ marginTop: 15, marginBottom: 15 }} />
-                    <Title level={4} style={{ marginTop: 0 }}>快捷键设置</Title>
+                    <Title level={4} style={{ marginTop: 0 }}>{i18n.t('shortcutSettings')}</Title>
                     <Space direction={"horizontal"} align={"center"}>
                         <Text style={{ fontSize: "medium", marginRight: 10 }}>{this.state.shortcut}</Text>
                         <Button
                             onClick={() => chrome.runtime.sendMessage({
                                 cmd: 'set-shortcuts'
                             })}>
-                            修改
+                            {i18n.t('modify')}
                         </Button>
                     </Space>
 
                     <Divider style={{ marginTop: 15, marginBottom: 15 }} />
-                    <Title level={4} style={{ marginTop: 0 }}>Bing Chat设置</Title>
+                    <Title level={4} style={{ marginTop: 0 }}>{i18n.t('bingChatSettings')}</Title>
                     {(() => {
                         if (this.state.status['Bing'] == 'OK') {
-                            return <Tag color="#87d068">当前可用</Tag>
+                            return <Tag color="#87d068">{i18n.t('available')}</Tag>
                         } else if (this.state.status['Bing'] == 'UnauthorizedRequest') {
                             return (
                                 <Space direction={"vertical"}>
                                     <Space direction={"horizontal"} size={0} style={{ marginBottom: 10 }}>
-                                        <Tag color={"#cd201f"}>Bing未授权</Tag>
+                                        <Tag color={"#cd201f"}>{i18n.t('bingUnauthorized')}</Tag>
                                         <Popover zIndex={99999999} content={
-                                            <div>Bing Chat无法使用，请重新登录Bing账号</div>
-                                        } title="详情">
+                                            <div>{i18n.t('bingUnauthorizedDetails')}</div>
+                                        } title={i18n.t('detail')}>
                                             <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                         </Popover>
                                     </Space>
@@ -416,16 +416,16 @@ class Setup extends React.Component<{
                                             // setTimeout(() => chrome.runtime.sendMessage({
                                             //     cmd: 'chat-bot-init'
                                             // }), 2000)
-                                        }}>登录Bing账号</Button>
+                                        }}>{i18n.t('loginBingAccount')}</Button>
                                 </Space>
                             )
                         } else {
                             return (
                                 <Space direction={"horizontal"} size={0} style={{ marginBottom: 0 }}>
-                                    <Tag color={"#cd201f"}>环境异常</Tag>
+                                    <Tag color={"#cd201f"}>{i18n.t('environmentException')}</Tag>
                                     <Popover zIndex={99999999} content={
                                         <div>{this.state.status['Bing']}</div>
-                                    } title="详情">
+                                    } title={i18n.t('detail')}>
                                         <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                     </Popover>
                                 </Space>
@@ -433,24 +433,26 @@ class Setup extends React.Component<{
                         }
                     })()}
                     <Divider style={{ marginTop: 15, marginBottom: 15 }} />
-                    <Title level={4} style={{ marginTop: 0 }}>ChatGPT设置
+                    <Title level={4} style={{ marginTop: 0 }}>{i18n.t('chatGPTSettings')}
                         {this.state.chatGPTConfig.canImport ? <OpenFileButton
                             callback={(e: any) => this._importConfig()}
                             disabled={false} /> : ''}
 
-                        {this.state.chatGPTConfig.helpUrl ? <FileTextOutlined alt={'使用教程'} style={{ marginLeft: 4 }} onClick={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}
+                        {this.state.chatGPTConfig.helpUrl ? <FileTextOutlined
+                            alt={i18n.t('tutorial').toString()}
+                            style={{ marginLeft: 4 }} onClick={(e: any) => this._openUrl(this.state.chatGPTConfig.helpUrl)}
                             disabled={false} /> : ''}
 
                     </Title>
                     {(() => {
                         if (this.state.status['ChatGPT'] == 'OK' && this.state.isChange == false) {
-                            return <Tag color="#87d068">当前可用</Tag>
+                            return <Tag color="#87d068">{i18n.t('chatGPTAvailable')}</Tag>
                         } else {
                             return <Space direction={"horizontal"} size={0}>
-                                <Tag color={"#cd201f"}>{this.state.isChange ? '待更新' : '暂不可用'}</Tag>
+                                <Tag color={"#cd201f"}>{this.state.isChange ? i18n.t('toUpdate') : i18n.t('unavailable')}</Tag>
                                 <Popover zIndex={99999999} content={
                                     <div>{this.state.status['ChatGPT']}</div>
-                                } title="详情">
+                                } title={i18n.t('detail')}>
                                     <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                 </Popover>
                             </Space>
@@ -480,14 +482,14 @@ class Setup extends React.Component<{
                                 }
                                 <Button style={{
                                     marginTop: 0
-                                }} onClick={() => this._openUrl(this.state.chatGPTConfig.creditHelpUrl)}>购买Key</Button>
+                                }} onClick={() => this._openUrl(this.state.chatGPTConfig.creditHelpUrl)}>{i18n.t('buyKey')}</Button>
 
                             </div> : ''
                         }
 
                         {
                             this.state.chatGPTConfig.team ? <>
-                                <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>API Team设置</Title>
+                                <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>{i18n.t('apiTeamSettings')}</Title>
                                 <Input.Password placeholder="input team"
                                     value={this.state.chatGPTConfig.team}
                                     onChange={(e: any) => {
@@ -504,7 +506,7 @@ class Setup extends React.Component<{
 
 
 
-                        <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>API Key设置</Title>
+                        <Title level={5} style={{ marginTop: 0, marginBottom: 0 }}>{i18n.t('apiKeySettings')}</Title>
                         <Input.Password placeholder="input token"
                             value={this.state.chatGPTConfig.token}
                             onChange={(e: any) => {
@@ -518,7 +520,8 @@ class Setup extends React.Component<{
                             }} />
 
                         {
-                            this.state.chatGPTConfig.apisFreezed ? '' : <><Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Host设置</Title>
+                            this.state.chatGPTConfig.apisFreezed ? '' : <>
+                                <Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>{i18n.t('apiHostSettings')}</Title>
                                 <Select
                                     maxTagCount={3}
                                     mode="tags"
@@ -527,7 +530,7 @@ class Setup extends React.Component<{
                                     placeholder="https://api.openai.com"
                                     value={this.state.chatGPTConfig.api}
                                     onChange={(e: any) => {
-                                        console.log(e)
+                                        // console.log(e)
                                         let chatGPTConfig = this.state.chatGPTConfig;
                                         chatGPTConfig.api = e[0];
                                         this.setState({
@@ -542,7 +545,7 @@ class Setup extends React.Component<{
 
                         {
                             this.state.chatGPTConfig.modelsFreezed ? "" : <>
-                                <Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>API Model设置</Title>
+                                <Title level={5} style={{ marginTop: 10, marginBottom: 0 }}>{i18n.t('apiModelSettings')}</Title>
                                 <Select
                                     maxTagCount={3}
                                     mode="tags"
@@ -579,7 +582,7 @@ class Setup extends React.Component<{
                         type={this.state.isChange ? 'primary' : 'default'}
                         style={{ marginTop: 10 }}
                         onClick={() => this._update()}>
-                        {this.state.loading ? '更新中' : '更新状态'}
+                        {this.state.loading ? i18n.t('updating') : i18n.t('updateStatus')}
                     </Button>
                 </Space>
             </Card>

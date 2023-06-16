@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import pptxgen from "pptxgenjs";
-
+import { getNowDate } from "@src/components/Utils"
 
 class PPT {
     constructor() { }
@@ -33,8 +33,8 @@ class PPT {
             color: "0088CC",
             fill: "F1F1F1",
             fontSize: 14,
-            autoFit: true,
-            fit: "resize",
+            // autoFit: true,
+            // fit: "resize",
             valign: "top"
         });
         return slide
@@ -110,7 +110,51 @@ class PPT {
         }
 
 
-        pptx.writeFile({ fileName: fileName });
+        return new Promise((res, rej) => {
+            pptx.writeFile({ fileName: fileName }).then(fileName => {
+                console.log(`created file: ${fileName}`);
+                res(fileName)
+            });
+        })
+    }
+
+
+    createPPT(data: any) {
+        // console.log('createPPT', data)
+
+        let items: any = [];
+
+        for (const d of data) {
+            let div = document.createElement('div');
+            const { type, html } = d;
+            div.innerHTML = html;
+            // div.querySelector('h1');
+
+            if (div.querySelectorAll('img').length > 0) {
+                items.push(
+                    {
+                        title: '',
+                        images: Array.from(div.querySelectorAll('img'), im => {
+                            return {
+                                title: '',
+                                base64: im.src
+                            }
+                        })
+                    }
+                );
+            } else {
+                if (div.innerText) items.push(
+                    {
+                        text: div.innerText,
+                    }
+                );
+            }
+
+        }
+
+        console.log('createPPT', items)
+        // const p = new PPT();
+        return this.create(getNowDate(), items)
 
     }
 }

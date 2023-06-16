@@ -15,7 +15,9 @@
 
  */
 
-import { fetchImage } from '../Utils'
+
+import i18n from 'i18next';
+
 
 
 class Common {
@@ -149,7 +151,7 @@ class Common {
                             }
                         );
                     } catch (error) {
-                        this.sendMessage('chat-bot-talk-result', false, [{ type: 'error', markdown: '出错了，请重试' }], tabId)
+                        this.sendMessage('chat-bot-talk-result', false, [{ type: 'error', markdown: i18n.t('retryError') }], tabId)
                     }
 
                     sendResponse({
@@ -214,14 +216,14 @@ class Common {
                         type: data.type
                     }, data.combo)
                 } else if (cmd == "api-run") {
-                    const { url, init, combo } = data;
+                    const { url, init, combo, promptId } = data;
 
                     // Agent.apiRun(url,init,data.combo)
 
                     if (init.method === 'GET') delete init.body;
 
                     const responseType = init.responseType || 'text';
-                    const responseExtract = init.responseExtract;
+                    const responseExtract = init.extract;
                     console.log('_agentApiRun', url, init)
 
                     fetch(url, init).then(res => {
@@ -248,6 +250,7 @@ class Common {
                         }
                         const result = {
                             data: apiResult,
+                            promptId,
                             responseExtract: responseExtract || { key: '', type: 'text' },
                             responseType,
                             combo

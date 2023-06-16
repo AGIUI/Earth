@@ -10,7 +10,8 @@ import ChatBotConfig from "./ChatBotConfig";
 import PPT from "@components/files/PPT"
 import { hashJson, getNowDate } from "../Utils";
 
-
+import i18n from 'i18next';
+import DownSquareButton from "@components/buttons/DownSquare";
 /** < ChatBotTalks  callback={} items={}/>
  * 
  * export 是否允许导出
@@ -205,39 +206,8 @@ const copy = async (data: any) => {
 const createPPT = (data: any) => {
     // console.log('createPPT', data)
 
-    let items: any = [];
-
-    for (const d of data) {
-        let div = document.createElement('div');
-        const { type, html } = d;
-        div.innerHTML = html;
-        // div.querySelector('h1');
-
-        if (div.querySelectorAll('img').length > 0) {
-            items.push(
-                {
-                    title: '',
-                    images: Array.from(div.querySelectorAll('img'), im => {
-                        return {
-                            title: '',
-                            base64: im.src
-                        }
-                    })
-                }
-            );
-        } else {
-            if (div.innerText) items.push(
-                {
-                    text: div.innerText,
-                }
-            );
-        }
-
-    }
-
-    console.log('createPPT', items)
     const p = new PPT();
-    p.create(getNowDate(), items)
+    p.createPPT(data);
 
 }
 
@@ -267,13 +237,13 @@ const createListItem = (data: any, index: number, debug: boolean) => {
     // console.log('createListItem', data.id)
     let items: any = [
         {
-            label: '拷贝纯文本',
+            label: i18n.t("copyText"),
             key: 'copy-text',
         },
     ];
 
     if (!debug) items.push({
-        label: '导出PPT',
+        label: i18n.t("exportPPT"),
         key: 'ppt',
     })
 
@@ -283,13 +253,10 @@ const createListItem = (data: any, index: number, debug: boolean) => {
     ];
 
     items.push({
-        label: data.selected ? '已选' : "选择",
+        label: data.selected ? i18n.t("selected") : i18n.t("selectIt"),
         key: 'select',
         icon: data.selected ? <SmileOutlined /> : '',
     })
-
-
-
 
     // console.log('createListItem',data)
     return <div style={{ margin: '5px 0' }} className={`chatbot-talk-card-${data.type}`}>{
@@ -321,7 +288,8 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                     style={createTalkBubbleStyle(data.user)}
                     className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
                     key={index}
-                    dangerouslySetInnerHTML={{ __html: data.html }}>
+                // dangerouslySetInnerHTML={{ __html: data.html }}
+                >{data.html}
                 </p> : <Card title={""}
                     headStyle={{
                         minHeight: '10px',
@@ -335,32 +303,39 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                     key={index}
                     extra={data.export ?
                         <>
-                            <Dropdown menu={{
-                                items, onClick: (e) => {
-                                    let key = e.key;
-                                    let ds = [data];
-                                    if (data.getAll) {
-                                        ds = data.getAll(data.id);
+                            <Dropdown
+                                menu={{
+                                    items,
+                                    onClick: (e) => {
+                                        let key = e.key;
+                                        let ds = [data];
+                                        if (data.getAll) {
+                                            ds = data.getAll(data.id);
+                                        }
+                                        if (key == "select") {
+                                            data.select && data.select(data.id)
+                                        } else if (key === "copy-text") {
+                                            copy(ds)
+                                        } else if (key == 'ppt') {
+                                            createPPT(ds)
+                                        }
                                     }
-                                    if (key == "select") {
-                                        data.select && data.select(data.id)
-                                    } else if (key === "copy-text") {
-                                        copy(ds)
-                                    } else if (key == 'ppt') {
-                                        createPPT(ds)
-                                    }
-                                }
-                            }} trigger={['click']}
-
+                                }}
+                                trigger={['click']} // 设置触发方式为 'click'
                             >
-                                {/* <a onClick={(e) => e.preventDefault()}>
-                                    <DownOutlined />
-                                </a> */}
-                                <Button type="text"
+                                <DownSquareButton
+                                    disabled={true}
+                                    callback={() => {
+                                        // 处理回调函数的逻辑
+                                    }}
+                                    type="text"
                                     style={{ margin: '5px 0' }}
-                                    icon={<DownSquareOutlined />}
                                     size={'small'}
-                                    onClick={(e) => e.preventDefault()} />
+                                    onClick={(e: React.MouseEvent) => {
+                                        e.preventDefault();
+                                        // 其他事件处理逻辑
+                                    }}
+                                />
                             </Dropdown>
 
                             {/* <Button type="text"
@@ -383,8 +358,8 @@ const createListItem = (data: any, index: number, debug: boolean) => {
                         marginBottom: '10px',
                         padding: '0px',
                         boxShadow: 'none',
-                        display: 'flex',
-                        flexWrap: 'wrap',
+                        // display: 'flex',
+                        // flexWrap: 'wrap',
                     }}>
                     {
                         data.type == "images" ?
