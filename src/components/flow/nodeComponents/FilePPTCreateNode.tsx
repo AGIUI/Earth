@@ -65,13 +65,26 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
             // console.log(JSON.stringify(inps,null,2))
             setInputs(inps)
             data.onChange({
-                id, data: {
+                id,
+                data: {
                     file: {
                         inputs: inps,
                         type: 'ppt'
                     }
                 }
             });
+        }
+
+        
+        if (e.key === "nodeInput-onClick") {
+            // const otherNodes = data.getNodes(e.data);
+            // console.log('nodeInput-onClick',otherNodes)
+            // data.onChange({
+            //     id: e.data,
+            //     data: {
+            //         hightlight: true
+            //     }
+            // })
         }
     }
 

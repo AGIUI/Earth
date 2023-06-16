@@ -58,6 +58,34 @@ class PPT {
         return slide
     }
 
+    _createTable(slide: pptxgen.Slide, rows: any) {
+        // let rows:any = [
+        //     ["A1", "B1", "C1"],
+        //     ["aa","bbb","ccc"]
+        // ];
+
+        // 格式
+        rows = Array.from(rows, (row: any, i: number) => {
+            return Array.from(row, r => {
+                return {
+                    text: r, options: {
+                        color: "000000",
+                        fill: i === 0 ? "E7E6E6" : "EEEEEE",
+                        bold:i === 0,
+                        fontSize:10
+                    }
+                }
+            })
+        })
+
+        slide.addTable(rows, {
+            align: "left",
+            fontFace: "Arial",
+            autoPage: true
+        });
+        return slide
+    }
+
     create(fileName: string, items: any = [{
         title: "BONJOUR - CIAO - GUTEN TAG - HELLO - HOLA - NAMASTE - 你好",
         images: [{
@@ -105,7 +133,9 @@ class PPT {
                 }
             }
 
-
+            if (item.table) {
+                slide = this._createTable(slide, item.table)
+            }
 
         }
 
@@ -143,11 +173,30 @@ class PPT {
                     }
                 );
             } else {
-                if (div.innerText) items.push(
-                    {
-                        text: div.innerText,
-                    }
-                );
+                console.log('createPPT', div)
+                if (div.children.length === 1 && div.children[0].tagName == 'TABLE') {
+                    // 表格的处理
+                    const table: any = div.querySelector('table')
+                    const titles = Array.from(table.querySelectorAll('thead th'), (th: any) => th.innerText)
+                    const rows = [titles];
+                    for (let t of table.querySelectorAll('tbody tr')) {
+                        rows.push(Array.from(t.querySelectorAll('td'), (td: any) => td.innerText))
+                    };
+
+                    items.push(
+                        {
+                            table: rows
+                        }
+                    );
+
+                } else {
+                    if (div.innerText) items.push(
+                        {
+                            text: div.innerText,
+                        }
+                    );
+                }
+
             }
 
         }

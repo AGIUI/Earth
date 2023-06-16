@@ -58,7 +58,7 @@ export const createSelect = (title: string, value: string, opts: any, onChange: 
     />
 </>
 
-export const createTextArea = (title: string, value: string,placeholder:string, status: any, onChange: any) => <>
+export const createTextArea = (title: string, value: string, placeholder: string, status: any, onChange: any) => <>
     <p>{title}</p>
     <TextArea
         value={value}
@@ -97,26 +97,33 @@ export const createOutput = (title: string, key: string, value: string, opts: an
 
 
 export const selectNodeInputBase = (nodeInputId: string, nodeOpts: any, onChange: any) => {
-    return  <Select
-                value={nodeInputId}
-                style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
-                onChange={(e) => {
-                    onChange({
-                        key: 'nodeInput',
-                        data: e
-                    })
-                }}
-                options={nodeOpts}
-            /> 
+    return <Select
+        value={nodeInputId}
+        style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
+        onChange={(e) => {
+            onChange({
+                key: 'nodeInput',
+                data: e
+            })
+        }}
+        options={nodeOpts}
+        onClick={()=>{
+            onChange({
+                key: 'nodeInput-onClick',
+                data: nodeInputId
+            })
+        }}
+     
+    />
 }
 
 
 // 从上一节点获取文本
 export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: any, onChange: any) => {
     // console.log(nodeInputId,nodeOpts)
-  
+
     const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0)
- 
+
     // console.log(nodeOpts.filter((n: any) => n.value === nodeInputId))
     return <>
         <Checkbox
@@ -151,11 +158,11 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
 // 选择输入，从用户输入 or 从节点
 
 export const selectInput = (
-    nodeInputLabel: string, 
-    userInputLabel: string, 
-    nodeInputId: string, 
-    userInput: string, 
-    nodeOpts: any, 
+    nodeInputLabel: string,
+    userInputLabel: string,
+    nodeInputId: string,
+    userInput: string,
+    nodeOpts: any,
     onChange: any) => {
 
     // const [inp, setInp] = React.useState(nodeInputId ? 'nodeInput' : "userInput");
@@ -193,7 +200,7 @@ export const selectInput = (
                 value={uinp}
                 rows={4}
                 placeholder={"input ..."}
-                autoSize
+                autoSize={{ minRows: 2, maxRows: 10 }}
                 onChange={(e) => {
                     setUserInput(e.target.value)
                     onChange({
@@ -230,7 +237,7 @@ export const createText = (key: string, header: string, placeholder: string, val
         allowClear
         status={status}
         rows={4}
-        autoSize
+        autoSize={{ minRows: 2, maxRows: 10 }}
         value={value}
         placeholder={placeholder}
         disabled={!onChange}
@@ -312,7 +319,7 @@ export const createModel = (model: string, temperature: number, opts: any, onCha
     </Radio.Group>
 
     <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}
-        <span style={{ fontSize: '12px',marginLeft:'12px' }}>: {temperature}</span>
+        <span style={{ fontSize: '12px', marginLeft: '12px' }}>: {temperature}</span>
     </p>
 
     <div

@@ -17,7 +17,7 @@ export default () => {
     };
 
     const nodes = getNodes()
-    console.log(Array.from(nodes.filter((n: any) => n.open), n => n.title))
+    // console.log(Array.from(nodes.filter((n: any) => n.open), n => n.title))
     return (
         <Collapse
             defaultActiveKey={Array.from(nodes.filter((n: any) => n.open), n => n.title)[0]}
