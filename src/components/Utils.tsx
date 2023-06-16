@@ -178,7 +178,7 @@ function addCss() {
       position: fixed !important;
       top: 0 !important;
       right: 0 !important;
-      z-index: 99999997 !important;
+      z-index: 2147483002 !important;
       width: auto !important;
       font-family: fantasy!important;
       letter-spacing: 1px!important;
@@ -260,7 +260,7 @@ function addCss() {
   }
 
     .ant-select-dropdown-placement-bottomLeft{
-      z-index: 99999999 !important;
+      z-index:2147483003 !important;
     }
     .ant-image-preview-mask{
         z-index: 120000000000000!important
@@ -301,7 +301,7 @@ function addCss() {
       padding:4px 10px!important;
     }
     .ant-dropdown{
-        z-index: 99999999;
+        z-index: 2147483004;
     }
     `
     dom.appendChild(s);
