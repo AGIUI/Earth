@@ -9,6 +9,8 @@ import { getConfig, chromeStorageGet } from '@components/Utils';
 import commonsConfig from '@src/config/commonsConfig.json'
 import editableConfig from '@src/config/editableConfig.json'
 import selectionConfig from '@src/config/selectionConfig.json'
+import config from '@src/config/app.json'
+
 import i18n from 'i18next';
 import '@src/locales/i18nConfig'
 
@@ -77,8 +79,8 @@ async function loadContextMenuData() {
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
 
-        id: 'Earth',
-        title: 'Earth',
+        id: config.app,
+        title: config.app,
 
         contexts: ['page']
     });
@@ -88,7 +90,7 @@ async function loadContextMenuData() {
         title: i18n.t('openPanel'),
         type: 'normal',
 
-        parentId: 'Earth',
+        parentId: config.app,
 
         contexts: ['page']
     })
@@ -99,7 +101,7 @@ async function loadContextMenuData() {
             title: i18n.t('commonFeatures'),
             type: 'normal',
 
-            parentId: 'Earth',
+            parentId: config.app,
 
             contexts: ['page']
         });
@@ -120,7 +122,7 @@ async function loadContextMenuData() {
             title: i18n.t('workflow'),
             type: 'normal',
 
-            parentId: 'Earth',
+            parentId: config.app,
 
             contexts: ['page']
         });
