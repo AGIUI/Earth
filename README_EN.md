@@ -84,37 +84,96 @@ npm run build [browser]
 
 ## Example of Combo Data
 ```
-[{
-    "interfaces": [],
-    "combo": 3,
-    "id": "1881e7d386e",
-    "isInfinite": false,
-    "owner": "user",
-    "prompt": {
-        "input":'default',
-        "output": 'default',
-        "agent":'default'
-        "api": {},
-        "queryObj": {
-            "isQuery": false,
-            "query": "",
-            "url": ""
+[
+    {
+        "tag": "提取邮件信息",
+        "role": {
+            "text": "麦肯锡咨询专家，掌握了非常多的方法，擅长分析整理信息。"
         },
-        "text": "给我一个科幻故事，和植物、机器人、爱情有关",
-        temperature: 0.6,
-        model: 'ChatGPT',
-    },
-    "prompt3": {
-        "text": "嗯",
-        temperature: 0.6,
-        model: 'ChatGPT',
-    },
-    "role": "",
-    "tag": "科幻故事"
-}]
+        "combo": 3,
+        "interfaces": [
+            "showInChat",
+            "contextMenus",
+            "home"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "prompt22f77d6ca8eaec9534233812874e6f202",
+            "nextId": "prompt32f77d6ca8eaec9534233812874e6f202",
+            "nodeInputId": "",
+            "role": {
+                "text": "麦肯锡咨询专家，掌握了非常多的方法，擅长分析整理信息。"
+            },
+            "text": "",
+            "url": "",
+            "queryObj": {
+                "action": "default",
+                "content": "bindCurrentPage",
+            },
+            "temperature": 0.6,
+            "model": "ChatGPT",
+            "input": "nodeInput",
+            "translate": "default",
+            "output": "default",
+            "type": "queryRead"
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "2f77d6ca8eaec9534233812874e6f202",
+        "createDate": 1686640915993,
+        "prompt2": {
+            "id": "prompt32f77d6ca8eaec9534233812874e6f202",
+            "nextId": "prompt42f77d6ca8eaec9534233812874e6f202",
+            "nodeInputId": "prompt22f77d6ca8eaec9534233812874e6f202",
+            "role": {
+                "text": "麦肯锡咨询专家，掌握了非常多的方法，擅长分析整理信息。"
+            },
+            "text": "用中文回答，提取摘要，时间、地点、人物、事件、链接等信息。",
+            "temperature": 0.3,
+            "model": "ChatGPT",
+            "input": "nodeInput",
+            "userInput": "",
+            "translate": "translate-zh",
+            "output": "markdown",
+            "type": "prompt"
+        },
+        "prompt3": {
+            "id": "prompt42f77d6ca8eaec9534233812874e6f202",
+            "nextId": "",
+            "nodeInputId": "prompt32f77d6ca8eaec9534233812874e6f202",
+            "role": {
+                "text": "麦肯锡咨询专家，掌握了非常多的方法，擅长分析整理信息。"
+            },
+            "text": "提取AI相关的信息，给这些信息评分，满分是5分，并写一句推荐文案推荐给我这个内容。输出格式：\n分数、AI信息、推荐文案",
+            "temperature": 0.24,
+            "model": "ChatGPT",
+            "input": "nodeInput",
+            "translate": "translate-zh",
+            "output": "default",
+            "type": "prompt"
+        }
+    }
+]
 ```
 
 ## Version History
+#### v0.3.5
+- Added i18n support for multiple languages.
+
+- Provided several combo examples.
+
+- Added support for creating PPT.
+
+#### v0.3.4
+- Added overall debugging function.
+
+- Debugging window can be collapsed and displayed.
+
+- Allowed free connection.
+
+- Implemented nodes.
+
 #### v0.3.3
 - Removed newtab feature
 

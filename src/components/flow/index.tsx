@@ -501,7 +501,14 @@ function Flow(props: any) {
           const data: any = this.result;
           const json = JSON.parse(data);
           if (json && json.length == 1) {
-            load(json, debug)
+            // 导入的新的combo，id重设
+            setLoading(true)
+            newWorkflow();
+            setTimeout(() => {
+              json[0].id = nanoid();
+              load(json, debug);
+              setLoading(false)
+            }, 1000)
           }
         }
       }

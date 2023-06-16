@@ -160,6 +160,8 @@ npm run build [browser]
 
 - 提供若干combo示例
 
+- 支持创建PPT
+
 
 #### v0.3.4
 - 增加整体调试功能
