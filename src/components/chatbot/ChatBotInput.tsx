@@ -286,7 +286,8 @@ class ChatBotInput extends React.Component {
                     background: 'rgb(245, 245, 245)',
                     marginBottom: '10px',
                     border: 'none',
-                    borderRadius: '10px'
+                    borderRadius: '10px',
+                    userSelect: 'none'
                 }}
                 actions={[
                     <div style={flexStyle} >
