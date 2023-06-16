@@ -1031,7 +1031,7 @@ class Main extends React.Component<{
         console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, system, user)
 
         const data = {
-            prompt: [system, assistant, user],
+            prompt: [system, user],
             type: chatBotType,
             style,
             newTalk: !!newTalk
