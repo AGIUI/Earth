@@ -26,7 +26,8 @@ Earth PC & Mac Version: https://github.com/AGIUI/Solis
 
 ## How to Use Earth
 ### 1.Download Earth
-Plugin download link: https://github.com/AGIUI/Earth/releases/
+Plugin download link1: [Chrome Web Store](https://chrome.google.com/webstore/detail/earth/mcbhfeopeloibcjmdljfheanikfhmmgk?hl=zh-CN&authuser=0)
+Plugin download link2: https://github.com/AGIUI/Earth/releases/
 
 
 ### 2.Installation of Earth
