@@ -42,7 +42,7 @@ const getNodes = (currentId: string, nodes: any) => {
   const nodeOpts = Array.from(nodes, (node: any, i) => {
     return {
       value: node.id,
-      label: node.type + '_' + node.id,
+      label: node.id,
       id: node.id
     }
   }).filter((n: any) => n.id != currentId)

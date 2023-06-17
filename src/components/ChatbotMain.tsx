@@ -991,7 +991,7 @@ class Main extends React.Component<{
                 }
             }
             const p = new PPT();
-            
+
             p.createPPT(items).then((filename: any) => {
                 const id = md5(filename + (new Date()))
                 const data = Talks.createTaskStatus(
@@ -1015,15 +1015,12 @@ class Main extends React.Component<{
         // console.log('this.state.chatBotStyle', this.state.chatBotStyle)
         const { temperature, model, text, type } = prompt;
 
-        const { system, user } = promptParse(prompt);
+        const { system, user, assistant } = promptParse(prompt);
 
-        let chatBotType = this.state.chatBotType,
+        let chatBotType = model,
             style: any = temperature;
 
-        if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
-
-        // if (temperature > -1) style = temperature;
-        if (model) chatBotType = model;
+        // if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
 
         // 增加一个Bing的转化
         if (model == "Bing" && typeof (temperature) == 'number' && temperature > -1) style = this._temperature2BingStyle(temperature);
@@ -1277,7 +1274,7 @@ class Main extends React.Component<{
         });
 
         // 把对话内容保存到本地
-        Talks.save(nTalks)
+        // Talks.save(nTalks)
     }
 
     _chatBotSelect(res: any) {
@@ -1376,7 +1373,7 @@ class Main extends React.Component<{
                 nTalks.push(ChatBotConfig.createTalkData('thinking', {}));
 
                 // 把对话内容保存到本地
-                Talks.save(nTalks)
+                // Talks.save(nTalks)
 
                 this.setState({
                     userInput: {
@@ -1684,7 +1681,7 @@ class Main extends React.Component<{
                     });
 
                     // 把对话内容保存到本地
-                    Talks.save(nTalks)
+                    // Talks.save(nTalks)
 
                     break;
                 case "debug-combo":
