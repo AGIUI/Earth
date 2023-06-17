@@ -6,7 +6,7 @@ import type { MenuProps } from 'antd';
 
 
 import i18n from "i18next";
- 
+
 import { createDebug, createURL, createDelay } from './Base'
 import { i18nInit } from '../locales/i18nConfig';
 
@@ -26,7 +26,7 @@ const nodeStyle = {
 };
 
 
- 
+
 const createUI = (json: any, delay: number, delayFormat: string, onChange: any) => {
   const { protocol, url } = json;
 
@@ -67,20 +67,10 @@ const createUI = (json: any, delay: number, delayFormat: string, onChange: any) 
       createDelay(i18n.t('delay'), delayFormat, delay.toString(), [
         { value: 'ms', label: i18n.t('ms') },
         { value: 's', label: i18n.t('s') }], (e: any) => {
-          if (e.key == 'delayFormat') onChange({
-            key: 'delayFormat',
-            data: e.data
-          })
-
           if (e.key == 'delay') {
-            let t = parseFloat(e.data);
-            if (delayFormat == 's') t = 1000 * t;
             onChange({
               key: 'delay',
-              data: {
-                ...json,
-                delay: t,
-              }
+              data: e.data
             })
           }
         })
@@ -95,17 +85,18 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
   i18nInit();
   const contextMenus: MenuProps['items'] = [
     {
-        label: i18n.t('debug'),
-        key: 'debug',
+      label: i18n.t('debug'),
+      key: 'debug',
     }
   ];
- 
+
   // queryObj
   // data.queryObj.isQuery = type === "query";
   const [queryObj, setQueryObj] = React.useState(data.queryObj)
+  const [delayFormat, setDelayFormat] = React.useState('ms');
 
   const [delay, setDelay] = React.useState(queryObj.delay || 1000)
-  const [delayFormat, setDelayFormat] = React.useState('ms')
+
 
   const updateQueryObj = (e: any) => {
     // console.log(e)
@@ -116,18 +107,31 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
 
     if (e.key === "delay") {
-      setQueryObj(e.data);
-      data.onChange({ id, data: { queryObj: e.data } })
-    }
-    if (e.key == "delayFormat") {
-      setDelayFormat(e.data);
+      const { delay, delayFormat } = e.data;
+      let d = delay;
+      if (delayFormat == 's') d = d * 1000;
+      // console.log(d,delayFormat)
+      setQueryObj({
+        ...queryObj,
+        delay: d
+      });
+      setDelay(delay)
+      setDelayFormat(delayFormat)
+      data.onChange({
+        id, data: {
+          queryObj: {
+            ...queryObj,
+            delay: d
+          }
+        }
+      })
     }
 
   }
 
 
   const createNode = () => {
-
+    // console.log(delay, delayFormat)
     const node = [createUI(queryObj, delay, delayFormat, updateQueryObj)];
 
     node.push(createDebug({

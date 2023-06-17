@@ -219,12 +219,13 @@ function Flow(props: any) {
 
     const workflow: any = {};
     const { edges, nodes } = reactFlowInstance.toObject();
-    if (edges.length == 0 && nodes.length == 1) {
+
+    for (const node of nodes) {
       // 只有一个，则导出
-      const id = nodes[0].id.match('root_') ? 'root' : nodes[0].id
-      workflow[id] = nodes[0].data
+      if (node.id.match('root_')) workflow['root'] = node.data
     }
-    // console.log(nodes, edges)
+
+    console.log(nodes, edges, workflow)
     for (const edge of edges) {
       let { source, target } = edge;
       source = source.match('root_') ? 'root' : source;
@@ -266,7 +267,8 @@ function Flow(props: any) {
     return new Promise((res, rej) => {
       getItems('root', (result: any) => {
         console.log('exportDataToEarth - - ', result)
-
+        if (result.length === 0) return
+        return
         const items = JSON.parse(JSON.stringify(result));
 
         // role节点赋予全部节点的role字段
@@ -363,6 +365,7 @@ function Flow(props: any) {
   const download = () => {
     exportDataToEarth().then((combo: any) => {
       console.log('download', combo)
+
       const fileName = `${combo.tag}_${combo.id}`
       const data = [combo]
       const link = document.createElement('a');

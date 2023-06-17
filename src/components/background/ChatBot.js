@@ -26,6 +26,8 @@ class ChatBotBackground {
 
         this.currentType = ''
         this.talksRecord = []
+
+        this.localSaveKey = 'userPrompts'
     }
 
     getList() {
@@ -277,14 +279,10 @@ class ChatBotBackground {
             if (item) item.resetConversation()
 
             // 清空本地缓存的prompt
-            chromeStorageGet(['myConfig', 'user', 'official']).then(res => {
-                const { myConfig, user, official } = res;
+            chromeStorageGet().then(res => {
                 chromeStorageClear().then(() => {
-                    chromeStorageSet({
-                        myConfig,
-                        user,
-                        official
-                    })
+                    delete res[this.localSaveKey];
+                    chromeStorageSet(res)
                 })
             })
         }
@@ -303,12 +301,13 @@ class ChatBotBackground {
 
     async getChatBotByPrompt(prompt, style, type) {
             let key = this.createKeyId(prompt, style, type)
-            let data = await chromeStorageGet(key)
+            let data = await chromeStorageGet(this.localSaveKey)
+            let userPrompts = data.userPrompts;
 
-            if (data && data[key]) {
+            if (userPrompts && userPrompts[key]) {
                 let items = []
-                for (const id in data[key]) {
-                    items.push(data[key][id])
+                for (const id in userPrompts[key]) {
+                    items.push(userPrompts[key][id])
                 }
                 items.sort((a, b) => b.createTime - a.createTime)
 
@@ -322,12 +321,15 @@ class ChatBotBackground {
         // 只有DONE才保留数据,保存prompt及结果到本地
     async saveChatBotByPrompt(prompt, style, type, result) {
         const id = result.id
-        let key = this.createKeyId(prompt, style, type)
-        let data = await chromeStorageGet(key)
+        let key = this.createKeyId(prompt, style, type);
+        let data = await chromeStorageGet(this.localSaveKey)
+        let userPrompts = data.userPrompts || {};
 
-        if (!data[key]) data[key] = {}
+        // let data = await chromeStorageGet(key)
+
+        if (!userPrompts[key]) userPrompts[key] = {}
             // 储存
-        data[key][id] = {
+        userPrompts[key][id] = {
             id,
             prompt,
             style,
@@ -338,7 +340,7 @@ class ChatBotBackground {
 
         // console.log('saveChatBotByPrompt', data, result)
         try {
-            await chromeStorageSet(data)
+            await chromeStorageSet({ userPrompts })
         } catch (error) {
             //TODO 提示： 存储容量超上限了
             console.log(error)

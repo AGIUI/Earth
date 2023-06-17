@@ -107,13 +107,13 @@ export const selectNodeInputBase = (nodeInputId: string, nodeOpts: any, onChange
             })
         }}
         options={nodeOpts}
-        onClick={()=>{
+        onClick={() => {
             onChange({
                 key: 'nodeInput-onClick',
                 data: nodeInputId
             })
         }}
-     
+
     />
 }
 
@@ -362,9 +362,15 @@ export const createDelay = (title: string, delayFormat: string, delay: string, o
     <p>{title}</p>
     <Input addonAfter={
         <Select defaultValue={delayFormat} onChange={(e: string) => {
+            let d = parseFloat(delay)
+            if (e == 's') d = d / 1000;
+            if (e == 'ms') d = d * 1000;
             onChange({
-                key: 'delayFormat',
-                data: e
+                key: 'delay',
+                data: {
+                    delay:d,
+                    delayFormat:e
+                }
             })
         }}>
             {
@@ -373,13 +379,15 @@ export const createDelay = (title: string, delayFormat: string, delay: string, o
         </Select>
     }
         // placeholder={i18n.t('delayPlaceholder')}
-        defaultValue={delay}
+        value={delay}
         onChange={(e: any) => {
             let t = parseFloat(e.target.value);
-            if (delayFormat == 's') t = 1000 * t;
             onChange({
                 key: 'delay',
-                data: t
+                data: {
+                    delay:t,
+                    delayFormat
+                }
             })
         }}
     />

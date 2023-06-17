@@ -278,6 +278,7 @@ const defaultNode = () => ({
         protocol: 'https://',
         content: 'bindCurrentPage',//给read使用
         action: 'default', // 网页跳转 default、模拟点击click 、输入input、读取read
+        delay: 1000
     },
     file: {
         inputs: [],
