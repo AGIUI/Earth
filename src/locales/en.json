@@ -168,7 +168,7 @@
     "urlPlaceholder": "Please enter www.xxxx.com",
     "method": "Method",
     "parama": "Parameters (String)",
-    "getFromBefore": "Get text from previous node ${text}",
+    "getFromBefore": "Get text from previous node ${context}",
     "responseType": "Response Data Type",
     "output": "Output",
     "outputKeyword": "Output Field",

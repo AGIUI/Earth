@@ -225,7 +225,7 @@ function Flow(props: any) {
       if (node.id.match('root_')) workflow['root'] = node.data
     }
 
-    console.log(nodes, edges, workflow)
+    // console.log(nodes, edges, workflow)
     for (const edge of edges) {
       let { source, target } = edge;
       source = source.match('root_') ? 'root' : source;
@@ -268,7 +268,7 @@ function Flow(props: any) {
       getItems('root', (result: any) => {
         console.log('exportDataToEarth - - ', result)
         if (result.length === 0) return
-        return
+
         const items = JSON.parse(JSON.stringify(result));
 
         // role节点赋予全部节点的role字段

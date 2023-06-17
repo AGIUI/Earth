@@ -17,6 +17,31 @@ const display = [
 ]
 
 
+const systemKeys: any = () => {
+    return {
+        role: i18n.t('role'),
+        task: i18n.t('task'),
+        output: i18n.t('output')
+    }
+}
+
+const assistantKeys: any = () => { }
+
+const userKeys: any = () => {
+    return {
+        title: i18n.t('title'),//网页标题
+        url: i18n.t('url'),//网页url
+        text: i18n.t('text'),//网页正文
+        html: i18n.t('html'),//网页html
+        images: i18n.t('images'),//网页图片
+        context: i18n.t('context'),//上一个节点信息
+        userInput: i18n.t('userInput'),//用户指令
+        translate: i18n.t('translate'),//翻译
+    }
+}
+
+
+
 /**
  * 角色库
  */
