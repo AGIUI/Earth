@@ -118,6 +118,7 @@
     "openPromptsCombo": "Open Prompts Combo",
     "showInChatOption": "As a conversation flow option",
     "contextMenusOption": "As a right-click menu option",
+    "roleOption": "As a role",
     "homeOption": "Homepage",
     "infiniteLoopOption": "Infinite Loop Option",
 
@@ -209,6 +210,7 @@
     "selectQuery": "SelectQuery",
 
     "queryReadNodeTitle": "Content Reading",
+    "queryReadRunResult": "Read result",
     "content": "Get Webpage Content",
     "queryReadPlaceholder": "Leave blank to get the entire webpage by default",
 

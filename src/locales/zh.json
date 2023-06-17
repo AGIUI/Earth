@@ -119,6 +119,7 @@
     "openPromptsCombo": "开启Prompts Combo",
     "showInChatOption": "作为对话流选项",
     "contextMenusOption": "作为右键菜单选项",
+    "roleOption": "同时作为角色",
     "homeOption": "首页",
     "infiniteLoopOption": "无限循环",
 
@@ -215,6 +216,7 @@
     "selectQuery": "SelectQuery",
 
     "queryReadNodeTitle": "内容读取",
+    "queryReadRunResult": "读取结果",
     "content": "获取网页内容",
     "queryReadPlaceholder": "不填默认获取整个网页",
 

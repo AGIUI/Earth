@@ -219,6 +219,7 @@ const Talks = {
             linkify: true,
         });
         dom.innerHTML = md.render(text);
+        // console.log('createTalkBubble:::',text)
         // const texts = Array.from(dom.innerText.split('\n'), t => t.trim()).filter(f => f);
         // dom.innerHTML = texts.join('<br><br>')
         Array.from(dom.querySelectorAll('a'), (a: any) => {
@@ -773,11 +774,11 @@ class Main extends React.Component<{
 
 
         if (init.body && typeof (init.body) == 'string' && prePromptText) {
-            // 替换${text} 表示从上一个节点传递来的text
+            // 替换${context} 表示从上一个节点传递来的text
             prePromptText = prePromptText.replaceAll('"', '')
             prePromptText = prePromptText.replaceAll("'", '')
             prePromptText = prePromptText.replace(/\n/ig, '')
-            init.body = init.body.replaceAll('${text}', prePromptText)
+            init.body = init.body.replaceAll('${context}', prePromptText)
         }
 
         sendMessageToBackground['api-run']({
@@ -889,7 +890,7 @@ class Main extends React.Component<{
 
     _queryReadRun(queryObj: any) {
         const { content, query, url, protocol } = queryObj;
-        console.log('_queryReadRun', queryObj)
+        // console.log('_queryReadRun', queryObj)
         let prompt = {};
         if (content == 'bindCurrentPage') {
             // 绑定全文
@@ -908,7 +909,12 @@ class Main extends React.Component<{
 
         const { id, system, user } = promptParse(prompt);
 
-        const markdown = user.content;
+        const markdown = `<details>
+        <summary>${i18n.t("queryReadRunResult")}</summary>
+        <p>${user.content}</p>
+    </details>`;
+        // 折叠的样式实现 
+
 
         // 需要被下一节点使用到，需要设置成done类型
         setTimeout(() => this._updateChatBotTalksResult([{
@@ -918,6 +924,7 @@ class Main extends React.Component<{
                 markdown
             ),
             markdown,
+            html: markdown,
             export: true,
             type: 'done'
         }]), 500);
@@ -1120,6 +1127,10 @@ class Main extends React.Component<{
                         export: data.export === undefined ? true : data.export,
                         promptId: currentPrompt.id
                     };
+                    if (data.html) {
+                        // 如果数据传了html
+                        d.html = data.html
+                    }
                     nTalks.push(d);
 
                     // 对话状态开启

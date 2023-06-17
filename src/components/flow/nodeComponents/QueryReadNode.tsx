@@ -42,6 +42,22 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
       })
     }}>
 
+{
+      createTextArea(title2, query, ".tag", "", (e: any) => {
+        const data = {
+          ...json,
+          query: e.data,
+          action: 'read'
+        }
+
+        onChange({
+          key,
+          data
+        })
+      })
+    }
+    
+
     {
       createSelect(title1, content || "bindCurrentPage", [
         { value: 'bindCurrentPageHTML', label: i18n.t('bindWebHTML') },
@@ -64,20 +80,7 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
       })
     }
 
-    {
-      createTextArea(title2, query, ".tag", "", (e: any) => {
-        const data = {
-          ...json,
-          query: e.data,
-          action: 'read'
-        }
-
-        onChange({
-          key,
-          data
-        })
-      })
-    }
+    
 
 
   </div>

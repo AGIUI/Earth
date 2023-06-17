@@ -118,6 +118,7 @@
     "showInChatOption": "As a conversation flow option",
     "contextMenusOption": "As a right-click menu option",
     "contextMenusOptionChildren": "Menu Context",
+    "roleOption": "As a role",
     "homeOption": "Homepage",
     "infiniteLoopOption": "Infinite Loop Option",
 

@@ -255,6 +255,11 @@ const comboOptions = () => {
                 })
         },
         {
+            label: i18n.t('roleOption'),
+            value: 'role',
+            disabled: false
+        },
+        {
             label: i18n.t('homeOption'),
             value: 'home',
             disabled: true

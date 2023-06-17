@@ -182,7 +182,7 @@ function promptParse(prompt: any) {
         , ...prompt
     };
 
-    console.log('promptParse:::::',JSON.stringify(prompt, null, 2))
+    console.log('promptParse:::::', JSON.stringify(prompt, null, 2))
 
     let system: any = {
         role: "system",
@@ -207,10 +207,10 @@ function promptParse(prompt: any) {
     }
 
     system.content = Array.from(
-        system.content, 
+        system.content,
         (c: any, i: number) =>
-         `${system.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
-         .join('\n').trim();
+            `${system.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+        .join('\n').trim();
 
     const user: any = {
         role: 'user',
@@ -219,18 +219,42 @@ function promptParse(prompt: any) {
 
     for (const key in userKeys) {
         if (prompt[key]
-            && prompt[key].trim()
+            && prompt[key].trim() && ![
+                'userInput',
+                'context'
+            ].includes(key)
         ) user.content.push({
             key: userKeys[key],
             value: prompt[key]
         });
     };
 
+    // 判断是否有${context} 替换进去
+    console.log(prompt['userInput'].match(/\${context}/), prompt, prompt['userInput'].replaceAll("${context}", prompt['context']))
+    if (prompt['userInput'] && prompt['context'] && prompt['userInput'].match(/\${context}/)) {
+        user.content.push({
+            key: userKeys['userInput'],
+            value: prompt['userInput'].replaceAll("${context}", prompt['context'])
+        });
+    } else {
+        for (const key of [
+            'context',
+            'userInput'
+        ]) {
+            if (prompt[key]
+                && prompt[key].trim()
+            ) user.content.push({
+                key: userKeys[key],
+                value: prompt[key]
+            });
+        };
+    }
+
     user.content = Array.from(
-        user.content, 
+        user.content,
         (c: any, i: number) =>
-         `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
-         .join('\n').trim();
+            `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+        .join('\n').trim();
 
 
     const assistant: any = {
@@ -248,10 +272,10 @@ function promptParse(prompt: any) {
     };
 
     assistant.content = Array.from(
-        assistant.content, 
+        assistant.content,
         (c: any, i: number) =>
-         `${assistant.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
-         .join('\n').trim();
+            `${assistant.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+        .join('\n').trim();
 
 
     const id = hashJson([system, user, assistant, new Date()]);
