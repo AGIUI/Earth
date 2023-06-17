@@ -1,7 +1,9 @@
 import { Readability } from '@mozilla/readability'
 import { encode, decode } from '@nem035/gpt-3-encoder'
 
+import { getConfig } from '@components/Utils'
 
+const json = getConfig();
 // const str = '这是什么句子？'
 // const encoded = encode(str)
 // console.log('Encoded this string looks like: ', encoded)
@@ -350,9 +352,9 @@ const promptBindText = (bindText: string, userInput: string) => {
 const extractArticle = (query = "") => {
     let documentClone: any = document.cloneNode(true);
 
-    documentClone.querySelector('._agi_ui')?.remove();
+    documentClone.querySelector('#' + (json.app + "_dom").replace(/\s/ig, '').trim())?.remove();
 
-    if (window.location.hostname === 'mail.qq.com') {
+    if (window.location.hostname.match('mail.qq.com')) {
         // 针对qq邮箱的处理 
         const doc: any = document.querySelector('#mainFrameContainer iframe');
         if (doc) documentClone = doc.contentDocument.cloneNode(true)
@@ -375,9 +377,12 @@ const extractArticle = (query = "") => {
         }
     }
 
-    divs = divs.filter((d: any) => d.className != '_agi_ui');
+    divs = divs.filter((d: any) => !['script', 'style','iframe'].includes(d.tagName.toLowerCase()));
+    // console.log('divs',divs)
+    const textsTag = ['p', 'span', 'h1', 'section', 'a', 'button', 'div'];
 
-    const textsTag = ['p', 'span', 'h1', 'section', 'a', 'button'];
+    // const textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
+
 
     let elements: any = [];
 
@@ -387,9 +392,8 @@ const extractArticle = (query = "") => {
             t => elements = [...elements, ...div.querySelectorAll(t)])
     }
 
-    elements = elements.flat().filter((f: any) => f);
 
-    // console.log(elements)
+    elements = elements.flat().filter((f: any) => f);
 
     article.elements = Array.from(elements, (element: any, index) => {
         const tagName = element.tagName.toLowerCase();
@@ -402,28 +406,29 @@ const extractArticle = (query = "") => {
         }
     }).flat().filter((d: any) => d.text);
     // article.elements = Array.from(elements, (t: any) => t.element)
+    // console.log(divs.filter((d: any) =>d.id=='__next')[0].innerText)
+    const textContent = Array.from(divs, (d: any) => d.innerText).join('\n');
 
-
-    const updateTitleAndTextContent = () => {
-        let d = document.createElement('div');
-        d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
+    const updateTitleAndTextContent = (article: any) => {
         article.title = document.title;
-        article.textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
+        article.textContent = textContent;
+        return article
     }
 
     try {
         article = { ...(new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse()), ...article };
     } catch (error) {
-        updateTitleAndTextContent()
+        article = updateTitleAndTextContent(article)
     }
 
-    if (window.location.hostname === 'mail.qq.com') {
+    if (window.location.hostname.match('mail.qq.com')) {
         // 针对qq邮箱的处理 
-        updateTitleAndTextContent()
+        article = updateTitleAndTextContent(article)
     }
 
-    if (window.location.hostname === "www.producthunt.com") {
-        updateTitleAndTextContent()
+    // console.log(window.location.hostname.match("producthunt.com"), 'window.location.hostname.match("producthunt.com")')
+    if (window.location.hostname.match("producthunt.com")) {
+        article = updateTitleAndTextContent(article)
     }
 
     // 图片
