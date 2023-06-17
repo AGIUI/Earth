@@ -78,7 +78,7 @@ const _VERVISON = '0.1.0',
 
 const initRootNode = () => {
   return {
-    id: 'root',
+    id: 'root_' + nanoid(),
     type: 'role',
     data: {
       ...defaultNode(),
