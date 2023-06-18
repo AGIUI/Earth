@@ -33,7 +33,7 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
         }
 
         onChange({
-          key,
+          key:"query",
           data
         })
       })
@@ -48,17 +48,20 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
         { value: 'bindCurrentPageTitle', label: i18n.t('bindWebTitle') },
         { value: 'bindCurrentPageImages', label: i18n.t('bindWebImages') },
       ], (e: any) => {
-        // console.log(e)
-        const data = {
-          ...json,
-          content: e.data,
-          action: 'read'
+        if (e.key == title1) {
+          // console.log(e)
+          const data = {
+            ...json,
+            content: e.data,
+            action: 'read'
+          }
+
+          onChange({
+            key:"query",
+            data
+          })
         }
 
-        onChange({
-          key,
-          data
-        })
       })
     }
 
@@ -90,7 +93,7 @@ function QueryReadNode({ id, data, selected }: any) {
 
     node.push(
       createDebug(debugMenu, id,
-        data.debugInput || (data.merged ? JSON.stringify(data.merged,null,2) : ""),
+        data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : ""),
         data.debugOutput,
         (event: any) => {
           if (event.key == 'input') {

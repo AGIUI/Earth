@@ -27,6 +27,8 @@ function Main({ id, data, selected }: any) {
 
 
     const updateData = (e: any) => {
+        if (e.key != 'draggable') console.log(JSON.stringify(e, null, 2))
+
         if (e.key === 'api') {
             data.onChange({ id, data: { api: e.data } })
             setApi(e.data);
@@ -83,7 +85,7 @@ function Main({ id, data, selected }: any) {
     if (data.getNodes) nodeOpts = [...data.getNodes(id)];
 
     let { protocol, url, responseType, extract } = data.api;
-    const key = 'api';
+
     if (!extract) extract = data.api.init.responseExtract
     // const extract = {
     //     ...(data.api.init.extract || {
@@ -134,7 +136,7 @@ function Main({ id, data, selected }: any) {
                                     }
                                 }
                                 updateData({
-                                    key,
+                                    key: 'api',
                                     data: d
                                 })
                             })
@@ -144,7 +146,7 @@ function Main({ id, data, selected }: any) {
                                 { value: 'POST', label: 'POST' },
                                 { value: 'GET', label: 'GET' }
                             ], (e: any) => {
-                                if (e.key == "method") {
+                                if (e.key == i18n.t('method')) {
                                     const d = {
                                         ...data.api,
                                         init: {
@@ -153,7 +155,7 @@ function Main({ id, data, selected }: any) {
                                         }
                                     }
                                     updateData({
-                                        key,
+                                        key: 'api',
                                         data: d
                                     })
                                 }
@@ -179,18 +181,22 @@ function Main({ id, data, selected }: any) {
                                 { value: 'text', label: i18n.t('text') },
                                 { value: 'json', label: 'JSON' }
                             ], (e: any) => {
-                                const d = {
-                                    ...data.api,
-                                    init: {
-                                        ...data.api.init,
-                                        responseType: e.data,
-                                    },
-                                    responseType: e.data
+                                if (e.key === i18n.t('responseType')) {
+                                    const d = {
+                                        ...data.api,
+                                        init: {
+                                            ...data.api.init,
+                                            responseType: e.data,
+                                        },
+                                        responseType: e.data
+                                    }
+                                    // console.log(JSON.stringify(e,null,2))
+                                    updateData({
+                                        key: 'api',
+                                        data: d
+                                    })
                                 }
-                                updateData({
-                                    key,
-                                    data: d
-                                })
+
                             })
                         }
 
@@ -201,25 +207,27 @@ function Main({ id, data, selected }: any) {
                                 { value: 'json', label: 'JSON', disabled: true },
                                 { value: 'audio', label: i18n.t('audio'), disabled: true }
                             ], (e: any) => {
-
-                                const d = {
-                                    ...data.api,
-                                    init: {
-                                        ...data.api.init,
+                                if (e.key == i18n.t('output')) {
+                                    const d = {
+                                        ...data.api,
+                                        init: {
+                                            ...data.api.init,
+                                            extract: {
+                                                ...extract || {},
+                                                type: e.data
+                                            }
+                                        },
                                         extract: {
                                             ...extract || {},
                                             type: e.data
                                         }
-                                    },
-                                    extract: {
-                                        ...extract || {},
-                                        type: e.data
-                                    }
-                                };
-                                updateData({
-                                    key,
-                                    data: d
-                                })
+                                    };
+                                    updateData({
+                                        key: 'api',
+                                        data: d
+                                    })
+                                }
+
                             })
                         }
 
@@ -241,7 +249,7 @@ function Main({ id, data, selected }: any) {
                                     }
                                 };
                                 updateData({
-                                    key,
+                                    key: 'api',
                                     data: d
                                 })
                             })
@@ -253,30 +261,30 @@ function Main({ id, data, selected }: any) {
                                 data.debugInput || (data.merged ? JSON.stringify(data.merged) : ""),
                                 data.debugOutput,
                                 (event: any) => {
-                                  if (event.key == 'input') {
-                                    const { data } = event;
-                                    let json: any;
-                                    try {
-                                      json = JSON.parse(data);
-                                      setStatusInputForDebug('')
-                                    } catch (error) {
-                                      setStatusInputForDebug('error')
-                                    }
-                                    updateData({
-                                      key: 'debug',
-                                      data: {
-                                        merged: json?.prompt,
-                                        debugInput: data
-                                      }
-                                    })
-                                  };
-                                  if (event.key == 'draggable') updateData(event)
+                                    if (event.key == 'input') {
+                                        const { data } = event;
+                                        let json: any;
+                                        try {
+                                            json = JSON.parse(data);
+                                            setStatusInputForDebug('')
+                                        } catch (error) {
+                                            setStatusInputForDebug('error')
+                                        }
+                                        updateData({
+                                            key: 'debug',
+                                            data: {
+                                                merged: json?.prompt,
+                                                debugInput: data
+                                            }
+                                        })
+                                    };
+                                    if (event.key == 'draggable') updateData(event)
                                 },
                                 () => data.debug && data.debug(data),
                                 () => data.merge && data.merge(data),
                                 {
-                                  statusInput: statusInputForDebug,
-                                  statusOutput: ""
+                                    statusInput: statusInputForDebug,
+                                    statusOutput: ""
                                 })
                         }
 

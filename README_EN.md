@@ -79,7 +79,7 @@ npm run build [browser]
 
 [Example 3: Extracting Email Information](/examples/combo/%E6%8F%90%E5%8F%96%E9%82%AE%E4%BB%B6%E4%BF%A1%E6%81%AF_2f77d6ca8eaec9534233812874e6f202.json)
 
-<!-- [Example 4: Knowledge Planet Assistant](/examples/combo/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83%E5%8A%A9%E6%89%8B_mFnsueSPO86CkHudr6sD2.json) -->
+[Example 4: Generate PPT](/examples/combo/Generate%20PPT_4c35df6f7513b1ed1926b9b7b1415ab3.json)
 
 
 

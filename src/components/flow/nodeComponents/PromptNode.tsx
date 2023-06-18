@@ -76,7 +76,7 @@ function Main({ id, data, selected }: any) {
     }
 
     // console.log(e)
-    if (e.key === 'translate') {
+    if (e.key === i18n.t('translate')) {
       setTranslate(e.data);
       data.onChange({ id, data: { translate: e.data } })
     }
