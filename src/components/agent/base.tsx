@@ -7,12 +7,15 @@ function addHighlight(dom: any) {
 
 async function inputByQueryBase(query: string, text: string) {
     const inp: any = document.querySelector(query);
-    inp.innerText = text;
-    inp.value = text;
-    inp.focus()
-    inp.select()
-    document.execCommand("insertText", false, text)
-    addHighlight(inp)
+    if (inp) {
+        inp.innerText = text;
+        inp.value = text;
+        inp.focus()
+        inp.select()
+        document.execCommand("insertText", false, text)
+        addHighlight(inp)
+    }
+
 }
 
 function clickByQueryBase(query: string) {

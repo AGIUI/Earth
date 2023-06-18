@@ -1,28 +1,11 @@
 import React from 'react'
-import { Handle, NodeProps, Position } from 'reactflow';
-import { Input, Card, Select, Radio, InputNumber, Slider, Dropdown, Divider, Space, Button } from 'antd';
-import type { MenuProps } from 'antd';
+import { Handle, Position } from 'reactflow';
+import { Card, Dropdown } from 'antd';
 
-const { TextArea } = Input;
-
-import { createDebug, createTextArea } from './Base'
+import { createDebug, createTextArea, nodeStyle, getI18n } from './Base'
 
 import i18n from "i18next";
 import { i18nInit } from '../locales/i18nConfig';
-
-
-export type NodeData = {
-  debug: any;
-  queryObj: any,
-  type: string,
-  onChange: any
-};
-
-const nodeStyle = {
-  border: '1px solid transparent',
-  padding: '2px 5px',
-  borderRadius: '12px',
-};
 
 
 const createUrl = (title: string, json: any, onChange: any) => {
@@ -60,38 +43,58 @@ const createUrl = (title: string, json: any, onChange: any) => {
 }
 
 
-function Main({ id, data, selected }: NodeProps<NodeData>) {
+function Main({ id, data, selected }: any) {
   i18nInit();
-  const contextMenus: MenuProps['items'] = [
-    {
-      label: i18n.t('debug'),
-      key: 'debug',
-    }
-  ];
+  const { debugMenu, contextMenus } = getI18n();
+  const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
+
+
   // queryObj
   const [queryObj, setQueryObj] = React.useState(data.queryObj)
-  const updateQueryObj = (e: any) => {
+  const updateData = (e: any) => {
     // console.log(e)
     if (e.key === 'query') {
       setQueryObj(e.data);
       data.onChange({ id, data: { queryObj: e.data } })
     }
+    if (e.key == "debug") data.onChange({ id, data: e.data })
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
 
   const createNode = () => {
-    const node = [createUrl(i18n.t('selectQuery'), queryObj, updateQueryObj)];
+    const node = [createUrl(i18n.t('selectQuery'), queryObj, updateData)];
 
-    node.push(createDebug({
-      header: i18n.t('debug'),
-      inputText: i18n.t('inputText'),
-      inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
-      outputText: i18n.t('outputText'),
-      outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
-      debugRun: i18n.t('debugRun'),
-    }, id, "", '', (event: any) => {
-      if (event.key == 'input') { }
-    }, () => data.debug ? data.debug(data) : '', {}))
+    node.push(
+      createDebug(debugMenu, id,
+        data.debugInput || (data.merged ? JSON.stringify(data.merged,null,2) : ""),
+        data.debugOutput,
+        (event: any) => {
+          if (event.key == 'input') {
+            const { data } = event;
+            let json: any;
+            try {
+              json = JSON.parse(data);
+              setStatusInputForDebug('')
+            } catch (error) {
+              setStatusInputForDebug('error')
+            }
+            updateData({
+              key: 'debug',
+              data: {
+                merged: json?.prompt,
+                debugInput: data
+              }
+            })
+          };
+          if (event.key == 'draggable') updateData(event)
+        },
+        () => data.debug && data.debug(data),
+        () => data.merge && data.merge(data),
+        {
+          statusInput: statusInputForDebug,
+          statusOutput: ""
+        })
+    )
 
     return <Card
       key={id}

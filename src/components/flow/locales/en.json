@@ -175,6 +175,7 @@
     "outputKeyword": "Output Field",
     "debug": "Debug",
     "debugRun": "Run",
+    "mergeRun": "Merge",
     "debugParama": "Request Parameters",
 
     "images": "Images",
@@ -225,6 +226,28 @@
 
     "APISucess": "API request successful",
 
-    "filePPTNodeTitle": "Create a PPT file"
+    "filePPTNodeTitle": "Create a PPT file",
+
+
+
+    "prompt-role": "Role simulation",
+    "prompt-task": "Specific task",
+    "prompt-translate": "Translation",
+    "prompt-output": "Output requirements",
+    "prompt-title": "Webpage title",
+    "prompt-url": "Webpage link",
+    "prompt-text": "Webpage content",
+    "prompt-html": "Webpage HTML",
+    "prompt-images": "Webpage images",
+    "prompt-context": "Context",
+    "prompt-userInput": "User input",
+    "prompt-translate-zh": "Translate into Chinese",
+    "prompt-translate-en": "Translate into English",
+
+    "prompt-table": "The answer to the user must be in table format",
+    "prompt-markdown": "The answer to the user must be in Markdown format",
+    "prompt-json": "The answer to the user must be a JSON array or object",
+    "prompt-list": "The answer to the user must be in list format",
+    "prompt-extract": "Analyze entity words and categorize them"
 
 }

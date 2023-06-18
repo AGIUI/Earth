@@ -2,43 +2,15 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Card, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-import { createDebug, selectNodeInput, createURL, createSelect, createTextArea } from './Base';
+import { createDebug, selectNodeInput, createURL, createSelect, createTextArea, nodeStyle, getI18n } from './Base';
 
 import i18n from "i18next";
 import { i18nInit } from '../locales/i18nConfig';
 
-export type NodeData = {
-    nodeInputId: string;
-    getNodes: any;
-    debug: any;
-    text: string,
-    api: any,
-    queryObj: any,
-    temperature: number,
-    model: string,
-    input: string,
-    output: string,
-    type: string,
-    opts: any,
-    onChange: any
-};
-
-const nodeStyle = {
-    border: '1px solid transparent',
-    padding: '2px 5px',
-    borderRadius: '12px',
-};
-
-
-function Main({ id, data, selected }: NodeProps<NodeData>) {
+function Main({ id, data, selected }: any) {
     i18nInit();
-
-    const contextMenus: MenuProps['items'] = [
-        {
-            label: i18n.t('debug'),
-            key: 'debug',
-        }
-    ];
+    const { debugMenu, contextMenus } = getI18n();
+    const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
 
 
     const [api, setApi] = React.useState(data.api)
@@ -53,7 +25,8 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
     const [bodyStatus, setBodyStatus] = React.useState('');
 
-    const onChange = (e: any) => {
+
+    const updateData = (e: any) => {
         if (e.key === 'api') {
             data.onChange({ id, data: { api: e.data } })
             setApi(e.data);
@@ -101,6 +74,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
             })
         }
 
+        if (e.key == "debug") data.onChange({ id, data: e.data })
         if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
 
     }
@@ -135,13 +109,13 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                     <div
                         style={{ cursor: 'default' }}
                         onMouseOver={() => {
-                            onChange({
+                            updateData({
                                 key: 'draggable',
                                 data: false
                             })
                         }}
                         onMouseLeave={() => {
-                            onChange({
+                            updateData({
                                 key: 'draggable',
                                 data: true
                             })
@@ -159,7 +133,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                         url: e.data
                                     }
                                 }
-                                onChange({
+                                updateData({
                                     key,
                                     data: d
                                 })
@@ -178,7 +152,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                             method: e.data,
                                         }
                                     }
-                                    onChange({
+                                    updateData({
                                         key,
                                         data: d
                                     })
@@ -189,7 +163,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
                         {
                             createTextArea(i18n.t('parama'), body, '', bodyStatus, (e: any) => {
-                                onChange({
+                                updateData({
                                     key: "body",
                                     data: e.data
                                 })
@@ -197,7 +171,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                         }
 
                         {
-                            selectNodeInput(i18n.t('getFromBefore'), nodeInputId, nodeOpts, onChange)
+                            selectNodeInput(i18n.t('getFromBefore'), nodeInputId, nodeOpts, updateData)
                         }
 
                         {
@@ -213,7 +187,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                     },
                                     responseType: e.data
                                 }
-                                onChange({
+                                updateData({
                                     key,
                                     data: d
                                 })
@@ -242,7 +216,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                         type: e.data
                                     }
                                 };
-                                onChange({
+                                updateData({
                                     key,
                                     data: d
                                 })
@@ -266,7 +240,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                         key: e.data
                                     }
                                 };
-                                onChange({
+                                updateData({
                                     key,
                                     data: d
                                 })
@@ -275,34 +249,35 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
 
                         {
-                            createDebug({
-                                header: i18n.t('debug'),
-                                inputText: i18n.t('inputText'),
-                                inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
-                                outputText: i18n.t('outputText'),
-                                outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
-                                debugRun: i18n.t('debugRun'),
-                            }, id, init, data.api.debugOutput, (event: any) => {
-                                if (event.key == 'input') {
+                            createDebug(debugMenu, id,
+                                data.debugInput || (data.merged ? JSON.stringify(data.merged) : ""),
+                                data.debugOutput,
+                                (event: any) => {
+                                  if (event.key == 'input') {
+                                    const { data } = event;
+                                    let json: any;
                                     try {
-                                        onChange({
-                                            key,
-                                            data: {
-                                                ...data.api,
-                                                init: JSON.parse(event.data)
-                                            }
-                                        })
+                                      json = JSON.parse(data);
+                                      setStatusInputForDebug('')
                                     } catch (error) {
-                                        onChange({
-                                            key: 'error-input',
-                                            data: event.data
-                                        })
+                                      setStatusInputForDebug('error')
                                     }
-                                }
-                            }, () => data.debug ? data.debug(data) : '', {
-                                statusInput: statusInput,
-                                statusOutput: ''
-                            })
+                                    updateData({
+                                      key: 'debug',
+                                      data: {
+                                        merged: json?.prompt,
+                                        debugInput: data
+                                      }
+                                    })
+                                  };
+                                  if (event.key == 'draggable') updateData(event)
+                                },
+                                () => data.debug && data.debug(data),
+                                () => data.merge && data.merge(data),
+                                {
+                                  statusInput: statusInputForDebug,
+                                  statusOutput: ""
+                                })
                         }
 
                     </div>

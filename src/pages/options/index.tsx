@@ -147,7 +147,7 @@ function options() {
         debugData.onChange({
           id: debugData.id,
           data: {
-            debugInput: JSON.stringify(data, null, 2)
+            debugInput: JSON.stringify(data.prompt, null, 2)
           }
         })
       }
@@ -190,6 +190,21 @@ function options() {
         },
         open: true
       }}
+      merge={
+        {
+          callback: (event: any) => {
+            // sendMessageCanRetry('open-chatbot-panel', {}, console.log)
+            console.log('merge-callback-for-parent', event)
+            sendMessageCanRetry('open-chatbot-panel', {}, console.log)
+            // 修复flow重新新建的bug
+            setIsNew(false)
+            if (event) setTimeout(() => {
+              setDebugData(event)
+            }, 100)
+
+          }
+        }
+      }
       isNew={isNew}
       exportData={(e: any) => (exportDataToEarth = e)}
       saveCallback={

@@ -74,7 +74,8 @@ const selector = (state: RFState) => ({
   newCombo: state.newCombo,
   changeChildNode: state.changeChildNode,
   addChildNode: state.addChildNode,
-  addNode: state.addNode
+  addNode: state.addNode,
+  exportData: state.exportData
 });
 
 
@@ -84,7 +85,7 @@ const defaultEdgeOptions = { style: connectionLineStyle, type: 'brainwave' };
 
 function Flow(props: any) {
 
-  const { debug, loadData, isNew, saveCallback, deleteCallback, exportData } = props;
+  const { debug, merge, loadData, isNew, saveCallback, deleteCallback, exportData } = props;
   // console.log('Flow isNew', isNew)
 
   const reactFlowInstance = useReactFlow();
@@ -105,7 +106,8 @@ function Flow(props: any) {
     newCombo,
     changeChildNode,
     addChildNode,
-    addNode
+    addNode,
+    exportData: exportDataToEarth
   } = useStore(selector, shallow);
   // console.log("comboOptions", comboOptions)
   const connectingNodeId = useRef<string | null>(null);
@@ -210,152 +212,6 @@ function Flow(props: any) {
 
   const variant: any = 'dots';
 
-  // 导出
-  const exportDataToEarth: any = () => {
-    const defaultCombo = {
-      ..._DEFAULTCOMBO(_APP, _VERVISON),
-      createDate: (new Date()).getTime()
-    }
-
-    const workflow: any = {};
-    const { edges, nodes } = reactFlowInstance.toObject();
-
-    for (const node of nodes) {
-      // 只有一个，则导出
-      if (node.id.match('root_')) workflow['root'] = node.data
-    }
-
-    // console.log(nodes, edges, workflow)
-    for (const edge of edges) {
-      let { source, target } = edge;
-      source = source.match('root_') ? 'root' : source;
-      target = target.match('root_') ? 'root' : target;
-
-      const sourceNode: any = nodes.filter(node => (node.id.match('root_') ? 'root' : node.id) === source)[0];
-      const targetNode: any = nodes.filter(node => (node.id.match('root_') ? 'root' : node.id) === target)[0];
-      if (sourceNode && targetNode) {
-        workflow[source] = {
-          ...sourceNode.data,
-          type: sourceNode.type,
-          id: sourceNode.id,
-          nextId: target
-        };
-        workflow[target] = {
-          ...targetNode.data,
-          type: targetNode.type,
-          id: targetNode.id
-        };
-      }
-    }
-    const items: any = [];
-    // console.log(workflow)
-    // 按顺序从到尾
-    const getItems = (id: string, callback: any) => {
-      if (workflow[id]) {
-        items.push(workflow[id]);
-        let nextId = workflow[id].nextId;
-        if (nextId) {
-          getItems(nextId, callback)
-        } else {
-          return callback(items)
-        }
-      } else {
-        return callback(items)
-      }
-    }
-
-    return new Promise((res, rej) => {
-      getItems('root', (result: any) => {
-        console.log('exportDataToEarth - - ', result)
-        if (result.length === 0) return
-
-        const items = JSON.parse(JSON.stringify(result));
-
-        // role节点赋予全部节点的role字段
-        const rolePrompt = items.filter((item: any) => item.type == 'role')[0];
-
-        // 按照combo的格式输出
-        const combo: any = {
-          ...defaultCombo,
-          tag,
-          id,
-          combo: 0,
-          role: { ...rolePrompt.role }
-        };
-
-        for (let index = 0; index < items.length; index++) {
-
-          const prompt = {
-            id: items[index].id,
-            nextId: items[index].nextId,
-            nodeInputId: items[index].nodeInputId,
-            role: { ...rolePrompt.role },
-            text: items[index].text,
-            url: items[index].url,
-            api: items[index].api,
-            file: items[index].file,
-            queryObj: items[index].queryObj,
-            temperature: items[index].temperature,
-            model: items[index].model,
-            input: items[index].input,
-            userInput: items[index].userInput,
-            translate: items[index].translate,
-            output: items[index].output,
-            type: items[index].type,
-          }
-
-          // 针对prompt的数据进行处理，只保留有用的
-          if ([
-            "queryRead",
-            "queryDefault",
-            "queryClick",
-            "queryInput"
-          ].includes(prompt.type)) {
-            delete prompt.api;
-            delete prompt.file;
-          }
-          if (prompt.type == "prompt") {
-            delete prompt.api;
-            delete prompt.queryObj;
-            delete prompt.file;
-          }
-
-          if (prompt.type == "api") {
-            delete prompt.queryObj;
-            delete prompt.file;
-          }
-
-          if (prompt.type == "file") {
-            delete prompt.api;
-            delete prompt.queryObj;
-          }
-
-          if (prompt.type !== 'role') {
-            combo.combo++;
-            if (combo.combo === 1) {
-              combo.prompt = prompt;
-            } else {
-              combo[`prompt${combo.combo}`] = prompt;
-            }
-          }
-        }
-
-        // interfaces
-        combo.interfaces = Array.from(comboOptions, (c: any) => {
-          if (c.children && c.checked) {
-            // 有子级的，需要拼接
-            return Array.from(c.children, (child: any) => child.checked && `${c.value}-${child.value}`)
-
-          };
-
-          if (c.checked) return c.value;
-
-        }).flat().filter(f => f)
-        // console.log(combo)
-        res(combo)
-      })
-    })
-  }
 
   if (exportData) {
     //如果父组件传来该方法
@@ -385,7 +241,7 @@ function Flow(props: any) {
     }
   }
 
-  const load = (json: any, debug: any) => {
+  const load = (json: any, debug: any, merge: any) => {
     if (json && json.length == 1) {
 
       // 将覆盖
@@ -440,7 +296,8 @@ function Flow(props: any) {
           const id = index == 0 ? source : comboNew[key].id;
           if (comboNew[key].type == 'role') {
             // role类型需求清空text字段
-            comboNew[key].text = ""
+            comboNew[key].text = "";
+            comboNew[key].merged = comboNew[key].role?.merged;
           }
           console.log('comboNew[key] id', id)
           // node
@@ -475,8 +332,8 @@ function Flow(props: any) {
         }
       }
 
-      console.log('!!!newCombo', comboNew.id, comboNew.tag, comboNew.interfaces, nodes, edges, debug)
-      newCombo(comboNew.id, comboNew.tag, comboNew.interfaces, nodes, edges, debug);
+      console.log('!!!newCombo', comboNew.id, comboNew.tag, comboNew.interfaces, nodes, edges, debug, merge)
+      newCombo(comboNew.id, comboNew.tag, comboNew.interfaces, nodes, edges, debug, merge);
 
       clearLocalStore()
 
@@ -509,7 +366,7 @@ function Flow(props: any) {
             newWorkflow();
             setTimeout(() => {
               json[0].id = nanoid();
-              load(json, debug);
+              load(json, debug, merge);
               setLoading(false)
             }, 1000)
           }
@@ -541,7 +398,7 @@ function Flow(props: any) {
   }, [newCombo, debug]);
 
 
-  const newWorkflow = () => newCombo(nanoid(), '', [], [defaultNode], [], debug)
+  const newWorkflow = () => newCombo(nanoid(), '', [], [defaultNode], [], debug, merge)
 
   const clearLocalStore = () => localStorage.setItem('flowKey', '{}');
 
@@ -558,7 +415,7 @@ function Flow(props: any) {
     if (isNew) {
       setTimeout(() => newWorkflow(), loading ? 500 : 200)
     } else {
-      setTimeout(() => loadData && load(loadData, debug), loading ? 1000 : 200)
+      setTimeout(() => loadData && load(loadData, debug, merge), loading ? 1000 : 200)
     }
     setTimeout(() => {
       setLoading(false)
@@ -687,11 +544,12 @@ function Flow(props: any) {
 }
 
 export default (props: any) => {
-  const { debug, loadData, isNew, saveCallback, deleteCallback, exportData } = props;
+  const { debug, merge, loadData, isNew, saveCallback, deleteCallback, exportData } = props;
 
   return (<ReactFlowProvider >
     <Flow
       debug={debug}
+      merge={merge}
       loadData={loadData}
       isNew={isNew}
       exportData={exportData}

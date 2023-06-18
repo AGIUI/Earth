@@ -4,49 +4,20 @@ import { Handle, NodeProps, Position, useUpdateNodeInternals } from 'reactflow';
 import { Input, Avatar, Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider, MenuProps } from 'antd';
 import { DownOutlined, UserOutlined } from '@ant-design/icons';
 
-import { createDebug, createText, selectNodeInputBase } from './Base'
+import { createDebug, nodeStyle, selectNodeInputBase, getI18n } from './Base'
 
 import i18n from "i18next";
 import { i18nInit } from '../locales/i18nConfig';
 
-export type NodeData = {
-    file: any;
-    inputs: any;
-    getNodes: any;
-    debugInput: any;
-    debugOutput: any;
-    role: any;
-    debug: any;
-    text: string,
-    api: any,
-    queryObj: any,
-    temperature: number,
-    model: string,
-    input: string,
-    output: string,
-    type: string,
-    opts: any,
-    onChange: any
-};
 
-const nodeStyle = {
-    border: '1px solid transparent',
-    padding: '2px 5px',
-    borderRadius: '12px',
-};
-
-
-function Main({ id, data, selected }: NodeProps<NodeData>) {
+function Main({ id, data, selected }: any) {
 
     i18nInit();
-    const contextMenus: MenuProps['items'] = [
-        {
-            label: i18n.t('debug'),
-            key: 'debug',
-        }
-    ];
+    const { debugMenu, contextMenus } = getI18n();
+    const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
 
-    const onChange = (e: any) => {
+    const updateData = (e: any) => {
+        if (e.key == "debug") data.onChange({ id, data: e.data })
         if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } });
         if (e.key == 'inputs') data.onChange({
             id, data: {
@@ -75,7 +46,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
             });
         }
 
-        
+
         if (e.key === "nodeInput-onClick") {
             // const otherNodes = data.getNodes(e.data);
             // console.log('nodeInput-onClick',otherNodes)
@@ -108,13 +79,13 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                 minHeight: '200px'
             }}
                 onMouseOver={() => {
-                    onChange({
+                    updateData({
                         key: 'draggable',
                         data: false
                     })
                 }}
                 onMouseLeave={() => {
-                    onChange({
+                    updateData({
                         key: 'draggable',
                         data: true
                     })
@@ -124,7 +95,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                     let inps = inputs;
                     inps.push(nodeOpts[0].value)
                     setInputs(inps);
-                    onChange({
+                    updateData({
                         key: 'inputs',
                         data: inps
                     })
@@ -134,7 +105,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                     let inps = inputs;
                     inps.pop()
                     setInputs(inps);
-                    onChange({
+                    updateData({
                         key: 'inputs',
                         data: inps
                     })
@@ -146,28 +117,44 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                             inputs,
                             (inp: any, i) =>
                                 <div key={i}>{
-                                    selectNodeInputBase(inp, nodeOpts, (e: any) => onChange({ ...e, index: i }))
+                                    selectNodeInputBase(inp, nodeOpts, (e: any) => updateData({ ...e, index: i }))
                                 }</div>
                         ) : ''
                 }
             </div>
             {
-                createDebug({
-                    header: i18n.t('debug'),
-                    inputText: i18n.t('inputText'),
-                    inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
-                    outputText: i18n.t('outputText'),
-                    outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
-                    debugRun: i18n.t('debugRun'),
-                }, id, data.debugInput, data.debugOutput, (event: any) => {
-
-                    if (event.key == 'input') { }
-                }, () => data.debug ? data.debug(data) : '', {})
+                createDebug(debugMenu, id,
+                    data.debugInput || (data.merged ? JSON.stringify(data.merged) : ""),
+                    data.debugOutput,
+                    (event: any) => {
+                        if (event.key == 'input') {
+                            const { data } = event;
+                            let json: any;
+                            try {
+                                json = JSON.parse(data);
+                                setStatusInputForDebug('')
+                            } catch (error) {
+                                setStatusInputForDebug('error')
+                            }
+                            updateData({
+                                key: 'debug',
+                                data: {
+                                    merged: json?.prompt,
+                                    debugInput: data
+                                }
+                            })
+                        };
+                        if (event.key == 'draggable') updateData(event)
+                    },
+                    () => data.debug && data.debug(data),
+                    () => data.merge && data.merge(data),
+                    {
+                        statusInput: statusInputForDebug,
+                        statusOutput: ""
+                    })
             }
         </Card>
     }
-
-
 
     return (
         <Dropdown menu={{

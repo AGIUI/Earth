@@ -9,6 +9,8 @@ const { TextArea } = Input;
 
 const { Option } = Select;
 
+import i18n from "i18next";
+
 export const createName = (title: string, name: string, onChange: any) =>
     <Input addonBefore="@" defaultValue={name}
         placeholder={title}
@@ -43,7 +45,21 @@ export const createURL = (urlTitle: string, urlPlaceholder: string, protocol: st
     />
 </>
 
-export const createSelect = (title: string, value: string, opts: any, onChange: any) => <>
+export const createSelect = (title: string, value: string, opts: any, onChange: any) => <div
+
+    onMouseOver={() => {
+        onChange({
+            key: 'draggable',
+            data: false
+        })
+    }}
+    onMouseLeave={() => {
+        onChange({
+            key: 'draggable',
+            data: true
+        })
+    }}
+>
     <p>{title}</p>
     <Select
         value={value}
@@ -56,7 +72,7 @@ export const createSelect = (title: string, value: string, opts: any, onChange: 
         }}
         options={opts}
     />
-</>
+</div>
 
 export const createTextArea = (title: string, value: string, placeholder: string, status: any, onChange: any) => <>
     <p>{title}</p>
@@ -215,43 +231,50 @@ export const selectInput = (
 
 
 // 标题 + 长文本输入框
-export const createText = (key: string, header: string, placeholder: string, value: string, status: any, onChange: any) => <>
-    <p>{header}</p>
-    <TextArea
-        onMouseOver={() => {
-            onChange({
-                key: 'draggable',
-                data: false
-            })
-        }}
-        onMouseLeave={() => {
-            onChange({
-                key: 'draggable',
-                data: true
-            })
-        }}
-        style={{
-            marginBottom: '12px'
-        }}
-        showCount
-        allowClear
-        status={status}
-        rows={4}
-        autoSize={{ minRows: 2, maxRows: 10 }}
-        value={value}
-        placeholder={placeholder}
-        disabled={!onChange}
-        onChange={(e) => {
-            onChange && onChange({
-                key,
-                data: e.target.value
-            })
-        }}
-    />
-</>
+export const createText = (key: string, header: string, placeholder: string, value: string, status: any, onChange: any) => {
+    // const [text, setText] = React.useState(value || '')
+    const text = value || ''
+    return <>
+        <p>{header}</p>
+        <TextArea
+            onMouseOver={() => {
+                onChange({
+                    key: 'draggable',
+                    data: false
+                })
+            }}
+            onMouseLeave={() => {
+                onChange({
+                    key: 'draggable',
+                    data: true
+                })
+            }}
+            style={{
+                marginBottom: '12px'
+            }}
+            showCount
+            allowClear
+            status={status}
+            rows={4}
+            autoSize={{ minRows: 2, maxRows: 10 }}
+            defaultValue={value}
+            value={text}
+            placeholder={placeholder}
+            disabled={!onChange}
+            onChange={(e) => {
+                onChange && onChange({
+                    key,
+                    data: e.target.value
+                })
+                // setText(e.target.value)
+            }}
+        />
+    </>
 
+}
 
 // debug组件
+// 增加 merge 功能，把prompt保存下来
 export const createDebug = (
     menuNames: any,
     id: string,
@@ -259,6 +282,7 @@ export const createDebug = (
     output: string,
     onChange: any,
     debugFun: any,
+    mergeFun: any,
     status: any
 ) => {
     const { header,
@@ -266,23 +290,30 @@ export const createDebug = (
         inputTextPlaceholder,
         outputText,
         outputTextPlaceholder,
-        debugRun } = menuNames;
+        debugRun,
+        mergeRun
+    } = menuNames;
     const {
         statusInput, statusOutput
     } = status || {};
 
-    // console.log('createDebug:::',input)
+
+    // console.log('createDebug:::', input)
 
     return <Collapse bordered={false}
         size="small"
         expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
         style={{ background: '#eee', marginTop: '32px' }}
     >
+        <p style={{
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            padding: '0px 18px',
+            paddingTop: '12px',
+            margin: 0
+        }}>ID: {id}</p>
         <Panel header={header} key="1">
-            <p style={{
-                textOverflow: 'ellipsis',
-                overflow: 'hidden'
-            }}>ID: {id}</p>
+
             {
                 input && createText('input', inputText, inputTextPlaceholder, input, statusInput, onChange)
             }
@@ -291,7 +322,15 @@ export const createDebug = (
             }
 
             <Divider dashed />
-            {debugFun ? <Button onClick={(e) => debugFun()} >{debugRun}</Button> : ''}
+            {debugFun ? <Button onClick={(e) => {
+                debugFun(input)
+
+            }} >{debugRun}</Button> : ''}
+            {mergeFun ? <Button onClick={(e) => mergeFun()}
+                style={{
+                    marginLeft: '12px'
+                }}
+            >{mergeRun}</Button> : ''}
         </Panel>
     </Collapse>
 }
@@ -368,8 +407,8 @@ export const createDelay = (title: string, delayFormat: string, delay: string, o
             onChange({
                 key: 'delay',
                 data: {
-                    delay:d,
-                    delayFormat:e
+                    delay: d,
+                    delayFormat: e
                 }
             })
         }}>
@@ -385,10 +424,37 @@ export const createDelay = (title: string, delayFormat: string, delay: string, o
             onChange({
                 key: 'delay',
                 data: {
-                    delay:t,
+                    delay: t,
                     delayFormat
                 }
             })
         }}
     />
 </>
+
+
+export const nodeStyle = {
+    border: '1px solid transparent',
+    padding: '2px 5px',
+    borderRadius: '12px',
+};
+
+export const getI18n = () => {
+    const debugMenu = {
+        header: i18n.t('debug'),
+        inputText: i18n.t('inputText'),
+        inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
+        outputText: i18n.t('outputText'),
+        outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
+        debugRun: i18n.t('debugRun'),
+        mergeRun: i18n.t('mergeRun'),
+    }
+
+    const contextMenus: any = [
+        {
+            label: i18n.t('debug'),
+            key: 'debug',
+        }
+    ];
+    return { debugMenu, contextMenus }
+}

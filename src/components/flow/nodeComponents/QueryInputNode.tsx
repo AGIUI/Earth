@@ -4,25 +4,14 @@ import { Input, Card, Select, Radio, InputNumber, Checkbox, Dropdown, Divider, S
 import { DownOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
-import { selectInput, createDebug, createTextArea } from "./Base"
+import { selectInput, createDebug, createTextArea, nodeStyle, getI18n } from "./Base"
 
 import i18n from "i18next";
 import { i18nInit } from '../locales/i18nConfig';
 
-export type NodeData = {
-  input: string;
-  getNodes: any;
-  debug: any;
-  queryObj: any,
-  type: string,
-  onChange: any
-};
 
-const nodeStyle = {
-  border: '1px solid transparent',
-  padding: '2px 5px',
-  borderRadius: '12px',
-};
+
+
 
 const createUrl = (input: string, json: any, onChange: any) => {
 
@@ -30,7 +19,7 @@ const createUrl = (input: string, json: any, onChange: any) => {
   const { query, action } = queryObj;
 
   let nodeOpts: any[] = [];
-  if (json.getNodes) nodeOpts = [...json.getNodes()]
+  if (json.getNodes) nodeOpts = [...json.getNodes(json.id)]
   let selectNodeValue = input === "nodeInput" ? (nodeInputId || nodeOpts[0].value) : null
   // console.log(input, selectNodeValue)
   return <div onMouseOver={() => {
@@ -75,14 +64,10 @@ const createUrl = (input: string, json: any, onChange: any) => {
 
 
 
-function Main({ id, data, selected }: NodeProps<NodeData>) {
+function Main({ id, data, selected }: any) {
   i18nInit();
-  const contextMenus: MenuProps['items'] = [
-    {
-      label: i18n.t('debug'),
-      key: 'debug',
-    }
-  ];
+  const { debugMenu, contextMenus } = getI18n();
+  const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
 
   const [queryObj, setQueryObj] = React.useState(data.queryObj);
 
@@ -111,6 +96,20 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
         data: d
       })
     }
+
+
+    if (e.key == 'userInput') {
+      const d: any = {
+        ...data,
+        userInput: e.data
+      };
+      data.onChange({
+        id,
+        data: d
+      })
+    };
+
+
     if (e.key === "nodeInput") {
       data.onChange({
         id,
@@ -120,7 +119,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
         }
       })
     }
-
+    if (e.key == "debug") data.onChange({ id, data: e.data })
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
 
@@ -131,18 +130,40 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
       createUrl(
         input,
         data,
-        updateData),
-      createDebug({
-        header: i18n.t('debug'),
-        inputText: i18n.t('inputText'),
-        inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
-        outputText: i18n.t('outputText'),
-        outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
-        debugRun: i18n.t('debugRun'),
-      }, id, "", '', (event: any) => {
-        if (event.key == 'input') { }
-      }, () => data.debug ? data.debug(data) : '', {})
+        updateData)
     ];
+
+    node.push(
+      createDebug(debugMenu, id,
+        data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : ""),
+        data.debugOutput,
+        (event: any) => {
+          if (event.key == 'input') {
+            const { data } = event;
+            let json: any;
+            try {
+              json = JSON.parse(data);
+              setStatusInputForDebug('')
+            } catch (error) {
+              setStatusInputForDebug('error')
+            }
+            updateData({
+              key: 'debug',
+              data: {
+                merged: json?.prompt,
+                debugInput: data
+              }
+            })
+          };
+          if (event.key == 'draggable') updateData(event)
+        },
+        () => data.debug && data.debug(data),
+        () => data.merge && data.merge(data),
+        {
+          statusInput: statusInputForDebug,
+          statusOutput: ""
+        })
+    )
 
     return <Card
       key={id}

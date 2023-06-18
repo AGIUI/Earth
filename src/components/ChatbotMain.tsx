@@ -813,23 +813,10 @@ class Main extends React.Component<{
         }, delay)
     }
 
-    _queryInputRun(prompt: any, nTalks: any, delay = 1000) {
+    _queryInputRun(prompt: any, delay = 1000) {
 
-        let text: any = '',
+        let text: any = prompt.context,
             query = prompt.queryObj.query;
-        if (prompt.input == "nodeInput") {
-            // 从上一个节点输出获取
-            if (!prompt.nodeInputId) {
-                text = Talks.getLastTalk([...nTalks]);
-            } else {
-                // console.log('nodeInput_queryInputRun', nTalks)
-                const d = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
-                if (d) text = Talks.getTalkInnerText(d) || "";
-            }
-
-        } else if (prompt.input == "userInput") {
-            text = prompt.userInput;
-        }
 
         setTimeout(() => {
             // 当前页面
@@ -838,9 +825,15 @@ class Main extends React.Component<{
             const data = Talks.createTaskStatus(
                 '_queryInputRun',
                 id,
-                '文本输入'
+                '文本输入:' + text
             )
             this._updateChatBotTalksResult([data]);
+
+            setTimeout(() => this.props.callback({
+                cmd: 'stop-talk',
+                data: text
+            }), 1000)
+
         }, delay)
 
     }
@@ -876,13 +869,19 @@ class Main extends React.Component<{
             } else {
                 // url没有填写
                 let id = md5("_queryDefaultRun" + (new Date()))
-                setTimeout(() => this._updateChatBotTalksResult([
-                    Talks.createTaskStatus(
-                        '_queryDefaultRun',
-                        id + 'r',
-                        '延时' + delay + '毫秒'
-                    )
-                ]), delay);
+                setTimeout(() => {
+                    this._updateChatBotTalksResult([
+                        Talks.createTaskStatus(
+                            '_queryDefaultRun',
+                            id + 'r',
+                            '延时' + delay + '毫秒'
+                        )
+                    ])
+                    this.props.callback({
+                        cmd: 'stop-talk',
+                        data: '延时' + delay + '毫秒'
+                    })
+                }, delay);
             }
 
         }
@@ -1020,9 +1019,35 @@ class Main extends React.Component<{
 
     _llmRun(prompt: any, newTalk: boolean) {
         // console.log('this.state.chatBotStyle', this.state.chatBotStyle)
-        const { temperature, model, text, type } = prompt;
+        const { temperature, model, text, type, merged, role } = prompt;
 
-        const { system, user, assistant } = promptParse(prompt);
+        let promptData;
+
+        if (merged && merged.length > 0) {
+            // 使用合成好的prompt
+            promptData = merged;
+            promptData = Array.from(promptData, (p: any) => {
+                if (p.role == 'user' && prompt['context']) {
+                    p.content = p.content.replaceAll("${context}", prompt['context'])
+                }
+                return p
+            })
+        } else {
+            const { system, user, assistant } = promptParse(prompt);
+            promptData = [system, user];
+        }
+
+
+        // role 合成好的处理
+        if (role && role.merged && role.merged[0]) {
+            promptData = Array.from(promptData, (p: any) => {
+                if (p.role == 'system') {
+                    p = role.merged[0]
+                }
+                return p
+            })
+        }
+
 
         let chatBotType = model,
             style: any = temperature;
@@ -1032,10 +1057,11 @@ class Main extends React.Component<{
         // 增加一个Bing的转化
         if (model == "Bing" && typeof (temperature) == 'number' && temperature > -1) style = this._temperature2BingStyle(temperature);
 
-        console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, system, user)
+
+        console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, promptData)
 
         const data = {
-            prompt: [system, user],
+            prompt: promptData,
             type: chatBotType,
             style,
             newTalk: !!newTalk
@@ -1421,12 +1447,14 @@ class Main extends React.Component<{
                     api: prompt.api,
                     input: prompt.input,
                     nodeInputId: prompt.nodeInputId,
-                    id: prompt.id
+                    id: prompt.id,
+                    merged: prompt.merged,
+                    _nodeInputTalk: prompt._nodeInputTalk
                 }
                 promptJson = { ...promptJson, ...bindUserInput(prompt.text) };
 
                 // role的处理
-                if (prompt.role && (prompt.role.name || prompt.role.text)) {
+                if (prompt.role && (prompt.role.name || prompt.role.text || prompt.role.merged)) {
                     promptJson = { ...promptJson, ...promptBindRole(promptJson.userInput, prompt.role) }
                 }
 
@@ -1468,13 +1496,22 @@ class Main extends React.Component<{
                         let lastTalk: any = Talks.getLastTalk([...nTalks]);
                         promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, lastTalk) }
                     } else {
-                        let data: any = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
-                        if (data) {
-                            let talk: any = Talks.getTalkInnerText(data)
-                            promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, talk) }
+                        if (prompt._nodeInputTalk) {
+                            // 调试使用
+                            promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, prompt._nodeInputTalk) }
+                        } else {
+                            let data: any = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
+                            if (data) {
+                                let talk: any = Talks.getTalkInnerText(data)
+                                promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, talk) }
+                            }
                         }
+
                     }
                     console.log('从上一节点获取文本', prompt.nodeInputId, promptJson.context)
+                } else if (prompt.input == "userInput") {
+                    console.log('从用户输入获取文本', prompt, promptUseLastTalk(promptJson.userInput, prompt.userInput))
+                    promptJson = { ...promptJson, ...promptUseLastTalk(promptJson.userInput, prompt.userInput) }
                 }
 
                 // translate的处理
@@ -1521,8 +1558,8 @@ class Main extends React.Component<{
                 // queryInput 
                 if (promptJson.type == "queryInput" && promptJson.queryObj) {
                     // {queryObj,input,nodeInputId,userInput}
-                    promptJson.userInput = prompt.userInput;
-                    this._queryInputRun(promptJson, nTalks);
+                    // promptJson.userInput = prompt.userInput;
+                    this._queryInputRun(promptJson);
                 };
 
                 // queryClick
