@@ -1,5 +1,5 @@
 [{
-        "tag": "介绍更多",
+        "tag": "introduceMore",
         "role": {
             "name": "",
             "text": ""
@@ -34,7 +34,7 @@
         "createDate": 1686643444078
     },
     {
-        "tag": "翻译成中文",
+        "tag": "translateChinese",
         "role": {
             "name": "",
             "text": ""
@@ -46,7 +46,7 @@
         "isInfinite": false,
         "owner": "user",
         "prompt": {
-            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR",
+            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR3",
             "nextId": "",
             "nodeInputId": "",
             "role": {
@@ -69,7 +69,7 @@
         "createDate": 1686643579680
     },
     {
-        "tag": "内容扩写",
+        "tag": "contentExpansion",
         "role": {
             "name": "",
             "text": ""
@@ -81,7 +81,7 @@
         "isInfinite": false,
         "owner": "user",
         "prompt": {
-            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR",
+            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR2",
             "nextId": "",
             "nodeInputId": "",
             "role": {
@@ -100,11 +100,11 @@
         },
         "version": "0.1.0",
         "app": "brainwave",
-        "id": "XCSlvySpfMYVR1IRDTp4n",
+        "id": "XCSlvySpfMYVR1IRDTp4n1",
         "createDate": 1686643683329
     },
     {
-        "tag": "内容缩写",
+        "tag": "abbreviations",
         "role": {
             "name": "",
             "text": ""
@@ -116,7 +116,7 @@
         "isInfinite": false,
         "owner": "user",
         "prompt": {
-            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR",
+            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR1",
             "nextId": "",
             "nodeInputId": "",
             "role": {
@@ -135,11 +135,11 @@
         },
         "version": "0.1.0",
         "app": "brainwave",
-        "id": "XCSlvySpfMYVR1IRDTp4n",
+        "id": "XCSlvySpfMYVR1IRDTp4n2",
         "createDate": 1686643724158
     },
     {
-        "tag": "内容重写",
+        "tag": "rewriteContent",
         "role": {
             "name": "",
             "text": ""
@@ -151,7 +151,7 @@
         "isInfinite": false,
         "owner": "user",
         "prompt": {
-            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR",
+            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR5",
             "nextId": "",
             "nodeInputId": "",
             "role": {
@@ -170,7 +170,7 @@
         },
         "version": "0.1.0",
         "app": "brainwave",
-        "id": "XCSlvySpfMYVR1IRDTp4n",
+        "id": "XCSlvySpfMYVR1IRDTp4n3",
         "createDate": 1686643750270
     }
 ]

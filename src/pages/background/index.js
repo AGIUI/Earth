@@ -107,7 +107,7 @@ async function loadContextMenuData() {
         for (let i in commonsConfig) {
             chrome.contextMenus.create({
                 id: String(commonsConfig[i].id),
-                title: commonsConfig[i].tag,
+                title: i18n.t(commonsConfig[i].tag),
                 type: 'normal',
                 parentId: 'commonsConfig'
             })
@@ -138,7 +138,7 @@ async function loadContextMenuData() {
         for (let i in selectionConfig) {
             chrome.contextMenus.create({
                 id: String(selectionConfig[i].id),
-                title: selectionConfig[i].tag,
+                title:  i18n.t(selectionConfig[i].tag),
                 contexts: ['selection']
             })
         }
@@ -148,7 +148,7 @@ async function loadContextMenuData() {
         for (let i in editableConfig) {
             chrome.contextMenus.create({
                 id: String(editableConfig[i].id),
-                title: editableConfig[i].tag,
+                title: i18n.t(editableConfig[i].tag),
                 contexts: ['editable'],
             })
         }
@@ -158,7 +158,7 @@ async function loadContextMenuData() {
         for (let i in pdfConfig) {
             chrome.contextMenus.create({
                 id: String(pdfConfig[i].id),
-                title: pdfConfig[i].tag,
+                title: i18n.t(pdfConfig[i].tag),
                 contexts: ["all"],
                 targetUrlPatterns: ["*://*/*.pdf"]
             })
@@ -169,7 +169,7 @@ async function loadContextMenuData() {
         for (let i in linkConfig) {
             chrome.contextMenus.create({
                 id: String(linkConfig[i].id),
-                title: linkConfig[i].tag,
+                title: i18n.t(linkConfig[i].tag),
                 contexts: ['link'],
             })
         }
@@ -256,8 +256,9 @@ async function loadContextMenuData() {
             for (let i in Menu) {
                 if (id == Menu[i].id) {
                     let PromptJson = Menu[i];
-                    if (PromptJson.input === "userSelection") {
+                    if (PromptJson.interfaces.includes("contextMenus-selection")) {
                         const context = item.selectionText;
+                        console.log("context",context);
                         if (context) {
                             PromptJson.prompt.userInput = context;
                             // "###相关内容###\n" + context + "\n" + PromptJson.text
