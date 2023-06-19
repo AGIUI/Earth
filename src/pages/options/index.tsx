@@ -198,10 +198,10 @@ function options() {
             console.log('merge-callback-for-parent', event)
             if (event && event.success) {
               if (exportDataToEarth) {
-                exportDataToEarth().then((combo: any) => {
+                setTimeout(()=>exportDataToEarth().then((combo: any) => {
                   saveCombos([combo])
                   // message.info('已更新')
-                })
+                }),200)
               }
 
             }

@@ -263,8 +263,11 @@ function addCss() {
     flex-wrap: wrap;
   }
 
-    .ant-select-dropdown-placement-bottomLeft{
+    .ant-select-dropdown{
       z-index:2147483003 !important;
+    }
+    .ant-popover{
+        z-index:2147483003 !important;
     }
     .ant-image-preview-mask{
         z-index: 120000000000000!important

@@ -97,8 +97,8 @@ const debugRun = (id: string, prompt: any, combo: any, debug: any, onChange: any
   }
 
   // merged去掉
-  delete prompt.merged
-  delete prompt.debugInput
+  // delete prompt.merged
+  // delete prompt.debugInput
 
   const controlEvent: any = parsePrompt2ControlEvent(id, prompt)
   controlEvent.onChange = onChange
@@ -382,6 +382,10 @@ const useStore = create<RFState>((set, get) => ({
       }
 
       nd.type = nd.data.type;
+
+      if(nd.data.merged){
+        nd.data.debugInput=JSON.stringify(nd.data.merged,null,2)
+      }
 
       if (debug && debug.open && debug.callback) nd.data['debug'] = (prompt: any) => {
         get().exportData().then((combo: any) => {
