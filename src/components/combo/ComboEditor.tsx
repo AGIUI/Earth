@@ -242,6 +242,7 @@ class ComboEditor extends React.Component {
                     // flex: 1,
                     height: 'calc(100% - 80px)',
                     paddingTop: 0,
+                    overflowY: 'auto',
                 }}
 
                 extra={<div>
