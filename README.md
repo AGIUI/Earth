@@ -25,6 +25,7 @@ Earth PC&Mac版本：https://github.com/AGIUI/Solis
 ## 如何使用Earth
 ### 1.下载Earth
 插件下载地址1：[chrome Web Store](https://chrome.google.com/webstore/detail/earth/mcbhfeopeloibcjmdljfheanikfhmmgk?hl=zh-CN&authuser=0)
+
 插件下载地址2：https://github.com/AGIUI/Earth/releases/
 
 
