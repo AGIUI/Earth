@@ -181,7 +181,7 @@
     "outputKeyword": "输出字段",
     "debug": "调试",
     "debugRun": "运行",
-    "mergeRun": "合并",
+    "mergeRun": "保存",
     "debugParama": "请求参数",
     "text": "文本",
     "images": "多张图片",

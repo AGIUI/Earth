@@ -105,10 +105,31 @@ const debugRun = (id: string, prompt: any, combo: any, debug: any, onChange: any
   debug.callback(controlEvent)
 }
 
-const mergeRun = (id: string, prompt: any, merge: any) => {
-  const controlEvent: any = parsePrompt2ControlEvent(id, prompt)
-  // console.log('mergeRun', controlEvent)
-  merge.callback(controlEvent)
+const mergeRun = (id: string, prompt: any, onChange: any, callback: any) => {
+
+  let merged, success = false;
+  try {
+    merged = JSON.parse(prompt.debugInput);
+    success = true;
+  } catch (error) {
+
+  }
+
+  let data: any = {
+    merged
+  }
+
+  onChange(
+    {
+      id,
+      data
+    }
+  )
+
+  callback({
+    success, data
+  })
+
 }
 
 
@@ -194,13 +215,9 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
       // role节点赋予全部节点的role字段
       const rolePrompt = items.filter((item: any) => item.type == 'role')[0];
 
-      // let merged: any = null;
-      // try {
-      //   merged = JSON.parse(rolePrompt.debugInput)
-      //   merged = merged.filter((m: any) => m.role === 'system')
-      // } catch (error) {
-
-      // }
+      if (rolePrompt) {
+        rolePrompt.role.merged = rolePrompt.merged?.filter((m: any) => m.role === 'system')
+      }
 
       // 按照combo的格式输出
       const combo: any = {
@@ -214,15 +231,6 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
       };
 
       for (let index = 0; index < items.length; index++) {
-
-        let merged: any = null;
-
-        try {
-          merged = JSON.parse(items[index].debugInput)
-        } catch (error) {
-
-        }
-
 
         const prompt = {
           id: items[index].id,
@@ -241,7 +249,7 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
           translate: items[index].translate,
           output: items[index].output,
           type: items[index].type,
-          merged,
+          merged: items[index].merged,
           // 用来调试
           _debugOutput: items[index].debugOutput
         }
@@ -377,10 +385,10 @@ const useStore = create<RFState>((set, get) => ({
 
       if (debug && debug.open && debug.callback) nd.data['debug'] = (prompt: any) => {
         get().exportData().then((combo: any) => {
-          debugRun(nd.id, prompt, combo, debug, get().debugStatus)
+          debugRun(nd.id, prompt, combo, debug, nd.data.onChange)
         });
       }
-      if (merge && merge.callback) nd.data['merge'] = (prompt: any) => mergeRun(nd.id, prompt, merge);
+      if (merge && merge.callback) nd.data['merge'] = (prompt: any) => mergeRun(nd.id, prompt, nd.data.onChange, merge.callback);
 
       return nd
     })];
@@ -462,11 +470,11 @@ const useStore = create<RFState>((set, get) => ({
 
     if (debug && debug.open && debug.callback) newNode.data['debug'] = (prompt: any) => {
       get().exportData().then((combo: any) => {
-        debugRun(newNode.id, prompt, combo, debug, get().debugStatus)
+        debugRun(newNode.id, prompt, combo, debug, newNode.data.onChange)
       });
     }
 
-    if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, merge);
+    if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, newNode.data.onChange, merge.callback);
 
 
     set({
@@ -526,11 +534,11 @@ const useStore = create<RFState>((set, get) => ({
 
     if (debug && debug.open && debug.callback) newNode.data['debug'] = (prompt: any) => {
       get().exportData().then((combo: any) => {
-        debugRun(newNode.id, prompt, combo, debug, get().debugStatus)
+        debugRun(newNode.id, prompt, combo, debug, newNode.data.onChange)
       });
     }
 
-    if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, merge);
+    if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, newNode.data.onChange, merge.callback);
 
 
     // console.log('addChildNode', parentNode)

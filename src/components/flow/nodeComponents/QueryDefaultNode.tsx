@@ -64,8 +64,10 @@ const createUI = (json: any, delay: number, delayFormat: string, onChange: any) 
 
 function Main({ id, data, selected }: any) {
   i18nInit();
-  const { debugMenu, contextMenus } = getI18n();
-  const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
+    const { debugMenu, contextMenus } = getI18n();
+    const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
+    const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
+    const [shouldRefresh, setShouldRefresh] = React.useState(false)
 
   // queryObj
   // data.queryObj.isQuery = type === "query";
@@ -110,16 +112,23 @@ function Main({ id, data, selected }: any) {
 
 
   const createNode = () => {
+
+    if (shouldRefresh && data.debugInput != debugInput) {
+      setDebugInput(data.debugInput);
+    }
+
     // console.log(delay, delayFormat)
     const node = [createUI(queryObj, delay, delayFormat, updateData)];
 
     node.push(
       createDebug(debugMenu, id,
-        data.debugInput || (data.merged ? JSON.stringify(data.merged,null,2) : ""),
+        debugInput,
         data.debugOutput,
         (event: any) => {
           if (event.key == 'input') {
+            setShouldRefresh(false)
             const { data } = event;
+            setDebugInput(data)
             let json: any;
             try {
               json = JSON.parse(data);
@@ -130,14 +139,16 @@ function Main({ id, data, selected }: any) {
             updateData({
               key: 'debug',
               data: {
-                merged: json?.prompt,
                 debugInput: data
               }
             })
           };
           if (event.key == 'draggable') updateData(event)
         },
-        () => data.debug && data.debug(data),
+        () => {
+          data.debug && data.debug(data)
+          setShouldRefresh(true)
+        },
         () => data.merge && data.merge(data),
         {
           statusInput: statusInputForDebug,

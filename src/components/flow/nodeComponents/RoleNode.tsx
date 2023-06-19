@@ -15,6 +15,8 @@ function Main({ id, data, selected }: any) {
     i18nInit();
     const { debugMenu, contextMenus } = getI18n();
     const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
+    const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
+    const [shouldRefresh, setShouldRefresh] = React.useState(false)
 
     // text
     const [role, setRole] = React.useState(data.role);
@@ -54,7 +56,10 @@ function Main({ id, data, selected }: any) {
         //     })
         // };
 
-
+      
+        if (shouldRefresh&&data.debugInput!=debugInput) {
+            setDebugInput(data.debugInput);
+        }
 
         return <Card
             key={id}
@@ -69,11 +74,13 @@ function Main({ id, data, selected }: any) {
 
             {
                 createDebug(debugMenu, id,
-                    data.debugInput || (data.merged ? JSON.stringify(data.merged,null,2) : ""),
+                    debugInput,
                     data.debugOutput,
                     (event: any) => {
                         if (event.key == 'input') {
+                            setShouldRefresh(false)
                             const { data } = event;
+                            setDebugInput(data)
                             let json: any;
                             try {
                                 json = JSON.parse(data);
@@ -84,14 +91,16 @@ function Main({ id, data, selected }: any) {
                             updateData({
                                 key: 'debug',
                                 data: {
-                                    merged: json?.prompt,
                                     debugInput: data
                                 }
                             })
                         };
                         if (event.key == 'draggable') updateData(event)
                     },
-                    () => data.debug && data.debug(data),
+                    () => {
+                        data.debug && data.debug(data)
+                        setShouldRefresh(true)
+                    },
                     () => data.merge && data.merge(data),
                     {
                         statusInput: statusInputForDebug,

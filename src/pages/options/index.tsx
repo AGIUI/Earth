@@ -147,7 +147,8 @@ function options() {
         debugData.onChange({
           id: debugData.id,
           data: {
-            debugInput: JSON.stringify(data.prompt, null, 2)
+            debugInput: JSON.stringify(data.prompt, null, 2),
+            // merged: data.prompt
           }
         })
       }
@@ -195,12 +196,15 @@ function options() {
           callback: (event: any) => {
             // sendMessageCanRetry('open-chatbot-panel', {}, console.log)
             console.log('merge-callback-for-parent', event)
-            sendMessageCanRetry('open-chatbot-panel', {}, console.log)
-            // 修复flow重新新建的bug
-            setIsNew(false)
-            if (event) setTimeout(() => {
-              setDebugData(event)
-            }, 100)
+            if (event && event.success) {
+              if (exportDataToEarth) {
+                exportDataToEarth().then((combo: any) => {
+                  saveCombos([combo])
+                  // message.info('已更新')
+                })
+              }
+
+            }
 
           }
         }

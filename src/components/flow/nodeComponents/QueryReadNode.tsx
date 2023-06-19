@@ -33,7 +33,7 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
         }
 
         onChange({
-          key:"query",
+          key: "query",
           data
         })
       })
@@ -57,7 +57,7 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
           }
 
           onChange({
-            key:"query",
+            key: "query",
             data
           })
         }
@@ -74,6 +74,8 @@ function QueryReadNode({ id, data, selected }: any) {
   i18nInit();
   const { debugMenu, contextMenus } = getI18n();
   const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
+  const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
+  const [shouldRefresh, setShouldRefresh] = React.useState(false)
 
   const [queryObj, setQueryObj] = React.useState(data.queryObj)
   const updateData = (e: any) => {
@@ -87,17 +89,24 @@ function QueryReadNode({ id, data, selected }: any) {
   }
 
   const createNode = () => {
+
+    if (shouldRefresh && data.debugInput != debugInput) {
+      setDebugInput(data.debugInput);
+    }
+
     const node = [
       createUrl(i18n.t('content'), i18n.t('selectQuery'), i18n.t('queryReadPlaceholder'), queryObj, updateData)
     ];
 
     node.push(
       createDebug(debugMenu, id,
-        data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : ""),
+        debugInput,
         data.debugOutput,
         (event: any) => {
           if (event.key == 'input') {
+            setShouldRefresh(false)
             const { data } = event;
+            setDebugInput(data)
             let json: any;
             try {
               json = JSON.parse(data);
@@ -108,14 +117,16 @@ function QueryReadNode({ id, data, selected }: any) {
             updateData({
               key: 'debug',
               data: {
-                merged: json?.prompt,
                 debugInput: data
               }
             })
           };
           if (event.key == 'draggable') updateData(event)
         },
-        () => data.debug && data.debug(data),
+        () => {
+          data.debug && data.debug(data)
+          setShouldRefresh(true)
+        },
         () => data.merge && data.merge(data),
         {
           statusInput: statusInputForDebug,

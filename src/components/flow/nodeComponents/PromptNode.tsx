@@ -13,6 +13,8 @@ function Main({ id, data, selected }: any) {
   i18nInit();
   const { debugMenu, contextMenus } = getI18n();
   const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
+  const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
+  const [shouldRefresh, setShouldRefresh] = React.useState(false)
 
   // 模型
   const models = data.opts.models;
@@ -96,6 +98,11 @@ function Main({ id, data, selected }: any) {
     // console.log('selectNodeValue',selectNodeValue,nodeInputId,nodeOpts[0],data)
     // setNodeInputId(selectNodeValue)
 
+    if (shouldRefresh&&data.debugInput!=debugInput) {
+      setDebugInput(data.debugInput);
+  }
+
+
     node.push(
       createText('text', i18n.t('userInput'), '', text, '', updateData)
     )
@@ -112,33 +119,37 @@ function Main({ id, data, selected }: any) {
     node.push(createOutput(i18n.t('outputText'), 'output', output, outputs, updateData))
 
     node.push(createDebug(debugMenu, id,
-      data.debugInput || (data.merged ? JSON.stringify(data.merged) : ""),
+      debugInput,
       data.debugOutput,
       (event: any) => {
-        if (event.key == 'input') {
-          const { data } = event;
-          let json: any;
-          try {
-            json = JSON.parse(data);
-            setStatusInputForDebug('')
-          } catch (error) {
-            setStatusInputForDebug('error')
-          }
-          updateData({
-            key: 'debug',
-            data: {
-              merged: json?.prompt,
-              debugInput: data
-            }
-          })
-        };
-        if (event.key == 'draggable') updateData(event)
+          if (event.key == 'input') {
+              setShouldRefresh(false)
+              const { data } = event;
+              setDebugInput(data)
+              let json: any;
+              try {
+                  json = JSON.parse(data);
+                  setStatusInputForDebug('')
+              } catch (error) {
+                  setStatusInputForDebug('error')
+              }
+              updateData({
+                  key: 'debug',
+                  data: {
+                      debugInput: data
+                  }
+              })
+          };
+          if (event.key == 'draggable') updateData(event)
       },
-      () => data.debug && data.debug(data),
+      () => {
+          data.debug && data.debug(data)
+          setShouldRefresh(true)
+      },
       () => data.merge && data.merge(data),
       {
-        statusInput: statusInputForDebug,
-        statusOutput: ""
+          statusInput: statusInputForDebug,
+          statusOutput: ""
       }))
 
     return <Card

@@ -1,8 +1,9 @@
 import * as React from "react";
-import { Card, Button, Input, Collapse, Radio, message } from 'antd';
+import { Card, Button, Input, Collapse, Radio, message, Select } from 'antd';
 import { PlusOutlined, SendOutlined, BranchesOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Panel } = Collapse;
+const { Option } = Select
 
 import i18n from 'i18next';
 
@@ -58,6 +59,7 @@ type StateType = {
     input: any;
     output: any;
     agent: any;
+    role: any;
     chatBotType: string;
     chatBotStyle: any;
     debug: boolean
@@ -92,7 +94,9 @@ class ChatBotInput extends React.Component {
 
         const input: any = ChatBotConfig.getInput(),
             output: any = ChatBotConfig.getOutput(),
-            agent: any = [...ChatBotConfig.getAgentOpts(), ...ChatBotConfig.getTranslate()];
+            agent: any = [...ChatBotConfig.getAgentOpts(), ...ChatBotConfig.getTranslate()],
+            role: any = [];
+
 
 
         let config = this.props.config.filter((c: any) => c.checked)[0];
@@ -113,11 +117,16 @@ class ChatBotInput extends React.Component {
             output,
             // agent
             agent,
+            role,
             chatBotType: config.type,
             chatBotStyle: config.style,
 
             debug: this.props.debug
         }
+
+        ChatBotConfig.getRoleOpts().then((role: any) => this.setState({
+            role
+        }))
 
     }
 
@@ -385,12 +394,46 @@ class ChatBotInput extends React.Component {
                                     buttonStyle="solid"
                                     size="small"
                                 /></div>
+                            <div style={flexStyle}>
+                                <p>{i18n.t('model')}</p>
+                                <ChatBotSelect
+                                    callback={(res: any) => this._changeChatbot(res)}
+                                    isLoading={this.state.isLoading}
+                                    config={this.props.config}
+                                    name={''} /></div>
 
-                            <ChatBotSelect
-                                callback={(res: any) => this._changeChatbot(res)}
-                                isLoading={this.state.isLoading}
-                                config={this.props.config}
-                                name={''} />
+                            <div style={flexStyle}>
+                                <p>{i18n.t('role')}</p>
+                                <Select
+                                    disabled={this.state.isLoading}
+                                    style={{ width: 'fit-content', zIndex: 999999 }}
+                                    bordered={false}
+                                    value={''}
+                                    onChange={(e) => { 
+                                        console.log(e);
+                                        // const role=Array.from(this.state.role,r=>{
+                                        //     if(r){
+                                        //         r.checked=true
+                                        //     }
+                                        //     return r
+                                        // })
+                                        // this.setState({
+                                        //     role:
+                                        // })
+                                    }}>
+                                    {
+                                        Array.from(this.state.role, (t: any) =>
+                                            <Option value={t.value}>
+                                                <img style={{
+                                                    width: '26px', height: '26px'
+                                                }} src={t.icon}
+                                                    alt={`${t.name} logo`} />
+                                            </Option>
+                                        )
+                                    }
+                                </Select>
+                                <p>{'NAME'}</p>
+                            </div>
 
                         </Panel>
                     </Collapse>
