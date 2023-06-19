@@ -146,34 +146,47 @@ function Main({ id, data, selected }: any) {
         debugInput,
         data.debugOutput,
         (event: any) => {
-          if (event.key == 'input') {
-            setShouldRefresh(false)
-            const { data } = event;
-            setDebugInput(data)
-            let json: any;
-            try {
-              json = JSON.parse(data);
-              setStatusInputForDebug('')
-            } catch (error) {
-              setStatusInputForDebug('error')
-            }
-            updateData({
-              key: 'debug',
-              data: {
-                debugInput: data
-              }
-            })
-          };
-          if (event.key == 'draggable') updateData(event)
+            if (event.key == 'input') {
+                setShouldRefresh(false)
+                const { data } = event;
+                setDebugInput(data)
+                let json: any;
+                try {
+                    json = JSON.parse(data);
+                    setStatusInputForDebug('')
+                } catch (error) {
+                    setStatusInputForDebug('error')
+                }
+                updateData({
+                    key: 'debug',
+                    data: {
+                        debugInput: data
+                    }
+                })
+            };
+            if (event.key == 'draggable') updateData(event)
         },
-        () => {
-          data.debug && data.debug(data)
-          setShouldRefresh(true)
+        (mergedStr: string) => {
+            let merged;
+            try {
+                merged = JSON.parse(mergedStr)
+            } catch (error) {
+
+            }
+            console.log('debugFun', mergedStr, merged)
+            if (merged) {
+                data.merged = merged;
+                data.role.merged = merged.filter((f: any) => f.role == 'system');
+                setShouldRefresh(false)
+            } else {
+                setShouldRefresh(true)
+            }
+            data.debug && data.debug(data)
         },
         () => data.merge && data.merge(data),
         {
-          statusInput: statusInputForDebug,
-          statusOutput: ""
+            statusInput: statusInputForDebug,
+            statusOutput: ""
         })
     )
 

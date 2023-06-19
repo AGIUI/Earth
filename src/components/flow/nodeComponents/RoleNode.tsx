@@ -56,8 +56,8 @@ function Main({ id, data, selected }: any) {
         //     })
         // };
 
-      
-        if (shouldRefresh&&data.debugInput!=debugInput) {
+
+        if (shouldRefresh && data.debugInput != debugInput) {
             setDebugInput(data.debugInput);
         }
 
@@ -97,9 +97,22 @@ function Main({ id, data, selected }: any) {
                         };
                         if (event.key == 'draggable') updateData(event)
                     },
-                    () => {
+                    (mergedStr: string) => {
+                        let merged;
+                        try {
+                            merged = JSON.parse(mergedStr)
+                        } catch (error) {
+
+                        }
+                        console.log('debugFun', mergedStr, merged)
+                        if (merged) {
+                            data.merged = merged;
+                            data.role.merged = merged.filter((f: any) => f.role == 'system');
+                            setShouldRefresh(false)
+                        } else {
+                            setShouldRefresh(true)
+                        }
                         data.debug && data.debug(data)
-                        setShouldRefresh(true)
                     },
                     () => data.merge && data.merge(data),
                     {

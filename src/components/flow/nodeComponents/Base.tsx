@@ -300,39 +300,55 @@ export const createDebug = (
 
     // console.log('createDebug:::', input)
 
-    return <Collapse bordered={false}
-        size="small"
-        expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-        style={{ background: '#eee', marginTop: '32px' }}
-    >
+    return <>
+
         <p style={{
             textOverflow: 'ellipsis',
             overflow: 'hidden',
-            padding: '0px 18px',
+            padding: '0px',
             paddingTop: '12px',
             margin: 0
-        }}>ID: {id}</p>
-        <Panel header={header} key="1">
+        }}>ID: {id} </p>
 
-            {
-                input && createText('input', inputText, inputTextPlaceholder, input, statusInput, onChange)
-            }
-            {
-                output && createText('output', outputText, outputTextPlaceholder, output, statusOutput || '-', onChange)
-            }
+        {debugFun ? <Button onClick={(e) => {
+            debugFun()
+        }}
+            style={{
+                margin: '8px',
+                marginLeft: 0
+            }}
+        >{debugRun}</Button> : ''}
 
-            <Divider dashed />
-            {debugFun ? <Button onClick={(e) => {
-                debugFun(input)
+        <Collapse bordered={false}
+            size="small"
+            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+            style={{ background: '#eee', marginTop: '14px' }}
+        >
+            <Panel header={header} key="1">
 
-            }} >{debugRun}</Button> : ''}
-            {mergeFun ? <Button onClick={(e) => mergeFun()}
-                style={{
-                    marginLeft: '12px'
-                }}
-            >{mergeRun}</Button> : ''}
-        </Panel>
-    </Collapse>
+                {
+                    input && createText('input', inputText, inputTextPlaceholder, input, statusInput, onChange)
+                }
+                {/* {
+                    output && createText('output', outputText, outputTextPlaceholder, output, statusOutput || '-', onChange)
+                } */}
+
+                <Divider dashed />
+
+                {mergeFun ? <Button onClick={(e) => mergeFun()}
+                    style={{
+                        marginLeft: '0px'
+                    }}
+                >{mergeRun}</Button> : ''}
+
+                {debugRun ? <Button onClick={(e) => debugFun(input)}
+                    style={{
+                        marginLeft: '12px'
+                    }}
+                >{debugRun}</Button> : ''}
+
+            </Panel>
+        </Collapse></>
 }
 
 export const createModel = (model: string, temperature: number, opts: any, onChange: any) => <>
@@ -441,7 +457,7 @@ export const nodeStyle = {
 
 export const getI18n = () => {
     const debugMenu = {
-        header: i18n.t('debug'),
+        header: i18n.t('modify'),
         inputText: i18n.t('inputText'),
         inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
         outputText: i18n.t('outputText'),
