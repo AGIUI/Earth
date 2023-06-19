@@ -7,7 +7,7 @@ function addHighlight(dom: any) {
 
 async function inputByQueryBase(query: string, text: string) {
     const inp: any = document.querySelector(query);
-    if (inp) {
+    if (inp&&text) {
         inp.innerText = text;
         inp.value = text;
         inp.focus()
