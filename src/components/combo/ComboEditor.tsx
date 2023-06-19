@@ -338,6 +338,10 @@ class ComboEditor extends React.Component {
                                                 p.combo > 1 ? (
                                                     <Tag style={{ marginLeft: 10 }}>Combo</Tag>) : null
                                             }
+                                            {
+                                                p.interfaces.includes('role') ? (
+                                                    <Tag style={{ marginLeft: 10 }}>Role</Tag>) : null
+                                            }
                                         </Text>
                                     </List.Item>
                                 )

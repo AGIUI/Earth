@@ -167,6 +167,8 @@ function Main({ id, data, selected }: any) {
                             data.role.merged = merged.filter((f: any) => f.role == 'system');
                             setShouldRefresh(false)
                         } else {
+                            data.merged = null;
+                            data.role.merged = null;
                             setShouldRefresh(true)
                         }
                         data.debug && data.debug(data)
