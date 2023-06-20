@@ -107,11 +107,11 @@ function Main({ id, data, selected }: any) {
                         console.log('debugFun', mergedStr, merged)
                         if (merged) {
                             data.merged = merged;
-                            data.role.merged = merged.filter((f: any) => f.role == 'system');
+                            if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
                             setShouldRefresh(false)
                         } else {
                             data.merged = null;
-                            data.role.merged = null;
+                            if (data.role) data.role.merged = null;
                             setShouldRefresh(true)
                         }
                         data.debug && data.debug(data)
@@ -129,15 +129,15 @@ function Main({ id, data, selected }: any) {
 
     return (
         <Dropdown menu={{
-            items: contextMenus.filter((c:any)=>c.key!=='delete'),
-            onClick: (e: any) => { 
+            items: contextMenus.filter((c: any) => c.key !== 'delete'),
+            onClick: (e: any) => {
                 if (e.key == 'debug' && data.debug) {
-                  data.debug(data)
+                    data.debug(data)
                 };
-                if(e.key=='delete'){
-                  data.delete(id)
+                if (e.key == 'delete') {
+                    data.delete(id)
                 }
-              }
+            }
         }}
             trigger={['contextMenu']}
         >

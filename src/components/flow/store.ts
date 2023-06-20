@@ -86,7 +86,7 @@ const debugRun = (id: string, prompt: any, combo: any, debug: any, onChange: any
   // 用于调试
   prompt._nodeInputTalk = lastTalk;
 
-  console.log('debug combo', combo)
+  console.log('debug combo', combo,prompt)
 
   for (let i = 0; i < combo.combo; i++) {
     const prompt2 = combo[`prompt${i > 0 ? (i + 1) : ''}`];
@@ -94,6 +94,9 @@ const debugRun = (id: string, prompt: any, combo: any, debug: any, onChange: any
       prompt.role = prompt2.role;
       // merged去掉
       // delete prompt.role.merged
+    }
+    if (prompt2.id == id ) {
+      prompt.merged=prompt2.merged
     }
   }
 

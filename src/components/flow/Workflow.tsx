@@ -347,7 +347,7 @@ const _DEFAULTCOMBO = (app: string, version: string) => ({
 })
 
 const debugInfo = (prompt: any) => {
-    // console.log('debugInfo', prompt)
+    console.log('debugInfo', prompt)
     let info = '', merged;
     if (prompt.type == 'role') {
         info = `${prompt.role.name ? `<p>${prompt.role.name}</p><br>` : ''}<p>${prompt.role.text}</p>`;
