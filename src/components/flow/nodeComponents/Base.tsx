@@ -281,7 +281,7 @@ export const createText = (key: string, header: string, placeholder: string, val
             status={status}
             rows={4}
             autoSize={{ minRows: 2, maxRows: 10 }}
-            defaultValue={value}
+            // defaultValue={text}
             value={text}
             placeholder={placeholder}
             disabled={!onChange}
@@ -335,15 +335,6 @@ export const createDebug = (
         {/*    margin: 0*/}
         {/*}}>ID: {id} </p>*/}
 
-        {/*{debugFun ? <Button onClick={(e) => {*/}
-        {/*    debugFun()*/}
-        {/*}}*/}
-        {/*    style={{*/}
-        {/*        margin: '8px',*/}
-        {/*        marginLeft: 0*/}
-        {/*    }}*/}
-        {/*>{debugRun}</Button> : ''}*/}
-
 
         <Collapse bordered={false}
             size="small"
@@ -353,7 +344,7 @@ export const createDebug = (
             <Panel header={header} key="1">
 
                 {
-                    input && createText('input', inputText, inputTextPlaceholder, input, statusInput, onChange)
+                    createText('input', inputText, inputTextPlaceholder, input||'', statusInput, onChange)
                 }
                 {/* {
                     output && createText('output', outputText, outputTextPlaceholder, output, statusOutput || '-', onChange)
@@ -361,17 +352,26 @@ export const createDebug = (
 
                 <Divider dashed />
 
+                {debugFun ? <Button onClick={(e) => {
+                    debugFun()
+                }}
+                    style={{
+                        margin: '8px',
+                        marginLeft: 0
+                    }}
+                >{debugRun}</Button> : ''}
+
                 {mergeFun ? <Button onClick={(e) => mergeFun()}
                     style={{
                         marginLeft: '0px'
                     }}
                 >{mergeRun}</Button> : ''}
 
-                {debugRun ? <Button onClick={(e) => debugFun(input)}
+                {/* {debugRun ? <Button onClick={(e) => debugFun(input)}
                     style={{
                         marginLeft: '12px'
                     }}
-                >{debugRun}</Button> : ''}
+                >{debugRun}</Button> : ''} */}
 
             </Panel>
         </Collapse></>
@@ -483,7 +483,7 @@ export const nodeStyle = {
 
 export const getI18n = () => {
     const debugMenu = {
-        header: i18n.t('modify'),
+        header: i18n.t('debug'),
         inputText: i18n.t('inputText'),
         inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
         outputText: i18n.t('outputText'),
@@ -498,8 +498,8 @@ export const getI18n = () => {
             key: 'debug',
         },
         {
-            label:i18n.t("delete"),
-            key:"delete"
+            label: i18n.t("delete"),
+            key: "delete"
         }
     ];
     return { debugMenu, contextMenus }
