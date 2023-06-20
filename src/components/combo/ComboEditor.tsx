@@ -18,6 +18,7 @@ import { _DEFAULTCOMBO } from '@components/flow/Workflow'
 import DownloadButton from '@components/buttons/DownloadButton';
 import { FlexRow } from "@components/Style";
 import OpenFileButton from "@components/buttons/OpenFileButton";
+import config from "src/config/app.json";
 
 import styled from 'styled-components';
 import CloseButton from "@components/buttons/CloseButton";
@@ -167,8 +168,12 @@ class ComboEditor extends React.Component {
         //encodeURIComponent解决中文乱码
         link.href = `data:application/json;charset=utf-8,\ufeff${encodeURIComponent(JSON.stringify(data))}`
 
+        const filename = Date.now();
+
         //下载文件命名
-        link.download = `${name}_${id}`
+        //link.download = `${name}_${id}`
+        link.download = `${config.app}_${filename}`
+
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link);
@@ -229,7 +234,7 @@ class ComboEditor extends React.Component {
     render() {
         return (<Base>
             <Card
-                title={'Combo'}
+                title={i18n.t('workflow')}
                 bordered={true}
                 headStyle={{
                     userSelect: 'none',
@@ -242,6 +247,7 @@ class ComboEditor extends React.Component {
                     // flex: 1,
                     height: 'calc(100% - 80px)',
                     paddingTop: 0,
+                    overflowY: 'auto',
                 }}
 
                 extra={<div>
@@ -286,7 +292,9 @@ class ComboEditor extends React.Component {
                     </FlexRow>
 
                     {this.state.myPrompts.filter((p: any) => p.owner !== 'official').length > 0 ? (
-                        <List>
+                        <List
+                            style={{paddingBottom:40}}
+                        >
                             {this.state.myPrompts.filter((p: any) => p.owner !== 'official').map((p: any, i: number) => {
                                 return (
                                     <List.Item
@@ -334,6 +342,8 @@ class ComboEditor extends React.Component {
                                     >
                                         <Text style={{ fontWeight: 'bold', color: "black" }}>
                                             {p.tag}
+
+
                                             {
                                                 p.combo > 1 ? (
                                                     <Tag style={{ marginLeft: 10 }}>Combo</Tag>) : null
@@ -342,6 +352,7 @@ class ComboEditor extends React.Component {
                                                 p.interfaces.includes('role') ? (
                                                     <Tag style={{ marginLeft: 10 }}>Role</Tag>) : null
                                             }
+
                                         </Text>
                                     </List.Item>
                                 )

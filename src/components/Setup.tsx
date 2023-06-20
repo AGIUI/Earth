@@ -227,6 +227,7 @@ class Setup extends React.Component<{
         chrome.storage.sync.get().then(res => {
             if (res.chatBotAvailables) {
                 // 判断 c.available.success == false or true
+                console.log('_updateChatBotAvailables',res)
                 // UnauthorizedRequest
                 // Forbidden
                 // ChatGPT API key not set
@@ -423,7 +424,7 @@ class Setup extends React.Component<{
                             return (
                                 <Space direction={"horizontal"} size={0} style={{ marginBottom: 0 }}>
                                     <Tag color={"#cd201f"}>{i18n.t('environmentException')}</Tag>
-                                    <Popover zIndex={99999999} content={
+                                    <Popover zIndex={999999999999999999} content={
                                         <div>{this.state.status['Bing']}</div>
                                     } title={i18n.t('detail')}>
                                         <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
@@ -450,9 +451,11 @@ class Setup extends React.Component<{
                         } else {
                             return <Space direction={"horizontal"} size={0}>
                                 <Tag color={"#cd201f"}>{this.state.isChange ? i18n.t('toUpdate') : i18n.t('unavailable')}</Tag>
-                                <Popover zIndex={99999999} content={
+                                <Popover zIndex={999999999999999999} content={
                                     <div>{this.state.status['ChatGPT']}</div>
-                                } title={i18n.t('detail')}>
+                                } title={
+                                    i18n.t('detail')
+                                }>
                                     <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
                                 </Popover>
                             </Space>

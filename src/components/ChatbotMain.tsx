@@ -1464,6 +1464,7 @@ class Main extends React.Component<{
                     merged: prompt.merged,
                     _nodeInputTalk: prompt._nodeInputTalk
                 }
+
                 promptJson = { ...promptJson, ...bindUserInput(prompt.text) };
 
                 // role的处理

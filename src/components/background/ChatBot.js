@@ -81,7 +81,7 @@ class ChatBotBackground {
         let res = []
         for (const n of this.getList()['list']) {
             let a = await this.getAvailable(n)
-                // console.log('getAvailables', a)
+            console.log('getAvailables', a)
             res.push(a)
         }
         res = res.filter(r => r && r.type)

@@ -1,5 +1,5 @@
 [{
-        "tag": "正文总结",
+        "tag": "textSummary",
         "role": {},
         "combo": 2,
         "interfaces": [
@@ -50,7 +50,7 @@
         }
     },
     {
-        "tag": "重点知识介绍",
+        "tag": "keyKnowledgeIntro",
         "role": {
             "name": "",
             "text": ""

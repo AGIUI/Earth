@@ -128,8 +128,8 @@
     "introduceMore": "Introduce More",
     "contentExpansion": "Content Expansion",
     "translateChinese": "Translate into English",
-    "abbreviations": "Abbreviations",
-    "rewriteContent": "Rewrite Content",
+    "abbreviations": "Content Abbreviations",
+    "rewriteContent": "Content Rewrite",
 
     "openPanel": "Open Panel",
     "commonFeatures": "Common Features",
@@ -141,7 +141,6 @@
     "edit": "Edit",
     "run": "Run",
     "debugAll": "Debug",
-
 
     "findCoreInfoAndQueryLinks": "### Relevant Tasks ###\nHelp me find the core information in the related content and provide links to relevant encyclopedic introductions and related news. Please use the following format for output:\n<Encyclopedia>\nxxxx\n<Related News>\n1.xxxx\n2.xxxx",
     "translateToUnderstandableLanguage": "### Relevant Tasks ###\nHelp me translate the related content into English.",

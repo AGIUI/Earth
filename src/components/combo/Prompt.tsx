@@ -558,10 +558,13 @@ const promptBindRole = (userInput: string, role: any) => {
     };
 
 
-    if (role.merged&&role.merged.length>0) {
+
+    if (role.merged && role.merged.length > 0) {
         let system = role.merged.filter((m: any) => m.role == 'system')[0];
-        system.content = cropText(system.content)
-        prompt.role.merged = [system]
+        if (system && system.content) {
+            system.content = cropText(system.content)
+            prompt.role.merged = [system]
+        }
     }
 
     return prompt
