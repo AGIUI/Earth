@@ -647,7 +647,7 @@ class Main extends React.Component<{
 
         userSelectionInit();
 
-
+        // 角色加载
         ChatBotConfig.getRoleOpts().then((roles: any) => {
             let models = ChatBotConfig.get()
             // console.log([...roles, ...models])
