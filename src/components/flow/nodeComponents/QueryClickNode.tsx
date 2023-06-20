@@ -121,7 +121,14 @@ function Main({ id, data, selected }: any) {
 
     return <Card
       key={id}
-      title={i18n.t("queryClickNodeTitle")}
+      title={
+          <>
+              <p style={{ marginBottom: 0 }}>{i18n.t('queryClickNodeTitle')}</p>
+              <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0 ,fontWeight:"normal",marginBottom:10 }}>
+                  ID: {id}
+              </p>
+          </>
+      }
       bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}

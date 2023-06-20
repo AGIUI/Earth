@@ -21,29 +21,51 @@ export const createName = (title: string, name: string, onChange: any) =>
             })
         }} />
 
-export const createURL = (urlTitle: string, urlPlaceholder: string, protocol: string, url: string, onChange: any) => <>
-    <p>{urlTitle}</p>
-    <Input addonBefore={
-        <Select defaultValue={protocol} onChange={(e: string) => {
-            onChange({
-                key: 'protocol',
-                data: e
-            })
-        }}>
-            <Option value="http://">http://</Option>
-            <Option value="https://">https://</Option>
-        </Select>
+export const createURL = (urlTitle: string, urlPlaceholder: string, protocol: string, url: string, onChange: any) => {
+    const handleUrlChange = (e: any) => {
+        let value = e.target.value;
+        if (value.startsWith("http://")) {
+            value = value.substr(7);
+        } else if (value.startsWith("https://")) {
+            value = value.substr(8);
+        }
+        onChange({
+            key: 'url',
+            data: value
+        });
+    };
+
+    let displayedUrl = url;
+    if (displayedUrl.startsWith("http://")) {
+        displayedUrl = displayedUrl.substr(7);
+    } else if (displayedUrl.startsWith("https://")) {
+        displayedUrl = displayedUrl.substr(8);
     }
-        placeholder={urlPlaceholder}
-        defaultValue={url}
-        onChange={(e: any) => {
-            onChange({
-                key: 'url',
-                data: e.target.value
-            })
-        }}
-    />
-</>
+
+    return (
+        <>
+            <p>{urlTitle}</p>
+            <Input
+                addonBefore={
+                    <Select defaultValue={protocol} onChange={(e: string) => {
+                        onChange({
+                            key: 'protocol',
+                            data: e
+                        });
+                    }}>
+                        <Option value="http://">http://</Option>
+                        <Option value="https://">https://</Option>
+                    </Select>
+                }
+                placeholder={urlPlaceholder}
+                value={displayedUrl}
+                onChange={handleUrlChange}
+            />
+        </>
+    );
+};
+
+
 
 export const createSelect = (title: string, value: string, opts: any, onChange: any) => <div
 
@@ -81,6 +103,7 @@ export const createTextArea = (title: string, value: string, placeholder: string
         rows={4}
         placeholder={placeholder}
         autoSize
+        showCount={false}
         status={status}
         onChange={(e) => {
             onChange({
@@ -215,6 +238,7 @@ export const selectInput = (
                 style={{ marginTop: '8px' }}
                 value={uinp}
                 rows={4}
+                showCount={false}
                 placeholder={"input ..."}
                 autoSize={{ minRows: 2, maxRows: 10 }}
                 onChange={(e) => {
@@ -302,22 +326,22 @@ export const createDebug = (
 
     return <>
 
-        <p style={{
-            textOverflow: 'ellipsis',
-            overflow: 'hidden',
-            padding: '0px',
-            paddingTop: '12px',
-            margin: 0
-        }}>ID: {id} </p>
+        {/*<p style={{*/}
+        {/*    textOverflow: 'ellipsis',*/}
+        {/*    overflow: 'hidden',*/}
+        {/*    padding: '0px',*/}
+        {/*    paddingTop: '12px',*/}
+        {/*    margin: 0*/}
+        {/*}}>ID: {id} </p>*/}
 
-        {debugFun ? <Button onClick={(e) => {
-            debugFun()
-        }}
-            style={{
-                margin: '8px',
-                marginLeft: 0
-            }}
-        >{debugRun}</Button> : ''}
+        {/*{debugFun ? <Button onClick={(e) => {*/}
+        {/*    debugFun()*/}
+        {/*}}*/}
+        {/*    style={{*/}
+        {/*        margin: '8px',*/}
+        {/*        marginLeft: 0*/}
+        {/*    }}*/}
+        {/*>{debugRun}</Button> : ''}*/}
 
         <Collapse bordered={false}
             size="small"

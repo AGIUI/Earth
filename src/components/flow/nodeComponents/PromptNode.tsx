@@ -169,7 +169,14 @@ function Main({ id, data, selected }: any) {
 
     return <Card
       key={id}
-      title={i18n.t('promptNodeTitle')}
+      title={
+          <>
+              <p style={{ marginBottom: 0 }}>{i18n.t('promptNodeTitle')}</p>
+              <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0 ,fontWeight:"normal",marginBottom:10 }}>
+                  ID: {id}
+              </p>
+          </>
+      }
       bodyStyle={{ paddingTop: 0 }}
       // extra={createType(type, agents, updateType)}
       style={{ width: 300 }}>
