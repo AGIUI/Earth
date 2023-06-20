@@ -174,7 +174,7 @@ async function loadContextMenuData() {
         for (let i in Workflow) {
             chrome.contextMenus.create({
                 id: String(Workflow[i].id),
-                title: i18n.t(Workflow[i].tag)?i18n.t(Workflow[i].tag):Workflow[i].tag,
+                title: i18n.t(Workflow[i].tag) ? i18n.t(Workflow[i].tag) : Workflow[i].tag,
                 type: 'normal',
                 parentId: 'Workflow'
             })
@@ -185,7 +185,7 @@ async function loadContextMenuData() {
         for (let i in selectionConfig) {
             chrome.contextMenus.create({
                 id: String(selectionConfig[i].id),
-                title:  i18n.t(selectionConfig[i].tag)?i18n.t(selectionConfig[i].tag):selectionConfig[i].tag,
+                title: i18n.t(selectionConfig[i].tag) ? i18n.t(selectionConfig[i].tag) : selectionConfig[i].tag,
                 contexts: ['selection']
             })
         }
@@ -195,7 +195,7 @@ async function loadContextMenuData() {
         for (let i in editableConfig) {
             chrome.contextMenus.create({
                 id: String(editableConfig[i].id),
-                title: i18n.t(editableConfig[i].tag)?i18n.t(editableConfig[i].tag):editableConfig[i].tag,
+                title: i18n.t(editableConfig[i].tag) ? i18n.t(editableConfig[i].tag) : editableConfig[i].tag,
                 contexts: ['editable'],
             })
         }
@@ -205,7 +205,7 @@ async function loadContextMenuData() {
         for (let i in pdfConfig) {
             chrome.contextMenus.create({
                 id: String(pdfConfig[i].id),
-                title: i18n.t(pdfConfig[i].tag)?i18n.t(pdfConfig[i].tag):pdfConfig[i].tag,
+                title: i18n.t(pdfConfig[i].tag) ? i18n.t(pdfConfig[i].tag) : pdfConfig[i].tag,
                 contexts: ["all"],
                 targetUrlPatterns: ["*://*/*.pdf"]
             })
@@ -216,7 +216,7 @@ async function loadContextMenuData() {
         for (let i in linkConfig) {
             chrome.contextMenus.create({
                 id: String(linkConfig[i].id),
-                title: i18n.t(linkConfig[i].tag)?i18n.t(linkConfig[i].tag):linkConfig[i].tag,
+                title: i18n.t(linkConfig[i].tag) ? i18n.t(linkConfig[i].tag) : linkConfig[i].tag,
                 contexts: ['link'],
             })
         }
@@ -226,7 +226,7 @@ async function loadContextMenuData() {
         for (let i in imageConfig) {
             chrome.contextMenus.create({
                 id: String(imageConfig[i].id),
-                title: i18n.t(imageConfig[i].tag)?i18n.t(imageConfig[i].tag):imageConfig[i].tag,
+                title: i18n.t(imageConfig[i].tag) ? i18n.t(imageConfig[i].tag) : imageConfig[i].tag,
                 contexts: ['image'],
             })
         }
@@ -236,7 +236,7 @@ async function loadContextMenuData() {
         for (let i in videoConfig) {
             chrome.contextMenus.create({
                 id: String(videoConfig[i].id),
-                title: i18n.t(videoConfig[i].tag)?i18n.t(videoConfig[i].tag):videoConfig[i].tag,
+                title: i18n.t(videoConfig[i].tag) ? i18n.t(videoConfig[i].tag) : videoConfig[i].tag,
                 contexts: ['video'],
             })
         }
@@ -246,7 +246,7 @@ async function loadContextMenuData() {
         for (let i in audioConfig) {
             chrome.contextMenus.create({
                 id: String(audioConfig[i].id),
-                title: i18n.t(audioConfig[i].tag)?i18n.t(audioConfig[i].tag):audioConfig[i].tag,
+                title: i18n.t(audioConfig[i].tag) ? i18n.t(audioConfig[i].tag) : audioConfig[i].tag,
                 contexts: ['audio'],
             })
         }
@@ -256,7 +256,7 @@ async function loadContextMenuData() {
         for (let i in frameConfig) {
             chrome.contextMenus.create({
                 id: String(frameConfig[i].id),
-                title: i18n.t(frameConfig[i].tag)?i18n.t(frameConfig[i].tag):frameConfig[i].tag,
+                title: i18n.t(frameConfig[i].tag) ? i18n.t(frameConfig[i].tag) : frameConfig[i].tag,
                 contexts: ['frame'],
             })
         }
@@ -266,7 +266,7 @@ async function loadContextMenuData() {
         for (let i in launcherConfig) {
             chrome.contextMenus.create({
                 id: String(launcherConfig[i].id),
-                title: i18n.t(launcherConfig[i].tag)?i18n.t(launcherConfig[i].tag):launcherConfig[i].tag,
+                title: i18n.t(launcherConfig[i].tag) ? i18n.t(launcherConfig[i].tag) : launcherConfig[i].tag,
                 contexts: ['launcher'],
             })
         }
@@ -276,7 +276,7 @@ async function loadContextMenuData() {
         for (let i in browser_actionConfig) {
             chrome.contextMenus.create({
                 id: String(browser_actionConfig[i].id),
-                title: i18n.t(browser_actionConfig[i].tag)?i18n.t(browser_actionConfig[i].tag):browser_actionConfig[i].tag,
+                title: i18n.t(browser_actionConfig[i].tag) ? i18n.t(browser_actionConfig[i].tag) : browser_actionConfig[i].tag,
                 contexts: ['browser_action'],
             })
         }
@@ -286,7 +286,7 @@ async function loadContextMenuData() {
         for (let i in page_actionConfig) {
             chrome.contextMenus.create({
                 id: String(page_actionConfig[i].id),
-                title: i18n.t(page_actionConfig[i].tag)?i18n.t(page_actionConfig[i].tag):page_actionConfig[i].tag,
+                title: i18n.t(page_actionConfig[i].tag) ? i18n.t(page_actionConfig[i].tag) : page_actionConfig[i].tag,
                 contexts: ['page_action'],
             })
         }
@@ -296,7 +296,7 @@ async function loadContextMenuData() {
         for (let i in actionConfig) {
             chrome.contextMenus.create({
                 id: String(actionConfig[i].id),
-                title: i18n.t(actionConfig[i].tag)?i18n.t(actionConfig[i].tag):actionConfig[i].tag,
+                title: i18n.t(actionConfig[i].tag) ? i18n.t(actionConfig[i].tag) : actionConfig[i].tag,
                 contexts: ['action'],
             })
         }
@@ -385,13 +385,17 @@ async function loadContextMenuData() {
                     let PromptJson = Menu[i];
                     if (PromptJson.interfaces.includes("contextMenus-selection")) {
                         const context = item.selectionText;
+                        console.log("context", context);
                         if (context) {
+                            // 从用户输入获取文本 , 
+                            // 需要设置 prompt.input == "userInput"
+                            PromptJson.prompt.input = "userInput";
                             PromptJson.prompt.userInput = context;
-                            console.log("PromptJson",PromptJson.prompt.userInput);
+                            // console.log("PromptJson", PromptJson.prompt.userInput);
                             // "###相关内容###\n" + context + "\n" + PromptJson.text
                         }
                     }
-                    console.log("PromptJson",PromptJson);
+                    console.log("PromptJson", PromptJson);
 
                     chrome.tabs.sendMessage(
                         tabId, {
