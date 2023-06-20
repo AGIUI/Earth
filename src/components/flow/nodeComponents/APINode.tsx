@@ -98,7 +98,7 @@ function Main({ id, data, selected }: any) {
     if (shouldRefresh&&data.debugInput!=debugInput) {
         setDebugInput(data.debugInput);
     }
-    
+
     return (
         <Dropdown menu={{ items: contextMenus,onClick: (e: any) => { 
             if (e.key == 'debug' && data.debug) {
@@ -118,7 +118,14 @@ function Main({ id, data, selected }: any) {
 
                 <Card
                     key={id}
-                    title={i18n.t('apiNodeTitle')}
+                    title={
+                        <>
+                            <p style={{ marginBottom: 0 }}>{i18n.t('apiNodeTitle')}</p>
+                            <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0 ,fontWeight:"normal",marginBottom:10 }}>
+                                ID: {id}
+                            </p>
+                        </>
+                    }
                     bodyStyle={{ paddingTop: 0 }}
                     style={{ width: 300 }}>
                     <div
@@ -299,7 +306,7 @@ function Main({ id, data, selected }: any) {
                                 try {
                                     merged = JSON.parse(mergedStr)
                                 } catch (error) {
-        
+
                                 }
                                 console.log('debugFun', mergedStr, merged)
                                 if (merged) {
