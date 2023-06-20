@@ -191,7 +191,7 @@ function promptParse(prompt: any) {
         content: []
     };
 
-    const roleText = (prompt['role'].name ? prompt['role'].name + ',' : '') + prompt['role'].text;
+    const roleText = (prompt['role'] && prompt['role'].name ? prompt['role'].name + ',' : '') + (prompt['role'] && prompt['role'].text ? prompt['role'].text : "");
     if (roleText.trim()) {
         system.content.push({
             key: delimiter(systemKeys['role']),
@@ -416,7 +416,7 @@ const extractArticle = (query = "") => {
 
     const textContent = Array.from(divs, (d: any) => d.innerText).join('\n');
     // 当精准定位的时候
-    if(query) article.textContent = textContent;
+    if (query) article.textContent = textContent;
 
     // console.log('divs', divs, article.elements, textContent)
     const updateTitleAndTextContent = (article: any) => {
