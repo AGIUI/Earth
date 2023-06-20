@@ -21,6 +21,14 @@ async function loadContextMenuData() {
     let Menu = [];
     let pdfConfig = [];
     let linkConfig = [];
+    let imageConfig = [];
+    let videoConfig = [];
+    let audioConfig = [];
+    let frameConfig = [];
+    let launcherConfig = [];
+    let browser_actionConfig = [];
+    let page_actionConfig = [];
+    let actionConfig = [];
 
     const res = await chromeStorageGet(['user', 'official']);
     let Workflow = [];
@@ -42,6 +50,22 @@ async function loadContextMenuData() {
                 pdfConfig.push(res['user'][i])
             } else if (infs.includes('contextMenus-link')) {
                 linkConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-image')) {
+                imageConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-video')) {
+                videoConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-audio')) {
+                audioConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-frame')) {
+                frameConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-launcher')) {
+                launcherConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-browser_action')) {
+                browser_actionConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-page_action')) {
+                page_actionConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-action')) {
+                actionConfig.push(res['user'][i])
             }
 
         }
@@ -64,8 +88,23 @@ async function loadContextMenuData() {
                 pdfConfig.push(res['official'][i])
             } else if (infs.includes('contextMenus-link')) {
                 linkConfig.push(res['official'][i])
+            } else if (infs.includes('contextMenus-image')) {
+                imageConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-video')) {
+                videoConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-audio')) {
+                audioConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-frame')) {
+                frameConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-launcher')) {
+                launcherConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-browser_action')) {
+                browser_actionConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-page_action')) {
+                page_actionConfig.push(res['user'][i])
+            } else if (infs.includes('contextMenus-action')) {
+                actionConfig.push(res['user'][i])
             }
-
         }
     }
 
@@ -75,6 +114,14 @@ async function loadContextMenuData() {
     Menu.push(...Workflow);
     Menu.push(...pdfConfig);
     Menu.push(...linkConfig);
+    Menu.push(...imageConfig);
+    Menu.push(...videoConfig);
+    Menu.push(...audioConfig);
+    Menu.push(...frameConfig);
+    Menu.push(...launcherConfig);
+    Menu.push(...browser_actionConfig);
+    Menu.push(...page_actionConfig);
+    Menu.push(...actionConfig);
 
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
@@ -107,7 +154,7 @@ async function loadContextMenuData() {
         for (let i in commonsConfig) {
             chrome.contextMenus.create({
                 id: String(commonsConfig[i].id),
-                title: commonsConfig[i].tag,
+                title: i18n.t(commonsConfig[i].tag),
                 type: 'normal',
                 parentId: 'commonsConfig'
             })
@@ -127,7 +174,7 @@ async function loadContextMenuData() {
         for (let i in Workflow) {
             chrome.contextMenus.create({
                 id: String(Workflow[i].id),
-                title: Workflow[i].tag,
+                title: i18n.t(Workflow[i].tag) ? i18n.t(Workflow[i].tag) : Workflow[i].tag,
                 type: 'normal',
                 parentId: 'Workflow'
             })
@@ -138,7 +185,7 @@ async function loadContextMenuData() {
         for (let i in selectionConfig) {
             chrome.contextMenus.create({
                 id: String(selectionConfig[i].id),
-                title: selectionConfig[i].tag,
+                title: i18n.t(selectionConfig[i].tag) ? i18n.t(selectionConfig[i].tag) : selectionConfig[i].tag,
                 contexts: ['selection']
             })
         }
@@ -148,7 +195,7 @@ async function loadContextMenuData() {
         for (let i in editableConfig) {
             chrome.contextMenus.create({
                 id: String(editableConfig[i].id),
-                title: editableConfig[i].tag,
+                title: i18n.t(editableConfig[i].tag) ? i18n.t(editableConfig[i].tag) : editableConfig[i].tag,
                 contexts: ['editable'],
             })
         }
@@ -158,7 +205,7 @@ async function loadContextMenuData() {
         for (let i in pdfConfig) {
             chrome.contextMenus.create({
                 id: String(pdfConfig[i].id),
-                title: pdfConfig[i].tag,
+                title: i18n.t(pdfConfig[i].tag) ? i18n.t(pdfConfig[i].tag) : pdfConfig[i].tag,
                 contexts: ["all"],
                 targetUrlPatterns: ["*://*/*.pdf"]
             })
@@ -169,8 +216,88 @@ async function loadContextMenuData() {
         for (let i in linkConfig) {
             chrome.contextMenus.create({
                 id: String(linkConfig[i].id),
-                title: linkConfig[i].tag,
+                title: i18n.t(linkConfig[i].tag) ? i18n.t(linkConfig[i].tag) : linkConfig[i].tag,
                 contexts: ['link'],
+            })
+        }
+    }
+
+    if (imageConfig.length !== 0) {
+        for (let i in imageConfig) {
+            chrome.contextMenus.create({
+                id: String(imageConfig[i].id),
+                title: i18n.t(imageConfig[i].tag) ? i18n.t(imageConfig[i].tag) : imageConfig[i].tag,
+                contexts: ['image'],
+            })
+        }
+    }
+
+    if (videoConfig.length !== 0) {
+        for (let i in videoConfig) {
+            chrome.contextMenus.create({
+                id: String(videoConfig[i].id),
+                title: i18n.t(videoConfig[i].tag) ? i18n.t(videoConfig[i].tag) : videoConfig[i].tag,
+                contexts: ['video'],
+            })
+        }
+    }
+
+    if (audioConfig.length !== 0) {
+        for (let i in audioConfig) {
+            chrome.contextMenus.create({
+                id: String(audioConfig[i].id),
+                title: i18n.t(audioConfig[i].tag) ? i18n.t(audioConfig[i].tag) : audioConfig[i].tag,
+                contexts: ['audio'],
+            })
+        }
+    }
+
+    if (frameConfig.length !== 0) {
+        for (let i in frameConfig) {
+            chrome.contextMenus.create({
+                id: String(frameConfig[i].id),
+                title: i18n.t(frameConfig[i].tag) ? i18n.t(frameConfig[i].tag) : frameConfig[i].tag,
+                contexts: ['frame'],
+            })
+        }
+    }
+
+    if (launcherConfig.length !== 0) {
+        for (let i in launcherConfig) {
+            chrome.contextMenus.create({
+                id: String(launcherConfig[i].id),
+                title: i18n.t(launcherConfig[i].tag) ? i18n.t(launcherConfig[i].tag) : launcherConfig[i].tag,
+                contexts: ['launcher'],
+            })
+        }
+    }
+
+    if (browser_actionConfig.length !== 0) {
+        for (let i in browser_actionConfig) {
+            chrome.contextMenus.create({
+                id: String(browser_actionConfig[i].id),
+                title: i18n.t(browser_actionConfig[i].tag) ? i18n.t(browser_actionConfig[i].tag) : browser_actionConfig[i].tag,
+                contexts: ['browser_action'],
+            })
+        }
+    }
+
+    if (page_actionConfig.length !== 0) {
+        for (let i in page_actionConfig) {
+            chrome.contextMenus.create({
+                id: String(page_actionConfig[i].id),
+                title: i18n.t(page_actionConfig[i].tag) ? i18n.t(page_actionConfig[i].tag) : page_actionConfig[i].tag,
+                contexts: ['page_action'],
+            })
+        }
+    }
+
+    if (actionConfig.length !== 0) {
+        for (let i in actionConfig) {
+            chrome.contextMenus.create({
+                id: String(actionConfig[i].id),
+                title: i18n.t(actionConfig[i].tag) ? i18n.t(actionConfig[i].tag) : actionConfig[i].tag,
+                contexts: ['action'],
             })
         }
     }
@@ -256,13 +383,20 @@ async function loadContextMenuData() {
             for (let i in Menu) {
                 if (id == Menu[i].id) {
                     let PromptJson = Menu[i];
-                    if (PromptJson.input === "userSelection") {
+                    if (PromptJson.interfaces.includes("contextMenus-selection")) {
                         const context = item.selectionText;
+                        console.log("context", context);
                         if (context) {
+                            // 从用户输入获取文本 , 
+                            // 需要设置 prompt.input == "userInput"
+                            PromptJson.prompt.input = "userInput";
                             PromptJson.prompt.userInput = context;
+                            // console.log("PromptJson", PromptJson.prompt.userInput);
                             // "###相关内容###\n" + context + "\n" + PromptJson.text
                         }
                     }
+                    console.log("PromptJson", PromptJson);
+
                     chrome.tabs.sendMessage(
                         tabId, {
                             cmd: 'contextMenus',

@@ -31,17 +31,20 @@ function saveCombos(combos: any = []) {
     let newUser: any = []
     if (items && items.user) {
       newUser = [...items.user]
-    }
+    };
+    let comboCount = [];
     for (const n of combos) {
       let isNew = true;
       if (newUser.filter((u: any) => u.id == n.id).length > 0) isNew = false;
       if (isNew) {
         newUser.push(n);
+        comboCount.push(n.combo)
       } else {
         // 替换
         newUser = Array.from(newUser, (u: any) => {
           if (u.id == n.id) {
-            u = { ...n }
+            u = { ...n };
+            comboCount.push(n.combo)
           }
           return u
         })
@@ -49,7 +52,7 @@ function saveCombos(combos: any = []) {
       ;
     }
     chromeStorageSet({ 'user': newUser });
-    message.info('已保存');
+    message.info(`已保存 ${comboCount.length}_${comboCount.reduce((acc, curr) => acc + curr)}`);
     // sendMessageCanRetry('combo-editor-refresh', {}, console.log)
   });
 }
@@ -144,7 +147,8 @@ function options() {
         debugData.onChange({
           id: debugData.id,
           data: {
-            debugInput: JSON.stringify(data, null, 2)
+            debugInput: JSON.stringify(data.prompt, null, 2),
+            // merged: data.prompt
           }
         })
       }
@@ -187,6 +191,24 @@ function options() {
         },
         open: true
       }}
+      merge={
+        {
+          callback: (event: any) => {
+            // sendMessageCanRetry('open-chatbot-panel', {}, console.log)
+            console.log('merge-callback-for-parent', event)
+            if (event && event.success) {
+              if (exportDataToEarth) {
+                exportDataToEarth().then((combo: any) => {
+                  saveCombos([combo])
+                  // message.info('已更新')
+                })
+              }
+
+            }
+
+          }
+        }
+      }
       isNew={isNew}
       exportData={(e: any) => (exportDataToEarth = e)}
       saveCallback={

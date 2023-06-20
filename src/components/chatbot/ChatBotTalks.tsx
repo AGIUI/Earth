@@ -265,7 +265,7 @@ const createListItem = (data: any, index: number, debug: boolean) => {
             data.type == 'suggest' && !debug ? <>
                 {
                     data.hi ?
-                        createAvatar(data.avatarUrl || chrome.runtime.getURL('public/icon-34.png'), data.hi) : ''
+                        createAvatar(data.avatarUrl || chrome.runtime.getURL('public/icon-128.png'), data.hi) : ''
                 }
                 {
                     data.html ?

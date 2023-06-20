@@ -3,50 +3,26 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Avatar, Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider, MenuProps } from 'antd';
 import { DownOutlined, UserOutlined } from '@ant-design/icons';
 
-import { createDebug, createText } from './Base'
+import { createDebug, createText, nodeStyle, getI18n } from './Base'
 
 import i18n from "i18next";
 import { i18nInit } from '../locales/i18nConfig';
 import { roleAvatars } from '../Workflow'
 
-export type NodeData = {
-    debugInput: any;
-    debugOutput: any;
-    role: any;
-    debug: any;
-    text: string,
-    api: any,
-    queryObj: any,
-    temperature: number,
-    model: string,
-    input: string,
-    output: string,
-    type: string,
-    opts: any,
-    onChange: any
-};
 
-const nodeStyle = {
-    border: '1px solid transparent',
-    padding: '2px 5px',
-    borderRadius: '12px',
-};
-
-
-function Main({ id, data, selected }: NodeProps<NodeData>) {
+function Main({ id, data, selected }: any) {
 
     i18nInit();
-    const contextMenus: MenuProps['items'] = [
-        {
-            label: i18n.t('debug'),
-            key: 'debug',
-        }
-    ];
+    const { debugMenu, contextMenus } = getI18n();
+    const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
+    const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
+    const [shouldRefresh, setShouldRefresh] = React.useState(false)
 
     // text
-    const [role, setRole] = React.useState(data.role)
-    const updateRole = (e: any) => {
-        console.log(e)
+    const [role, setRole] = React.useState(data.role);
+
+    const updateData = (e: any) => {
+        // console.log(e)
         let r = { ...role };
         if (e.key == 'text' || e.key == 'name' || e.key == 'avatar') {
             r[e.key] = e.data;
@@ -54,14 +30,15 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                 ...r
             })
             data.onChange({ id, data: { role: r } })
-        }
+        };
+
+        if (e.key == "debug") data.onChange({ id, data: e.data })
 
         if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
-
     }
 
 
-    const createNode = (role: any, updateRole: any) => {
+    const createNode = (role: any, updateData: any) => {
         // const items: any = Array.from(roleAvatars, (avatar: any) => {
         //     return {
         //         label: avatar.label,
@@ -74,35 +51,74 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
         // const handleMenuClick: any = (e: any) => {
         //     // console.log('roleAvatars click', e);
-        //     updateRole({
+        //     updateData({
         //         key: 'avatar', data: e.key
         //     })
         // };
 
 
+        if (shouldRefresh && data.debugInput != debugInput) {
+            setDebugInput(data.debugInput);
+        }
+
         return <Card
             key={id}
             title={i18n.t('roleNodeTitle')}
             bodyStyle={{ paddingTop: 0 }}
-            //   extra={createType(type, agents, updateType)}
+            // extra={}
             style={{ width: 300 }}>
 
             {
-                createText('text', i18n.t('createRole'), i18n.t('inputTextPlaceholder'), role.text, '', updateRole)
+                createText('text', i18n.t('createRole'), i18n.t('inputTextPlaceholder'), role.text, '', updateData)
             }
 
             {
-                createDebug({
-                    header: i18n.t('debug'),
-                    inputText: i18n.t('inputText'),
-                    inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
-                    outputText: i18n.t('outputText'),
-                    outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
-                    debugRun: i18n.t('debugRun'),
-                }, id, data.debugInput, data.debugOutput, (event: any) => {
+                createDebug(debugMenu, id,
+                    debugInput,
+                    data.debugOutput,
+                    (event: any) => {
+                        if (event.key == 'input') {
+                            setShouldRefresh(false)
+                            const { data } = event;
+                            setDebugInput(data)
+                            let json: any;
+                            try {
+                                json = JSON.parse(data);
+                                setStatusInputForDebug('')
+                            } catch (error) {
+                                setStatusInputForDebug('error')
+                            }
+                            updateData({
+                                key: 'debug',
+                                data: {
+                                    debugInput: data
+                                }
+                            })
+                        };
+                        if (event.key == 'draggable') updateData(event)
+                    },
+                    (mergedStr: string) => {
+                        let merged;
+                        try {
+                            merged = JSON.parse(mergedStr)
+                        } catch (error) {
 
-                    if (event.key == 'input') { }
-                }, () => data.debug ? data.debug(data) : '', {})
+                        }
+                        console.log('debugFun', mergedStr, merged)
+                        if (merged) {
+                            data.merged = merged;
+                            data.role.merged = merged.filter((f: any) => f.role == 'system');
+                            setShouldRefresh(false)
+                        } else {
+                            setShouldRefresh(true)
+                        }
+                        data.debug && data.debug(data)
+                    },
+                    () => data.merge && data.merge(data),
+                    {
+                        statusInput: statusInputForDebug,
+                        statusOutput: ""
+                    })
             }
 
         </Card>
@@ -112,7 +128,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     return (
         <Dropdown menu={{
             items: contextMenus,
-            onClick: () => data.debug ? data.debug(data) : ''
+            onClick: () => data.debug && data.debug(data)
         }}
             trigger={['contextMenu']}
         >
@@ -121,7 +137,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                 backgroundColor: 'cornflowerblue'
             } : nodeStyle}>
 
-                {createNode(role, updateRole)}
+                {createNode(role, updateData)}
                 {/* <Handle type="target" position={Position.Left} /> */}
 
                 <Handle type="source" position={Position.Right} />

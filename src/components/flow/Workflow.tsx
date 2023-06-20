@@ -255,6 +255,11 @@ const comboOptions = () => {
                 })
         },
         {
+            label: i18n.t('roleOption'),
+            value: 'role',
+            disabled: false
+        },
+        {
             label: i18n.t('homeOption'),
             value: 'home',
             disabled: true
@@ -316,6 +321,7 @@ const defaultNode = () => ({
     translate: 'default',
     output: 'default',
     type: 'prompt',//运行时使用
+    merged: [],//处理好的prompt {role,content}
     // 以下是选项
     opts: {
         ...workflow()
@@ -341,7 +347,7 @@ const _DEFAULTCOMBO = (app: string, version: string) => ({
 })
 
 const debugInfo = (prompt: any) => {
-    console.log('debugInfo', prompt)
+    // console.log('debugInfo', prompt)
     let info = '';
     if (prompt.type == 'role') {
         info = `${prompt.role.name ? `<p>${prompt.role.name}</p><br>` : ''}<p>${prompt.role.text}</p>`
@@ -351,13 +357,34 @@ const debugInfo = (prompt: any) => {
             id: prompt.id,
             type: prompt.type
         }, null, 2)}</p>`;
+    };
+    if (prompt.merged) {
+        info += `<p>使用Merged数据</p>`
     }
     return info
 }
 
 //   把一条prompt包装成_control可以执行的数据格式
 const parsePrompt2ControlEvent = (id: string, prompt: any) => {
+
+    let merged: any;
+    try {
+        merged = JSON.parse(prompt.debugInput)
+    } catch (error) {
+
+    }
+
+    prompt = {
+        ...prompt,
+        merged
+    }
+
+    if (prompt.type == 'role') {
+        prompt.role.merged = prompt.merged;
+    }
+    // console.log('role',prompt.role)
     const d = debugInfo(prompt);
+
     const controlEvent = {
         from: 'debug',
         prompt,

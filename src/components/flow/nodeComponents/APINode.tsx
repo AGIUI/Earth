@@ -2,43 +2,17 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Card, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-import { createDebug, selectNodeInput, createURL, createSelect, createTextArea } from './Base';
+import { createDebug, selectNodeInput, createURL, createSelect, createTextArea, nodeStyle, getI18n } from './Base';
 
 import i18n from "i18next";
 import { i18nInit } from '../locales/i18nConfig';
 
-export type NodeData = {
-    nodeInputId: string;
-    getNodes: any;
-    debug: any;
-    text: string,
-    api: any,
-    queryObj: any,
-    temperature: number,
-    model: string,
-    input: string,
-    output: string,
-    type: string,
-    opts: any,
-    onChange: any
-};
-
-const nodeStyle = {
-    border: '1px solid transparent',
-    padding: '2px 5px',
-    borderRadius: '12px',
-};
-
-
-function Main({ id, data, selected }: NodeProps<NodeData>) {
+function Main({ id, data, selected }: any) {
     i18nInit();
-
-    const contextMenus: MenuProps['items'] = [
-        {
-            label: i18n.t('debug'),
-            key: 'debug',
-        }
-    ];
+    const { debugMenu, contextMenus } = getI18n();
+    const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
+    const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
+    const [shouldRefresh, setShouldRefresh] = React.useState(false)
 
 
     const [api, setApi] = React.useState(data.api)
@@ -53,7 +27,10 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
     const [bodyStatus, setBodyStatus] = React.useState('');
 
-    const onChange = (e: any) => {
+
+    const updateData = (e: any) => {
+        if (e.key != 'draggable') console.log(JSON.stringify(e, null, 2))
+
         if (e.key === 'api') {
             data.onChange({ id, data: { api: e.data } })
             setApi(e.data);
@@ -101,6 +78,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
             })
         }
 
+        if (e.key == "debug") data.onChange({ id, data: e.data })
         if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
 
     }
@@ -109,7 +87,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     if (data.getNodes) nodeOpts = [...data.getNodes(id)];
 
     let { protocol, url, responseType, extract } = data.api;
-    const key = 'api';
+
     if (!extract) extract = data.api.init.responseExtract
     // const extract = {
     //     ...(data.api.init.extract || {
@@ -117,6 +95,10 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
     //     })
     // }
 
+    if (shouldRefresh&&data.debugInput!=debugInput) {
+        setDebugInput(data.debugInput);
+    }
+    
     return (
         <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug(data) : '' }} trigger={['contextMenu']}>
             <div
@@ -135,13 +117,13 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                     <div
                         style={{ cursor: 'default' }}
                         onMouseOver={() => {
-                            onChange({
+                            updateData({
                                 key: 'draggable',
                                 data: false
                             })
                         }}
                         onMouseLeave={() => {
-                            onChange({
+                            updateData({
                                 key: 'draggable',
                                 data: true
                             })
@@ -159,8 +141,8 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                         url: e.data
                                     }
                                 }
-                                onChange({
-                                    key,
+                                updateData({
+                                    key: 'api',
                                     data: d
                                 })
                             })
@@ -170,7 +152,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                 { value: 'POST', label: 'POST' },
                                 { value: 'GET', label: 'GET' }
                             ], (e: any) => {
-                                if (e.key == "method") {
+                                if (e.key == i18n.t('method')) {
                                     const d = {
                                         ...data.api,
                                         init: {
@@ -178,8 +160,8 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                             method: e.data,
                                         }
                                     }
-                                    onChange({
-                                        key,
+                                    updateData({
+                                        key: 'api',
                                         data: d
                                     })
                                 }
@@ -189,7 +171,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
                         {
                             createTextArea(i18n.t('parama'), body, '', bodyStatus, (e: any) => {
-                                onChange({
+                                updateData({
                                     key: "body",
                                     data: e.data
                                 })
@@ -197,7 +179,7 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                         }
 
                         {
-                            selectNodeInput(i18n.t('getFromBefore'), nodeInputId, nodeOpts, onChange)
+                            selectNodeInput(i18n.t('getFromBefore'), nodeInputId, nodeOpts, updateData)
                         }
 
                         {
@@ -205,18 +187,22 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                 { value: 'text', label: i18n.t('text') },
                                 { value: 'json', label: 'JSON' }
                             ], (e: any) => {
-                                const d = {
-                                    ...data.api,
-                                    init: {
-                                        ...data.api.init,
-                                        responseType: e.data,
-                                    },
-                                    responseType: e.data
+                                if (e.key === i18n.t('responseType')) {
+                                    const d = {
+                                        ...data.api,
+                                        init: {
+                                            ...data.api.init,
+                                            responseType: e.data,
+                                        },
+                                        responseType: e.data
+                                    }
+                                    // console.log(JSON.stringify(e,null,2))
+                                    updateData({
+                                        key: 'api',
+                                        data: d
+                                    })
                                 }
-                                onChange({
-                                    key,
-                                    data: d
-                                })
+
                             })
                         }
 
@@ -227,25 +213,27 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                 { value: 'json', label: 'JSON', disabled: true },
                                 { value: 'audio', label: i18n.t('audio'), disabled: true }
                             ], (e: any) => {
-
-                                const d = {
-                                    ...data.api,
-                                    init: {
-                                        ...data.api.init,
+                                if (e.key == i18n.t('output')) {
+                                    const d = {
+                                        ...data.api,
+                                        init: {
+                                            ...data.api.init,
+                                            extract: {
+                                                ...extract || {},
+                                                type: e.data
+                                            }
+                                        },
                                         extract: {
                                             ...extract || {},
                                             type: e.data
                                         }
-                                    },
-                                    extract: {
-                                        ...extract || {},
-                                        type: e.data
-                                    }
-                                };
-                                onChange({
-                                    key,
-                                    data: d
-                                })
+                                    };
+                                    updateData({
+                                        key: 'api',
+                                        data: d
+                                    })
+                                }
+
                             })
                         }
 
@@ -266,8 +254,8 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
                                         key: e.data
                                     }
                                 };
-                                onChange({
-                                    key,
+                                updateData({
+                                    key: 'api',
                                     data: d
                                 })
                             })
@@ -275,33 +263,51 @@ function Main({ id, data, selected }: NodeProps<NodeData>) {
 
 
                         {
-                            createDebug({
-                                header: i18n.t('debug'),
-                                inputText: i18n.t('inputText'),
-                                inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
-                                outputText: i18n.t('outputText'),
-                                outputTextPlaceholder: i18n.t('outputTextPlaceholder'),
-                                debugRun: i18n.t('debugRun'),
-                            }, id, init, data.api.debugOutput, (event: any) => {
+                         createDebug(debugMenu, id,
+                            debugInput,
+                            data.debugOutput,
+                            (event: any) => {
                                 if (event.key == 'input') {
+                                    setShouldRefresh(false)
+                                    const { data } = event;
+                                    setDebugInput(data)
+                                    let json: any;
                                     try {
-                                        onChange({
-                                            key,
-                                            data: {
-                                                ...data.api,
-                                                init: JSON.parse(event.data)
-                                            }
-                                        })
+                                        json = JSON.parse(data);
+                                        setStatusInputForDebug('')
                                     } catch (error) {
-                                        onChange({
-                                            key: 'error-input',
-                                            data: event.data
-                                        })
+                                        setStatusInputForDebug('error')
                                     }
+                                    updateData({
+                                        key: 'debug',
+                                        data: {
+                                            debugInput: data
+                                        }
+                                    })
+                                };
+                                if (event.key == 'draggable') updateData(event)
+                            },
+                            (mergedStr: string) => {
+                                let merged;
+                                try {
+                                    merged = JSON.parse(mergedStr)
+                                } catch (error) {
+        
                                 }
-                            }, () => data.debug ? data.debug(data) : '', {
-                                statusInput: statusInput,
-                                statusOutput: ''
+                                console.log('debugFun', mergedStr, merged)
+                                if (merged) {
+                                    data.merged = merged;
+                                    data.role.merged = merged.filter((f: any) => f.role == 'system');
+                                    setShouldRefresh(false)
+                                } else {
+                                    setShouldRefresh(true)
+                                }
+                                data.debug && data.debug(data)
+                            },
+                            () => data.merge && data.merge(data),
+                            {
+                                statusInput: statusInputForDebug,
+                                statusOutput: ""
                             })
                         }
 

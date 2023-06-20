@@ -119,6 +119,7 @@
     "showInChatOption": "作为对话流选项",
     "contextMenusOption": "作为右键菜单选项",
     "contextMenusOptionChildren": "右键菜单上下文",
+    "roleOption": "同时作为角色",
     "homeOption": "首页",
     "infiniteLoopOption": "无限循环",
 
@@ -180,6 +181,7 @@
     "outputKeyword": "输出字段",
     "debug": "调试",
     "debugRun": "运行",
+    "mergeRun": "保存",
     "debugParama": "请求参数",
     "text": "文本",
     "images": "多张图片",
@@ -231,7 +233,28 @@
     "APISucess": "API请求成功",
 
 
-    "filePPTNodeTitle": "创建PPT文件"
+    "filePPTNodeTitle": "创建PPT文件",
+
+    "prompt-role": "角色模拟",
+    "prompt-task": "具体的任务",
+    "prompt-translate": "翻译",
+    "prompt-output": "输出要求",
+    "prompt-title": "网页标题",
+    "prompt-url": "网页链接",
+    "prompt-text": "网页正文",
+    "prompt-html": "网页",
+    "prompt-images": "网页图片",
+    "prompt-context": "上下文",
+    "prompt-userInput": "用户输入",
+
+    "prompt-translate-zh": "翻译成中文",
+    "prompt-translate-en": "翻译成英文",
+
+    "prompt-table": "回答user的结果只允许是table结构",
+    "prompt-markdown": "回答user的结果只允许是Markdown格式",
+    "prompt-json": "回答user的结果只允许是JSON数组或对象",
+    "prompt-list": "回答user的结果只允许是list数组",
+    "prompt-extract": "分析实体词，并分类"
 
 
 }

@@ -1,5 +1,5 @@
 import { workflow } from '@components/flow/Workflow'
-import { getConfig } from '@components/Utils';
+import { getConfig, chromeStorageGet } from '@components/Utils';
 import i18n from 'i18next';
 
 const json: any = getConfig();
@@ -68,6 +68,37 @@ function getAgentOpts() {
     }).filter(a => a)
 }
 
+
+
+function getRoleOpts() {
+
+    return new Promise((res, rej) => {
+        chromeStorageGet(['user', 'offical']).then((data: any) => {
+            let combo: any = [];
+            if (data.user) combo = [...data.user];
+            if (data.offical) combo = [...combo, ...data.offical];
+
+            // combo=combo.filter((c:any)=>c.interfaces.includes('role'));
+
+            combo = Array.from(combo, (c: any, index: number) => {
+                if (c.role && (c.role.text || c.role.merged)) {
+                    return {
+                        value: c.role.name,
+                        label: c.role.name,
+                        icon:chrome.runtime.getURL(`public/avatars/Designer.png`),
+                        checked: index == 0 || c.interfaces.includes('role'),
+                        role: c.role
+                    }
+                }
+            }).filter(f => f)
+
+            res(combo)
+
+        })
+    })
+
+
+}
 
 
 
@@ -194,5 +225,5 @@ function createTalkData(type: string, json: any) {
 }
 
 export default {
-    get, createTalkData, getOutput, getInput, getAgentOpts,getTranslate
+    get, createTalkData, getOutput, getInput, getAgentOpts, getTranslate, getRoleOpts
 }

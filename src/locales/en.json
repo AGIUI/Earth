@@ -118,6 +118,7 @@
     "openPromptsCombo": "Open Prompts Combo",
     "showInChatOption": "As a conversation flow option",
     "contextMenusOption": "As a right-click menu option",
+    "roleOption": "As a role",
     "homeOption": "Homepage",
     "infiniteLoopOption": "Infinite Loop Option",
 
@@ -127,8 +128,8 @@
     "introduceMore": "Introduce More",
     "contentExpansion": "Content Expansion",
     "translateChinese": "Translate into English",
-    "abbreviations": "Abbreviations",
-    "rewriteContent": "Rewrite Content",
+    "abbreviations": "Content Abbreviations",
+    "rewriteContent": "Content Rewrite",
 
     "openPanel": "Open Panel",
     "commonFeatures": "Common Features",
@@ -140,7 +141,6 @@
     "edit": "Edit",
     "run": "Run",
     "debugAll": "Debug",
-
 
     "findCoreInfoAndQueryLinks": "### Relevant Tasks ###\nHelp me find the core information in the related content and provide links to relevant encyclopedic introductions and related news. Please use the following format for output:\n<Encyclopedia>\nxxxx\n<Related News>\n1.xxxx\n2.xxxx",
     "translateToUnderstandableLanguage": "### Relevant Tasks ###\nHelp me translate the related content into English.",
@@ -209,6 +209,7 @@
     "selectQuery": "SelectQuery",
 
     "queryReadNodeTitle": "Content Reading",
+    "queryReadRunResult": "Read result",
     "content": "Get Webpage Content",
     "queryReadPlaceholder": "Leave blank to get the entire webpage by default",
 
@@ -224,6 +225,27 @@
 
     "APISucess": "API request successful",
 
-    "filePPTNodeTitle": "Create a PPT file"
+    "filePPTNodeTitle": "Create a PPT file",
+
+
+    "prompt-role": "Role simulation",
+    "prompt-task": "Specific task",
+    "prompt-translate": "Translation",
+    "prompt-output": "Output requirements",
+    "prompt-title": "Webpage title",
+    "prompt-url": "Webpage link",
+    "prompt-text": "Webpage content",
+    "prompt-html": "Webpage HTML",
+    "prompt-images": "Webpage images",
+    "prompt-context": "Context",
+    "prompt-userInput": "User input",
+    "prompt-translate-zh": "Translate into Chinese",
+    "prompt-translate-en": "Translate into English",
+
+    "prompt-table": "The answer to the user must be in table format",
+    "prompt-markdown": "The answer to the user must be in Markdown format",
+    "prompt-json": "The answer to the user must be a JSON array or object",
+    "prompt-list": "The answer to the user must be in list format",
+    "prompt-extract": "Analyze entity words and categorize them"
 
 }

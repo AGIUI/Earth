@@ -1,7 +1,9 @@
 import { Readability } from '@mozilla/readability'
 import { encode, decode } from '@nem035/gpt-3-encoder'
 
+import { getConfig } from '@components/Utils'
 
+const json = getConfig();
 // const str = '这是什么句子？'
 // const encoded = encode(str)
 // console.log('Encoded this string looks like: ', encoded)
@@ -13,73 +15,73 @@ import { encode, decode } from '@nem035/gpt-3-encoder'
 // console.log('We can decode it back into:\n', decoded)
 
 import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
-import LanguageDetector from "i18next-browser-languagedetector";
+// import { initReactI18next } from "react-i18next";
+// import LanguageDetector from "i18next-browser-languagedetector";
 
-const resources = {
-    en: {
-        translation: {
-            role: "Role simulation",
-            task: "Specific task",
-            translate: "Translation",
-            output: "Output requirements",
-            title: "Webpage title",
-            url: "Webpage link",
-            text: "Webpage content",
-            html: "Webpage HTML",
-            images: "Webpage images",
-            context: "Context",
-            userInput: "User input",
-            'translate-zh': 'Translate into Chinese',
-            'translate-en': 'Translate into English',
+// const resources = {
+//     en: {
+//         translation: {
+//             'prompt-role': "Role simulation",
+//             'prompt-task': "Specific task",
+//             'prompt-translate': "Translation",
+//             'prompt-output': "Output requirements",
+//             'prompt-title': "Webpage title",
+//             'prompt-url': "Webpage link",
+//             'prompt-text': "Webpage content",
+//             'prompt-html': "Webpage HTML",
+//             'prompt-images': "Webpage images",
+//             'prompt-context': "Context",
+//             'prompt-userInput': "User input",
+//             'prompt-translate-zh': 'Translate into Chinese',
+//             'prompt-translate-en': 'Translate into English',
 
-            'table': 'The answer to the user must be in table format',
-            'markdown': 'The answer to the user must be in Markdown format',
-            'json': 'The answer to the user must be a JSON array or object',
-            'list': 'The answer to the user must be in list format',
-            'extract': 'Analyze entity words and categorize them'
-        },
-    },
-    zh: {
-        translation: {
-            role: "角色模拟",
-            task: "具体的任务",
-            translate: "翻译",
-            output: "输出要求",
-            title: "网页标题",
-            url: "网页链接",
-            text: "网页正文",
-            html: "网页",
-            images: "网页图片",
-            context: "上下文",
-            userInput: "用户输入",
+//             'prompt-table': 'The answer to the user must be in table format',
+//             'prompt-markdown': 'The answer to the user must be in Markdown format',
+//             'prompt-json': 'The answer to the user must be a JSON array or object',
+//             'prompt-list': 'The answer to the user must be in list format',
+//             'prompt-extract': 'Analyze entity words and categorize them'
+//         },
+//     },
+//     zh: {
+//         translation: {
+//             'prompt-role': "角色模拟",
+//             'prompt-task': "具体的任务",
+//             'prompt-translate': "翻译",
+//             'prompt-output': "输出要求",
+//             'prompt-title': "网页标题",
+//             'prompt-url': "网页链接",
+//             'prompt-text': "网页正文",
+//             'prompt-html': "网页",
+//             'prompt-images': "网页图片",
+//             'prompt-context': "上下文",
+//             'prompt-userInput': "用户输入",
 
-            'translate-zh': `翻译成中文`,
-            'translate-en': `翻译成英文`,
+//             'prompt-translate-zh': `翻译成中文`,
+//             'prompt-translate-en': `翻译成英文`,
 
-            'table': '回答user的结果只允许是table结构',
-            'markdown': `回答user的结果只允许是Markdown格式`,
-            'json': `回答user的结果只允许是JSON数组或对象`,
-            'list': '回答user的结果只允许是list数组',
-            'extract': `分析实体词，并分类`
+//             'prompt-table': '回答user的结果只允许是table结构',
+//             'prompt-markdown': `回答user的结果只允许是Markdown格式`,
+//             'prompt-json': `回答user的结果只允许是JSON数组或对象`,
+//             'prompt-list': '回答user的结果只允许是list数组',
+//             'prompt-extract': `分析实体词，并分类`
 
 
-        },
-    },
-};
+//         },
+//     },
+// };
 
-i18n
-    .use(LanguageDetector)
-    .use(initReactI18next)
-    .init({
-        resources,
-        fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
-        lng: navigator.language,
-        debug: false,
-        interpolation: {
-            escapeValue: false, // 不需要对翻译文本进行转义
-        },
-    });
+// i18n
+//     .use(LanguageDetector)
+//     .use(initReactI18next)
+//     .init({
+//         resources,
+//         fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
+//         lng: navigator.language,
+//         debug: false,
+//         interpolation: {
+//             escapeValue: false, // 不需要对翻译文本进行转义
+//         },
+//     });
 
 
 
@@ -90,9 +92,8 @@ const MAX_LENGTH = 2800;
 const delimiter = (key: string) => `[${key}]`;
 
 const systemKeys: any = {
-    role: i18n.t('role'),
-    task: i18n.t('task'),
-    output: i18n.t('output')
+    role: i18n.t('prompt-role'),
+    task: i18n.t('prompt-task'),
 }
 
 const assistantKeys: any = {
@@ -100,14 +101,15 @@ const assistantKeys: any = {
 }
 
 const userKeys: any = {
-    title: i18n.t('title'),//网页标题
-    url: i18n.t('url'),//网页url
-    text: i18n.t('text'),//网页正文
-    html: i18n.t('html'),//网页html
-    images: i18n.t('images'),//网页图片
-    context: i18n.t('context'),//上一个节点信息
-    userInput: i18n.t('userInput'),//用户指令
-    translate: i18n.t('translate'),//翻译
+    title: i18n.t('prompt-title'),//网页标题
+    url: i18n.t('prompt-url'),//网页url
+    text: i18n.t('prompt-text'),//网页正文
+    html: i18n.t('prompt-html'),//网页html
+    images: i18n.t('prompt-images'),//网页图片
+    context: i18n.t('prompt-context'),//上一个节点信息
+    userInput: i18n.t('prompt-userInput'),//用户指令
+    translate: i18n.t('prompt-translate'),//翻译
+    output: i18n.t('prompt-output')
 }
 
 
@@ -182,7 +184,7 @@ function promptParse(prompt: any) {
         , ...prompt
     };
 
-    console.log('promptParse:::::',JSON.stringify(prompt, null, 2))
+    console.log('promptParse:::::', JSON.stringify(prompt, null, 2))
 
     let system: any = {
         role: "system",
@@ -207,10 +209,10 @@ function promptParse(prompt: any) {
     }
 
     system.content = Array.from(
-        system.content, 
+        system.content,
         (c: any, i: number) =>
-         `${system.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
-         .join('\n').trim();
+            `${system.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+        .join('\n').trim();
 
     const user: any = {
         role: 'user',
@@ -219,18 +221,42 @@ function promptParse(prompt: any) {
 
     for (const key in userKeys) {
         if (prompt[key]
-            && prompt[key].trim()
+            && prompt[key].trim() && ![
+                'userInput',
+                'context'
+            ].includes(key)
         ) user.content.push({
             key: userKeys[key],
             value: prompt[key]
         });
     };
 
+    // 判断是否有${context} 替换进去
+    // console.log(prompt['userInput'].match(/\${context}/), prompt, prompt['userInput'].replaceAll("${context}", prompt['context']))
+    if (prompt['userInput'] && prompt['context'] && prompt['userInput'].match(/\${context}/)) {
+        user.content.push({
+            key: userKeys['userInput'],
+            value: prompt['userInput'].replaceAll("${context}", prompt['context'])
+        });
+    } else {
+        for (const key of [
+            'context',
+            'userInput'
+        ]) {
+            if (prompt[key]
+                && prompt[key].trim()
+            ) user.content.push({
+                key: userKeys[key],
+                value: prompt[key]
+            });
+        };
+    }
+
     user.content = Array.from(
-        user.content, 
+        user.content,
         (c: any, i: number) =>
-         `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
-         .join('\n').trim();
+            `${user.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+        .join('\n').trim();
 
 
     const assistant: any = {
@@ -248,10 +274,10 @@ function promptParse(prompt: any) {
     };
 
     assistant.content = Array.from(
-        assistant.content, 
+        assistant.content,
         (c: any, i: number) =>
-         `${assistant.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
-         .join('\n').trim();
+            `${assistant.content.length > 1 ? (i + 1) + '.' : ""}${c.value}`)
+        .join('\n').trim();
 
 
     const id = hashJson([system, user, assistant, new Date()]);
@@ -326,9 +352,9 @@ const promptBindText = (bindText: string, userInput: string) => {
 const extractArticle = (query = "") => {
     let documentClone: any = document.cloneNode(true);
 
-    documentClone.querySelector('._agi_ui')?.remove();
+    documentClone.querySelector('#' + (json.app + "_dom").replace(/\s/ig, '').trim())?.remove();
 
-    if (window.location.hostname === 'mail.qq.com') {
+    if (window.location.hostname.match('mail.qq.com')) {
         // 针对qq邮箱的处理 
         const doc: any = document.querySelector('#mainFrameContainer iframe');
         if (doc) documentClone = doc.contentDocument.cloneNode(true)
@@ -341,8 +367,8 @@ const extractArticle = (query = "") => {
     // 如果有选择器
     if (query) {
         let targets = document.querySelectorAll(query);
+        divs = [];
         if (targets.length > 0) {
-            divs = [];
             for (const target of targets) {
                 divs.push(
                     target.cloneNode(true)
@@ -351,9 +377,12 @@ const extractArticle = (query = "") => {
         }
     }
 
-    divs = divs.filter((d: any) => d.className != '_agi_ui');
+    divs = divs.filter((d: any) => !['script', 'style', 'iframe'].includes(d.tagName.toLowerCase()));
+    // console.log('divs',divs)
+    const textsTag = ['p', 'span', 'h1', 'section', 'a', 'button', 'div'];
 
-    const textsTag = ['p', 'span', 'h1', 'section', 'a', 'button'];
+    // const textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
+
 
     let elements: any = [];
 
@@ -363,9 +392,8 @@ const extractArticle = (query = "") => {
             t => elements = [...elements, ...div.querySelectorAll(t)])
     }
 
-    elements = elements.flat().filter((f: any) => f);
 
-    // console.log(elements)
+    elements = elements.flat().filter((f: any) => f);
 
     article.elements = Array.from(elements, (element: any, index) => {
         const tagName = element.tagName.toLowerCase();
@@ -378,28 +406,29 @@ const extractArticle = (query = "") => {
         }
     }).flat().filter((d: any) => d.text);
     // article.elements = Array.from(elements, (t: any) => t.element)
+    // console.log(divs.filter((d: any) =>d.id=='__next')[0].innerText)
+    const textContent = Array.from(divs, (d: any) => d.innerText).join('\n');
 
-
-    const updateTitleAndTextContent = () => {
-        let d = document.createElement('div');
-        d.innerHTML = Array.from(divs, (d: any) => d.innerHTML).join('');
+    const updateTitleAndTextContent = (article: any) => {
         article.title = document.title;
-        article.textContent = (Array.from(textsTag, e => Array.from(d.querySelectorAll(e), (t: any) => t.innerText.trim()).filter(f => f)).flat()).join("\n")
+        article.textContent = textContent;
+        return article
     }
 
     try {
         article = { ...(new Readability(documentClone, { nbTopCandidates: 10, charThreshold: 800 }).parse()), ...article };
     } catch (error) {
-        updateTitleAndTextContent()
+        article = updateTitleAndTextContent(article)
     }
 
-    if (window.location.hostname === 'mail.qq.com') {
+    if (window.location.hostname.match('mail.qq.com')) {
         // 针对qq邮箱的处理 
-        updateTitleAndTextContent()
+        article = updateTitleAndTextContent(article)
     }
 
-    if (window.location.hostname === "www.producthunt.com") {
-        updateTitleAndTextContent()
+    // console.log(window.location.hostname.match("producthunt.com"), 'window.location.hostname.match("producthunt.com")')
+    if (window.location.hostname.match("producthunt.com")) {
+        article = updateTitleAndTextContent(article)
     }
 
     // 图片
@@ -453,9 +482,9 @@ const promptBindTranslate = (userInput: string, type: string) => {
         translate: ""
     }
     if (type == 'translate-zh') {
-        prompt.translate = i18n.t('translate-zh')
+        prompt.translate = i18n.t('prompt-translate-zh')
     } else if (type == 'translate-en') {
-        prompt.translate = i18n.t('translate-en')
+        prompt.translate = i18n.t('prompt-translate-en')
     }
     return prompt
 }
@@ -468,15 +497,15 @@ const promptBindOutput = (userInput: string, type: string) => {
     if (type == 'text' || type == 'default') {
         prompt.output = ''
     } else if (type == 'table') {
-        prompt.output = i18n.t('table')
+        prompt.output = i18n.t('prompt-table')
     } else if (type == 'markdown') {
-        prompt.output = i18n.t('markdown')
+        prompt.output = i18n.t('prompt-markdown')
     } else if (type == 'json') {
-        prompt.output = i18n.t('json')
+        prompt.output = i18n.t('prompt-json')
     } else if (type == 'list') {
-        prompt.output = i18n.t('list')
+        prompt.output = i18n.t('prompt-list')
     } else if (type == 'extract') {
-        prompt.output = i18n.t('extract')
+        prompt.output = i18n.t('prompt-extract')
     };
 
     // prompt.output += `,只输出结果,不允许出现${delimiter("xxx")}`
@@ -506,9 +535,10 @@ const extractDomElement = (query: string) => {
 
 
 const promptBindRole = (userInput: string, role: any) => {
-    let prompt = {
-        userInput, role: {
-            text: '', name: ''
+    let prompt: any = {
+        userInput,
+        role: {
+            text: '', name: '', merged: []
         }
     }
     if (role.text) {
@@ -517,6 +547,16 @@ const promptBindRole = (userInput: string, role: any) => {
     if (role.name) {
         prompt.role.name = cropText(role.text);
     };
+
+
+    if (role.merged && role.merged.length > 0) {
+        let system = role.merged.filter((m: any) => m.role == 'system')[0];
+        if (system && system.content) {
+            system.content = cropText(system.content)
+            prompt.role.merged = [system]
+        }
+    }
+
     return prompt
 }
 
