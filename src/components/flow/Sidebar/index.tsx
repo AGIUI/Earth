@@ -45,6 +45,7 @@ export default () => {
                                                 background: '#eee',
                                                 margin: '10px 0',
                                                 cursor: 'pointer',
+                                              
                                             }}
                                             onDragStart={(event) => onDragStart(event, child.key, child.parent)}
                                             draggable>

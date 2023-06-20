@@ -5,7 +5,7 @@ import { Card, Dropdown } from 'antd';
 import i18n from "i18next";
 
 import { createDebug, createURL, createDelay, getI18n, nodeStyle } from './Base'
-import { i18nInit } from '../locales/i18nConfig';
+// import { i18nInit } from '../i18nConfig';
 
 
 const createUI = (json: any, delay: number, delayFormat: string, onChange: any) => {
@@ -63,7 +63,7 @@ const createUI = (json: any, delay: number, delayFormat: string, onChange: any) 
 
 
 function Main({ id, data, selected }: any) {
-  i18nInit();
+  // i18nInit();
   const { debugMenu, contextMenus } = getI18n();
   const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
   const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
@@ -182,7 +182,14 @@ function Main({ id, data, selected }: any) {
 
 
   return (
-    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug(data) : '' }} trigger={['contextMenu']}>
+    <Dropdown menu={{ items: contextMenus, onClick: (e: any) => { 
+      if (e.key == 'debug' && data.debug) {
+        data.debug(data)
+      };
+      if(e.key=='delete'){
+        data.delete(id)
+      }
+    } }} trigger={['contextMenu']}>
       <div style={selected ? {
         ...nodeStyle,
         backgroundColor: 'cornflowerblue'

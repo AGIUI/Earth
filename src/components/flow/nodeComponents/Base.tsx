@@ -306,8 +306,10 @@ export const createDebug = (
             textOverflow: 'ellipsis',
             overflow: 'hidden',
             padding: '0px',
-            paddingTop: '12px',
-            margin: 0
+            paddingTop: '4px',
+            margin: 0,
+            borderTop: '1px dashed #2196F3',
+            marginTop: '18px'
         }}>ID: {id} </p>
 
         {debugFun ? <Button onClick={(e) => {
@@ -470,6 +472,10 @@ export const getI18n = () => {
         {
             label: i18n.t('debug'),
             key: 'debug',
+        },
+        {
+            label:i18n.t("delete"),
+            key:"delete"
         }
     ];
     return { debugMenu, contextMenus }

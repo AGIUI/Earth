@@ -35,6 +35,7 @@ export type RFState = {
   addChildNode: (parentNode: Node, position: XYPosition) => void;
   changeChildNode: any;
   addNode: any;
+  deleteNode: any;
   exportData: any
 };
 
@@ -383,8 +384,8 @@ const useStore = create<RFState>((set, get) => ({
 
       nd.type = nd.data.type;
 
-      if(nd.data.merged){
-        nd.data.debugInput=JSON.stringify(nd.data.merged,null,2)
+      if (nd.data.merged) {
+        nd.data.debugInput = JSON.stringify(nd.data.merged, null, 2)
       }
 
       if (debug && debug.open && debug.callback) nd.data['debug'] = (prompt: any) => {
@@ -392,6 +393,7 @@ const useStore = create<RFState>((set, get) => ({
           debugRun(nd.id, prompt, combo, debug, nd.data.onChange)
         });
       }
+      nd.data['delete'] = (id: string) => get().deleteNode(id);
       if (merge && merge.callback) nd.data['merge'] = (prompt: any) => mergeRun(nd.id, prompt, nd.data.onChange, merge.callback);
 
       return nd
@@ -477,7 +479,7 @@ const useStore = create<RFState>((set, get) => ({
         debugRun(newNode.id, prompt, combo, debug, newNode.data.onChange)
       });
     }
-
+    newNode.data['delete'] = (id: string) => get().deleteNode(id);
     if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, newNode.data.onChange, merge.callback);
 
 
@@ -542,8 +544,9 @@ const useStore = create<RFState>((set, get) => ({
       });
     }
 
-    if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, newNode.data.onChange, merge.callback);
+    newNode.data['delete'] = (id: string) => get().deleteNode(id);
 
+    if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, newNode.data.onChange, merge.callback);
 
     // console.log('addChildNode', parentNode)
     const newEdge = {
@@ -560,6 +563,18 @@ const useStore = create<RFState>((set, get) => ({
       nodes: [...get().nodes, newNode],
       edges: [...get().edges, newEdge],
     });
+  },
+  deleteNode(deletedId: any) {
+    // console.log(deletedId)
+
+    const nodes = get().nodes.filter(n => n.id != deletedId);
+    const edges = get().edges.filter(n => n.target != deletedId && n.source != deletedId);
+
+    set({
+      nodes,
+      edges
+    });
+
   },
   exportData: () => {
     const comboId = get().id,
