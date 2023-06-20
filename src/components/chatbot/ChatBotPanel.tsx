@@ -154,13 +154,13 @@ class ChatBotPanel extends React.Component {
                         callback={(e: any) => this.props.callback(e)}
                         items={datas[subject.index + 1]} />
 
-                    <ChatBotInput
+                    {this.state.config ? <ChatBotInput
                         callback={(e: any) => this.props.callback(e)}
                         isLoading={this.state.disabled}
                         config={this.state.config}
                         leftButton={{ label: 'Combo' }}
                         debug={this.props.debug}
-                    />
+                    /> : ""}
                 </div>
 
             } else {

@@ -366,6 +366,10 @@ class Main extends React.Component<{
     //当前Prompts内有多少个prompt
     PromptIndex: number,
 
+    chatBotConfig: any,
+
+    role: any
+
 }> {
 
 
@@ -428,6 +432,9 @@ class Main extends React.Component<{
             currentCombo: {},
             PromptIndex: 0,
 
+            chatBotConfig: null,
+
+            role: null
         }
 
 
@@ -641,7 +648,13 @@ class Main extends React.Component<{
         userSelectionInit();
 
 
-
+        ChatBotConfig.getRoleOpts().then((roles: any) => {
+            let models = ChatBotConfig.get()
+            // console.log([...roles, ...models])
+            this.setState({
+                chatBotConfig: [...roles, ...models]
+            })
+        })
 
     }
 
@@ -815,7 +828,7 @@ class Main extends React.Component<{
 
     _queryInputRun(prompt: any, delay = 1000) {
 
-        let text: any = prompt.context,
+        let text: any = prompt.context || '',
             query = prompt.queryObj.query;
 
         setTimeout(() => {
@@ -1311,7 +1324,7 @@ class Main extends React.Component<{
         });
 
         // 把对话内容保存到本地
-        // Talks.save(nTalks)
+        Talks.save(nTalks)
     }
 
     _chatBotSelect(res: any) {
@@ -1543,6 +1556,7 @@ class Main extends React.Component<{
                 // 如果是用户输入的，from==chatbot-input
                 if (from === "chatbot-input") {
                     promptJson.model = this.state.chatBotType;
+                    promptJson.role = this.state.role;
                     if (this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.temperature = this.state.chatBotStyle.value;
                 }
 
@@ -1738,11 +1752,11 @@ class Main extends React.Component<{
                         cmd: 'debug-combo',
                     })
                     break;
-                // case "output-change":
-                //     this.setState({
-                //         output: data.output
-                //     })
-                //     break;
+                case "change-role":
+                    this.setState({
+                        role: data
+                    })
+                    break;
                 default:
                     console.log("default");
                 // // 初始化bing
@@ -1949,7 +1963,7 @@ class Main extends React.Component<{
                     <Setup callback={(event: any) => this._control(event)} />}
 
                 {
-                    !this.state.showEdit && !this.state.toggleSetup && !this.state.openMyPrompts ?
+                    !this.state.showEdit && !this.state.toggleSetup && !this.state.openMyPrompts && this.state.chatBotConfig ?
                         <ChatBotPanel
                             name={this.state.appName}
                             tabList={tabList}
@@ -1958,11 +1972,7 @@ class Main extends React.Component<{
                             fullscreen={this.state.fullscreen}
                             disabled={this.state.disabledAll}
                             callback={(e: any) => this._control(e)}
-                            config={
-                                Array.from(ChatBotConfig.get(), (c: any) => {
-                                    c.checked = (c.type == this.state.chatBotType);
-                                    return c
-                                })}
+                            config={this.state.chatBotConfig}
                             debug={this.props.debug}
                         />
                         : ''

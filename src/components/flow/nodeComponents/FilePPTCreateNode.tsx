@@ -7,12 +7,12 @@ import { DownOutlined, UserOutlined } from '@ant-design/icons';
 import { createDebug, nodeStyle, selectNodeInputBase, getI18n } from './Base'
 
 import i18n from "i18next";
-import { i18nInit } from '../locales/i18nConfig';
+// import { i18nInit } from '../i18nConfig';
 
 
 function Main({ id, data, selected }: any) {
 
-    i18nInit();
+    // i18nInit();
     const { debugMenu, contextMenus } = getI18n();
     const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
     const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
@@ -167,6 +167,8 @@ function Main({ id, data, selected }: any) {
                             data.role.merged = merged.filter((f: any) => f.role == 'system');
                             setShouldRefresh(false)
                         } else {
+                            data.merged = null;
+                            data.role.merged = null;
                             setShouldRefresh(true)
                         }
                         data.debug && data.debug(data)
@@ -183,7 +185,14 @@ function Main({ id, data, selected }: any) {
     return (
         <Dropdown menu={{
             items: contextMenus,
-            onClick: () => data.debug ? data.debug(data) : ''
+            onClick: (e: any) => { 
+                if (e.key == 'debug' && data.debug) {
+                  data.debug(data)
+                };
+                if(e.key=='delete'){
+                  data.delete(id)
+                }
+              }
         }}
             trigger={['contextMenu']}
         >
