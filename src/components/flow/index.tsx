@@ -196,7 +196,7 @@ function Flow(props: any) {
     [reactFlowInstance]
   );
 
- 
+
   const panOnDrag = [1, 2];
 
   const nodeColor: any = (node: { id: any; }) => {
@@ -480,14 +480,14 @@ function Flow(props: any) {
       onChange={onChange}
     >
       <Controls style={{ display: 'flex', flexDirection: 'row' }} position={'bottom-center'} />
-      <MiniMap 
-     position="bottom-left"
-      nodeColor={nodeColor} 
-      nodeStrokeWidth={3} 
-      zoomable 
-      pannable 
-      inversePan={false} 
-      ariaLabel={null} />
+      <MiniMap
+        position="bottom-left"
+        nodeColor={nodeColor}
+        nodeStrokeWidth={3}
+        zoomable
+        pannable
+        inversePan={false}
+        ariaLabel={null} />
       <Background variant={variant} />
       {isLoaded ? <>
         <Panel position="top-left">
@@ -525,7 +525,9 @@ function Flow(props: any) {
                 <Divider dashed />
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Button onClick={() => openMyCombo()} style={{ marginRight: '10px' }}>{i18n.t("importCombo")}</Button>
-                  <Button onClick={() => download()} style={{ marginRight: '10px' }}>{i18n.t("exportCombo")}</Button>
+                  <Button onClick={() => download()} style={{ marginRight: '10px' }}
+                    disabled={!tag.trim()}
+                  >{i18n.t("exportCombo")}</Button>
                   {deleteCallback ? <Popconfirm
                     placement="bottomRight"
                     title={i18n.t("askDelete")}
@@ -535,6 +537,7 @@ function Flow(props: any) {
                     zIndex={100000000}
                   >
                     <Button danger
+                      disabled={!tag.trim()}
                       style={{ marginRight: '10px' }}
                     >
                       {i18n.t("deleteBtn")}
@@ -544,7 +547,9 @@ function Flow(props: any) {
 
 
                   {saveCallback ?
-                    <Button type={"primary"} onClick={() => save()}>{i18n.t("save")}</Button> : ''}
+                    <Button type={"primary"} onClick={() => save()}
+                      disabled={!tag.trim()}
+                    >{i18n.t("save")}</Button> : ''}
                 </div>
               </Panel0>
             </Collapse>
