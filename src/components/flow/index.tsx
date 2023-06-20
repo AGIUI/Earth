@@ -36,6 +36,7 @@ import 'reactflow/dist/style.css';
 import { _DEFAULTCOMBO, defaultNode } from './Workflow';
 
 import getNodes from './nodeComponents/index';
+import { lab } from 'd3-color';
 
 // 定义节点类型
 const nodeTypes: any = {};
@@ -308,13 +309,23 @@ function Flow(props: any) {
             deletable: comboNew[key].type !== 'role',
             ...nodePosition(index)
           });
-          // console.log(JSON.stringify(Array.from(nodes,(n:any)=>{
-          //   return {
-          //     id:n.id,
-          //     input: n.input,
-          //     nodeInputId:n.nodeInputId
-          //   }
-          // }),null,2))
+
+
+          let label = "";
+          const t = nodes.filter((node: any) => node.id == source)[0].data.type;
+          switch (t) {
+            case "role":
+              label = "role"
+              break
+            case "prompt":
+              label = nodes.filter((node: any) => node.id == source)[0].data.output;
+              break
+            case 'queryRead':
+              label=nodes.filter((node: any) => node.id == source)[0].data.queryObj.content;
+              break
+            default:
+              console.log("default");
+          }
 
           // edge
           if (source != id) edges.push({
@@ -323,7 +334,7 @@ function Flow(props: any) {
             id: source + '_' + id,
             type: 'straight',
             animated: true,
-            label: nodes.filter((node: any) => node.id == source)[0].data.output,
+            label,
             deletable: true,
           })
 
