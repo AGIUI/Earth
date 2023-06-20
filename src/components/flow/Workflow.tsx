@@ -362,6 +362,9 @@ const debugInfo = (prompt: any) => {
     };
     if (merged && merged.length > 0) {
         info += `<p>使用Merged数据</p>`
+    };
+    if(info==""){
+        info=i18n.t("debug")+":''"
     }
     return info
 }
