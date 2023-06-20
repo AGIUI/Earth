@@ -28,7 +28,7 @@ import useStore, { RFState } from './store';
 import BWEdge from './edges/BWEdge';
 
 import i18n from "i18next";
-import { i18nInit } from "./locales/i18nConfig"
+import { i18nInit } from "../../locales/i18nConfig"
 
 // we need to import the React Flow styles to make it work
 import 'reactflow/dist/style.css';
@@ -196,7 +196,7 @@ function Flow(props: any) {
     [reactFlowInstance]
   );
 
-
+ 
   const panOnDrag = [1, 2];
 
   const nodeColor: any = (node: { id: any; }) => {
@@ -404,14 +404,16 @@ function Flow(props: any) {
 
   const onInit = (reactFlowInstance: ReactFlowInstance) => {
     console.log('flow - - - - onInit')
-    i18nInit();
   }
 
   const onChange = () => {
     console.log('flow - - - - onChange')
   };
 
+  const [isLoaded, setIsLoaded] = React.useState(false)
+
   useEffect(() => {
+
     if (isNew) {
       setTimeout(() => newWorkflow(), loading ? 500 : 200)
     } else {
@@ -419,8 +421,15 @@ function Flow(props: any) {
     }
     setTimeout(() => {
       setLoading(false)
-    }, 1500)
-  }, [loadData, isNew, debug])
+    }, 1500);
+
+    if (!isLoaded) {
+      i18nInit();
+      setIsLoaded(true)
+    }
+
+
+  }, [loadData, isNew, debug, isLoaded])
 
 
   // console.log('loadData',loadData)
@@ -442,8 +451,8 @@ function Flow(props: any) {
   })
 
 
-  return (
 
+  return (
     <ReactFlow
       nodes={nodes}
       edges={edges}
@@ -471,69 +480,77 @@ function Flow(props: any) {
       onChange={onChange}
     >
       <Controls style={{ display: 'flex', flexDirection: 'row' }} position={'bottom-center'} />
-      {/*<MiniMap nodeColor={nodeColor} nodeStrokeWidth={3} zoomable pannable inversePan={false} ariaLabel={null} />*/}
+      <MiniMap 
+     position="bottom-left"
+      nodeColor={nodeColor} 
+      nodeStrokeWidth={3} 
+      zoomable 
+      pannable 
+      inversePan={false} 
+      ariaLabel={null} />
       <Background variant={variant} />
-
-      <Panel position="top-left">
-        <Sidebar />
-      </Panel>
-      <Panel position="top-right">
-        <Card
-          bodyStyle={{
-            padding: 10
-          }}
-        >
-          <Collapse ghost size="small" >
-            <Panel0 header={i18n.t('menu')} key="1">
-              <Space direction="horizontal" style={{ width: '100%' }} size={"small"}>
-                <span style={{ fontWeight: "bold" }}>{i18n.t("workflowName")}</span>
-                <Input placeholder={i18n.t("inputTextPlaceholder")?.toString()}
-                  value={tag}
-                  onChange={(e: any) => onTagChange(e.target.value)}
-                />
-              </Space>
-              <p style={{ fontWeight: "bold" }}>{i18n.t("comboSetup")}</p>
-              <div style={{ maxWidth: 300 }}>
-                <Checkbox.Group
-                  options={comboOptions.filter((c: any) => !c.disabled)}
-                  value={
-                    Array.from(comboOptions,
-                      (c: any) => c.checked ? c.value : null)
-                      .filter(f => f)}
-                  onChange={(e) => onComboOptionsChange(0, e)}
-                />
-                {
-                  comboChildren
-                }
-              </div>
-              <Divider dashed />
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button onClick={() => openMyCombo()} style={{ marginRight: '10px' }}>{i18n.t("importCombo")}</Button>
-                <Button onClick={() => download()} style={{ marginRight: '10px' }}>{i18n.t("exportCombo")}</Button>
-                {deleteCallback ? <Popconfirm
-                  placement="bottomRight"
-                  title={i18n.t("askDelete")}
-                  onConfirm={() => deleteMyCombo(id)}
-                  okText={i18n.t("deleteYes")}
-                  cancelText={i18n.t("deleteNo")}
-                  zIndex={100000000}
-                >
-                  <Button danger
-                    style={{ marginRight: '10px' }}
+      {isLoaded ? <>
+        <Panel position="top-left">
+          <Sidebar />
+        </Panel>
+        <Panel position="top-right">
+          <Card
+            bodyStyle={{
+              padding: 10
+            }}
+          >
+            <Collapse ghost size="small" >
+              <Panel0 header={i18n.t('menu')} key="1">
+                <Space direction="horizontal" style={{ width: '100%' }} size={"small"}>
+                  <span style={{ fontWeight: "bold" }}>{i18n.t("workflowName")}</span>
+                  <Input placeholder={i18n.t("inputTextPlaceholder")?.toString()}
+                    value={tag}
+                    onChange={(e: any) => onTagChange(e.target.value)}
+                  />
+                </Space>
+                <p style={{ fontWeight: "bold" }}>{i18n.t("comboSetup")}</p>
+                <div style={{ maxWidth: 300 }}>
+                  <Checkbox.Group
+                    options={comboOptions.filter((c: any) => !c.disabled)}
+                    value={
+                      Array.from(comboOptions,
+                        (c: any) => c.checked ? c.value : null)
+                        .filter(f => f)}
+                    onChange={(e) => onComboOptionsChange(0, e)}
+                  />
+                  {
+                    comboChildren
+                  }
+                </div>
+                <Divider dashed />
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button onClick={() => openMyCombo()} style={{ marginRight: '10px' }}>{i18n.t("importCombo")}</Button>
+                  <Button onClick={() => download()} style={{ marginRight: '10px' }}>{i18n.t("exportCombo")}</Button>
+                  {deleteCallback ? <Popconfirm
+                    placement="bottomRight"
+                    title={i18n.t("askDelete")}
+                    onConfirm={() => deleteMyCombo(id)}
+                    okText={i18n.t("deleteYes")}
+                    cancelText={i18n.t("deleteNo")}
+                    zIndex={100000000}
                   >
-                    {i18n.t("deleteBtn")}
-                  </Button>
+                    <Button danger
+                      style={{ marginRight: '10px' }}
+                    >
+                      {i18n.t("deleteBtn")}
+                    </Button>
 
-                </Popconfirm> : ''}
+                  </Popconfirm> : ''}
 
 
-                {saveCallback ?
-                  <Button type={"primary"} onClick={() => save()}>{i18n.t("save")}</Button> : ''}
-              </div>
-            </Panel0>
-          </Collapse>
-        </Card>
-      </Panel>
+                  {saveCallback ?
+                    <Button type={"primary"} onClick={() => save()}>{i18n.t("save")}</Button> : ''}
+                </div>
+              </Panel0>
+            </Collapse>
+          </Card>
+        </Panel>
+      </> : ""}
       <div className="loading" style={{
         display: loading ? 'flex' : 'none'
       }}>

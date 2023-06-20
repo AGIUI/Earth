@@ -347,18 +347,20 @@ const _DEFAULTCOMBO = (app: string, version: string) => ({
 })
 
 const debugInfo = (prompt: any) => {
-    // console.log('debugInfo', prompt)
-    let info = '';
+    console.log('debugInfo', prompt)
+    let info = '', merged;
     if (prompt.type == 'role') {
-        info = `${prompt.role.name ? `<p>${prompt.role.name}</p><br>` : ''}<p>${prompt.role.text}</p>`
+        info = `${prompt.role.name ? `<p>${prompt.role.name}</p><br>` : ''}<p>${prompt.role.text}</p>`;
+        merged = prompt.role.merged;
     } else {
         // prompt
         info = `<p>${JSON.stringify({
             id: prompt.id,
             type: prompt.type
         }, null, 2)}</p>`;
+        merged = prompt.merged;
     };
-    if (prompt.merged) {
+    if (merged && merged.length > 0) {
         info += `<p>使用Merged数据</p>`
     }
     return info

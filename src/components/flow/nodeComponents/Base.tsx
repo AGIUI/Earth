@@ -326,6 +326,7 @@ export const createDebug = (
 
     return <>
 
+
         {/*<p style={{*/}
         {/*    textOverflow: 'ellipsis',*/}
         {/*    overflow: 'hidden',*/}
@@ -342,6 +343,7 @@ export const createDebug = (
         {/*        marginLeft: 0*/}
         {/*    }}*/}
         {/*>{debugRun}</Button> : ''}*/}
+
 
         <Collapse bordered={false}
             size="small"
@@ -494,6 +496,10 @@ export const getI18n = () => {
         {
             label: i18n.t('debug'),
             key: 'debug',
+        },
+        {
+            label:i18n.t("delete"),
+            key:"delete"
         }
     ];
     return { debugMenu, contextMenus }

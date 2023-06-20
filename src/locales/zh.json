@@ -250,10 +250,7 @@
     "prompt-translate-zh": "翻译成中文",
     "prompt-translate-en": "翻译成英文",
 
-    "prompt-table": "回答user的结果只允许是table结构",
-    "prompt-markdown": "回答user的结果只允许是Markdown格式",
-    "prompt-json": "回答user的结果只允许是JSON数组或对象",
-    "prompt-list": "回答user的结果只允许是list数组",
-    "prompt-extract": "分析实体词，并分类"
+    "mergeRun": "保存"
+
 
 }

@@ -1,9 +1,11 @@
 import * as React from "react";
-import { Card, Button, Input, Collapse, Radio, message, Select } from 'antd';
+import { Card, Button, Input, Collapse, Radio, message, Select, Typography, Popover } from 'antd';
 import { PlusOutlined, SendOutlined, BranchesOutlined, LoadingOutlined, LoginOutlined, LogoutOutlined, RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 const { Panel } = Collapse;
 const { Option } = Select
+const { Paragraph, Text } = Typography;
+
 
 import i18n from 'i18next';
 
@@ -59,10 +61,11 @@ type StateType = {
     input: any;
     output: any;
     agent: any;
-    role: any;
     chatBotType: string;
     chatBotStyle: any;
-    debug: boolean
+    debug: boolean;
+    roleOpts: any;
+    roleContent: string
 }
 
 interface ChatBotInput {
@@ -94,14 +97,11 @@ class ChatBotInput extends React.Component {
 
         const input: any = ChatBotConfig.getInput(),
             output: any = ChatBotConfig.getOutput(),
-            agent: any = [...ChatBotConfig.getAgentOpts(), ...ChatBotConfig.getTranslate()],
-            role: any = [];
+            agent: any = [...ChatBotConfig.getAgentOpts(), ...ChatBotConfig.getTranslate()];
 
-
-
-        let config = this.props.config.filter((c: any) => c.checked)[0];
+        let config = this.props.config.filter((c: any) => c._type == 'model' && c.checked)[0];
         if (!config) config = this.props.config[0]
-        // console.log('ChatBotInput',this.props.config,config)
+        console.log('ChatBotInput', this.props.config, config)
         this.state = {
             name: 'ChatBotInput',
             isLoading: this.props.isLoading,
@@ -117,21 +117,38 @@ class ChatBotInput extends React.Component {
             output,
             // agent
             agent,
-            role,
             chatBotType: config.type,
             chatBotStyle: config.style,
 
-            debug: this.props.debug
+            debug: this.props.debug,
+
+            roleOpts: [{
+
+                value: 'Default',
+                label: 'Default',
+                role: {
+                    text: "",
+                    name: ""
+                }
+            }, ...Array.from(this.props.config.filter((c: any) => c._type == 'role'), (r: any) => {
+                return {
+
+                    value: r.type,
+                    label: r.name,
+                    role: r.role
+                }
+            })],
+
+            roleContent: ''
         }
 
-        ChatBotConfig.getRoleOpts().then((role: any) => this.setState({
-            role
-        }))
+
+
 
     }
 
     componentDidMount() {
-        // this.setupConnection();
+        this._updateRoleContent(this.props.config.filter((c: any) => c._type == 'role')[0]?.role)
     }
 
     componentDidUpdate(prevProps: any, prevState: any) {
@@ -270,8 +287,40 @@ class ChatBotInput extends React.Component {
         this.props.callback(res)
     }
 
+    _updateRoleContent(role: any) {
+        console.log('_updateRoleContent', role, role && role.merged, role && role.text)
+        if (role && role.merged) {
+            let data = role.merged.filter((m: any) => m.role == 'system')[0]
+            if (data) {
+                this.setState({
+                    roleContent: data.content
+                })
+            }
+        } else if (role && role.text) {
+            // console.log(role.text)
+            this.setState({
+                roleContent: role.text
+            })
+        } else if (role) {
+            this.setState({
+                roleContent: ''
+            })
+        }
+    }
+
+    _changeRole(role: any) {
+        // console.log(role)
+
+        this._updateRoleContent(role)
+
+        this.props.callback({
+            cmd: "change-role",
+            data: role
+        })
+    }
+
     render() {
-        // console.log(this.state, this.props.config)
+
         const flexStyle = {
             display: 'flex', justifyContent: 'flex-start',
             alignItems: 'center', padding: '10px'
@@ -281,7 +330,9 @@ class ChatBotInput extends React.Component {
         const node = `In-${input.filter(
             (i: any) => i.checked)[0].label} Agent-${agent.filter(
                 (i: any) => i.checked)[0].label} Out-${output.filter(
-                    (i: any) => i.checked)[0].label}  Model-${chatBotType} ${chatBotStyle.label}-${chatBotStyle.value}`
+                    (i: any) => i.checked)[0].label}  Model-${chatBotType} ${chatBotStyle && chatBotStyle.label}-${chatBotStyle && chatBotStyle.value}`
+
+        console.log('this.state.roleContent', this.state.roleContent)
 
         return (
             <Card
@@ -399,41 +450,49 @@ class ChatBotInput extends React.Component {
                                 <ChatBotSelect
                                     callback={(res: any) => this._changeChatbot(res)}
                                     isLoading={this.state.isLoading}
-                                    config={this.props.config}
-                                    name={''} /></div>
+                                    config={this.props.config.filter((c: any) => c._type == 'model')}
+                                    name={''} />
 
-                            <div style={flexStyle}>
+                            </div>
+
+                            {this.state.roleOpts && this.state.roleOpts.length > 1 ? <div style={flexStyle}>
                                 <p>{i18n.t('role')}</p>
+
+
                                 <Select
                                     disabled={this.state.isLoading}
-                                    style={{ width: 'fit-content', zIndex: 999999 }}
+                                    style={{ width: 'fit-content', minWidth: '100px' }}
                                     bordered={false}
-                                    value={''}
-                                    onChange={(e) => { 
-                                        console.log(e);
-                                        // const role=Array.from(this.state.role,r=>{
-                                        //     if(r){
-                                        //         r.checked=true
-                                        //     }
-                                        //     return r
-                                        // })
-                                        // this.setState({
-                                        //     role:
-                                        // })
+                                    defaultValue={this.state.roleOpts[1] && this.state.roleOpts[1].value}
+                                    onChange={(value) => {
+                                        const data = this.state.roleOpts.filter((c: any) => c && c.value == value)[0];
+                                        if (data) {
+                                            this._changeRole(data.role)
+                                        }
+                                    }}
+                                    options={this.state.roleOpts}
+                                > </Select>
+
+                                {/* <p>{this.state.roleContent}</p> */}
+
+                                {this.state.roleContent ? <Popover content={<p
+                                    style={{
+                                        maxWidth: '680px', maxHeight: '480px', overflowY: 'scroll'
                                     }}>
-                                    {
-                                        Array.from(this.state.role, (t: any) =>
-                                            <Option value={t.value}>
-                                                <img style={{
-                                                    width: '26px', height: '26px'
-                                                }} src={t.icon}
-                                                    alt={`${t.name} logo`} />
-                                            </Option>
-                                        )
-                                    }
-                                </Select>
-                                <p>{'NAME'}</p>
-                            </div>
+                                    {Array.from(this.state.roleContent.split("\n"), p => <p>{p}</p>)}
+                                </p>} trigger="hover">
+                                    <Text
+                                        style={{ width: 200 }}
+                                        ellipsis={{ tooltip: this.state.roleContent }}
+                                        copyable
+                                    >
+                                        {this.state.roleContent}
+                                    </Text>
+                                </Popover> : ""
+
+                                }
+
+                            </div> : ''}
 
                         </Panel>
                     </Collapse>

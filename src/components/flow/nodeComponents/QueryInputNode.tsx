@@ -7,7 +7,7 @@ import type { MenuProps } from 'antd';
 import { selectInput, createDebug, createTextArea, nodeStyle, getI18n } from "./Base"
 
 import i18n from "i18next";
-import { i18nInit } from '../locales/i18nConfig';
+// import { i18nInit } from '../i18nConfig';
 
 
 
@@ -65,7 +65,7 @@ const createUrl = (input: string, json: any, onChange: any) => {
 
 
 function Main({ id, data, selected }: any) {
-  i18nInit();
+  // i18nInit();
   const { debugMenu, contextMenus } = getI18n();
   const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
   const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
@@ -146,47 +146,49 @@ function Main({ id, data, selected }: any) {
         debugInput,
         data.debugOutput,
         (event: any) => {
-            if (event.key == 'input') {
-                setShouldRefresh(false)
-                const { data } = event;
-                setDebugInput(data)
-                let json: any;
-                try {
-                    json = JSON.parse(data);
-                    setStatusInputForDebug('')
-                } catch (error) {
-                    setStatusInputForDebug('error')
-                }
-                updateData({
-                    key: 'debug',
-                    data: {
-                        debugInput: data
-                    }
-                })
-            };
-            if (event.key == 'draggable') updateData(event)
+          if (event.key == 'input') {
+            setShouldRefresh(false)
+            const { data } = event;
+            setDebugInput(data)
+            let json: any;
+            try {
+              json = JSON.parse(data);
+              setStatusInputForDebug('')
+            } catch (error) {
+              setStatusInputForDebug('error')
+            }
+            updateData({
+              key: 'debug',
+              data: {
+                debugInput: data
+              }
+            })
+          };
+          if (event.key == 'draggable') updateData(event)
         },
         (mergedStr: string) => {
-            let merged;
-            try {
-                merged = JSON.parse(mergedStr)
-            } catch (error) {
+          let merged;
+          try {
+            merged = JSON.parse(mergedStr)
+          } catch (error) {
 
-            }
-            console.log('debugFun', mergedStr, merged)
-            if (merged) {
-                data.merged = merged;
-                data.role.merged = merged.filter((f: any) => f.role == 'system');
-                setShouldRefresh(false)
-            } else {
-                setShouldRefresh(true)
-            }
-            data.debug && data.debug(data)
+          }
+          console.log('debugFun', mergedStr, merged)
+          if (merged) {
+            data.merged = merged;
+            data.role.merged = merged.filter((f: any) => f.role == 'system');
+            setShouldRefresh(false)
+          } else {
+            data.merged = null;
+            data.role.merged = null;
+            setShouldRefresh(true)
+          }
+          data.debug && data.debug(data)
         },
         () => data.merge && data.merge(data),
         {
-            statusInput: statusInputForDebug,
-            statusOutput: ""
+          statusInput: statusInputForDebug,
+          statusOutput: ""
         })
     )
 
@@ -208,7 +210,14 @@ function Main({ id, data, selected }: any) {
 
 
   return (
-    <Dropdown menu={{ items: contextMenus, onClick: () => data.debug ? data.debug(data) : '' }} trigger={['contextMenu']}>
+    <Dropdown menu={{ items: contextMenus,onClick: (e: any) => { 
+      if (e.key == 'debug' && data.debug) {
+        data.debug(data)
+      };
+      if(e.key=='delete'){
+        data.delete(id)
+      }
+    } }} trigger={['contextMenu']}>
       <div style={selected ? {
         ...nodeStyle,
         backgroundColor: 'cornflowerblue'

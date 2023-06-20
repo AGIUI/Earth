@@ -195,8 +195,6 @@
     "translate": "Translate",
     "format": "-",
 
-
-
     "webAgent": "Web Proxy",
 
     "queryDefaultNodeTitle": "Enter Web Page",
@@ -246,6 +244,12 @@
     "prompt-markdown": "The answer to the user must be in Markdown format",
     "prompt-json": "The answer to the user must be a JSON array or object",
     "prompt-list": "The answer to the user must be in list format",
-    "prompt-extract": "Analyze entity words and categorize them"
+    "prompt-extract": "Analyze entity words and categorize them",
+
+
+    "mergeRun": "Save"
+
+
+
 
 }

@@ -14,16 +14,27 @@ const resources = {
   },
 };
 
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    resources,
-    fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
-    lng: navigator.language,
-    debug: false,
-    interpolation: {
-      escapeValue: false, // 不需要对翻译文本进行转义
-    },
-  });
-// console.log('i18n',i18n)
+
+export const i18nInit = () => {
+  i18n
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .init({
+      resources,
+      fallbackLng: "en", // 如果找不到当前语言的翻译文本，将使用该语言作为回退
+      lng: navigator.language,
+      debug: false,
+      interpolation: {
+        escapeValue: false, // 不需要对翻译文本进行转义
+      },
+    });
+}
+
+try {
+  i18nInit()
+  // console.log('i18n',i18n)
+} catch (error) {
+  // setTimeout(()=>)
+}
+
+

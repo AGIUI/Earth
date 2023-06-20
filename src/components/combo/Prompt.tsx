@@ -191,7 +191,7 @@ function promptParse(prompt: any) {
         content: []
     };
 
-    const roleText = (prompt['role'].name ? prompt['role'].name + ',' : '') + prompt['role'].text;
+    const roleText = (prompt['role'] && prompt['role'].name ? prompt['role'].name + ',' : '') + (prompt['role'] && prompt['role'].text ? prompt['role'].text : "");
     if (roleText.trim()) {
         system.content.push({
             key: delimiter(systemKeys['role']),
@@ -375,6 +375,7 @@ const extractArticle = (query = "") => {
                 );
             }
         }
+
     }
 
     divs = divs.filter((d: any) => !['script', 'style', 'iframe'].includes(d.tagName.toLowerCase()));
@@ -389,7 +390,13 @@ const extractArticle = (query = "") => {
     for (const div of divs) {
         Array.from(
             textsTag,
-            t => elements = [...elements, ...div.querySelectorAll(t)])
+            t => {
+                elements = [...elements, ...div.querySelectorAll(t)]
+                // 当div本身就是的时候
+                if (div.tagName.toLowerCase() == t) {
+                    elements.push(div)
+                }
+            })
     }
 
 
@@ -406,9 +413,12 @@ const extractArticle = (query = "") => {
         }
     }).flat().filter((d: any) => d.text);
     // article.elements = Array.from(elements, (t: any) => t.element)
-    // console.log(divs.filter((d: any) =>d.id=='__next')[0].innerText)
-    const textContent = Array.from(divs, (d: any) => d.innerText).join('\n');
 
+    const textContent = Array.from(divs, (d: any) => d.innerText).join('\n');
+    // 当精准定位的时候
+    if (query) article.textContent = textContent;
+
+    // console.log('divs', divs, article.elements, textContent)
     const updateTitleAndTextContent = (article: any) => {
         article.title = document.title;
         article.textContent = textContent;
@@ -420,7 +430,7 @@ const extractArticle = (query = "") => {
     } catch (error) {
         article = updateTitleAndTextContent(article)
     }
-
+    // article = updateTitleAndTextContent(article)
     if (window.location.hostname.match('mail.qq.com')) {
         // 针对qq邮箱的处理 
         article = updateTitleAndTextContent(article)
@@ -438,7 +448,6 @@ const extractArticle = (query = "") => {
             article.images = Array.from(imgs, (im: any) => im.src)
         }
     }
-
 
     console.log('_extractArticle', article)
     article.href = window.location.href.replace(/\?.*/ig, '');
@@ -547,6 +556,7 @@ const promptBindRole = (userInput: string, role: any) => {
     if (role.name) {
         prompt.role.name = cropText(role.text);
     };
+
 
 
     if (role.merged && role.merged.length > 0) {
