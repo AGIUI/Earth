@@ -1,78 +1,47 @@
-[{
-        "tag": "introduceMore",
+[  {
+    "tag": "introduceMore",
+    "role": {
+        "name": "",
+        "text": "",
+        "merged": []
+    },
+    "combo": 1,
+    "interfaces": [
+        "contextMenus-selection"
+    ],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+        "id": "PROMPT_E7NCJO7EB1UJYPD60YITL",
+        "nextId": "",
+        "nodeInputId": "",
         "role": {
             "name": "",
-            "text": ""
+            "text": "",
+            "merged": []
         },
-        "combo": 1,
-        "interfaces": [
-            "contextMenus-selection"
-        ],
-        "isInfinite": false,
-        "owner": "user",
-        "prompt": {
-            "id": "PROMPT_23UADHGBIYEVMPJ4UUL1X",
-            "nextId": "",
-            "nodeInputId": "",
-            "role": {
-                "name": "",
-                "text": ""
-            },
-            "text": "帮我找到相关内容中的核心信息，并查询相关百科介绍和相关资讯的链接，你需要用以下格式输出：\\n<百科>\\nxxxx\\n<相关资讯>\\n1.xxxx\\n2.xxxx",
-            "url": "",
-            "temperature": 0.5,
-            "model": "Bing",
-            "input": "default",
-            "userInput": "",
-            "translate": "default",
-            "output": "default",
-            "type": "prompt"
-        },
-        "version": "0.1.0",
-        "app": "brainwave",
-        "id": "cykmrUlm-N73SCyq5UWlN",
-        "createDate": 1686643444078
+        "text": "帮我找到相关内容中的核心信息，并查询相关百科介绍和相关资讯的链接，你需要用以下格式输出：\\n<百科>\\nxxxx\\n<相关资讯>\\n1.xxxx\\n2.xxxx",
+        "url": "",
+        "temperature": 0.6,
+        "model": "Bing",
+        "input": "nodeInput",
+        "userInput": "",
+        "translate": "default",
+        "output": "default",
+        "type": "prompt",
+        "merged": []
     },
-    {
-        "tag": "translateChinese",
-        "role": {
-            "name": "",
-            "text": ""
-        },
-        "combo": 1,
-        "interfaces": [
-            "contextMenus-selection"
-        ],
-        "isInfinite": false,
-        "owner": "user",
-        "prompt": {
-            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR3",
-            "nextId": "",
-            "nodeInputId": "",
-            "role": {
-                "name": "",
-                "text": ""
-            },
-            "text": "帮我将相关内容翻译成中文。",
-            "url": "",
-            "temperature": 0.31,
-            "model": "ChatGPT",
-            "input": "default",
-            "userInput": "",
-            "translate": "translate-zh",
-            "output": "default",
-            "type": "prompt"
-        },
-        "version": "0.1.0",
-        "app": "brainwave",
-        "id": "XCSlvySpfMYVR1IRDTp4n",
-        "createDate": 1686643579680
-    },
+    "version": "0.1.0",
+    "app": "brainwave",
+    "id": "cd46Rr9s95Kk7as-0SlBF",
+    "createDate": 1687225769848
+},
     {
         "tag": "contentExpansion",
         "role": {
             "name": "",
-            "text": ""
+            "text": "",
+            "merged": []
         },
         "combo": 1,
         "interfaces": [
@@ -81,31 +50,34 @@
         "isInfinite": false,
         "owner": "user",
         "prompt": {
-            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR2",
+            "id": "PROMPT_KLB_NC08ZUGODHAUGPQSN",
             "nextId": "",
             "nodeInputId": "",
             "role": {
                 "name": "",
-                "text": ""
+                "text": "",
+                "merged": []
             },
             "text": "帮我将相关内容进行扩写，重点内容不能发生变化。",
             "url": "",
-            "temperature": 0.7,
+            "temperature": 0.6,
             "model": "ChatGPT",
-            "input": "default",
+            "input": "nodeInput",
             "userInput": "",
-            "translate": "translate-zh",
+            "translate": "default",
             "output": "default",
-            "type": "prompt"
+            "type": "prompt",
+            "merged": []
         },
         "version": "0.1.0",
         "app": "brainwave",
-        "id": "XCSlvySpfMYVR1IRDTp4n1",
-        "createDate": 1686643683329
+        "id": "fG9SoCEwyxwcy2VvHvMqx",
+        "createDate": 1687226065682
     },
     {
         "tag": "abbreviations",
         "role": {
+            "merged": [],
             "name": "",
             "text": ""
         },
@@ -116,33 +88,36 @@
         "isInfinite": false,
         "owner": "user",
         "prompt": {
-            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR1",
+            "id": "PROMPT_DYCMLQHH_Z3ADQCTL-7FA",
             "nextId": "",
             "nodeInputId": "",
             "role": {
+                "merged": [],
                 "name": "",
                 "text": ""
             },
             "text": "帮我将相关内容进行缩写，重点内容不能发生变化。",
             "url": "",
-            "temperature": 0.7,
+            "temperature": 0.6,
             "model": "ChatGPT",
-            "input": "default",
+            "input": "nodeInput",
             "userInput": "",
-            "translate": "translate-zh",
+            "translate": "default",
             "output": "default",
-            "type": "prompt"
+            "type": "prompt",
+            "merged": []
         },
         "version": "0.1.0",
         "app": "brainwave",
-        "id": "XCSlvySpfMYVR1IRDTp4n2",
-        "createDate": 1686643724158
+        "id": "-N888z9tqyp8Dk5AyRDzY",
+        "createDate": 1687226225217
     },
     {
         "tag": "rewriteContent",
         "role": {
             "name": "",
-            "text": ""
+            "text": "",
+            "merged": []
         },
         "combo": 1,
         "interfaces": [
@@ -151,26 +126,28 @@
         "isInfinite": false,
         "owner": "user",
         "prompt": {
-            "id": "PROMPT_QS9I_D6OJ81NB6BZEJXQR5",
+            "id": "PROMPT_LBUF4RKKMDNGWHUGXSEOJ",
             "nextId": "",
             "nodeInputId": "",
             "role": {
                 "name": "",
-                "text": ""
+                "text": "",
+                "merged": []
             },
             "text": "帮我将相关内容进行文笔优化，字数差不多，重点内容不能发生变化。",
             "url": "",
-            "temperature": 0.7,
+            "temperature": 0.6,
             "model": "ChatGPT",
-            "input": "default",
+            "input": "nodeInput",
             "userInput": "",
-            "translate": "translate-zh",
+            "translate": "default",
             "output": "default",
-            "type": "prompt"
+            "type": "prompt",
+            "merged": []
         },
         "version": "0.1.0",
         "app": "brainwave",
-        "id": "XCSlvySpfMYVR1IRDTp4n3",
-        "createDate": 1686643750270
+        "id": "WdPYAlNsh0RrzTO0PgTta",
+        "createDate": 1687226281864
     }
 ]

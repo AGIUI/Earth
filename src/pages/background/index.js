@@ -258,12 +258,14 @@ async function loadContextMenuData() {
                     let PromptJson = Menu[i];
                     if (PromptJson.interfaces.includes("contextMenus-selection")) {
                         const context = item.selectionText;
-                        console.log("context",context);
                         if (context) {
                             PromptJson.prompt.userInput = context;
+                            console.log("PromptJson",PromptJson.prompt.userInput);
                             // "###相关内容###\n" + context + "\n" + PromptJson.text
                         }
                     }
+                    console.log("PromptJson",PromptJson);
+
                     chrome.tabs.sendMessage(
                         tabId, {
                             cmd: 'contextMenus',
