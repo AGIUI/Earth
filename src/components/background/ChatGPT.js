@@ -201,13 +201,13 @@ export default class ChatGPT {
         console.log('init ', res, res.error && res.error.message ? false : true);
 
         let success = true;
-        if (res.error && res.error.message) success = false;
+        if (res.error && (res.error.message || res.error.code || res.error.type)) success = false;
         if (res.object == "error") success = false;
         if (res.statusCode == 401) success = false;
 
         let info = ''
         if (res.message) info = res.message;
-        if (res.error && res.error.message) info = res.error.message;
+        if (res.error && (res.error.message || res.error.code || res.error.type)) info = res.error.message || res.error.code || res.error.type;
 
 
         this.available = {
