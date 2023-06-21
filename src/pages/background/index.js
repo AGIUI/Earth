@@ -89,21 +89,21 @@ async function loadContextMenuData() {
             } else if (infs.includes('contextMenus-link')) {
                 linkConfig.push(res['official'][i])
             } else if (infs.includes('contextMenus-image')) {
-                imageConfig.push(res['user'][i])
+                imageConfig.push(res['official'][i])
             } else if (infs.includes('contextMenus-video')) {
-                videoConfig.push(res['user'][i])
+                videoConfig.push(res['official'][i])
             } else if (infs.includes('contextMenus-audio')) {
-                audioConfig.push(res['user'][i])
+                audioConfig.push(res['official'][i])
             } else if (infs.includes('contextMenus-frame')) {
-                frameConfig.push(res['user'][i])
+                frameConfig.push(res['official'][i])
             } else if (infs.includes('contextMenus-launcher')) {
-                launcherConfig.push(res['user'][i])
+                launcherConfig.push(res['official'][i])
             } else if (infs.includes('contextMenus-browser_action')) {
-                browser_actionConfig.push(res['user'][i])
+                browser_actionConfig.push(res['official'][i])
             } else if (infs.includes('contextMenus-page_action')) {
-                page_actionConfig.push(res['user'][i])
+                page_actionConfig.push(res['official'][i])
             } else if (infs.includes('contextMenus-action')) {
-                actionConfig.push(res['user'][i])
+                actionConfig.push(res['official'][i])
             }
         }
     }

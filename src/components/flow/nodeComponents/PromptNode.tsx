@@ -159,7 +159,7 @@ function Main({ id, data, selected }: any) {
             if (data.role) data.role.merged = null;
             console.log('debugFun no merged', data)
             data.debug && data.debug(data)
-            setShouldRefresh(true);
+            setShouldRefresh(true);selectNodeInput
           }
         },
         () => data.merge && data.merge(data),

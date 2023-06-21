@@ -176,6 +176,7 @@
     "method": "方法",
     "parama": "参数(字符串)",
     "getFromBefore": "从上一节点获取文本 ${context} ",
+    "getFromBeforeTips": "*可以在指令任意位置里插入\"${context}\"",
     "responseType": "返回的数据类型",
     "output": "输出",
     "outputKeyword": "输出字段",
@@ -218,7 +219,8 @@
     "queryReadNodeTitle": "内容读取",
     "queryReadRunResult": "读取结果",
     "content": "获取网页内容",
-    "queryReadPlaceholder": "不填默认获取整个网页",
+    "queryReadPlaceholder": "#<idName>或者.<className>",
+    "queryReadPlaceholderTips": "*留空默认获取整个网页",
 
     "queryInputNodeTitle": "文本输入",
     "queryInputText": "文本来源",

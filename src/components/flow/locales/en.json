@@ -169,6 +169,7 @@
     "method": "Method",
     "parama": "Parameters (String)",
     "getFromBefore": "Get text from previous node ${context}",
+    "getFromBeforeTips":"*You can insert \"${context}\" anywhere in the command",
     "responseType": "Response Data Type",
     "output": "Output",
     "outputKeyword": "Output Field",
@@ -210,7 +211,8 @@
     "queryReadNodeTitle": "Content Reading",
     "queryReadRunResult": "Read result",
     "content": "Get Webpage Content",
-    "queryReadPlaceholder": "Leave blank to get the entire webpage by default",
+    "queryReadPlaceholder": "#<idName> or .<className>",
+    "queryReadPlaceholderTips": "*Leave blank to get the entire webpage by default",
 
     "queryInputNodeTitle": "Text Input",
     "queryInputText": "Text Source",

@@ -1,25 +1,26 @@
 import React from 'react'
 
-import { Input, Collapse, Divider, Button, Checkbox, Select, Radio, Slider } from 'antd';
+import {Input, Collapse, Divider, Button, Checkbox, Select, Radio, Slider} from 'antd';
 
-const { Panel } = Collapse;
-import { CaretRightOutlined } from '@ant-design/icons';
+const {Panel} = Collapse;
+import {CaretRightOutlined} from '@ant-design/icons';
 
-const { TextArea } = Input;
+const {TextArea} = Input;
 
-const { Option } = Select;
+const {Option} = Select;
 
 import i18n from "i18next";
+import i18next from "i18next";
 
 export const createName = (title: string, name: string, onChange: any) =>
     <Input addonBefore="@" defaultValue={name}
-        placeholder={title}
-        onChange={(e) => {
-            onChange({
-                key: 'name',
-                data: e.target.value
-            })
-        }} />
+           placeholder={title}
+           onChange={(e) => {
+               onChange({
+                   key: 'name',
+                   data: e.target.value
+               })
+           }}/>
 
 export const createURL = (urlTitle: string, urlPlaceholder: string, protocol: string, url: string, onChange: any) => {
     const handleUrlChange = (e: any) => {
@@ -66,7 +67,6 @@ export const createURL = (urlTitle: string, urlPlaceholder: string, protocol: st
 };
 
 
-
 export const createSelect = (title: string, value: string, opts: any, onChange: any) => <div
 
     onMouseOver={() => {
@@ -85,7 +85,7 @@ export const createSelect = (title: string, value: string, opts: any, onChange: 
     <p>{title}</p>
     <Select
         value={value}
-        style={{ width: 200 }}
+        style={{width: 200}}
         onChange={(e) => {
             onChange({
                 key: title,
@@ -131,14 +131,14 @@ export const createOutput = (title: string, key: string, value: string, opts: an
                 key: key,
                 data: e.target.value
             })
-        }} />
+        }}/>
 </>
 
 
 export const selectNodeInputBase = (nodeInputId: string, nodeOpts: any, onChange: any) => {
     return <Select
         value={nodeInputId}
-        style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
+        style={{width: '100%', marginTop: '8px', marginBottom: '12px'}}
         onChange={(e) => {
             onChange({
                 key: 'nodeInput',
@@ -162,17 +162,16 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
     // console.log(nodeInputId,nodeOpts)
 
     const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0)
-
     // console.log(nodeOpts.filter((n: any) => n.value === nodeInputId))
     return <>
         <Checkbox
-            style={{ marginTop: '12px' }}
+            style={{marginTop: '12px'}}
             defaultChecked={checked}
             // checked={input == "nodeInput"}
             onChange={(e) => {
                 setChecked(e.target.checked)
                 if (!nodeInputId && nodeOpts[0] && nodeOpts[0].index === 1) nodeInputId = nodeOpts[0].value;
-                console.log("Checkbox ",nodeInputId,nodeOpts)
+                console.log("Checkbox ", nodeInputId, nodeOpts)
                 onChange({
                     key: 'nodeInput',
                     data: e.target.checked ? nodeInputId : ""
@@ -181,17 +180,22 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
             }}>{title}</Checkbox>
 
         {
-            checked ? <Select
-                value={nodeInputId}
-                style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
-                onChange={(e) => {
-                    onChange({
-                        key: 'nodeInput',
-                        data: e
-                    })
-                }}
-                options={nodeOpts}
-            /> : ''
+            checked ?
+                <>
+                    <Select
+                        value={nodeInputId}
+                        style={{width: '100%', marginTop: '8px', marginBottom: '12px'}}
+                        onChange={(e) => {
+                            onChange({
+                                key: 'nodeInput',
+                                data: e
+                            })
+                        }}
+                        options={nodeOpts}
+                    />
+                    <p style={{marginTop:0,color:"red",fontSize:12}}>{i18n.t('getFromBeforeTips')}</p>
+                </>
+                : ''
         }
     </>
 }
@@ -212,7 +216,7 @@ export const selectInput = (
     return <>
         <Select
             defaultValue={nodeInputId ? 'nodeInput' : "userInput"}
-            style={{ width: '100%' }}
+            style={{width: '100%'}}
             onChange={(e) => {
                 onChange({
                     key: 'setInput',
@@ -221,14 +225,14 @@ export const selectInput = (
                 })
             }}
             options={[
-                { value: 'nodeInput', label: nodeInputLabel },
-                { value: 'userInput', label: userInputLabel },
+                {value: 'nodeInput', label: nodeInputLabel},
+                {value: 'userInput', label: userInputLabel},
             ]}
         />
         {
             nodeInputId ? <Select
                 value={nodeInputId}
-                style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
+                style={{width: '100%', marginTop: '8px', marginBottom: '12px'}}
                 onChange={(e) => {
                     onChange({
                         key: 'nodeInput',
@@ -237,12 +241,12 @@ export const selectInput = (
                 }}
                 options={nodeOpts}
             /> : <TextArea
-                style={{ marginTop: '8px' }}
+                style={{marginTop: '8px'}}
                 value={uinp}
                 rows={4}
                 showCount={false}
                 placeholder={"input ..."}
-                autoSize={{ minRows: 2, maxRows: 10 }}
+                autoSize={{minRows: 2, maxRows: 10}}
                 onChange={(e) => {
                     setUserInput(e.target.value)
                     onChange({
@@ -282,7 +286,7 @@ export const createText = (key: string, header: string, placeholder: string, val
             allowClear
             status={status}
             rows={4}
-            autoSize={{ minRows: 2, maxRows: 10 }}
+            autoSize={{minRows: 2, maxRows: 10}}
             // defaultValue={text}
             value={text}
             placeholder={placeholder}
@@ -311,7 +315,8 @@ export const createDebug = (
     mergeFun: any,
     status: any
 ) => {
-    const { header,
+    const {
+        header,
         inputText,
         inputTextPlaceholder,
         outputText,
@@ -339,9 +344,9 @@ export const createDebug = (
 
 
         <Collapse bordered={false}
-            size="small"
-            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-            style={{ background: '#eee', marginTop: '14px' }}
+                  size="small"
+                  expandIcon={({isActive}) => <CaretRightOutlined rotate={isActive ? 90 : 0}/>}
+                  style={{background: '#eee', marginTop: '14px'}}
         >
             <Panel header={header} key="1">
 
@@ -352,21 +357,21 @@ export const createDebug = (
                     output && createText('output', outputText, outputTextPlaceholder, output, statusOutput || '-', onChange)
                 } */}
 
-                <Divider dashed />
+                <Divider dashed/>
 
                 {debugFun ? <Button onClick={(e) => {
                     debugFun()
                 }}
-                    style={{
-                        margin: '8px',
-                        marginLeft: 0
-                    }}
+                                    style={{
+                                        margin: '8px',
+                                        marginLeft: 0
+                                    }}
                 >{debugRun}</Button> : ''}
 
                 {mergeFun ? <Button onClick={(e) => mergeFun()}
-                    style={{
-                        marginLeft: '0px'
-                    }}
+                                    style={{
+                                        marginLeft: '0px'
+                                    }}
                 >{mergeRun}</Button> : ''}
 
                 {/* {debugRun ? <Button onClick={(e) => debugFun(input)}
@@ -402,7 +407,7 @@ export const createModel = (model: string, temperature: number, opts: any, onCha
     </Radio.Group>
 
     <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}
-        <span style={{ fontSize: '12px', marginLeft: '12px' }}>: {temperature}</span>
+        <span style={{fontSize: '12px', marginLeft: '12px'}}>: {temperature}</span>
     </p>
 
     <div
@@ -420,7 +425,7 @@ export const createModel = (model: string, temperature: number, opts: any, onCha
         }}
     >
         <Slider
-            style={{ width: '200px' }}
+            style={{width: '200px'}}
             range={false}
             max={1}
             min={0}
@@ -462,17 +467,17 @@ export const createDelay = (title: string, delayFormat: string, delay: string, o
         </Select>
     }
         // placeholder={i18n.t('delayPlaceholder')}
-        value={delay}
-        onChange={(e: any) => {
-            let t = parseFloat(e.target.value);
-            onChange({
-                key: 'delay',
-                data: {
-                    delay: t,
-                    delayFormat
-                }
-            })
-        }}
+           value={delay}
+           onChange={(e: any) => {
+               let t = parseFloat(e.target.value);
+               onChange({
+                   key: 'delay',
+                   data: {
+                       delay: t,
+                       delayFormat
+                   }
+               })
+           }}
     />
 </>
 
@@ -504,5 +509,5 @@ export const getI18n = () => {
             key: "delete"
         }
     ];
-    return { debugMenu, contextMenus }
+    return {debugMenu, contextMenus}
 }

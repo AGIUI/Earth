@@ -169,6 +169,7 @@
     "method": "Method",
     "parama": "Parameters (String)",
     "getFromBefore": "Get text from previous node ${context}",
+    "getFromBeforeTips":"*You can insert \"${context}\" anywhere in the command",
     "responseType": "Response Data Type",
     "output": "Output",
     "outputKeyword": "Output Field",

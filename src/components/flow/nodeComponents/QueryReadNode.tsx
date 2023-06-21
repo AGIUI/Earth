@@ -25,7 +25,7 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
     }}>
 
     {
-      createTextArea(title2, query, ".tag", "", (e: any) => {
+      createTextArea(title2, query, placeholder2, "", (e: any) => {
         const data = {
           ...json,
           query: e.data,
@@ -38,7 +38,9 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
         })
       })
     }
-
+    {
+      <p style={{marginTop:5,color:"red",fontSize:12}}>{i18n.t('queryReadPlaceholderTips')}</p>
+    }
 
     {
       createSelect(title1, content || "bindCurrentPage", [
