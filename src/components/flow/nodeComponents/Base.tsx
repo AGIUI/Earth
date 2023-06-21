@@ -171,6 +171,8 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
             // checked={input == "nodeInput"}
             onChange={(e) => {
                 setChecked(e.target.checked)
+                if (!nodeInputId && nodeOpts[0] && nodeOpts[0].index === 1) nodeInputId = nodeOpts[0].value;
+                console.log("Checkbox ",nodeInputId,nodeOpts)
                 onChange({
                     key: 'nodeInput',
                     data: e.target.checked ? nodeInputId : ""
@@ -344,7 +346,7 @@ export const createDebug = (
             <Panel header={header} key="1">
 
                 {
-                    createText('input', inputText, inputTextPlaceholder, input||'', statusInput, onChange)
+                    createText('input', inputText, inputTextPlaceholder, input || '', statusInput, onChange)
                 }
                 {/* {
                     output && createText('output', outputText, outputTextPlaceholder, output, statusOutput || '-', onChange)

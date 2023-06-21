@@ -363,9 +363,11 @@ const debugInfo = (prompt: any) => {
     if (merged && merged.length > 0) {
         info += `<p>使用Merged数据</p>`
     };
-    if(info==""){
+    info=info.trim();
+    if(info==""||info=="<p></p>"){
         info=i18n.t("debug")+":''"
     }
+    console.log('debugInfo', info)
     return info
 }
 

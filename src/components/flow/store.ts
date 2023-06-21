@@ -41,14 +41,17 @@ export type RFState = {
 
 const createId = (type: string, id: string) => `${type}_${id}`.toLocaleUpperCase()
 
-const getNodes = (currentId: string, nodes: any) => {
+const getNodes = (currentId: string, nodes: any, edges: any) => {
+  const edge = edges.filter((e: any) => e.target == currentId)[0];
+  console.log('getNodes edge::',edge)
   const nodeOpts = Array.from(nodes, (node: any, i) => {
     return {
       value: node.id,
       label: node.id,
-      id: node.id
+      id: node.id,
+      index: edge && node.id == edge.source ? 1 : 0
     }
-  }).filter((n: any) => n.id != currentId && !n.id.match("root_"))
+  }).filter((n: any) => n.id != currentId && !n.id.match("root_")).sort((b,a) => a.index - b.index)
   return nodeOpts
 }
 
@@ -378,7 +381,7 @@ const useStore = create<RFState>((set, get) => ({
       nd.data = {
         ...defaultNode(),
         ...nd.data,
-        getNodes: (currentId: string) => getNodes(currentId, get().nodes),
+        getNodes: (currentId: string) => getNodes(currentId, get().nodes, get().edges),
         onChange: (e: any) => {
           const nodes = onChangeForNodes(e, get().nodes);
           set({
@@ -464,7 +467,7 @@ const useStore = create<RFState>((set, get) => ({
       data: {
         ...defaultNode(),
         type: nodeType,
-        getNodes: (currentId: string) => getNodes(currentId, get().nodes),
+        getNodes: (currentId: string) => getNodes(currentId, get().nodes, get().edges),
         onChange: (e: any) => {
           const nodes = onChangeForNodes(e, get().nodes);
           set({
@@ -528,7 +531,7 @@ const useStore = create<RFState>((set, get) => ({
       type: 'prompt',
       data: {
         ...defaultNode(),
-        getNodes: (currentId: string) => getNodes(currentId, get().nodes),
+        getNodes: (currentId: string) => getNodes(currentId, get().nodes, get().edges),
         onChange: (e: any) => {
           const nodes = onChangeForNodes(e, get().nodes);
           set({
