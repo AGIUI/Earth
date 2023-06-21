@@ -9,13 +9,22 @@ import { chromeStorageGet, chromeStorageSet } from '@src/components/Utils';
 //https://mixcopilot.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview
 //
 
-const createAPIUrl = (hostName) => {
+const createAPIUrlForCompletions = (hostName) => {
     let url = `${hostName}/v1/chat/completions`
     if (hostName.match('azure')) {
         url = `${hostName}/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview`
     }
     return url
 }
+
+const createAPIUrlForEmbeddings = (hostName) => {
+    let url = `${hostName}/v1/embeddings`
+        // if (hostName.match('azure')) {
+        //     url = `${hostName}/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview`
+        // }
+    return url
+}
+
 
 // const controller = new AbortController();
 //         const signal = controller.signal;
@@ -113,7 +122,7 @@ export default class ChatGPT {
         this.type = 'ChatGPT'
         this.conversationContext = { messages: [] }
         this.contextSize = 3
-        this.baseUrl = createAPIUrl('https://api.openai.com')
+        this.baseUrl = 'https://api.openai.com'
         this.models = ['gpt-3.5-turbo']
 
         // { en: 'Creative', zh: '创造力',value:'Creative',label:'Creative' },
@@ -128,7 +137,7 @@ export default class ChatGPT {
             if (data.myConfig) {
                 this.token = data.myConfig.token
                 this.model = data.myConfig.model
-                this.baseUrl = createAPIUrl(data.myConfig.api)
+                this.baseUrl = data.myConfig.api
             }
         })
     }
@@ -172,7 +181,7 @@ export default class ChatGPT {
         }
 
 
-        baseUrl = baseUrl ? createAPIUrl(baseUrl) : this.baseUrl
+        baseUrl = baseUrl ? baseUrl : this.baseUrl
         token = token || this.token
         model = model || this.model
 
@@ -191,7 +200,7 @@ export default class ChatGPT {
         }
         // this.conversationContext = { messages: [{ role: 'user', content:'hi' }] }
 
-        const resp = await postData(baseUrl, token, {
+        const resp = await postData(createAPIUrlForCompletions(baseUrl), token, {
             model: model,
             messages: [{ role: 'user', content: 'hi' + (new Date()).getTime() }],
             temperature: 0.6,
@@ -266,6 +275,25 @@ export default class ChatGPT {
         }
     }
 
+    async embeddings(params) {
+        let token = params.token || this.token;
+
+        if (!token) {
+            return { type: 'ERROR', data: 'ChatGPT API key not set' }
+        }
+
+        const resp = await postData(
+            createAPIUrlForEmbeddings(params.url || this.baseUrl),
+            token, {
+                model: params.model || this.model,
+                input: params.input,
+            }
+        )
+        const res = await resp.json();
+        let embedding = res["data"][0]["embedding"]
+        return embedding
+    }
+
     async doSendMessage(params) {
         let token = params.token || this.token;
         let temperature = params.temperature;
@@ -287,7 +315,7 @@ export default class ChatGPT {
         this.controller = controller
 
         const resp = await postData(
-            params.url || this.baseUrl,
+            createAPIUrlForCompletions(params.url || this.baseUrl),
             token, {
                 model: params.model || this.model,
                 messages: [...this.conversationContext.messages.slice(-this.contextSize)],
