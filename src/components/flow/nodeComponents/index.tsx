@@ -5,6 +5,7 @@ import QueryInputNode from './QueryInputNode';
 import APINode from './APINode';
 import RoleNode from './RoleNode';
 import PromptNode from './PromptNode';
+import EmbeddingsNode from './EmbeddingsNode'
 import FilePPTCreateNode from './FilePPTCreateNode'
 
 import i18n from "i18next";
@@ -23,15 +24,21 @@ const getNodes = () => [{
     ]
 },
 {
-    title: i18n.t('promptNodeTitle'),
+    title: i18n.t('llm'),
     children: [{
         key: 'prompt',
         component: PromptNode,
-        parent: 'prompt',
+        parent: 'llm',
         name: i18n.t('promptNodeTitle')
-    },
+    }, 
+    // {
+    //     key: 'embeddings',
+    //     component: EmbeddingsNode,
+    //     parent: 'llm',
+    //     name: i18n.t('embeddingsNodeTitle')
+    // },
     ],
-    open:true
+    open: true
 },
 {
     title: i18n.t('webAgent'),

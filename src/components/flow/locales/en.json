@@ -190,6 +190,7 @@
     "roleName": "姓名",
     "inputRolePlaceholder": "请描述角色的特征，我是...",
 
+    "llm": "LLMs",
     "promptNodeTitle": "Prompt Engineering",
     "userInput": "UserInput",
     "translate": "Translate",

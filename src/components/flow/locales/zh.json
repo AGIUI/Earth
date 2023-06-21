@@ -198,7 +198,7 @@
     "roleName": "姓名",
     "inputRolePlaceholder": "请描述角色的特征，我是...",
 
-
+    "llm": "LLMs大语言模型",
     "promptNodeTitle": "提示工程",
     "userInput": "指令",
     "translate": "翻译",
