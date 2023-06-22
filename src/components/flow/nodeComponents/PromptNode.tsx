@@ -37,7 +37,7 @@ function Main({ id, data, selected }: any) {
   const [output, setOutput] = React.useState(data.output)
 
   const updateData = (e: any) => {
-    // console.log(e)
+    console.log(e)
     if (e.key === 'model') {
       setModel(e.data);
       data.onChange({ id, data: { model: e.data } })
@@ -54,8 +54,7 @@ function Main({ id, data, selected }: any) {
       // console.log('updateData:',e,shouldRefresh)
     }
 
-    if (e.key === 'input') {
-      setInput(e.data);
+    if(e.key=='debugInput'){
       data.onChange({
         id, data: {
           debugInput: e.data
@@ -63,9 +62,19 @@ function Main({ id, data, selected }: any) {
       })
     }
 
+    // nodeinput
+    if (e.key === 'input') {
+      setInput(e.data);
+      data.onChange({
+        id, data: {
+          input: e.data
+        }
+      })
+    }
+
     if (e.key === 'output') {
       setOutput(e.data);
-      data.onChange({ id, data: { debugOutput: e.data } })
+      data.onChange({ id, data: { output: e.data } })
     }
 
     if (e.key == "nodeInput") {
@@ -132,7 +141,10 @@ function Main({ id, data, selected }: any) {
             try {
               json = JSON.parse(data);
               setStatusInputForDebug('')
-              updateData(event)
+              updateData({
+                key:'debugInput',
+                data:data
+              })
             } catch (error) {
               setStatusInputForDebug('error')
             }
