@@ -263,6 +263,12 @@ class Common {
                                     return item
                                 })
                             }
+                            if (responseExtract.type === 'audio') {
+                                if (!(items.match('http://') || items.match('https://')) && !items.match('data:audio')) {
+                                    items = `data:audio/mpeg;base64,` + items;
+                                }
+                                apiResult = items;
+                            }
                         }
                         const result = {
                             data: apiResult,

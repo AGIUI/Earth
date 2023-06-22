@@ -168,11 +168,12 @@
     "deleteYes": "是的",
     "deleteNo": "取消",
 
+    "clone": "复制",
     "apiNodeTitle": "API调用",
     "url": "URL",
     "urlPlaceholder": "请输入www.xxxx.com",
     "method": "方法",
-    "parama": "参数(字符串)",
+    "paramaBody": "参数(字符串) Body",
     "getFromBefore": "从上一节点获取文本 ${context} ",
     "getFromBeforeTips": "*可以在指令任意位置里插入\"${context}\"",
     "responseType": "返回的数据类型",

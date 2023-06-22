@@ -103,7 +103,7 @@ function Main({ id, data, selected }: any) {
                     },
                     () => {
                         console.log('debugFun debugInput', debugInput)
-                        if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+                        if (debugInput != "" && debugInput && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
                             let merged;
                             try {
                                 merged = JSON.parse(debugInput)
@@ -115,12 +115,15 @@ function Main({ id, data, selected }: any) {
                             data.debugInput = JSON.stringify(merged, null, 2);
                             if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
                             data.debug && data.debug(data);
-                        } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
+                        } else if (debugInput == "" || debugInput && debugInput.replace(/\s/ig, "") == "[]") {
                             data.merged = null;
                             data.debugInput = "";
                             if (data.role) data.role.merged = null;
                             console.log('debugFun no merged', data)
                             data.debug && data.debug(data)
+                            setShouldRefresh(true);
+                        } else if (debugInput === undefined) {
+                            data.debug && data.debug(data);
                             setShouldRefresh(true);
                         }
                     },
@@ -136,17 +139,7 @@ function Main({ id, data, selected }: any) {
 
 
     return (
-        <Dropdown menu={{
-            items: contextMenus.filter((c: any) => c.key !== 'delete'),
-            onClick: (e: any) => {
-                if (e.key == 'debug' && data.debug) {
-                    data.debug(data)
-                };
-                if (e.key == 'delete') {
-                    data.delete(id)
-                }
-            }
-        }}
+        <Dropdown menu={contextMenus(id, data, ['debug'])}
             trigger={['contextMenu']}
         >
             <div style={selected ? {

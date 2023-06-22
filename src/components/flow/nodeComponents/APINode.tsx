@@ -1,7 +1,7 @@
 import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
-import { Card, Dropdown } from 'antd';
-import type { MenuProps } from 'antd';
+import { Card, Dropdown, Button, Popconfirm } from 'antd';
+
 import { createDebug, selectNodeInput, createURL, createSelect, createTextArea, nodeStyle, getI18n } from './Base';
 
 import i18n from "i18next";
@@ -23,7 +23,7 @@ function Main({ id, data, selected }: any) {
 
     const [statusInput, setStatusInput] = React.useState('')
 
-    const [body, setBody] = React.useState(JSON.stringify(api.init.body, null, 2))
+    const [body, setBody] = React.useState(typeof (api.init.body) == 'object' ? JSON.stringify(api.init.body, null, 2) : '{}')
 
     const [bodyStatus, setBodyStatus] = React.useState('');
 
@@ -32,10 +32,11 @@ function Main({ id, data, selected }: any) {
         if (e.key != 'draggable') console.log(JSON.stringify(e, null, 2))
 
         if (e.key === 'api') {
-            data.onChange({ id, data: { api: e.data } })
+            data.onChange({ id, data: { api: e.data, debugInput: "" } })
             setApi(e.data);
             setInit(JSON.stringify(e.data.init, null, 2))
             setStatusInput('success');
+            setShouldRefresh(true);
         }
 
         if (e.key === 'error-input') {
@@ -57,11 +58,13 @@ function Main({ id, data, selected }: any) {
                         api: {
                             ...api,
                             init
-                        }
+                        },
+                        debugInput: ""
                     }
                 })
                 setInit(JSON.stringify(init, null, 2))
                 setBodyStatus('')
+                setShouldRefresh(true);
             } catch (error) {
                 setBodyStatus('error')
             }
@@ -94,21 +97,14 @@ function Main({ id, data, selected }: any) {
     //         key: '', type: ''
     //     })
     // }
-
+    console.log('setShouldRefresh(true)', data.debugInput, debugInput, shouldRefresh)
     if (data.debugInput != debugInput && shouldRefresh) {
         setDebugInput(data.debugInput);
         setShouldRefresh(false)
     }
 
     return (
-        <Dropdown menu={{ items: contextMenus,onClick: (e: any) => { 
-            if (e.key == 'debug' && data.debug) {
-              data.debug(data)
-            };
-            if(e.key=='delete'){
-              data.delete(id)
-            }
-          }}} trigger={['contextMenu']}>
+        <Dropdown menu={contextMenus(id, data)} trigger={['contextMenu']}>
             <div
                 style={selected ? {
                     ...nodeStyle,
@@ -122,7 +118,7 @@ function Main({ id, data, selected }: any) {
                     title={
                         <>
                             <p style={{ marginBottom: 0 }}>{i18n.t('apiNodeTitle')}</p>
-                            <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0 ,fontWeight:"normal",marginBottom:10 }}>
+                            <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0, fontWeight: "normal", marginBottom: 10 }}>
                                 ID: {id}
                             </p>
                         </>
@@ -185,13 +181,18 @@ function Main({ id, data, selected }: any) {
                         }
 
                         {
-                            createTextArea(i18n.t('parama'), body, '', bodyStatus, (e: any) => {
+                            createTextArea(i18n.t('paramaBody'), body, '', bodyStatus, (e: any) => {
                                 updateData({
                                     key: "body",
                                     data: e.data
                                 })
-                            })
+                            }, JSON.stringify({
+                                "batchCount": 3,
+                                "prompt": "\${context}",
+                                "steps": 22
+                            }, null, 2))
                         }
+
 
                         {
                             selectNodeInput(i18n.t('getFromBefore'), nodeInputId, nodeOpts, updateData)
@@ -226,7 +227,7 @@ function Main({ id, data, selected }: any) {
                                 { value: 'text', label: i18n.t('text') },
                                 { value: 'images', label: i18n.t('images') },
                                 { value: 'json', label: 'JSON', disabled: true },
-                                { value: 'audio', label: i18n.t('audio'), disabled: true }
+                                { value: 'audio', label: i18n.t('audio'), disabled: false }
                             ], (e: any) => {
                                 if (e.key == i18n.t('output')) {
                                     const d = {
@@ -278,51 +279,54 @@ function Main({ id, data, selected }: any) {
 
 
                         {
-                           createDebug(debugMenu, id,
-                            debugInput,
-                            data.debugOutput,
-                            (event: any) => {
-                                if (event.key == 'input') {
-                                    const { data } = event;
-                                    setDebugInput(data)
-                                    let json: any;
-                                    try {
-                                        json = JSON.parse(data);
-                                        setStatusInputForDebug('')
-                                    } catch (error) {
-                                        setStatusInputForDebug('error')
+                            createDebug(debugMenu, id,
+                                debugInput,
+                                data.debugOutput,
+                                (event: any) => {
+                                    if (event.key == 'input') {
+                                        const { data } = event;
+                                        setDebugInput(data)
+                                        let json: any;
+                                        try {
+                                            json = JSON.parse(data);
+                                            setStatusInputForDebug('')
+                                        } catch (error) {
+                                            setStatusInputForDebug('error')
+                                        }
+                                    };
+                                    if (event.key == 'draggable') updateData(event)
+                                },
+                                () => {
+                                    console.log('debugFun debugInput', debugInput)
+                                    if (debugInput != "" && debugInput && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+                                        let merged;
+                                        try {
+                                            merged = JSON.parse(debugInput)
+                                        } catch (error) {
+
+                                        }
+                                        console.log('debugFun merged', merged)
+                                        data.merged = merged;
+                                        data.debugInput = JSON.stringify(merged, null, 2);
+                                        if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
+                                        data.debug && data.debug(data);
+                                    } else if (debugInput == "" || debugInput && debugInput.replace(/\s/ig, "") == "[]") {
+                                        data.merged = null;
+                                        data.debugInput = "";
+                                        if (data.role) data.role.merged = null;
+                                        console.log('debugFun no merged', data)
+                                        data.debug && data.debug(data);
+                                        setShouldRefresh(true);
+                                    } else if (debugInput === undefined) {
+                                        data.debug && data.debug(data);
+                                        setShouldRefresh(true);
                                     }
-                                };
-                                if (event.key == 'draggable') updateData(event)
-                            },
-                            () => {
-                                console.log('debugFun debugInput', debugInput)
-                                if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
-                                    let merged;
-                                    try {
-                                        merged = JSON.parse(debugInput)
-                                    } catch (error) {
-        
-                                    }
-                                    console.log('debugFun merged', merged)
-                                    data.merged = merged;
-                                    data.debugInput = JSON.stringify(merged, null, 2);
-                                    if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
-                                    data.debug && data.debug(data);
-                                } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
-                                    data.merged = null;
-                                    data.debugInput = "";
-                                    if (data.role) data.role.merged = null;
-                                    console.log('debugFun no merged', data)
-                                    data.debug && data.debug(data)
-                                    setShouldRefresh(true);
-                                }
-                            },
-                            () => data.merge && data.merge(data),
-                            {
-                                statusInput: statusInputForDebug,
-                                statusOutput: ""
-                            })
+                                },
+                                () => data.merge && data.merge(data),
+                                {
+                                    statusInput: statusInputForDebug,
+                                    statusOutput: ""
+                                })
                         }
 
                     </div>

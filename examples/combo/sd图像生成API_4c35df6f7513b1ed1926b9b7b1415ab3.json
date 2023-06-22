@@ -1,1 +1,149 @@
-﻿[{"tag":"sd图像生成API","role":{"name":"","text":"擅长艺术风格"},"combo":5,"interfaces":["showInChat","contextMenus"],"isInfinite":false,"owner":"user","prompt":{"id":"prompt24c35df6f7513b1ed1926b9b7b1415ab3","nextId":"prompt34c35df6f7513b1ed1926b9b7b1415ab3","nodeInputId":"","role":{"name":"","text":"擅长艺术风格"},"text":"","url":"","queryObj":{"action":"read","content":"bindCurrentPage","isQuery":false,"protocol":"https://","query":"","url":""},"temperature":0.6,"model":"ChatGPT","input":"nodeInput","userInput":"","translate":"default","output":"default","type":"queryRead"},"version":"0.1.0","app":"brainwave","id":"4c35df6f7513b1ed1926b9b7b1415ab3","createDate":1686641022719,"prompt2":{"id":"prompt34c35df6f7513b1ed1926b9b7b1415ab3","nextId":"prompt44c35df6f7513b1ed1926b9b7b1415ab3","nodeInputId":"prompt24c35df6f7513b1ed1926b9b7b1415ab3","role":{"name":"","text":"擅长艺术风格"},"text":"提取text里的主题关键词，添加镜头语言，并生成5句英文prompt，配上中英文解释。","url":"","temperature":0.3,"model":"ChatGPT","input":"nodeInput","userInput":"","translate":"translate-en","output":"default","type":"prompt"},"prompt3":{"id":"prompt44c35df6f7513b1ed1926b9b7b1415ab3","nextId":"prompt54c35df6f7513b1ed1926b9b7b1415ab3","nodeInputId":"prompt34c35df6f7513b1ed1926b9b7b1415ab3","role":{"name":"","text":"擅长艺术风格"},"text":"挑选出1句最有画面感的英文prompt，并按照格式：\na photo of {human} ,{action} ,{sky},{light},{style} 改写句子，输出结果","url":"","temperature":0.6,"model":"ChatGPT","input":"nodeInput","userInput":"","translate":"translate-en","output":"default","type":"prompt"},"prompt4":{"id":"prompt54c35df6f7513b1ed1926b9b7b1415ab3","nextId":"prompt64c35df6f7513b1ed1926b9b7b1415ab3","nodeInputId":"prompt44c35df6f7513b1ed1926b9b7b1415ab3","role":{"name":"","text":"擅长艺术风格"},"text":"只保留英文，提取改写后的结果","url":"","temperature":0.6,"model":"ChatGPT","input":"nodeInput","userInput":"","translate":"translate-en","output":"default","type":"prompt"},"prompt5":{"id":"prompt64c35df6f7513b1ed1926b9b7b1415ab3","nextId":"","nodeInputId":"prompt54c35df6f7513b1ed1926b9b7b1415ab3","role":{"name":"","text":"擅长艺术风格"},"text":"","url":"127.0.0.1:7860/sdapi/v1/txt2img","api":{"body":{"batchCount":3,"prompt":"${text}","steps":22},"init":{"body":{"batch_size":3,"prompt":"${text}","steps":22},"cache":"default","extract":{"key":"images","type":"images"},"headers":{"Content-Type":"application/json"},"method":"POST","mode":"cors","responseExtract":{"key":"images","type":"images"},"responseType":"json"},"isApi":true,"protocol":"http://","responseType":"json","url":"127.0.0.1:7860/sdapi/v1/txt2img"},"temperature":0.6,"model":"ChatGPT","input":"nodeInput","userInput":"","translate":"default","output":"default","type":"api"}}]
+﻿[{
+    "tag": "sd图像生成API",
+    "role": {
+        "name": "",
+        "text": "擅长艺术风格"
+    },
+    "combo": 5,
+    "interfaces": [
+        "showInChat",
+        "contextMenus"
+    ],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+        "id": "prompt24c35df6f7513b1ed1926b9b7b1415ab3",
+        "nextId": "prompt34c35df6f7513b1ed1926b9b7b1415ab3",
+        "nodeInputId": "",
+        "role": {
+            "name": "",
+            "text": "擅长艺术风格"
+        },
+        "text": "",
+        "url": "",
+        "queryObj": {
+            "action": "read",
+            "content": "bindCurrentPage",
+            "isQuery": false,
+            "protocol": "https://",
+            "query": "",
+            "url": ""
+        },
+        "temperature": 0.6,
+        "model": "ChatGPT",
+        "input": "nodeInput",
+        "userInput": "",
+        "translate": "default",
+        "output": "default",
+        "type": "queryRead"
+    },
+    "version": "0.1.0",
+    "app": "brainwave",
+    "id": "4c35df6f7513b1ed1926b9b7b1415ab3",
+    "createDate": 1686641022719,
+    "prompt2": {
+        "id": "prompt34c35df6f7513b1ed1926b9b7b1415ab3",
+        "nextId": "prompt44c35df6f7513b1ed1926b9b7b1415ab3",
+        "nodeInputId": "prompt24c35df6f7513b1ed1926b9b7b1415ab3",
+        "role": {
+            "name": "",
+            "text": "擅长艺术风格"
+        },
+        "text": "提取text里的主题关键词，添加镜头语言，并生成5句英文prompt，配上中英文解释。",
+        "url": "",
+        "temperature": 0.3,
+        "model": "ChatGPT",
+        "input": "nodeInput",
+        "userInput": "",
+        "translate": "translate-en",
+        "output": "default",
+        "type": "prompt"
+    },
+    "prompt3": {
+        "id": "prompt44c35df6f7513b1ed1926b9b7b1415ab3",
+        "nextId": "prompt54c35df6f7513b1ed1926b9b7b1415ab3",
+        "nodeInputId": "prompt34c35df6f7513b1ed1926b9b7b1415ab3",
+        "role": {
+            "name": "",
+            "text": "擅长艺术风格"
+        },
+        "text": "挑选出1句最有画面感的英文prompt，并按照格式：\na photo of {human} ,{action} ,{sky},{light},{style} 改写句子，输出结果",
+        "url": "",
+        "temperature": 0.6,
+        "model": "ChatGPT",
+        "input": "nodeInput",
+        "userInput": "",
+        "translate": "translate-en",
+        "output": "default",
+        "type": "prompt"
+    },
+    "prompt4": {
+        "id": "prompt54c35df6f7513b1ed1926b9b7b1415ab3",
+        "nextId": "prompt64c35df6f7513b1ed1926b9b7b1415ab3",
+        "nodeInputId": "prompt44c35df6f7513b1ed1926b9b7b1415ab3",
+        "role": {
+            "name": "",
+            "text": "擅长艺术风格"
+        },
+        "text": "只保留英文，提取改写后的结果",
+        "url": "",
+        "temperature": 0.6,
+        "model": "ChatGPT",
+        "input": "nodeInput",
+        "userInput": "",
+        "translate": "translate-en",
+        "output": "default",
+        "type": "prompt"
+    },
+    "prompt5": {
+        "id": "prompt64c35df6f7513b1ed1926b9b7b1415ab3",
+        "nextId": "",
+        "nodeInputId": "prompt54c35df6f7513b1ed1926b9b7b1415ab3",
+        "role": {
+            "name": "",
+            "text": "擅长艺术风格"
+        },
+        "text": "",
+        "url": "127.0.0.1:7860/sdapi/v1/txt2img",
+        "api": {
+            "body": {
+                "batchCount": 3,
+                "prompt": "${context}",
+                "steps": 22
+            },
+            "init": {
+                "body": {
+                    "batch_size": 3,
+                    "prompt": "${context}",
+                    "steps": 22
+                },
+                "cache": "default",
+                "extract": {
+                    "key": "images",
+                    "type": "images"
+                },
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "method": "POST",
+                "mode": "cors",
+                "responseExtract": {
+                    "key": "images",
+                    "type": "images"
+                },
+                "responseType": "json"
+            },
+            "isApi": true,
+            "protocol": "http://",
+            "responseType": "json",
+            "url": "127.0.0.1:7860/sdapi/v1/txt2img"
+        },
+        "temperature": 0.6,
+        "model": "ChatGPT",
+        "input": "nodeInput",
+        "userInput": "",
+        "translate": "default",
+        "output": "default",
+        "type": "api"
+    }
+}]

@@ -180,6 +180,8 @@ function Main({ id, data, selected }: any) {
                 console.log('debugFun no merged', data)
                 data.debug && data.debug(data)
                 setShouldRefresh(true);
+            }else if (debugInput === undefined) {
+              data.debug && data.debug(data)
             }
         },
         () => data.merge && data.merge(data),
@@ -207,14 +209,7 @@ function Main({ id, data, selected }: any) {
 
 
   return (
-    <Dropdown menu={{ items: contextMenus,onClick: (e: any) => { 
-      if (e.key == 'debug' && data.debug) {
-        data.debug(data)
-      };
-      if(e.key=='delete'){
-        data.delete(id)
-      }
-    } }} trigger={['contextMenu']}>
+    <Dropdown menu={contextMenus(id, data)} trigger={['contextMenu']}>
       <div style={selected ? {
         ...nodeStyle,
         backgroundColor: 'cornflowerblue'

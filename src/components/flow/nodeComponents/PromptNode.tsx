@@ -37,7 +37,7 @@ function Main({ id, data, selected }: any) {
   const [output, setOutput] = React.useState(data.output)
 
   const updateData = (e: any) => {
-    // console.log(e)
+    console.log(e)
     if (e.key === 'model') {
       setModel(e.data);
       data.onChange({ id, data: { model: e.data } })
@@ -49,9 +49,20 @@ function Main({ id, data, selected }: any) {
 
     if (e.key === 'text') {
       setText(e.data);
-      data.onChange({ id, data: { text: e.data } })
+      data.onChange({ id, data: { text: e.data, debugInput: "" } });
+      setShouldRefresh(true);
+      // console.log('updateData:',e,shouldRefresh)
     }
 
+    if(e.key=='debugInput'){
+      data.onChange({
+        id, data: {
+          debugInput: e.data
+        }
+      })
+    }
+
+    // nodeinput
     if (e.key === 'input') {
       setInput(e.data);
       data.onChange({
@@ -88,7 +99,10 @@ function Main({ id, data, selected }: any) {
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
 
-
+  if (data.debugInput != debugInput && shouldRefresh) {
+    setDebugInput(data.debugInput);
+    setShouldRefresh(false)
+  }
 
 
   const createNode = () => {
@@ -99,11 +113,6 @@ function Main({ id, data, selected }: any) {
     let selectNodeValue = input === "nodeInput" ? (nodeInputId) : null
     // console.log('selectNodeValue',selectNodeValue,nodeInputId,nodeOpts[0],data)
     // setNodeInputId(selectNodeValue)
-
-    if (data.debugInput != debugInput && shouldRefresh) {
-      setDebugInput(data.debugInput);
-      setShouldRefresh(false)
-    }
 
     node.push(
       createText('text', i18n.t('userInput'), '', text, '', updateData)
@@ -132,6 +141,10 @@ function Main({ id, data, selected }: any) {
             try {
               json = JSON.parse(data);
               setStatusInputForDebug('')
+              updateData({
+                key:'debugInput',
+                data:data
+              })
             } catch (error) {
               setStatusInputForDebug('error')
             }
@@ -140,7 +153,7 @@ function Main({ id, data, selected }: any) {
         },
         () => {
           console.log('debugFun debugInput', debugInput)
-          if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+          if (debugInput != "" && debugInput && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
             let merged;
             try {
               merged = JSON.parse(debugInput)
@@ -152,13 +165,16 @@ function Main({ id, data, selected }: any) {
             data.debugInput = JSON.stringify(merged, null, 2);
             if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
             data.debug && data.debug(data);
-          } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
+          } else if (debugInput == "" || debugInput && debugInput.replace(/\s/ig, "") == "[]") {
             data.merged = null;
             data.debugInput = "";
             if (data.role) data.role.merged = null;
             console.log('debugFun no merged', data)
             data.debug && data.debug(data)
-            setShouldRefresh(true);selectNodeInput
+            setShouldRefresh(true);
+          } else if (debugInput === undefined) {
+            data.debug && data.debug(data);
+            setShouldRefresh(true);
           }
         },
         () => data.merge && data.merge(data),
@@ -167,6 +183,7 @@ function Main({ id, data, selected }: any) {
           statusOutput: ""
         })
     )
+
 
     return <Card
       key={id}
@@ -186,17 +203,7 @@ function Main({ id, data, selected }: any) {
   }
 
   return (
-    <Dropdown menu={{
-      items: contextMenus,
-      onClick: (e: any) => {
-        if (e.key == 'debug' && data.debug) {
-          data.debug(data)
-        };
-        if (e.key == 'delete') {
-          data.delete(id)
-        }
-      }
-    }} trigger={['contextMenu']}>
+    <Dropdown menu={contextMenus(id, data)} trigger={['contextMenu']}>
       <div style={selected ? {
         ...nodeStyle,
         backgroundColor: 'cornflowerblue'
