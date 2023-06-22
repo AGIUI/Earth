@@ -207,6 +207,7 @@
 
     "queryClickNodeTitle": "Simulate click event",
     "selectQuery": "SelectQuery",
+    "queryClickPlaceholder": "#<idName> or .<className>",
 
     "queryReadNodeTitle": "Content Reading",
     "queryReadRunResult": "Read result",

@@ -19,11 +19,11 @@
     "divergenceDegree": "发散程度",
     "model": "模型",
     "default": "默认",
-    "bindWebContent": "绑定网页正文",
-    "bindWebHTML": "绑定网页HTML",
-    "bindWebURL": "绑定网页URL",
-    "bindWebTitle": "网页标题",
-    "bindWebImages": "网页图片",
+    "bindWebContent": "获取内容文本",
+    "bindWebHTML": "获取内容HTML",
+    "bindWebURL": "获取网页URL",
+    "bindWebTitle": "获取网页标题",
+    "bindWebImages": "获取网页图片",
     "lastTalk": "最近一条回复",
     "userSelection": "用户划选",
     "clipboard": "剪切板",
@@ -168,8 +168,6 @@
     "deleteYes": "是的",
     "deleteNo": "取消",
 
-
-
     "apiNodeTitle": "API调用",
     "url": "URL",
     "urlPlaceholder": "请输入www.xxxx.com",
@@ -200,7 +198,8 @@
     "inputRolePlaceholder": "请描述角色的特征，我是...",
 
     "llm": "LLMs大语言模型",
-    "promptNodeTitle": "提示工程",
+    "promptNodeTitle": "预设置Prompt",
+    "blankPromptNodeTitle": "自定义Prompt",
     "userInput": "指令",
     "translate": "翻译",
     "format": "-",
@@ -215,6 +214,7 @@
 
     "queryClickNodeTitle": "模拟点击事件",
     "selectQuery": "SelectQuery",
+    "queryClickPlaceholder": "#<idName>或者.<className>",
 
     "queryReadNodeTitle": "内容读取",
     "queryReadRunResult": "读取结果",

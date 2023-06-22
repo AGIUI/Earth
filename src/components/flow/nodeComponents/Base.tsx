@@ -201,7 +201,6 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
 }
 
 // 选择输入，从用户输入 or 从节点
-
 export const selectInput = (
     nodeInputLabel: string,
     userInputLabel: string,

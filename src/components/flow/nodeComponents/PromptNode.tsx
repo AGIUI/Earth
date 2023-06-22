@@ -105,7 +105,6 @@ function Main({ id, data, selected }: any) {
       setShouldRefresh(false)
     }
 
-
     node.push(
       createText('text', i18n.t('userInput'), '', text, '', updateData)
     )
