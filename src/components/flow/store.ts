@@ -43,7 +43,7 @@ const createId = (type: string, id: string) => `${type}_${id}`.toLocaleUpperCase
 
 const getNodes = (currentId: string, nodes: any, edges: any) => {
   const edge = edges.filter((e: any) => e.target == currentId)[0];
-  console.log('getNodes edge::',edge)
+  console.log('getNodes edge::', edge)
   const nodeOpts = Array.from(nodes, (node: any, i) => {
     return {
       value: node.id,
@@ -51,7 +51,7 @@ const getNodes = (currentId: string, nodes: any, edges: any) => {
       id: node.id,
       index: edge && node.id == edge.source ? 1 : 0
     }
-  }).filter((n: any) => n.id != currentId && !n.id.match("root_")).sort((b,a) => a.index - b.index)
+  }).filter((n: any) => n.id != currentId && !n.id.match("root_")).sort((b, a) => a.index - b.index)
   return nodeOpts
 }
 
@@ -115,13 +115,12 @@ const debugRun = (id: string, prompt: any, combo: any, debug: any, onChange: any
 }
 
 const mergeRun = (id: string, prompt: any, onChange: any, callback: any) => {
-
+  console.log('mergeRun:', prompt)
   let merged, success = false;
   try {
     merged = JSON.parse(prompt.debugInput);
     success = true;
   } catch (error) {
-
   }
 
   let data: any = {

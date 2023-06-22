@@ -49,7 +49,9 @@ function Main({ id, data, selected }: any) {
 
     if (e.key === 'text') {
       setText(e.data);
-      data.onChange({ id, data: { text: e.data } })
+      data.onChange({ id, data: { text: e.data, debugInput: "" } });
+      setShouldRefresh(true);
+      // console.log('updateData:',e,shouldRefresh)
     }
 
     if (e.key === 'input') {
@@ -88,7 +90,10 @@ function Main({ id, data, selected }: any) {
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
   }
 
-
+  if (data.debugInput != debugInput && shouldRefresh) {
+    setDebugInput(data.debugInput);
+    setShouldRefresh(false)
+  }
 
 
   const createNode = () => {
@@ -99,12 +104,6 @@ function Main({ id, data, selected }: any) {
     let selectNodeValue = input === "nodeInput" ? (nodeInputId) : null
     // console.log('selectNodeValue',selectNodeValue,nodeInputId,nodeOpts[0],data)
     // setNodeInputId(selectNodeValue)
-
-    if (data.debugInput != debugInput && shouldRefresh) {
-      setDebugInput(data.debugInput);
-      setShouldRefresh(false)
-    }
-
 
     node.push(
       createText('text', i18n.t('userInput'), '', text, '', updateData)
@@ -160,6 +159,8 @@ function Main({ id, data, selected }: any) {
             console.log('debugFun no merged', data)
             data.debug && data.debug(data)
             setShouldRefresh(true);
+          } else if (debugInput === undefined) {
+            data.debug && data.debug(data)
           }
         },
         () => data.merge && data.merge(data),
@@ -169,6 +170,7 @@ function Main({ id, data, selected }: any) {
         })
     )
 
+   
     return <Card
       key={id}
       title={

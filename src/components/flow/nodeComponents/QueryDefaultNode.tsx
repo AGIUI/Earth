@@ -160,6 +160,8 @@ function Main({ id, data, selected }: any) {
                 console.log('debugFun no merged', data)
                 data.debug && data.debug(data)
                 setShouldRefresh(true);
+            }else if (debugInput === undefined) {
+              data.debug && data.debug(data)
             }
         },
         () => data.merge && data.merge(data),

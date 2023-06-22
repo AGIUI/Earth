@@ -32,10 +32,11 @@ function Main({ id, data, selected }: any) {
         if (e.key != 'draggable') console.log(JSON.stringify(e, null, 2))
 
         if (e.key === 'api') {
-            data.onChange({ id, data: { api: e.data } })
+            data.onChange({ id, data: { api: e.data, debugInput: "" } })
             setApi(e.data);
             setInit(JSON.stringify(e.data.init, null, 2))
             setStatusInput('success');
+            setShouldRefresh(true);
         }
 
         if (e.key === 'error-input') {
@@ -57,11 +58,13 @@ function Main({ id, data, selected }: any) {
                         api: {
                             ...api,
                             init
-                        }
+                        },
+                        debugInput: ""
                     }
                 })
                 setInit(JSON.stringify(init, null, 2))
                 setBodyStatus('')
+                setShouldRefresh(true);
             } catch (error) {
                 setBodyStatus('error')
             }
@@ -94,7 +97,7 @@ function Main({ id, data, selected }: any) {
     //         key: '', type: ''
     //     })
     // }
-
+    console.log('setShouldRefresh(true)', data.debugInput, debugInput, shouldRefresh)
     if (data.debugInput != debugInput && shouldRefresh) {
         setDebugInput(data.debugInput);
         setShouldRefresh(false)
@@ -323,7 +326,7 @@ function Main({ id, data, selected }: any) {
                                         console.log('debugFun no merged', data)
                                         data.debug && data.debug(data);
                                         setShouldRefresh(true);
-                                    } else if(debugInput===undefined){
+                                    } else if (debugInput === undefined) {
                                         data.debug && data.debug(data)
                                     }
                                 },
