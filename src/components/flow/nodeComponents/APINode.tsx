@@ -104,16 +104,7 @@ function Main({ id, data, selected }: any) {
     }
 
     return (
-        <Dropdown menu={{
-            items: contextMenus, onClick: (e: any) => {
-                if (e.key == 'debug' && data.debug) {
-                    data.debug(data)
-                };
-                if (e.key == 'delete') {
-                    data.delete(id)
-                }
-            }
-        }} trigger={['contextMenu']}>
+        <Dropdown menu={contextMenus(id, data)} trigger={['contextMenu']}>
             <div
                 style={selected ? {
                     ...nodeStyle,

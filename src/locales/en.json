@@ -163,6 +163,8 @@
     "deleteYes": "Yes",
     "deleteNo": "Cancel",
 
+    "clone": "Clone",
+
     "apiNodeTitle": "API Call",
     "url": "URL",
     "urlPlaceholder": "Please enter www.xxxx.com",

@@ -549,15 +549,30 @@ export const getI18n = () => {
         mergeRun: i18n.t('mergeRun'),
     }
 
-    const contextMenus: any = [
-        {
-            label: i18n.t('debug'),
-            key: 'debug',
-        },
-        {
-            label: i18n.t("delete"),
-            key: "delete"
+    const contextMenus = (id: string, data: any, keys: any = ['debug', 'clone', 'delete']) => {
+
+        const items = Array.from(keys, (key: string) => ({
+            label: i18n.t(key),
+            key
+        }))
+
+        return {
+            items,
+            onClick: (e: any) => {
+                if (e.key == 'debug' && data.debug && keys.includes(e.key)) {
+                    data.debug(data)
+                };
+                if (e.key == 'delete' && keys.includes(e.key)) {
+                    data.delete(id)
+                }
+                if (e.key == 'clone' && keys.includes(e.key)) {
+                    data.clone(id)
+                }
+            }
         }
-    ];
+    }
+
+
+
     return { debugMenu, contextMenus }
 }

@@ -36,6 +36,7 @@ export type RFState = {
   changeChildNode: any;
   addNode: any;
   deleteNode: any;
+  cloneNode: any;
   exportData: any
 };
 
@@ -401,6 +402,7 @@ const useStore = create<RFState>((set, get) => ({
         });
       }
       nd.data['delete'] = (id: string) => get().deleteNode(id);
+      nd.data['clone'] = (id: string) => get().cloneNode(id);
       if (merge && merge.callback) nd.data['merge'] = (prompt: any) => mergeRun(nd.id, prompt, nd.data.onChange, merge.callback);
 
       return nd
@@ -480,15 +482,15 @@ const useStore = create<RFState>((set, get) => ({
 
     const debug = get().debug, merge = get().merge;
 
-
     if (debug && debug.open && debug.callback) newNode.data['debug'] = (prompt: any) => {
       get().exportData().then((combo: any) => {
         debugRun(newNode.id, prompt, combo, debug, newNode.data.onChange)
       });
     }
     newNode.data['delete'] = (id: string) => get().deleteNode(id);
-    if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, newNode.data.onChange, merge.callback);
+    newNode.data['clone'] = (id: string) => get().cloneNode(id);
 
+    if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, newNode.data.onChange, merge.callback);
 
     set({
       nodes: [...get().nodes, newNode]
@@ -552,6 +554,7 @@ const useStore = create<RFState>((set, get) => ({
     }
 
     newNode.data['delete'] = (id: string) => get().deleteNode(id);
+    newNode.data['clone'] = (id: string) => get().cloneNode(id);
 
     if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, newNode.data.onChange, merge.callback);
 
@@ -572,16 +575,31 @@ const useStore = create<RFState>((set, get) => ({
     });
   },
   deleteNode(deletedId: any) {
-    // console.log(deletedId)
-
     const nodes = get().nodes.filter(n => n.id != deletedId);
     const edges = get().edges.filter(n => n.target != deletedId && n.source != deletedId);
-
     set({
       nodes,
       edges
     });
+  },
+  cloneNode(cloneId: any) {
+    const nodes = get().nodes.filter(n => n.id == cloneId);
 
+    if (nodes.length === 1) {
+      let node: any = nodes[0];
+      node = {
+        ...node,
+        id: createId(node.type, nanoid()),
+        position: {
+          x: node.position.x + 350,
+          y: node.position.y
+        },
+        deletable: true,
+      }
+      set({
+        nodes: [...get().nodes, node]
+      });
+    }
   },
   exportData: () => {
     const comboId = get().id,
@@ -589,7 +607,6 @@ const useStore = create<RFState>((set, get) => ({
       comboOptions = get().comboOptions,
       edges = get().edges,
       nodes = get().nodes;
-
     return exportData(comboId, tag, comboOptions, edges, nodes)
   }
 }));
