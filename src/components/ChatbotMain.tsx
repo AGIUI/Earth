@@ -774,8 +774,7 @@ class Main extends React.Component<{
     }
 
 
-    _agentApiRun(prompt: any, nTalks: any, combo: any) {
-
+    _agentApiRun(prompt: any, combo: any) {
 
         let { url, init, protocol } = prompt.api;
 
@@ -786,13 +785,7 @@ class Main extends React.Component<{
 
         let prePromptText: any = "";
         if (prompt.input == "nodeInput") {
-            // 从上一个节点输出获取
-            if (!prompt.nodeInputId) {
-                prePromptText = Talks.getLastTalk([...nTalks]) || "";
-            } else {
-                const d = Talks.getTalkByPromptId(prompt.nodeInputId, [...nTalks]);
-                if (d) prePromptText = Talks.getTalkInnerText(d) || "";
-            }
+            prePromptText = prompt.context;
         }
 
 
@@ -809,7 +802,7 @@ class Main extends React.Component<{
         })
 
         console.log("sendMessageToBackground['api-run']", {
-            url, init, combo, promptId: prompt.id
+            url, init, combo, promptId: prompt.id, prePromptText
         })
 
         // 传递给父级
@@ -1098,7 +1091,7 @@ class Main extends React.Component<{
         this.props.callback({
             cmd: 'send-talk',
             data: data.prompt,
-            type:'prompt'
+            type: 'prompt'
         })
 
     }
@@ -1613,7 +1606,7 @@ class Main extends React.Component<{
                 // queryRead 读取
                 if (promptJson.type == "queryRead") this._queryReadRun(promptJson.queryObj);
 
-                if (promptJson.type === 'api') this._agentApiRun(promptJson, nTalks, currentCombo);
+                if (promptJson.type === 'api') this._agentApiRun(promptJson, currentCombo);
 
                 if (promptJson.type === 'highlight') {
                     // this._agentHighlightTextRun(lastTalk)

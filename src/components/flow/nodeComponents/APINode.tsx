@@ -23,7 +23,7 @@ function Main({ id, data, selected }: any) {
 
     const [statusInput, setStatusInput] = React.useState('')
 
-    const [body, setBody] = React.useState(JSON.stringify(api.init.body, null, 2))
+    const [body, setBody] = React.useState(typeof (api.init.body) == 'object' ? JSON.stringify(api.init.body, null, 2) : '{}')
 
     const [bodyStatus, setBodyStatus] = React.useState('');
 
@@ -327,7 +327,8 @@ function Main({ id, data, selected }: any) {
                                         data.debug && data.debug(data);
                                         setShouldRefresh(true);
                                     } else if (debugInput === undefined) {
-                                        data.debug && data.debug(data)
+                                        data.debug && data.debug(data);
+                                        setShouldRefresh(true);
                                     }
                                 },
                                 () => data.merge && data.merge(data),
