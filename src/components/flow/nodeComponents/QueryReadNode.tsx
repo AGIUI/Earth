@@ -10,6 +10,7 @@ import i18n from "i18next";
 
 const createUrl = (title1: string, title2: string, placeholder2: string, json: any, onChange: any) => {
   const { query, content } = json;
+  console.log("selection", content);
   const key = 'query'
   return <div onMouseOver={() => {
     onChange({
@@ -25,29 +26,15 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
     }}>
 
     {
-      createTextArea(title2, query, ".tag", "", (e: any) => {
-        const data = {
-          ...json,
-          query: e.data,
-          action: 'read'
-        }
-
-        onChange({
-          key: "query",
-          data
-        })
-      })
-    }
-
-
-    {
       createSelect(title1, content || "bindCurrentPage", [
         { value: 'bindCurrentPageHTML', label: i18n.t('bindWebHTML') },
         { value: 'bindCurrentPage', label: i18n.t('bindWebContent') },
+        { value: 'bindCurrentPageImages', label: i18n.t('bindWebImages') },
         { value: 'bindCurrentPageURL', label: i18n.t('bindWebURL') },
         { value: 'bindCurrentPageTitle', label: i18n.t('bindWebTitle') },
-        { value: 'bindCurrentPageImages', label: i18n.t('bindWebImages') },
+
       ], (e: any) => {
+
         if (e.key == title1) {
           // console.log(e)
           const data = {
@@ -63,6 +50,26 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
         }
 
       })
+    }
+
+    {
+      content === 'bindCurrentPageHTML' || content === 'bindCurrentPage' || content === 'bindCurrentPageImages'?
+      createTextArea(title2, query, placeholder2, "", (e: any) => {
+        const data = {
+          ...json,
+          query: e.data,
+          action: 'read'
+        }
+
+        onChange({
+          key: "query",
+          data
+        })
+      }):null
+    }
+    {
+      content === 'bindCurrentPageHTML' || content === 'bindCurrentPage' || content === 'bindCurrentPageImages'?
+      <p style={{marginTop:5,color:"red",fontSize:12}}>{i18n.t('queryReadPlaceholderTips')}</p>:null
     }
 
   </div>

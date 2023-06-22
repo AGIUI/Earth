@@ -25,7 +25,7 @@ const createUrl = (title: string, json: any, onChange: any) => {
     }}>
 
     {
-      createTextArea(title, query, ".tag", "", (e: any) => {
+      createTextArea(title, query, i18n.t('queryClickPlaceholder'), "", (e: any) => {
         const data = {
           ...json,
           query: e.data,
