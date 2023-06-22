@@ -105,6 +105,7 @@ const Talks = {
                     t.type == 'markdown' ||
                     t.type == 'done' ||
                     t.type == 'images' ||
+                    t.type == 'audio' ||
                     t.type == 'task'
                 ) {
                     newTalks.push(t);
@@ -123,7 +124,7 @@ const Talks = {
                 return
             }
 
-            if (v.type != 'images') {
+            if (v.type != 'images' && v.type != 'audio') {
                 // 去除空内容
                 const d = document.createElement('div');
                 d.innerHTML = v.html;
@@ -452,7 +453,7 @@ class Main extends React.Component<{
                 const ttype = responseExtract.type;
 
                 const markdown = `${i18n.t("APISucess")}:
-                TYPE:${data.responseType} ${ttype}
+                TYPE:${data.responseType.toLocaleUpperCase()} ${ttype.toLocaleUpperCase()}
                 CONTENT:${ttype == 'text' ? data.data.slice(0, 100) : ''}...`;
 
                 const items: any = [{
@@ -462,10 +463,19 @@ class Main extends React.Component<{
                     export: false
                 }];
 
+                // api 返回的是图片
                 if (ttype == 'images') {
                     items.push({
                         type: 'images',
                         images: result,
+                        tId: (new Date()).getTime() + '2',
+                        id: (new Date()).getTime() + '1',
+                        promptId
+                    })
+                } else if (ttype == 'audio') {
+                    items.push({
+                        type: 'audio',
+                        url: result,
                         tId: (new Date()).getTime() + '2',
                         id: (new Date()).getTime() + '1',
                         promptId
@@ -1277,6 +1287,17 @@ class Main extends React.Component<{
                     type: 'images'
                 }
                 delete data.images;
+                let d = { ...data, ...talk };
+                nTalks.push(d);
+
+            } else if (data.type === 'audio') {
+                // 音频
+                const talk = {
+                    html: `<audio src='${data.url}' controls />`,
+                    export: false,
+                    type: 'audio'
+                }
+                delete data.url;
                 let d = { ...data, ...talk };
                 nTalks.push(d);
 

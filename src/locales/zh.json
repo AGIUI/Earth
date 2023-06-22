@@ -174,7 +174,7 @@
     "url": "URL",
     "urlPlaceholder": "请输入www.xxxx.com",
     "method": "方法",
-    "parama": "参数(字符串)",
+    "paramaBody": "参数(字符串) Body",
     "getFromBefore": "从上一节点获取文本 ${context} ",
     "responseType": "返回的数据类型",
     "output": "输出",

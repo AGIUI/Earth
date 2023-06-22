@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { Input, Collapse, Divider, Button, Checkbox, Select, Radio, Slider } from 'antd';
+import { Input, Collapse, Divider, Button, Checkbox, Select, Radio, Slider, Popconfirm } from 'antd';
 
 const { Panel } = Collapse;
-import { CaretRightOutlined } from '@ant-design/icons';
+import { CaretRightOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -96,8 +96,21 @@ export const createSelect = (title: string, value: string, opts: any, onChange: 
     />
 </div>
 
-export const createTextArea = (title: string, value: string, placeholder: string, status: any, onChange: any) => <>
+export const createTextArea = (title: string, value: string, placeholder: string, status: any, onChange: any, help:any = null) => <>
     <p>{title}</p>
+ 
+    {help ? <Popconfirm
+        title="Title"
+        description={help}
+        onConfirm={() =>
+            new Promise((resolve) => {
+                setTimeout(() => resolve(null), 3000);
+            })}
+        onOpenChange={() => console.log('open change')}
+    >
+        <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
+    </Popconfirm> : ""}
+
     <TextArea
         value={value}
         rows={4}
@@ -163,7 +176,7 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
 
     const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0)
 
-    // console.log(nodeOpts.filter((n: any) => n.value === nodeInputId))
+    console.log('selectNodeInput:',nodeOpts,nodeInputId,checked)
     return <>
         <Checkbox
             style={{ marginTop: '12px' }}
@@ -172,7 +185,7 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
             onChange={(e) => {
                 setChecked(e.target.checked)
                 if (!nodeInputId && nodeOpts[0] && nodeOpts[0].index === 1) nodeInputId = nodeOpts[0].value;
-                console.log("Checkbox ",nodeInputId,nodeOpts)
+                console.log("Checkbox ", nodeInputId, nodeOpts)
                 onChange({
                     key: 'nodeInput',
                     data: e.target.checked ? nodeInputId : ""
