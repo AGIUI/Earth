@@ -817,8 +817,10 @@ class Main extends React.Component<{
             cmd: 'send-talk',
             data: {
                 url, init
-            }
+            },
+            type: "api"
         }), 500)
+
     }
 
     _queryClickRun(prompt: any, delay = 1000) {
@@ -960,7 +962,8 @@ class Main extends React.Component<{
                 query,
                 protocol,
                 url
-            }
+            },
+            type: "query"
         }), 500)
 
         setTimeout(() => this.props.callback({
@@ -1094,7 +1097,8 @@ class Main extends React.Component<{
         // 传递给父级
         this.props.callback({
             cmd: 'send-talk',
-            data
+            data: data.prompt,
+            type:'prompt'
         })
 
     }
