@@ -96,20 +96,35 @@ export const createSelect = (title: string, value: string, opts: any, onChange: 
     />
 </div>
 
-export const createTextArea = (title: string, value: string, placeholder: string, status: any, onChange: any, help:any = null) => <>
-    <p>{title}</p>
- 
-    {help ? <Popconfirm
-        title="Title"
-        description={help}
-        onConfirm={() =>
-            new Promise((resolve) => {
-                setTimeout(() => resolve(null), 3000);
-            })}
-        onOpenChange={() => console.log('open change')}
-    >
-        <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f' }} />
-    </Popconfirm> : ""}
+export const createTextArea = (title: string, value: string, placeholder: string, status: any, onChange: any, help: any = null) => <>
+
+    <div style={{
+        display: 'flex',
+        justifyContent: 'flex-start',
+        alignItems: 'center'
+    }}>
+        <p>{title}</p>
+
+        {help ? <Popconfirm
+            showCancel={false}
+            title={title}
+            description={
+                <TextArea
+                    // disabled={true}
+                    bordered={false}
+                    value={help}
+                    autoSize
+                ></TextArea>}
+            onConfirm={() =>
+                new Promise((resolve) => {
+                    setTimeout(() => resolve(null), 100);
+                })}
+            onOpenChange={() => console.log('open change')}
+        >
+            <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f', marginLeft: '8px' }} />
+        </Popconfirm> : ""}
+
+    </div>
 
     <TextArea
         value={value}
@@ -149,24 +164,38 @@ export const createOutput = (title: string, key: string, value: string, opts: an
 
 
 export const selectNodeInputBase = (nodeInputId: string, nodeOpts: any, onChange: any) => {
-    return <Select
-        value={nodeInputId}
-        style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
-        onChange={(e) => {
+    return <div
+        onMouseOver={() => {
             onChange({
-                key: 'nodeInput',
-                data: e
+                key: 'draggable',
+                data: false
             })
         }}
-        options={nodeOpts}
-        onClick={() => {
+        onMouseLeave={() => {
             onChange({
-                key: 'nodeInput-onClick',
-                data: nodeInputId
+                key: 'draggable',
+                data: true
             })
         }}
-
-    />
+    >
+        <Select
+            value={nodeInputId}
+            style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
+            onChange={(e) => {
+                onChange({
+                    key: 'nodeInput',
+                    data: e
+                })
+            }}
+            options={nodeOpts}
+            onClick={() => {
+                onChange({
+                    key: 'nodeInput-onClick',
+                    data: nodeInputId
+                })
+            }}
+        />
+    </div>
 }
 
 
@@ -176,8 +205,21 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
 
     const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0)
 
-    console.log('selectNodeInput:',nodeOpts,nodeInputId,checked)
-    return <>
+    console.log('selectNodeInput:', nodeOpts, nodeInputId, checked)
+    return <div
+        onMouseOver={() => {
+            onChange({
+                key: 'draggable',
+                data: false
+            })
+        }}
+        onMouseLeave={() => {
+            onChange({
+                key: 'draggable',
+                data: true
+            })
+        }}
+    >
         <Checkbox
             style={{ marginTop: '12px' }}
             defaultChecked={checked}
@@ -206,7 +248,7 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
                 options={nodeOpts}
             /> : ''
         }
-    </>
+    </div>
 }
 
 // 选择输入，从用户输入 or 从节点
