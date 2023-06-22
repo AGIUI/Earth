@@ -36,7 +36,7 @@ import 'reactflow/dist/style.css';
 import { _DEFAULTCOMBO, defaultNode } from './Workflow';
 
 import getNodes from './nodeComponents/index';
-import { lab } from 'd3-color';
+
 
 // 定义节点类型
 const nodeTypes: any = {};
