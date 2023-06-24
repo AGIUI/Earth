@@ -171,7 +171,7 @@
     "method": "Method",
     "paramaBody": "Parameters (String) Body",
     "getFromBefore": "Get text from previous node ${context}",
-    "getFromBeforeTips":"*You can insert \"${context}\" anywhere in the command",
+    "getFromBeforeTips": "*You can insert \"${context}\" anywhere in the command",
     "responseType": "Response Data Type",
     "output": "Output",
     "outputKeyword": "Output Field",
@@ -195,7 +195,8 @@
 
     "llm": "LLMs",
     "promptNodeTitle": "Default value Prompt",
-    "blankPromptNodeTitle": "Custom Prompt",
+    "customPromptNodeTitle": "Custom Prompt",
+    "custom": "Customization",
     "userInput": "UserInput",
     "translate": "Translate",
     "format": "-",

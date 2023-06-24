@@ -13,7 +13,20 @@ function BlankPromptNode({ id, data, selected }: any) {
     // i18nInit();
     const { debugMenu, contextMenus } = getI18n();
     const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
-    const [debugInput, setDebugInput] = React.useState((data.merged ? JSON.stringify(data.merged, null, 2) : ""));
+    let merged: any = data.merged;
+    if (merged && merged.length == 0) {
+        merged = [
+            {
+                role: 'system',
+                content: ''
+            },
+            {
+                role: 'user',
+                content: ''
+            }
+        ]
+    }
+    const [debugInput, setDebugInput] = React.useState((merged ? JSON.stringify(merged, null, 2) : ""));
     const [shouldRefresh, setShouldRefresh] = React.useState(true)
 
     // 模型
@@ -24,12 +37,7 @@ function BlankPromptNode({ id, data, selected }: any) {
     // input
     const [input, setInput] = React.useState(data.input)
     const [nodeInputId, setNodeInputId] = React.useState(data.nodeInputId)
-    // text
-    const [text, setText] = React.useState(data.text)
 
-    // output
-    const translates = data.opts.translates;
-    const [translate, setTranslate] = React.useState(data.translate)
 
     // output
     const outputs = data.opts.outputs;
@@ -47,9 +55,18 @@ function BlankPromptNode({ id, data, selected }: any) {
             data.onChange({ id, data: { temperature: e.data } })
         }
 
-        if (e.key === 'text') {
-            setText(e.data);
-            data.onChange({ id, data: { text: e.data } })
+        if (e.key === 'debugInput') {
+            setDebugInput(e.data);
+            data.onChange({ id, data: { debugInput: e.data } });
+
+            let json: any;
+            try {
+                json = JSON.parse(e.data);
+                setStatusInputForDebug('')
+            } catch (error) {
+                setStatusInputForDebug('error')
+            }
+
         }
 
         if (e.key === 'input') {
@@ -77,12 +94,6 @@ function BlankPromptNode({ id, data, selected }: any) {
             })
         }
 
-        // console.log(e)
-        if (e.key === i18n.t('translate')) {
-            setTranslate(e.data);
-            data.onChange({ id, data: { translate: e.data } })
-        }
-
 
         if (e.key == "debug") data.onChange({ id, data: e.data })
         if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
@@ -100,13 +111,13 @@ function BlankPromptNode({ id, data, selected }: any) {
         // console.log('selectNodeValue',selectNodeValue,nodeInputId,nodeOpts[0],data)
         // setNodeInputId(selectNodeValue)
 
-        if (data.debugInput != debugInput && shouldRefresh) {
-            setDebugInput(data.debugInput);
-            setShouldRefresh(false)
-        }
+        // if (data.debugInput != debugInput && shouldRefresh) {
+        //     setDebugInput(data.debugInput);
+        //     setShouldRefresh(false)
+        // }
 
         node.push(
-            createText('input', i18n.t('userInput'), '', text, '', updateData)
+            createText('debugInput', i18n.t('custom'), '', debugInput, statusInputForDebug, updateData)
         )
         node.push(
             selectNodeInput(i18n.t('getFromBefore'), selectNodeValue, nodeOpts, updateData)
@@ -114,59 +125,66 @@ function BlankPromptNode({ id, data, selected }: any) {
 
         node.push(createModel(model, temperature, models, updateData))
 
-        // node.push(
-        //     createDebug(debugMenu, id,
-        //         debugInput,
-        //         data.debugOutput,
-        //         (event: any) => {
-        //             if (event.key == 'input') {
-        //                 const { data } = event;
-        //                 setDebugInput(data)
-        //                 let json: any;
-        //                 try {
-        //                     json = JSON.parse(data);
-        //                     setStatusInputForDebug('')
-        //                 } catch (error) {
-        //                     setStatusInputForDebug('error')
-        //                 }
-        //             };
-        //             if (event.key == 'draggable') updateData(event)
-        //         },
-        //         () => {
-        //             console.log('debugFun debugInput', debugInput)
-        //             if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
-        //                 let merged;
-        //                 try {
-        //                     merged = JSON.parse(debugInput)
-        //                 } catch (error) {
-        //
-        //                 }
-        //                 console.log('debugFun merged', merged)
-        //                 data.merged = merged;
-        //                 data.debugInput = JSON.stringify(merged, null, 2);
-        //                 if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
-        //                 data.debug && data.debug(data);
-        //             } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
-        //                 data.merged = null;
-        //                 data.debugInput = "";
-        //                 if (data.role) data.role.merged = null;
-        //                 console.log('debugFun no merged', data)
-        //                 data.debug && data.debug(data)
-        //                 setShouldRefresh(true);selectNodeInput
-        //             }
-        //         },
-        //         () => data.merge && data.merge(data),
-        //         {
-        //             statusInput: statusInputForDebug,
-        //             statusOutput: ""
-        //         })
-        // )
+        node.push(
+            createDebug(debugMenu, id,
+                debugInput,
+                data.debugOutput,
+                (event: any) => {
+                    if (event.key == 'input') {
+                        const { data } = event;
+                        setDebugInput(data)
+                        let json: any;
+                        try {
+                            json = JSON.parse(data);
+                            setStatusInputForDebug('')
+                            updateData({
+                                key: 'debugInput',
+                                data: data
+                            })
+                        } catch (error) {
+                            setStatusInputForDebug('error')
+                        }
+                    };
+                    if (event.key == 'draggable') updateData(event)
+                },
+                () => {
+                    console.log('debugFun debugInput', debugInput)
+                    if (debugInput != "" && debugInput && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+                        let merged;
+                        try {
+                            merged = JSON.parse(debugInput)
+                        } catch (error) {
+
+                        }
+                        console.log('debugFun merged', merged)
+                        data.merged = merged;
+                        data.debugInput = JSON.stringify(merged, null, 2);
+                        if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
+                        data.debug && data.debug(data);
+                    } else if (debugInput == "" || debugInput && debugInput.replace(/\s/ig, "") == "[]") {
+                        data.merged = null;
+                        data.debugInput = "";
+                        if (data.role) data.role.merged = null;
+                        console.log('debugFun no merged', data)
+                        data.debug && data.debug(data)
+                        setShouldRefresh(true);
+                    } else if (debugInput === undefined) {
+                        data.debug && data.debug(data);
+                        setShouldRefresh(true);
+                    }
+                },
+                () => data.merge && data.merge(data),
+                {
+                    statusInput: statusInputForDebug,
+                    statusOutput: ""
+                })
+        )
 
         return <Card
             key={id}
             title={
                 <>
-                    <p style={{ marginBottom: 0 }}>{i18n.t('blankPromptNodeTitle')}</p>
+                    <p style={{ marginBottom: 0 }}>{i18n.t('customPromptNodeTitle')}</p>
                     <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0, fontWeight: "normal", marginBottom: 10 }}>
                         ID: {id}
                     </p>
@@ -180,22 +198,12 @@ function BlankPromptNode({ id, data, selected }: any) {
     }
 
     return (
-        <Dropdown menu={{
-            items: contextMenus,
-            onClick: (e: any) => {
-                if (e.key == 'debug' && data.debug) {
-                    data.debug(data)
-                };
-                if (e.key == 'delete') {
-                    data.delete(id)
-                }
-            }
-        }} trigger={['contextMenu']}>
+        <Dropdown menu={contextMenus(id, data)} trigger={['contextMenu']}>
             <div style={selected ? {
                 ...nodeStyle,
                 backgroundColor: 'cornflowerblue'
             } : nodeStyle}
-                 key={id}>
+                key={id}>
                 {createNode()}
                 <Handle type="target" position={Position.Left} />
                 <Handle type="source" position={Position.Right} />

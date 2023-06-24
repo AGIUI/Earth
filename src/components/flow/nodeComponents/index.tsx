@@ -5,7 +5,7 @@ import QueryInputNode from './QueryInputNode';
 import APINode from './APINode';
 import RoleNode from './RoleNode';
 import PromptNode from './PromptNode';
-import BlankPromptNode from './BlankPromptNode';
+import CustomPromptNode from './CustomPromptNode';
 import EmbeddingsNode from './EmbeddingsNode'
 import FilePPTCreateNode from './FilePPTCreateNode'
 
@@ -32,10 +32,10 @@ const getNodes = () => [{
         parent: 'llm',
         name: i18n.t('promptNodeTitle')
     }, {
-        key: 'prompt1',
-        component: BlankPromptNode,
+        key: 'promptCustom',
+        component: CustomPromptNode,
         parent: 'llm',
-        name: i18n.t('blankPromptNodeTitle')
+        name: i18n.t('customPromptNodeTitle')
     }
     // {
     //     key: 'embeddings',

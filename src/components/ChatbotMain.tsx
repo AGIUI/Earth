@@ -1049,6 +1049,9 @@ class Main extends React.Component<{
                 if (p.role == 'user' && prompt['context']) {
                     p.content = p.content.replaceAll("${context}", prompt['context'])
                 }
+                if (p.role == 'system' && prompt['context']) {
+                    p.content = p.content.replaceAll("${context}", prompt['context'])
+                }
                 return p
             })
         } else {
@@ -1581,6 +1584,7 @@ class Main extends React.Component<{
                 // role 给调试用
                 if ([
                     'prompt',
+                    'promptCustom',
                     'role',
                 ].includes(promptJson.type)) this._llmRun(promptJson, newTalk);
 

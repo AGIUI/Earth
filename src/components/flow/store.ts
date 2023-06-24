@@ -75,6 +75,9 @@ const onChangeForNodes = (event: any, getNodes: any) => {
 
 
 const debugRun = (id: string, prompt: any, combo: any, debug: any, onChange: any) => {
+  console.log('debugRun id:', id)
+  if (!prompt.id) prompt.id = id;
+
   let lastTalk = '';
   if (prompt.input == 'nodeInput') {
     // 从上一个节点获得输入
@@ -144,6 +147,8 @@ const mergeRun = (id: string, prompt: any, onChange: any, callback: any) => {
 
 const _VERVISON = '0.1.0',
   _APP = 'brainwave';
+
+
 
 const initRootNode = () => {
   return {
@@ -273,7 +278,10 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
           delete prompt.api;
           delete prompt.file;
         }
-        if (prompt.type == "prompt") {
+
+        if ([
+          "prompt", "promptCustom"
+        ].includes(prompt.type)) {
           delete prompt.api;
           delete prompt.queryObj;
           delete prompt.file;
@@ -462,8 +470,10 @@ const useStore = create<RFState>((set, get) => ({
     // role 只能放一张
     if (nodeType == 'role' && get().nodes.filter((n: any) => n.type == nodeType).length > 0) return
 
+    const id = createId(nodeType, nanoid());
+
     const newNode: any = {
-      id: createId(nodeType, nanoid()),
+      id,
       type: nodeType,
       data: {
         ...defaultNode(),
@@ -503,8 +513,10 @@ const useStore = create<RFState>((set, get) => ({
     const edges = get().edges.filter(e => e.source != source && e.target != target)
     // console.log(edges)
 
+    const id = createId('edge', nanoid());
+
     const newEdge = {
-      id: createId('edge', nanoid()),
+      id,
       source,
       target,
       type: 'straight',
@@ -527,8 +539,10 @@ const useStore = create<RFState>((set, get) => ({
 
     // 可根据 parentNode 判断下一个节点类型
 
+    const id = createId('prompt', nanoid());
+
     const newNode: any = {
-      id: createId('prompt', nanoid()),
+      id,
       type: 'prompt',
       data: {
         ...defaultNode(),
@@ -557,6 +571,7 @@ const useStore = create<RFState>((set, get) => ({
     newNode.data['clone'] = (id: string) => get().cloneNode(id);
 
     if (merge && merge.callback) newNode.data['merge'] = (prompt: any) => mergeRun(newNode.id, prompt, newNode.data.onChange, merge.callback);
+
 
     // console.log('addChildNode', parentNode)
     const newEdge = {

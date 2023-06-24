@@ -200,7 +200,8 @@
 
     "llm": "LLMs大语言模型",
     "promptNodeTitle": "预设置Prompt",
-    "blankPromptNodeTitle": "自定义Prompt",
+    "customPromptNodeTitle": "自定义Prompt",
+    "custom": "自定义",
     "userInput": "指令",
     "translate": "翻译",
     "format": "-",
