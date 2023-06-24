@@ -200,7 +200,8 @@ class Common {
                     this.sendMessage(
                         'open-chatbot-panel',
                         true, {
-                            tabId: data.tabId
+                            tabId: data.tabId,
+                            userInput: data.userInput
                         },
                         tabId
                     )

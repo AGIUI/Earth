@@ -646,6 +646,15 @@ class Main extends React.Component<{
                 this.props.callback({
                     cmd: 'open-chatbot-panel',
                 })
+                if (data.userInput) {
+                    console.log('data.userInput', data.userInput)
+                    this.setState({
+                        userInput: {
+                            prompt: data.userInput, tag: data.userInput
+                        },
+                        chatbotInitPrompt: data.userInput
+                    })
+                }
             } else if (cmd == 'chat-bot-init-result') {
                 this.initChatBot(false);
             }
