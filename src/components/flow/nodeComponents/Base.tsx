@@ -1,49 +1,73 @@
 import React from 'react'
 
-import { Input, Collapse, Divider, Button, Checkbox, Select, Radio, Slider } from 'antd';
+
+import { Input, Collapse, Divider, Button, Checkbox, Select, Radio, Slider, Popconfirm } from 'antd';
 
 const { Panel } = Collapse;
-import { CaretRightOutlined } from '@ant-design/icons';
+import { CaretRightOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
-const { TextArea } = Input;
 
-const { Option } = Select;
+const {TextArea} = Input;
+
+const {Option} = Select;
 
 import i18n from "i18next";
+import i18next from "i18next";
 
 export const createName = (title: string, name: string, onChange: any) =>
     <Input addonBefore="@" defaultValue={name}
-        placeholder={title}
-        onChange={(e) => {
-            onChange({
-                key: 'name',
-                data: e.target.value
-            })
-        }} />
+           placeholder={title}
+           onChange={(e) => {
+               onChange({
+                   key: 'name',
+                   data: e.target.value
+               })
+           }}/>
 
-export const createURL = (urlTitle: string, urlPlaceholder: string, protocol: string, url: string, onChange: any) => <>
-    <p>{urlTitle}</p>
-    <Input addonBefore={
-        <Select defaultValue={protocol} onChange={(e: string) => {
-            onChange({
-                key: 'protocol',
-                data: e
-            })
-        }}>
-            <Option value="http://">http://</Option>
-            <Option value="https://">https://</Option>
-        </Select>
+export const createURL = (urlTitle: string, urlPlaceholder: string, protocol: string, url: string, onChange: any) => {
+    const handleUrlChange = (e: any) => {
+        let value = e.target.value;
+        if (value.startsWith("http://")) {
+            value = value.substr(7);
+        } else if (value.startsWith("https://")) {
+            value = value.substr(8);
+        }
+        onChange({
+            key: 'url',
+            data: value
+        });
+    };
+
+    let displayedUrl = url;
+    if (displayedUrl.startsWith("http://")) {
+        displayedUrl = displayedUrl.substr(7);
+    } else if (displayedUrl.startsWith("https://")) {
+        displayedUrl = displayedUrl.substr(8);
     }
-        placeholder={urlPlaceholder}
-        defaultValue={url}
-        onChange={(e: any) => {
-            onChange({
-                key: 'url',
-                data: e.target.value
-            })
-        }}
-    />
-</>
+
+    return (
+        <>
+            <p>{urlTitle}</p>
+            <Input
+                addonBefore={
+                    <Select defaultValue={protocol} onChange={(e: string) => {
+                        onChange({
+                            key: 'protocol',
+                            data: e
+                        });
+                    }}>
+                        <Option value="http://">http://</Option>
+                        <Option value="https://">https://</Option>
+                    </Select>
+                }
+                placeholder={urlPlaceholder}
+                value={displayedUrl}
+                onChange={handleUrlChange}
+            />
+        </>
+    );
+};
+
 
 export const createSelect = (title: string, value: string, opts: any, onChange: any) => <div
 
@@ -63,7 +87,7 @@ export const createSelect = (title: string, value: string, opts: any, onChange: 
     <p>{title}</p>
     <Select
         value={value}
-        style={{ width: 200 }}
+        style={{width: 200}}
         onChange={(e) => {
             onChange({
                 key: title,
@@ -74,13 +98,42 @@ export const createSelect = (title: string, value: string, opts: any, onChange: 
     />
 </div>
 
-export const createTextArea = (title: string, value: string, placeholder: string, status: any, onChange: any) => <>
-    <p>{title}</p>
+export const createTextArea = (title: string, value: string, placeholder: string, status: any, onChange: any, help: any = null) => <>
+
+    <div style={{
+        display: 'flex',
+        justifyContent: 'flex-start',
+        alignItems: 'center'
+    }}>
+        <p>{title}</p>
+
+        {help ? <Popconfirm
+            showCancel={false}
+            title={title}
+            description={
+                <TextArea
+                    // disabled={true}
+                    bordered={false}
+                    value={help}
+                    autoSize
+                ></TextArea>}
+            onConfirm={() =>
+                new Promise((resolve) => {
+                    setTimeout(() => resolve(null), 100);
+                })}
+            onOpenChange={() => console.log('open change')}
+        >
+            <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f', marginLeft: '8px' }} />
+        </Popconfirm> : ""}
+
+    </div>
+
     <TextArea
         value={value}
         rows={4}
         placeholder={placeholder}
         autoSize
+        showCount={false}
         status={status}
         onChange={(e) => {
             onChange({
@@ -108,29 +161,44 @@ export const createOutput = (title: string, key: string, value: string, opts: an
                 key: key,
                 data: e.target.value
             })
-        }} />
+        }}/>
 </>
 
 
 export const selectNodeInputBase = (nodeInputId: string, nodeOpts: any, onChange: any) => {
-    return <Select
-        value={nodeInputId}
-        style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
-        onChange={(e) => {
-            onChange({
-                key: 'nodeInput',
-                data: e
-            })
-        }}
-        options={nodeOpts}
-        onClick={() => {
-            onChange({
-                key: 'nodeInput-onClick',
-                data: nodeInputId
-            })
-        }}
 
-    />
+    return <div
+        onMouseOver={() => {
+            onChange({
+                key: 'draggable',
+                data: false
+            })
+        }}
+        onMouseLeave={() => {
+            onChange({
+                key: 'draggable',
+                data: true
+            })
+        }}
+    >
+        <Select
+            value={nodeInputId}
+            style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
+            onChange={(e) => {
+                onChange({
+                    key: 'nodeInput',
+                    data: e
+                })
+            }}
+            options={nodeOpts}
+            onClick={() => {
+                onChange({
+                    key: 'nodeInput-onClick',
+                    data: nodeInputId
+                })
+            }}
+        />
+    </div>
 }
 
 
@@ -140,14 +208,30 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
 
     const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0)
 
-    // console.log(nodeOpts.filter((n: any) => n.value === nodeInputId))
-    return <>
+    console.log('selectNodeInput:', nodeOpts, nodeInputId, checked)
+    return <div
+        onMouseOver={() => {
+            onChange({
+                key: 'draggable',
+                data: false
+            })
+        }}
+        onMouseLeave={() => {
+            onChange({
+                key: 'draggable',
+                data: true
+            })
+        }}
+    >
+
         <Checkbox
-            style={{ marginTop: '12px' }}
+            style={{marginTop: '12px'}}
             defaultChecked={checked}
             // checked={input == "nodeInput"}
             onChange={(e) => {
                 setChecked(e.target.checked)
+                if (!nodeInputId && nodeOpts[0] && nodeOpts[0].index === 1) nodeInputId = nodeOpts[0].value;
+                console.log("Checkbox ", nodeInputId, nodeOpts)
                 onChange({
                     key: 'nodeInput',
                     data: e.target.checked ? nodeInputId : ""
@@ -156,23 +240,27 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
             }}>{title}</Checkbox>
 
         {
-            checked ? <Select
-                value={nodeInputId}
-                style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
-                onChange={(e) => {
-                    onChange({
-                        key: 'nodeInput',
-                        data: e
-                    })
-                }}
-                options={nodeOpts}
-            /> : ''
+            checked ?
+                <>
+                    <Select
+                        value={nodeInputId}
+                        style={{width: '100%', marginTop: '8px', marginBottom: '12px'}}
+                        onChange={(e) => {
+                            onChange({
+                                key: 'nodeInput',
+                                data: e
+                            })
+                        }}
+                        options={nodeOpts}
+                    />
+                    <p style={{marginTop:0,color:"red",fontSize:12}}>{i18n.t('getFromBeforeTips')}</p>
+                </>
+                : ''
         }
-    </>
+    </div>
 }
 
 // 选择输入，从用户输入 or 从节点
-
 export const selectInput = (
     nodeInputLabel: string,
     userInputLabel: string,
@@ -187,7 +275,7 @@ export const selectInput = (
     return <>
         <Select
             defaultValue={nodeInputId ? 'nodeInput' : "userInput"}
-            style={{ width: '100%' }}
+            style={{width: '100%'}}
             onChange={(e) => {
                 onChange({
                     key: 'setInput',
@@ -196,14 +284,14 @@ export const selectInput = (
                 })
             }}
             options={[
-                { value: 'nodeInput', label: nodeInputLabel },
-                { value: 'userInput', label: userInputLabel },
+                {value: 'nodeInput', label: nodeInputLabel},
+                {value: 'userInput', label: userInputLabel},
             ]}
         />
         {
             nodeInputId ? <Select
                 value={nodeInputId}
-                style={{ width: '100%', marginTop: '8px', marginBottom: '12px' }}
+                style={{width: '100%', marginTop: '8px', marginBottom: '12px'}}
                 onChange={(e) => {
                     onChange({
                         key: 'nodeInput',
@@ -212,11 +300,12 @@ export const selectInput = (
                 }}
                 options={nodeOpts}
             /> : <TextArea
-                style={{ marginTop: '8px' }}
+                style={{marginTop: '8px'}}
                 value={uinp}
                 rows={4}
+                showCount={false}
                 placeholder={"input ..."}
-                autoSize={{ minRows: 2, maxRows: 10 }}
+                autoSize={{minRows: 2, maxRows: 10}}
                 onChange={(e) => {
                     setUserInput(e.target.value)
                     onChange({
@@ -256,8 +345,8 @@ export const createText = (key: string, header: string, placeholder: string, val
             allowClear
             status={status}
             rows={4}
-            autoSize={{ minRows: 2, maxRows: 10 }}
-            defaultValue={value}
+            autoSize={{minRows: 2, maxRows: 10}}
+            // defaultValue={text}
             value={text}
             placeholder={placeholder}
             disabled={!onChange}
@@ -285,7 +374,8 @@ export const createDebug = (
     mergeFun: any,
     status: any
 ) => {
-    const { header,
+    const {
+        header,
         inputText,
         inputTextPlaceholder,
         outputText,
@@ -302,52 +392,52 @@ export const createDebug = (
 
     return <>
 
-        <p style={{
-            textOverflow: 'ellipsis',
-            overflow: 'hidden',
-            padding: '0px',
-            paddingTop: '4px',
-            margin: 0,
-            borderTop: '1px dashed #2196F3',
-            marginTop: '18px'
-        }}>ID: {id} </p>
 
-        {debugFun ? <Button onClick={(e) => {
-            debugFun()
-        }}
-            style={{
-                margin: '8px',
-                marginLeft: 0
-            }}
-        >{debugRun}</Button> : ''}
+        {/*<p style={{*/}
+        {/*    textOverflow: 'ellipsis',*/}
+        {/*    overflow: 'hidden',*/}
+        {/*    padding: '0px',*/}
+        {/*    paddingTop: '12px',*/}
+        {/*    margin: 0*/}
+        {/*}}>ID: {id} </p>*/}
+
 
         <Collapse bordered={false}
-            size="small"
-            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-            style={{ background: '#eee', marginTop: '14px' }}
+                  size="small"
+                  expandIcon={({isActive}) => <CaretRightOutlined rotate={isActive ? 90 : 0}/>}
+                  style={{background: '#eee', marginTop: '14px'}}
         >
             <Panel header={header} key="1">
 
                 {
-                    input && createText('input', inputText, inputTextPlaceholder, input, statusInput, onChange)
+                    createText('input', inputText, inputTextPlaceholder, input || '', statusInput, onChange)
                 }
                 {/* {
                     output && createText('output', outputText, outputTextPlaceholder, output, statusOutput || '-', onChange)
                 } */}
 
-                <Divider dashed />
+                <Divider dashed/>
+
+                {debugFun ? <Button onClick={(e) => {
+                    debugFun()
+                }}
+                                    style={{
+                                        margin: '8px',
+                                        marginLeft: 0
+                                    }}
+                >{debugRun}</Button> : ''}
 
                 {mergeFun ? <Button onClick={(e) => mergeFun()}
-                    style={{
-                        marginLeft: '0px'
-                    }}
+                                    style={{
+                                        marginLeft: '0px'
+                                    }}
                 >{mergeRun}</Button> : ''}
 
-                {debugRun ? <Button onClick={(e) => debugFun(input)}
+                {/* {debugRun ? <Button onClick={(e) => debugFun(input)}
                     style={{
                         marginLeft: '12px'
                     }}
-                >{debugRun}</Button> : ''}
+                >{debugRun}</Button> : ''} */}
 
             </Panel>
         </Collapse></>
@@ -376,7 +466,7 @@ export const createModel = (model: string, temperature: number, opts: any, onCha
     </Radio.Group>
 
     <p>{opts.filter((m: any) => m.value == 'temperature')[0].label}
-        <span style={{ fontSize: '12px', marginLeft: '12px' }}>: {temperature}</span>
+        <span style={{fontSize: '12px', marginLeft: '12px'}}>: {temperature}</span>
     </p>
 
     <div
@@ -394,7 +484,7 @@ export const createModel = (model: string, temperature: number, opts: any, onCha
         }}
     >
         <Slider
-            style={{ width: '200px' }}
+            style={{width: '200px'}}
             range={false}
             max={1}
             min={0}
@@ -436,17 +526,17 @@ export const createDelay = (title: string, delayFormat: string, delay: string, o
         </Select>
     }
         // placeholder={i18n.t('delayPlaceholder')}
-        value={delay}
-        onChange={(e: any) => {
-            let t = parseFloat(e.target.value);
-            onChange({
-                key: 'delay',
-                data: {
-                    delay: t,
-                    delayFormat
-                }
-            })
-        }}
+           value={delay}
+           onChange={(e: any) => {
+               let t = parseFloat(e.target.value);
+               onChange({
+                   key: 'delay',
+                   data: {
+                       delay: t,
+                       delayFormat
+                   }
+               })
+           }}
     />
 </>
 
@@ -459,7 +549,7 @@ export const nodeStyle = {
 
 export const getI18n = () => {
     const debugMenu = {
-        header: i18n.t('modify'),
+        header: i18n.t('debug'),
         inputText: i18n.t('inputText'),
         inputTextPlaceholder: i18n.t('inputTextPlaceholder'),
         outputText: i18n.t('outputText'),
@@ -468,15 +558,28 @@ export const getI18n = () => {
         mergeRun: i18n.t('mergeRun'),
     }
 
-    const contextMenus: any = [
-        {
-            label: i18n.t('debug'),
-            key: 'debug',
-        },
-        {
-            label:i18n.t("delete"),
-            key:"delete"
+    const contextMenus = (id: string, data: any, keys: any = ['debug', 'clone', 'delete']) => {
+
+        const items = Array.from(keys, (key: string) => ({
+            label: i18n.t(key),
+            key
+        }))
+
+        return {
+            items,
+            onClick: (e: any) => {
+                if (e.key == 'debug' && data.debug && keys.includes(e.key)) {
+                    data.debug(data)
+                };
+                if (e.key == 'delete' && keys.includes(e.key)) {
+                    data.delete(id)
+                }
+                if (e.key == 'clone' && keys.includes(e.key)) {
+                    data.clone(id)
+                }
+            }
         }
-    ];
+
+    }
     return { debugMenu, contextMenus }
 }

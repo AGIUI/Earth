@@ -10,6 +10,7 @@ import i18n from "i18next";
 
 const createUrl = (title1: string, title2: string, placeholder2: string, json: any, onChange: any) => {
   const { query, content } = json;
+  console.log("selection", content);
   const key = 'query'
   return <div onMouseOver={() => {
     onChange({
@@ -25,29 +26,15 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
     }}>
 
     {
-      createTextArea(title2, query, ".tag", "", (e: any) => {
-        const data = {
-          ...json,
-          query: e.data,
-          action: 'read'
-        }
-
-        onChange({
-          key: "query",
-          data
-        })
-      })
-    }
-
-
-    {
       createSelect(title1, content || "bindCurrentPage", [
         { value: 'bindCurrentPageHTML', label: i18n.t('bindWebHTML') },
         { value: 'bindCurrentPage', label: i18n.t('bindWebContent') },
+        { value: 'bindCurrentPageImages', label: i18n.t('bindWebImages') },
         { value: 'bindCurrentPageURL', label: i18n.t('bindWebURL') },
         { value: 'bindCurrentPageTitle', label: i18n.t('bindWebTitle') },
-        { value: 'bindCurrentPageImages', label: i18n.t('bindWebImages') },
+
       ], (e: any) => {
+
         if (e.key == title1) {
           // console.log(e)
           const data = {
@@ -65,6 +52,26 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
       })
     }
 
+    {
+      content === 'bindCurrentPageHTML' || content === 'bindCurrentPage' || content === 'bindCurrentPageImages'?
+      createTextArea(title2, query, placeholder2, "", (e: any) => {
+        const data = {
+          ...json,
+          query: e.data,
+          action: 'read'
+        }
+
+        onChange({
+          key: "query",
+          data
+        })
+      }):null
+    }
+    {
+      content === 'bindCurrentPageHTML' || content === 'bindCurrentPage' || content === 'bindCurrentPageImages'?
+      <p style={{marginTop:5,color:"red",fontSize:12}}>{i18n.t('queryReadPlaceholderTips')}</p>:null
+    }
+
   </div>
 }
 
@@ -74,8 +81,8 @@ function QueryReadNode({ id, data, selected }: any) {
   // i18nInit();
   const { debugMenu, contextMenus } = getI18n();
   const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
-  const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
-  const [shouldRefresh, setShouldRefresh] = React.useState(false)
+  const [debugInput, setDebugInput] = React.useState((data.merged ? JSON.stringify(data.merged, null, 2) : ""));
+  const [shouldRefresh, setShouldRefresh] = React.useState(true)
 
   const [queryObj, setQueryObj] = React.useState(data.queryObj)
   const updateData = (e: any) => {
@@ -90,8 +97,9 @@ function QueryReadNode({ id, data, selected }: any) {
 
   const createNode = () => {
 
-    if (shouldRefresh && data.debugInput != debugInput) {
+    if (data.debugInput != debugInput && shouldRefresh) {
       setDebugInput(data.debugInput);
+      setShouldRefresh(false)
     }
 
     const node = [
@@ -104,7 +112,6 @@ function QueryReadNode({ id, data, selected }: any) {
         data.debugOutput,
         (event: any) => {
           if (event.key == 'input') {
-            setShouldRefresh(false)
             const { data } = event;
             setDebugInput(data)
             let json: any;
@@ -114,33 +121,34 @@ function QueryReadNode({ id, data, selected }: any) {
             } catch (error) {
               setStatusInputForDebug('error')
             }
-            updateData({
-              key: 'debug',
-              data: {
-                debugInput: data
-              }
-            })
           };
           if (event.key == 'draggable') updateData(event)
         },
-        (mergedStr: string) => {
-          let merged;
-          try {
-            merged = JSON.parse(mergedStr)
-          } catch (error) {
+        () => {
+          console.log('debugFun debugInput', debugInput)
+          if (debugInput != "" && debugInput && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+            let merged;
+            try {
+              merged = JSON.parse(debugInput)
+            } catch (error) {
 
-          }
-          console.log('debugFun', mergedStr, merged)
-          if (merged) {
+            }
+            console.log('debugFun merged', merged)
             data.merged = merged;
-            data.role.merged = merged.filter((f: any) => f.role == 'system');
-            setShouldRefresh(false)
-          } else {
+            data.debugInput = JSON.stringify(merged, null, 2);
+            if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
+            data.debug && data.debug(data);
+          } else if (debugInput == "" || debugInput && debugInput.replace(/\s/ig, "") == "[]") {
             data.merged = null;
-            data.role.merged = null;
-            setShouldRefresh(true)
+            data.debugInput = "";
+            if (data.role) data.role.merged = null;
+            console.log('debugFun no merged', data)
+            data.debug && data.debug(data)
+            setShouldRefresh(true);
+          } else if (debugInput === undefined) {
+            data.debug && data.debug(data);
+            setShouldRefresh(true);
           }
-          data.debug && data.debug(data)
         },
         () => data.merge && data.merge(data),
         {
@@ -151,7 +159,14 @@ function QueryReadNode({ id, data, selected }: any) {
 
     return <Card
       key={id}
-      title={i18n.t('queryReadNodeTitle')}
+      title={
+        <>
+          <p style={{ marginBottom: 0 }}>{i18n.t('queryReadNodeTitle')}</p>
+          <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0, fontWeight: "normal", marginBottom: 10 }}>
+            ID: {id}
+          </p>
+        </>
+      }
       bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}
@@ -160,14 +175,7 @@ function QueryReadNode({ id, data, selected }: any) {
 
 
   return (
-    <Dropdown menu={{ items: contextMenus,onClick: (e: any) => { 
-      if (e.key == 'debug' && data.debug) {
-        data.debug(data)
-      };
-      if(e.key=='delete'){
-        data.delete(id)
-      }
-    } }} trigger={['contextMenu']}>
+    <Dropdown menu={contextMenus(id, data)} trigger={['contextMenu']}>
       <div style={selected ? {
         ...nodeStyle,
         backgroundColor: 'cornflowerblue'

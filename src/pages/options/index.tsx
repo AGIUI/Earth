@@ -126,7 +126,7 @@ function options() {
   }
 
   const chatbotCallbacks = (event: any) => {
-    const { cmd, data } = event;
+    const { cmd, data,type } = event;
     console.log('chatbotCallbacks:', event)
     if (cmd == "debug-combo") {
 
@@ -141,13 +141,14 @@ function options() {
 
     }
 
+    // 更新debug里的input
     if (cmd === 'send-talk') {
-      // console.log('send-talk debugResult', data, debugData);
+      console.log('send-talk debugResult', data, debugData);
       if (debugData && debugData.onChange) {
         debugData.onChange({
           id: debugData.id,
           data: {
-            debugInput: JSON.stringify(data.prompt, null, 2),
+            debugInput: JSON.stringify(data, null, 2),
             // merged: data.prompt
           }
         })

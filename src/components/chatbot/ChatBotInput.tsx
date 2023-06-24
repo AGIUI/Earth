@@ -455,7 +455,7 @@ class ChatBotInput extends React.Component {
 
                             </div>
 
-                            <div style={flexStyle}>
+                            {this.state.roleOpts && this.state.roleOpts.length > 1 ? <div style={flexStyle}>
                                 <p>{i18n.t('role')}</p>
 
 
@@ -463,23 +463,21 @@ class ChatBotInput extends React.Component {
                                     disabled={this.state.isLoading}
                                     style={{ width: 'fit-content', minWidth: '100px' }}
                                     bordered={false}
-                                    defaultValue={this.state.roleOpts[1].value}
+                                    defaultValue={this.state.roleOpts[1] && this.state.roleOpts[1].value}
                                     onChange={(value) => {
-                                        const data = this.state.roleOpts.filter((c: any) => c.value == value)[0];
+                                        const data = this.state.roleOpts.filter((c: any) => c && c.value == value)[0];
                                         if (data) {
                                             this._changeRole(data.role)
                                         }
                                     }}
                                     options={this.state.roleOpts}
-                                >
-
-                                </Select>
+                                > </Select>
 
                                 {/* <p>{this.state.roleContent}</p> */}
 
                                 {this.state.roleContent ? <Popover content={<p
                                     style={{
-                                        maxWidth: '680px',maxHeight:'480px',overflowY:'scroll'
+                                        maxWidth: '680px', maxHeight: '480px', overflowY: 'scroll'
                                     }}>
                                     {Array.from(this.state.roleContent.split("\n"), p => <p>{p}</p>)}
                                 </p>} trigger="hover">
@@ -494,7 +492,7 @@ class ChatBotInput extends React.Component {
 
                                 }
 
-                            </div>
+                            </div> : ''}
 
                         </Panel>
                     </Collapse>

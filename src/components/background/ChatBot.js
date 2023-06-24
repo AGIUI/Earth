@@ -180,6 +180,16 @@ class ChatBotBackground {
         return this.talksRecord
     }
 
+    async embeddings(input, type) {
+        let item = this.items.filter(item => item.type == type)[0]
+        if (item.embeddings) {
+            return await item.embeddings({
+                input
+            })
+        }
+        return
+    }
+
     // style ：bing的，chatgpt的
     // 开始对话，需要给一个start的记录
     // this.talksRecord=[];

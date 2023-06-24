@@ -19,9 +19,9 @@
     "divergenceDegree": "Divergence Degree",
     "model": "Model",
     "default": "Default",
-    "bindWebContent": "Content Text",
-    "bindWebHTML": "Content HTML",
-    "bindWebURL": "Web URL",
+    "bindWebContent": "Bind Web Content",
+    "bindWebHTML": "Bind Web HTML",
+    "bindWebURL": "Bind Web URL",
     "bindWebTitle": "Web Title",
     "bindWebImages": "Web Images",
     "lastTalk": "Latest Reply",
@@ -78,7 +78,7 @@
     "apiModelSettings": "API Model Settings",
     "updating": "Updating",
     "updateStatus": "Update Status",
-    "modify": "Modify",
+    "modify": "Debug",
     "versionNow": "Version",
     "detail": "Detail",
     "questionPost": "Submit question",
@@ -162,9 +162,7 @@
     "askDelete": "Are you sure you want to delete?",
     "deleteYes": "Yes",
     "deleteNo": "Cancel",
-
     "clone": "Clone",
-
     "apiNodeTitle": "API Call",
     "url": "URL",
     "urlPlaceholder": "Please enter www.xxxx.com",
@@ -194,8 +192,7 @@
     "inputRolePlaceholder": "请描述角色的特征，我是...",
 
     "llm": "LLMs",
-    "promptNodeTitle": "Default value Prompt",
-    "blankPromptNodeTitle": "Custom Prompt",
+    "promptNodeTitle": "Prompt Engineering",
     "userInput": "UserInput",
     "translate": "Translate",
     "format": "-",
@@ -210,11 +207,13 @@
 
     "queryClickNodeTitle": "Simulate click event",
     "selectQuery": "SelectQuery",
+    "queryClickPlaceholder": "#<idName> or .<className>",
 
     "queryReadNodeTitle": "Content Reading",
     "queryReadRunResult": "Read result",
     "content": "Get Webpage Content",
-    "queryReadPlaceholder": "Leave blank to get the entire webpage by default",
+    "queryReadPlaceholder": "#<idName> or .<className>",
+    "queryReadPlaceholderTips": "*Leave blank to get the entire webpage by default",
 
     "queryInputNodeTitle": "Text Input",
     "queryInputText": "Text Source",

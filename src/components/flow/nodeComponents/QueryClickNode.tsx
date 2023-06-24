@@ -25,7 +25,7 @@ const createUrl = (title: string, json: any, onChange: any) => {
     }}>
 
     {
-      createTextArea(title, query, ".tag", "", (e: any) => {
+      createTextArea(title, query, i18n.t('queryClickPlaceholder'), "", (e: any) => {
         const data = {
           ...json,
           query: e.data,
@@ -47,8 +47,8 @@ function Main({ id, data, selected }: any) {
   // i18nInit();
   const { debugMenu, contextMenus } = getI18n();
   const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
-  const [debugInput, setDebugInput] = React.useState(data.debugInput || (data.merged ? JSON.stringify(data.merged, null, 2) : " "));
-  const [shouldRefresh, setShouldRefresh] = React.useState(false)
+  const [debugInput, setDebugInput] = React.useState((data.merged ? JSON.stringify(data.merged, null, 2) : ""));
+    const [shouldRefresh, setShouldRefresh] = React.useState(true)
 
 
   // queryObj
@@ -66,8 +66,9 @@ function Main({ id, data, selected }: any) {
   const createNode = () => {
     const node = [createUrl(i18n.t('selectQuery'), queryObj, updateData)];
 
-    if (shouldRefresh && data.debugInput != debugInput) {
+    if (data.debugInput != debugInput && shouldRefresh) {
       setDebugInput(data.debugInput);
+      setShouldRefresh(false)
     }
 
     node.push(
@@ -75,55 +76,61 @@ function Main({ id, data, selected }: any) {
         debugInput,
         data.debugOutput,
         (event: any) => {
-          if (event.key == 'input') {
-            setShouldRefresh(false)
-            const { data } = event;
-            setDebugInput(data)
-            let json: any;
-            try {
-              json = JSON.parse(data);
-              setStatusInputForDebug('')
-            } catch (error) {
-              setStatusInputForDebug('error')
-            }
-            updateData({
-              key: 'debug',
-              data: {
-                debugInput: data
-              }
-            })
-          };
-          if (event.key == 'draggable') updateData(event)
+            if (event.key == 'input') {
+                const { data } = event;
+                setDebugInput(data)
+                let json: any;
+                try {
+                    json = JSON.parse(data);
+                    setStatusInputForDebug('')
+                } catch (error) {
+                    setStatusInputForDebug('error')
+                }
+            };
+            if (event.key == 'draggable') updateData(event)
         },
-        (mergedStr: string) => {
-          let merged;
-          try {
-            merged = JSON.parse(mergedStr)
-          } catch (error) {
+        () => {
+            console.log('debugFun debugInput', debugInput)
+            if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+                let merged;
+                try {
+                    merged = JSON.parse(debugInput)
+                } catch (error) {
 
-          }
-          console.log('debugFun', mergedStr, merged)
-          if (merged) {
-            data.merged = merged;
-            data.role.merged = merged.filter((f: any) => f.role == 'system');
-            setShouldRefresh(false)
-          } else {
-            data.merged = null;
-            data.role.merged = null;
-            setShouldRefresh(true)
-          }
-          data.debug && data.debug(data)
+                }
+                console.log('debugFun merged', merged)
+                data.merged = merged;
+                data.debugInput = JSON.stringify(merged, null, 2);
+                if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
+                data.debug && data.debug(data);
+            } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
+                data.merged = null;
+                data.debugInput = "";
+                if (data.role) data.role.merged = null;
+                console.log('debugFun no merged', data)
+                data.debug && data.debug(data)
+                setShouldRefresh(true);
+            }else if (debugInput === undefined) {
+              data.debug && data.debug(data)
+            }
         },
         () => data.merge && data.merge(data),
         {
-          statusInput: statusInputForDebug,
-          statusOutput: ""
+            statusInput: statusInputForDebug,
+            statusOutput: ""
         })
     )
 
     return <Card
       key={id}
-      title={i18n.t("queryClickNodeTitle")}
+      title={
+          <>
+              <p style={{ marginBottom: 0 }}>{i18n.t('queryClickNodeTitle')}</p>
+              <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0 ,fontWeight:"normal",marginBottom:10 }}>
+                  ID: {id}
+              </p>
+          </>
+      }
       bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}
@@ -131,16 +138,7 @@ function Main({ id, data, selected }: any) {
   }
 
   return (
-    <Dropdown menu={{
-      items: contextMenus, onClick: (e: any) => {
-        if (e.key == 'debug' && data.debug) {
-          data.debug(data)
-        };
-        if (e.key == 'delete') {
-          data.delete(id)
-        }
-      }
-    }} trigger={['contextMenu']}>
+    <Dropdown menu={contextMenus(id, data)} trigger={['contextMenu']}>
       <div style={selected ? {
         ...nodeStyle,
         backgroundColor: 'cornflowerblue'

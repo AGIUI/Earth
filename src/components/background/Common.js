@@ -172,6 +172,22 @@ class Common {
                     chrome.action.setBadgeBackgroundColor({
                         color: data.color || [0, 0, 0, 255]
                     })
+                } else if (cmd == "embeddings") {
+                    const { input, type } = data;
+                    chatBot.embeddings(input, type).then(embeddings => {
+                        this.sendMessage('embeddings-result', true, {
+                            input,
+                            embeddings
+                        }, tabId)
+                    })
+
+                    sendResponse({
+                        status: 'embeddings-start',
+                        data: {
+                            ...data
+                        }
+                    })
+
                 } else if (cmd == 'close-insight') {
                     this.sendMessage(
                         'close-insight',
@@ -246,6 +262,12 @@ class Common {
                                     }
                                     return item
                                 })
+                            }
+                            if (responseExtract.type === 'audio') {
+                                if (!(items.match('http://') || items.match('https://')) && !items.match('data:audio')) {
+                                    items = `data:audio/mpeg;base64,` + items;
+                                }
+                                apiResult = items;
                             }
                         }
                         const result = {

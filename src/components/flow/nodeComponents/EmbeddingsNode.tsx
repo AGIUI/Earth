@@ -1,13 +1,11 @@
 import React from 'react'
-import { Handle, NodeProps, Position } from 'reactflow';
-import { Input, Avatar, Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider, MenuProps } from 'antd';
-import { DownOutlined, UserOutlined } from '@ant-design/icons';
+import { Handle, Position } from 'reactflow';
+import { Card,Dropdown} from 'antd';
 
 import { createDebug, createText, nodeStyle, getI18n } from './Base'
 
 import i18n from "i18next";
-// import { i18nInit } from '../i18nConfig';
-import { roleAvatars } from '../Workflow'
+
 
 
 function Main({ id, data, selected }: any) {
@@ -80,10 +78,10 @@ function Main({ id, data, selected }: any) {
             style={{ width: 300 }}>
 
             {
-                createText('text', i18n.t('createRole'), i18n.t('inputTextPlaceholder'), role.text, '', updateData)
+                // createText('text', i18n.t('createRole'), i18n.t('inputTextPlaceholder'), role.text, '', updateData)
             }
 
-            {
+            {/* {
                 createDebug(debugMenu, id,
                     debugInput,
                     data.debugOutput,
@@ -103,7 +101,7 @@ function Main({ id, data, selected }: any) {
                     },
                     () => {
                         console.log('debugFun debugInput', debugInput)
-                        if (debugInput != "" && debugInput && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+                        if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
                             let merged;
                             try {
                                 merged = JSON.parse(debugInput)
@@ -115,15 +113,12 @@ function Main({ id, data, selected }: any) {
                             data.debugInput = JSON.stringify(merged, null, 2);
                             if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
                             data.debug && data.debug(data);
-                        } else if (debugInput == "" || debugInput && debugInput.replace(/\s/ig, "") == "[]") {
+                        } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
                             data.merged = null;
                             data.debugInput = "";
                             if (data.role) data.role.merged = null;
                             console.log('debugFun no merged', data)
                             data.debug && data.debug(data)
-                            setShouldRefresh(true);
-                        } else if (debugInput === undefined) {
-                            data.debug && data.debug(data);
                             setShouldRefresh(true);
                         }
                     },
@@ -132,14 +127,14 @@ function Main({ id, data, selected }: any) {
                         statusInput: statusInputForDebug,
                         statusOutput: ""
                     })
-            }
+            } */}
 
         </Card>
     }
 
 
     return (
-        <Dropdown menu={contextMenus(id, data, ['debug'])}
+        <Dropdown menu={contextMenus(id, data)}
             trigger={['contextMenu']}
         >
             <div style={selected ? {
