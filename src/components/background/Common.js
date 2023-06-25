@@ -148,9 +148,11 @@ class Common {
                                 // 处理数据结构
                                 let dataNew = chatBot.parseData(res)
                                 this.sendMessage('chat-bot-talk-result', success, dataNew, tabId)
+                                console.log('chatBot.doSendMessage callback', success, res)
                             }
                         );
                     } catch (error) {
+                        console.log('chatBot.doSendMessage error', error)
                         this.sendMessage('chat-bot-talk-result', false, [{ type: 'error', markdown: i18n.t('retryError') }], tabId)
                     }
 
@@ -201,7 +203,7 @@ class Common {
                         'open-chatbot-panel',
                         true, {
                             tabId: data.tabId,
-                            userInput: data.userInput
+                            ...data
                         },
                         tabId
                     )

@@ -65,7 +65,9 @@ type StateType = {
     chatBotStyle: any;
     debug: boolean;
     roleOpts: any;
-    roleContent: string
+    roleContent: string;
+    merged: any;
+    roleLabel: string
 }
 
 interface ChatBotInput {
@@ -122,33 +124,19 @@ class ChatBotInput extends React.Component {
 
             debug: this.props.debug,
 
-            roleOpts: [{
+            roleOpts: [],
 
-                value: 'Default',
-                label: 'Default',
-                role: {
-                    text: "",
-                    name: ""
-                }
-            }, ...Array.from(this.props.config.filter((c: any) => c._type == 'role'), (r: any) => {
-                return {
-
-                    value: r.type,
-                    label: r.name,
-                    role: r.role
-                }
-            })],
-
-            roleContent: ''
+            roleContent: '',
+            roleLabel: '',
+            merged: []
         }
-
-
-
 
     }
 
     componentDidMount() {
-        this._updateRoleContent(this.props.config.filter((c: any) => c._type == 'role')[0]?.role)
+        const opts = this._updateRoleOpts(this.props.config);
+        let opt = opts.filter((r: any) => r.checked)[0];
+        if (opt && opt.role) this._changeRole(opt.role)
     }
 
     componentDidUpdate(prevProps: any, prevState: any) {
@@ -157,6 +145,18 @@ class ChatBotInput extends React.Component {
                 isLoading: this.props.isLoading
             })
         }
+
+        if (this.props.config != prevProps.config) {
+            const config: any = {};
+            for (const c of this.props.config) {
+                config[c.id] = c
+            }
+            const opts = this._updateRoleOpts(Object.values(config))
+            let opt = opts.filter((r: any) => r.checked)[0];
+            if (opt && opt.role) this._changeRole(opt.role)
+            console.log('chatbot-input-config', Object.values(config))
+        }
+
     }
 
     componentWillUnmount() {
@@ -287,31 +287,86 @@ class ChatBotInput extends React.Component {
         this.props.callback(res)
     }
 
+    _updateRoleOpts(config: any) {
+        // 只有一个checked
+        let isChecked = 0;
+        const opts = Array.from(config.filter((c: any) => c._type == 'role'), (r: any) => {
+            if (r.checked == true) isChecked++;
+            return {
+                value: r.type,
+                label: r.name,
+                role: { ...r.role, id: r.id || r.role.id, name: r.role.name ? r.role.name : r.name },
+                checked: isChecked == 1,
+            }
+        });
+
+        const roleOpts = [{
+            value: 'Default',
+            label: 'Default',
+            role: {
+                text: "",
+                name: ""
+            }
+        }, ...opts]
+
+        // this._updateRoleContent(roleOpts.filter((c: any) => c.checked)[0]?.role)
+
+        this.setState({
+            roleOpts
+        })
+        return roleOpts
+    }
+
     _updateRoleContent(role: any) {
         console.log('_updateRoleContent', role, role && role.merged, role && role.text)
         if (role && role.merged) {
             let data = role.merged.filter((m: any) => m.role == 'system')[0]
             if (data) {
                 this.setState({
-                    roleContent: data.content
+                    roleContent: data.content,
+                    merged: role.merged
                 })
             }
         } else if (role && role.text) {
             // console.log(role.text)
             this.setState({
-                roleContent: role.text
+                roleContent: role.text,
+                merged: [
+                    {
+                        role: 'system',
+                        content: role.text
+                    }
+                ]
             })
         } else if (role) {
             this.setState({
-                roleContent: ''
+                roleContent: '',
+                merged: [
+                    {
+                        role: 'system',
+                        content: ''
+                    }
+                ]
             })
         }
+
+        const roleLabel = role.name || 'Default';
+        this.setState({
+            roleLabel
+        })
     }
 
     _changeRole(role: any) {
         // console.log(role)
 
-        this._updateRoleContent(role)
+        this._updateRoleContent(role);
+
+        // const roleOpts = Array.from(this.state.roleOpts, (r: any) => {
+        //     r.checked = r.id === role.id;
+        //     return r
+        // });
+
+        // this.setState({ roleOpts })
 
         this.props.callback({
             cmd: "change-role",
@@ -326,11 +381,11 @@ class ChatBotInput extends React.Component {
             alignItems: 'center', padding: '10px'
         }
 
-        const { input, output, agent, chatBotType, chatBotStyle } = this.state;
-        const node = `In-${input.filter(
-            (i: any) => i.checked)[0].label} Agent-${agent.filter(
-                (i: any) => i.checked)[0].label} Out-${output.filter(
-                    (i: any) => i.checked)[0].label}  Model-${chatBotType} ${chatBotStyle && chatBotStyle.label}-${chatBotStyle && chatBotStyle.value}`
+        const { input, output, agent, chatBotType, chatBotStyle, roleLabel } = this.state;
+
+
+
+        const node = `Role-${roleLabel} Model-${chatBotType} ${chatBotStyle && chatBotStyle.label}-${chatBotStyle && chatBotStyle.value}`
 
         console.log('this.state.roleContent', this.state.roleContent)
 
@@ -463,7 +518,7 @@ class ChatBotInput extends React.Component {
                                     disabled={this.state.isLoading}
                                     style={{ width: 'fit-content', minWidth: '100px' }}
                                     bordered={false}
-                                    defaultValue={this.state.roleOpts[1] && this.state.roleOpts[1].value}
+                                    defaultValue={this.state.roleOpts.filter((c: any) => c && c.checked)[0]?.value || 'Default'}
                                     onChange={(value) => {
                                         const data = this.state.roleOpts.filter((c: any) => c && c.value == value)[0];
                                         if (data) {
@@ -479,7 +534,11 @@ class ChatBotInput extends React.Component {
                                     style={{
                                         maxWidth: '680px', maxHeight: '480px', overflowY: 'scroll'
                                     }}>
-                                    {Array.from(this.state.roleContent.split("\n"), p => <p>{p}</p>)}
+                                    <TextArea
+                                        autoSize
+                                        // disabled={true}
+                                        value={JSON.stringify(this.state.merged, null, 2)}
+                                    />
                                 </p>} trigger="hover">
                                     <Text
                                         style={{ width: 200 }}

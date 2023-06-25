@@ -106,7 +106,12 @@ class ChatBotPanel extends React.Component {
         }
 
         if (this.props.config != prevProps.config) {
-            this.setState({ config: this.props.config })
+            const config:any={};
+            for (const c of this.props.config) {
+                config[c.id]=c
+            }
+            this.setState({ config: Object.values(config) })
+            console.log('chatbot-panel-config',Object.values(config))
         }
     }
 

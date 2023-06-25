@@ -5,6 +5,22 @@ import i18n from 'i18next';
 const json: any = getConfig();
 let discord = json.discord
 
+
+// 从combo构造role选项数据
+function createRoleOpts(combo: any, index: number) {
+    return {
+        id: combo.id,
+        type: combo.role.name || `R${index + 1}`,
+        name: combo.tag || `R${index + 1}`,
+        image: combo.role.image || chrome.runtime.getURL(`public/avatars/Designer.png`),
+        text: combo.role.text,
+        merged: combo.role.merged,
+        checked: index == 0 || combo.interfaces.includes('role'),
+        role: combo.role,
+        _type: "role"
+    }
+}
+
 function getRoleOpts() {
     return new Promise((res, rej) => {
         chromeStorageGet(['user', 'offical']).then((data: any) => {
@@ -14,15 +30,7 @@ function getRoleOpts() {
             // combo=combo.filter((c:any)=>c.interfaces.includes('role'));
             combo = Array.from(combo, (c: any, index: number) => {
                 if (c.role && (c.role.text || c.role.merged)) {
-                    return {
-                        type: c.role.name || `R${index + 1}`,
-                        name: c.tag || `R${index + 1}`,
-                        //icon: chrome.runtime.getURL(`public/avatars/Designer.png`),
-                        // style: { type: 'range', label: 'temperature', value: 0.6, values: [0, 1] },
-                        checked: index == 0 || c.interfaces.includes('role'),
-                        role: c.role,
-                        _type:"role"
-                    }
+                    return createRoleOpts(c, index)
                 }
             }).filter(f => f)
             res(combo)
@@ -38,7 +46,7 @@ function get() {
         icon: chrome.runtime.getURL(`public/chatgpt.png`),
         style: { type: 'range', label: 'temperature', value: 0.6, values: [0, 1] },
         checked: true,
-        _type:"model"
+        _type: "model"
     }, {
         type: 'Bing',
         name: 'New Bing',
@@ -54,9 +62,9 @@ function get() {
             value: 'Creative'
         },
         checked: false,
-        _type:"model"
+        _type: "model"
     }
-]
+    ]
 
 }
 
@@ -225,5 +233,5 @@ function createTalkData(type: string, json: any) {
 }
 
 export default {
-    get, createTalkData, getOutput, getInput, getAgentOpts, getTranslate, getRoleOpts
+    get, createTalkData, getOutput, getInput, getAgentOpts, getTranslate, getRoleOpts, createRoleOpts
 }

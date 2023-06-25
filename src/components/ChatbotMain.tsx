@@ -7,7 +7,7 @@ import ChatBotPanel from "@components/chatbot/ChatBotPanel"
 import ChatBotConfig from "@components/chatbot/ChatBotConfig";
 
 import ComboEditor from '@components/combo/ComboEditor';
-
+import { parseCombo2ControlEvent } from '@components/flow/Workflow'
 import i18n from 'i18next';
 
 import {
@@ -559,18 +559,7 @@ class Main extends React.Component<{
             for (const key in this.props.debugData) {
                 if (prevProps.debugData[key] != this.props.debugData[key]) isNew = true;
             }
-            if (isNew) {
-                const { autoRun } = this.props.debugData;
-                if (autoRun) {
-                    // 新建
-                    this._control({ cmd: 'new-talk' });
-                    setTimeout(() => this._control({
-                        cmd: 'combo',
-                        data: this.props.debugData
-                    }), 500)
-
-                }
-            }
+            if (isNew) this._runCombo(this.props.debugData)
         }
         // console.log('this.props.show', this.props.show)
         // if (this.props.show!=prevProps.show&&this.state.loading) {
@@ -578,6 +567,18 @@ class Main extends React.Component<{
         //     this.show(false);
         // }
 
+    }
+
+    _runCombo(runComboData: any) {
+        const { autoRun } = runComboData;
+        if (autoRun) {
+            // 新建
+            this._control({ cmd: 'new-talk' });
+            setTimeout(() => this._control({
+                cmd: 'combo',
+                data: runComboData
+            }), 500);
+        }
     }
 
     _getAgentsResult() {
@@ -646,14 +647,13 @@ class Main extends React.Component<{
                 this.props.callback({
                     cmd: 'open-chatbot-panel',
                 })
-                if (data.userInput) {
-                    console.log('data.userInput', data.userInput)
+                if (data.combo) {
+                    console.log('data.combo', data.combo);
                     this.setState({
-                        userInput: {
-                            prompt: data.userInput, tag: data.userInput
-                        },
-                        chatbotInitPrompt: data.userInput
+                        chatBotConfig: [...this.state.chatBotConfig, ChatBotConfig.createRoleOpts(data.combo, 0)]
                     })
+                    const runComboData = parseCombo2ControlEvent(data.combo)
+                    this._runCombo(runComboData)
                 }
             } else if (cmd == 'chat-bot-init-result') {
                 this.initChatBot(false);
@@ -1084,6 +1084,8 @@ class Main extends React.Component<{
             style: any = temperature;
 
         // if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
+        if (!chatBotType) chatBotType = this.state.chatBotType;
+        if (!style && this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
 
         // 增加一个Bing的转化
         if (model == "Bing" && typeof (temperature) == 'number' && temperature > -1) style = this._temperature2BingStyle(temperature);
@@ -1430,6 +1432,8 @@ class Main extends React.Component<{
                     // console.log(nTalks)
                 }
 
+                console.log('from', from, tag)
+
                 if (from !== 'debug' && tag) {
                     // 用户输入的信息，显示tag
                     nTalks.push(
@@ -1444,7 +1448,13 @@ class Main extends React.Component<{
                             {
                                 html: debugInfo || 'debug'
                             }));
-                };
+                } else if (from === 'newtab') {
+                    nTalks.push(
+                        ChatBotConfig.createTalkData('tag',
+                            {
+                                html: 'newtab'
+                            }));
+                }
 
                 // 清空type thinking 的状态
                 nTalks = Talks.filter(nTalks)
@@ -1495,7 +1505,7 @@ class Main extends React.Component<{
                     _nodeInputTalk: prompt._nodeInputTalk
                 }
 
-                promptJson = { ...promptJson, ...bindUserInput(prompt.text) };
+                if (prompt.text) promptJson = { ...promptJson, ...bindUserInput(prompt.text) };
 
                 // role的处理
                 if (prompt.role && (prompt.role.name || prompt.role.text || prompt.role.merged)) {
