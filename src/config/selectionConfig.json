@@ -1,0 +1,153 @@
+[  {
+    "tag": "introduceMore",
+    "role": {
+        "name": "",
+        "text": "",
+        "merged": []
+    },
+    "combo": 1,
+    "interfaces": [
+        "contextMenus-selection"
+    ],
+    "isInfinite": false,
+    "owner": "user",
+    "prompt": {
+        "id": "PROMPT_E7NCJO7EB1UJYPD60YITL",
+        "nextId": "",
+        "nodeInputId": "",
+        "role": {
+            "name": "",
+            "text": "",
+            "merged": []
+        },
+        "text": "帮我找到相关内容中的核心信息，并查询相关百科介绍和相关资讯的链接，你需要用以下格式输出：\\n<百科>\\nxxxx\\n<相关资讯>\\n1.xxxx\\n2.xxxx",
+        "url": "",
+        "temperature": 0.6,
+        "model": "Bing",
+        "input": "nodeInput",
+        "userInput": "",
+        "translate": "default",
+        "output": "default",
+        "type": "prompt",
+        "merged": []
+    },
+    "version": "0.1.0",
+    "app": "brainwave",
+    "id": "cd46Rr9s95Kk7as-0SlBF",
+    "createDate": 1687225769848
+},
+    {
+        "tag": "contentExpansion",
+        "role": {
+            "name": "",
+            "text": "",
+            "merged": []
+        },
+        "combo": 1,
+        "interfaces": [
+            "contextMenus-selection"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "PROMPT_KLB_NC08ZUGODHAUGPQSN",
+            "nextId": "",
+            "nodeInputId": "",
+            "role": {
+                "name": "",
+                "text": "",
+                "merged": []
+            },
+            "text": "帮我将相关内容进行扩写，重点内容不能发生变化。",
+            "url": "",
+            "temperature": 0.6,
+            "model": "ChatGPT",
+            "input": "nodeInput",
+            "userInput": "",
+            "translate": "default",
+            "output": "default",
+            "type": "prompt",
+            "merged": []
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "fG9SoCEwyxwcy2VvHvMqx",
+        "createDate": 1687226065682
+    },
+    {
+        "tag": "abbreviations",
+        "role": {
+            "merged": [],
+            "name": "",
+            "text": ""
+        },
+        "combo": 1,
+        "interfaces": [
+            "contextMenus-selection"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "PROMPT_DYCMLQHH_Z3ADQCTL-7FA",
+            "nextId": "",
+            "nodeInputId": "",
+            "role": {
+                "merged": [],
+                "name": "",
+                "text": ""
+            },
+            "text": "帮我将相关内容进行缩写，重点内容不能发生变化。",
+            "url": "",
+            "temperature": 0.6,
+            "model": "ChatGPT",
+            "input": "nodeInput",
+            "userInput": "",
+            "translate": "default",
+            "output": "default",
+            "type": "prompt",
+            "merged": []
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "-N888z9tqyp8Dk5AyRDzY",
+        "createDate": 1687226225217
+    },
+    {
+        "tag": "rewriteContent",
+        "role": {
+            "name": "",
+            "text": "",
+            "merged": []
+        },
+        "combo": 1,
+        "interfaces": [
+            "contextMenus-selection"
+        ],
+        "isInfinite": false,
+        "owner": "user",
+        "prompt": {
+            "id": "PROMPT_LBUF4RKKMDNGWHUGXSEOJ",
+            "nextId": "",
+            "nodeInputId": "",
+            "role": {
+                "name": "",
+                "text": "",
+                "merged": []
+            },
+            "text": "帮我将相关内容进行文笔优化，字数差不多，重点内容不能发生变化。",
+            "url": "",
+            "temperature": 0.6,
+            "model": "ChatGPT",
+            "input": "nodeInput",
+            "userInput": "",
+            "translate": "default",
+            "output": "default",
+            "type": "prompt",
+            "merged": []
+        },
+        "version": "0.1.0",
+        "app": "brainwave",
+        "id": "WdPYAlNsh0RrzTO0PgTta",
+        "createDate": 1687226281864
+    }
+]

@@ -1,17 +1,21 @@
 import * as React from "react";
-import { Button, Card, message } from 'antd';
+import { Button, Card, message, Image, Dropdown } from 'antd';
 import {
-    CopyOutlined, FilePptOutlined
+    CopyOutlined, FilePptOutlined, DownSquareOutlined, SmileOutlined
 } from '@ant-design/icons';
 
 import styled from 'styled-components';
 import ChatBotConfig from "./ChatBotConfig";
 
 import PPT from "@components/files/PPT"
+import { hashJson, getNowDate } from "../Utils";
 
+import i18n from 'i18next';
+import DownSquareButton from "@components/buttons/DownSquare";
 /** < ChatBotTalks  callback={} items={}/>
  * 
  * export 是否允许导出
+ * avatarUrl 类型suggest，新增此字段，显示角色头像
  * 
  * items:[{
             type, user, html, buttons,export
@@ -51,6 +55,7 @@ import PPT from "@components/files/PPT"
     {
         type: 'suggest',
         hi:'hi 我可以为你梳理当前页面的知识',
+        avatarUrl:'',
         buttons: [{
             from: 'combo'// ,
             data: {
@@ -103,7 +108,7 @@ const Content: any = styled(Flex)`
     flex-direction: column;
     overflow-y: scroll;
     overflow-x: hidden;
-    margin: 4px 0;
+    margin: 5px 0;
     &::-webkit-scrollbar
     {
       width:2px;
@@ -120,12 +125,22 @@ const Content: any = styled(Flex)`
       -webkit-box-shadow:inset 0 0 5px rgba(0, 0,0, 0.2);
       background:rgba(0, 0,0, 0.2);
     }
+    &title{
+        display:block;
+    }
+    &url{
+        display:block;
+    }
+    &text{
+        display:block;
+    }
+ 
 `
 
-const customizeRenderEmpty = (text = 'Data Not Found') => (
+const createAvatar = (avatar: string, text = 'Data Not Found') => (
     <div style={{ textAlign: 'left', marginTop: '10px' }}>
-        <img src={chrome.runtime.getURL('public/icon-34.png')} className="logo" style={{
-            width: '34px !important',
+        <img src={avatar} className="logo" style={{
+            width: '35px',
             height: 'fit-content!important'
         }} />
         {/* <SmileOutlined style={{ fontSize: 20 }} /> */}
@@ -136,13 +151,13 @@ const customizeRenderEmpty = (text = 'Data Not Found') => (
 const createTalkBubbleStyle = (user = false) => {
     let r: any = {
         background: user == true ? '#D1DBFA' : '#4646460d',
-        padding: user == true ? '8px' : '16px',
-        borderRadius: '8px',
+        padding: 10,
+        borderRadius: 10,
         cursor: 'text',
         width: user == true ? 'fit-content' : 'inherit',
         maxWidth: user == true ? '80%' : '100%',
         textAlign: 'left',
-        minWidth: '72px'
+        minWidth: '70px'
     }
     user == true ? r['float'] = 'right' : ''
     return r
@@ -152,13 +167,16 @@ const thinkingBtn = (name = '思考中') => <Button type="dashed"
     className="chatbot-thinking"
     loading disabled
 >{name}</Button>
-const suggestBtn = (i: string, name: string, callback: any) => <Button key={i}
+
+const suggestBtn = (i: string, name: string, callback: any) => <Button
+    key={i}
+    type="primary"
     style={{
         background: '#1677ff',
-        border: 'none',
-        margin: '0px 12px 12px 0px',
+        // border: 'none',
+        margin: '0px 10px 10px 0px',
         color: 'white',
-        fontWeight: '500', height: 'fit-content'
+        // fontWeight: '500', height: 'fit-content'
     }}
     onClick={() => callback()}
     className="chatbot-suggest"
@@ -167,7 +185,10 @@ const suggestBtn = (i: string, name: string, callback: any) => <Button key={i}
 const copy = async (data: any) => {
     console.log('copy', data)
     const div = document.createElement('div');
-    div.innerHTML = data.html;
+    for (const d of data) {
+        div.innerHTML += d.html;
+    }
+
     const copyText = div.innerText;
 
     let type = "text/plain"
@@ -183,100 +204,181 @@ const copy = async (data: any) => {
 }
 
 const createPPT = (data: any) => {
-    console.log('createPPT', data)
-    const { type, html } = data;
-    let div = document.createElement('div');
-    div.innerHTML = html;
-
-    let items: any = [];
-
-    if (type === 'markdown') {
-
-        items.push(
-            {
-                title: div.innerText,
-
-            }
-        );
-
-    } else if (type == 'images') {
-        items.push(
-            {
-                title: type,
-                images: Array.from(div.querySelectorAll('img'), im => {
-                    return {
-                        title: type,
-                        base64: im.src
-                    }
-                })
-            }
-        );
-    }
-
+    // console.log('createPPT', data)
 
     const p = new PPT();
-    p.create('test-by-shadow', items)
+    p.createPPT(data);
 
 }
 
-const createListItem = (data: any, index: number) => {
+const createImages = (html: string, selected: boolean) => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    const text = div.innerText;
+    const urls = Array.from(div.querySelectorAll('img'), img => img.src);
+    return <Image.PreviewGroup
+        preview={{
+            onChange: (current, prev) => console.log(`current index: ${current}, prev index: ${prev}`),
+        }}
+    >
+        {
+            Array.from(urls, (u: string) => <Image width={180} src={u}
+                style={selected ? { outline: '1px dashed gray' } : {}}
+            />)
+        }
+        {
+            text && <p>{text}</p>
+        }
+    </Image.PreviewGroup>
 
-    return <div style={{ margin: '2px 0' }}>{
+}
+
+const createListItem = (data: any, index: number, debug: boolean) => {
+    // console.log('createListItem', data.id)
+    let items: any = [
+        {
+            label: i18n.t("copyText"),
+            key: 'copy-text',
+        },
+    ];
+
+    if (!debug) items.push({
+        label: i18n.t("exportPPT"),
+        key: 'ppt',
+    })
+
+    items = [...items, {
+        type: 'divider',
+    },
+    ];
+
+    items.push({
+        label: data.selected ? i18n.t("selected") : i18n.t("selectIt"),
+        key: 'select',
+        icon: data.selected ? <SmileOutlined /> : '',
+    })
+
+    // console.log('createListItem',data)
+    return <div style={{ margin: '5px 0' }} className={`chatbot-talk-card-${data.type}`}>{
         // 状态判断：思考、建议选项、对话
         data.type == 'thinking' ? thinkingBtn(data.hi) : (
-            data.type == 'suggest' ? <>
+            data.type == 'suggest' && !debug ? <>
                 {
-                    data.buttons
-                        && data.buttons.length > 0
-                        && data.hi ?
-                        customizeRenderEmpty(data.hi) : ''
+                    data.hi ?
+                        createAvatar(data.avatarUrl || chrome.runtime.getURL('public/icon-128.png'), data.hi) : ''
+                }
+                {
+                    data.html ?
+                        <p
+                            style={{ ...createTalkBubbleStyle(false), background: 'transparent' }}
+                            key={index}
+                            dangerouslySetInnerHTML={{ __html: data.html }}>
+                        </p> : ''
                 }
                 {
                     data.buttons && data.buttons.length > 0 ? Array.from(
                         data.buttons,
-                        (button: any, i) => suggestBtn(i + '', button.name, () => button.callback && button.callback())
+                        (button: any, i) => {
+                            return suggestBtn(i + '', button.name, () => button.callback && button.callback())
+                        }
                     ) : ''
                 }
             </> : (data.html ?
                 data.user ? <p
                     style={createTalkBubbleStyle(data.user)}
-                    className={`chatbot-text-bubble${data.user ? '-user' : ''}`}
+                    className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
                     key={index}
-                    dangerouslySetInnerHTML={{ __html: data.html }}>
+                // dangerouslySetInnerHTML={{ __html: data.html }}
+                >{data.html}
                 </p> : <Card title={""}
                     headStyle={{
-                        minHeight: '12px', backgroundColor: 'white'
+                        minHeight: '10px',
+                        backgroundColor: 'white',
+                        border: "none",
+                        marginBottom: -20,
+                        width: "100%"
                     }}
                     bordered={false}
                     size={'small'}
+                    key={index}
                     extra={data.export ?
-                        <><Button type="dashed"
-                            style={{ margin: '4px 0' }}
-                            icon={<CopyOutlined />}
-                            size={'small'}
-                            onClick={() => copy(data)} />
-                            <Button type="dashed"
-                                style={{ margin: '4px 0' }}
+                        <>
+                            <Dropdown
+                                menu={{
+                                    items,
+                                    onClick: (e) => {
+                                        let key = e.key;
+                                        let ds = [data];
+                                        if (data.getAll) {
+                                            ds = data.getAll(data.id);
+                                        }
+                                        if (key == "select") {
+                                            data.select && data.select(data.id)
+                                        } else if (key === "copy-text") {
+                                            copy(ds)
+                                        } else if (key == 'ppt') {
+                                            createPPT(ds)
+                                        }
+                                    }
+                                }}
+                                trigger={['click']} // 设置触发方式为 'click'
+                            >
+                                <DownSquareButton
+                                    disabled={true}
+                                    callback={() => {
+                                        // 处理回调函数的逻辑
+                                    }}
+                                    type="text"
+                                    style={{ margin: '5px 0' }}
+                                    size={'small'}
+                                    onClick={(e: React.MouseEvent) => {
+                                        e.preventDefault();
+                                        // 其他事件处理逻辑
+                                    }}
+                                />
+                            </Dropdown>
+
+                            {/* <Button type="text"
+                        style={{ margin: '5px 0' }}
+                        icon={<CopyOutlined />}
+                        size={'small'}
+                        onClick={() => console.log(1111)} /> */}
+                            {/* {!debug ? <Button type="text"
+                                style={{ margin: '5px 0' }}
                                 icon={<FilePptOutlined />}
                                 size={'small'}
-                                onClick={() => createPPT(data)} />
+                                onClick={() => createPPT(data)} /> : ''} */}
                         </> : ''
                     }
 
                     style={{
-                        width: '100%', background: 'rgba(70, 70, 70, 0.04)', marginTop: '12px',
-                        marginBottom: '12px'
+                        width: '100%',
+                        background: 'rgba(255, 255, 255, 0.00)',
+                        marginTop: '10px',
+                        marginBottom: '10px',
+                        padding: '0px',
+                        boxShadow: 'none',
+                        // display: 'flex',
+                        // flexWrap: 'wrap',
                     }}>
-                    <p
-                        style={createTalkBubbleStyle(data.user)}
-                        className={`chatbot-text-bubble${data.user ? '-user' : ''}`}
-                        key={index}
-                        dangerouslySetInnerHTML={{ __html: data.html }}>
-                    </p>
+                    {
+                        data.type == "images" ?
+                            createImages(data.html, data.selected)
+                            : <p
+                                style={data.selected ? {
+                                    ...createTalkBubbleStyle(data.user),
+                                    outline: '1px dashed gray'
+                                } : createTalkBubbleStyle(data.user)}
+                                className={`chatbot-text-bubble${data.user ? '-user' : ''}-${data.type}`}
+                                key={index}
+                                dangerouslySetInnerHTML={{ __html: data.html }}>
+                            </p>
+                    }
+
                 </Card> : '')
         )
 
-    }</div>
+    }</div >
 }
 
 
@@ -304,7 +406,7 @@ class ChatBotTalks extends React.Component {
 
         this.state = {
             name: 'ChatBotTalks',
-            items: this._updateItems()
+            items: this._updateItems({})
         }
 
         this.contentDom = React.createRef();
@@ -318,11 +420,32 @@ class ChatBotTalks extends React.Component {
     }
 
     componentDidUpdate(prevProps: { items: any; }, prevState: any) {
+        const itemsId = hashJson(Array.from(this.props.items, (i: any) => {
+            return {
+                id: i.id,
+                html: i.html,
+                markdown: i.markdown
+            }
+        })),
+            prevItemsId = hashJson(Array.from(prevProps.items, (i: any) => {
+                return {
+                    id: i.id,
+                    html: i.html,
+                    markdown: i.markdown
+                }
+            }));
         if (
-            this.props.items !== prevProps.items
+            itemsId !== prevItemsId
         ) {
+            console.log('componentDidUpdate', this.props.items, prevProps.items)
+
+            let oldItemsMap: any = {}
+            Array.from(this.state.items, (item: any) => {
+                oldItemsMap[item.id] = item.selected
+            })
+
             this.setState({
-                items: this._updateItems()
+                items: this._updateItems(oldItemsMap)
             })
         }
         if (
@@ -336,9 +459,10 @@ class ChatBotTalks extends React.Component {
         // this.destroyConnection();
     }
 
-    _updateItems() {
+    _updateItems(oldItemsMap: any) {
         // 当this.props.items 为空
-        const defaultItems = [ChatBotConfig.createTalkData('help', {})];
+
+        const defaultItems = [!this.props.debug ? ChatBotConfig.createTalkData('help', {}) : null].filter(f => f);
 
         // 当this.props.items 为空
         let items: any = (!(this.props.items && this.props.items.length > 0) ? defaultItems : [...this.props.items]).filter(i => i);
@@ -362,8 +486,29 @@ class ChatBotTalks extends React.Component {
                 return
             }
 
+            if (item.export && item.id) {
+                console.log(item.id, item.type)
+                item.select = (id: string) => {
+                    const items = Array.from(this.state.items, (i: any) => {
+                        if (i.id == id) i.selected = !i.selected;
+                        return i
+                    })
+                    this.setState({
+                        items
+                    })
+                }
+                item.getAll = (id: string) => {
+                    return this.state.items.filter((i: any) => i.selected || i.id == id);
+                }
+            }
+
+            if (item.id && oldItemsMap && oldItemsMap[item.id]) item.selected = oldItemsMap[item.id]
+
             return {
-                ...item, user, html, buttons
+                ...item,
+                user,
+                html,
+                buttons,
             }
         }).filter(item => item);
 
@@ -383,11 +528,13 @@ class ChatBotTalks extends React.Component {
                 ref={this.contentDom}
                 translate="no"
                 className="chatbot-talks"
-                style={{ overflowY: 'scroll' }}
+                style={{ overflowY: 'scroll', paddingRight: '12px' }}
             // height={this.state.fullscreen ? 'calc(70vh - 44px)' : ''}
             >
                 {
-                    (this.state.items && this.state.items.length > 0) && Array.from(this.state.items, (item, index) => createListItem(item, index))}
+                    (this.state.items && this.state.items.length > 0) && Array.from(
+                        this.state.items,
+                        (item, index) => createListItem(item, index, !!this.props.debug))}
             </Content>
         );
     }

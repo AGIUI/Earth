@@ -72,7 +72,8 @@ class ChatBotSelect extends React.Component {
     constructor(props: any) {
         super(props);
 
-        const currentBot = (this.props.config.filter((c: any) => c.checked)[0]) || {
+        //  
+        const currentBot =(this.props.config.filter((c: any) => c.checked)[0]) || {
 
             type: 'ChatGPT',
             name: 'ChatGPT',
@@ -80,7 +81,7 @@ class ChatBotSelect extends React.Component {
             style: { type: 'range', label: 'temperature', value: 0.6, values: [0, 1] }
 
         };
-        // console.log(currentBot)
+        // console.log('currentBot',currentBot)
 
         this.state = {
             name: this.props.name || 'ChatBotSelect',
@@ -97,7 +98,7 @@ class ChatBotSelect extends React.Component {
     }
 
     _updateStyle(type: string) {
-        const currentBot = this.state.config.filter((c: any) => c.type == type)[0];
+        const currentBot = this.state.config.filter((c: any) => c && c.type == type)[0];
         const data = {
             type: currentBot?.type,
             currentName: currentBot?.name,
@@ -120,9 +121,9 @@ class ChatBotSelect extends React.Component {
         if (
             this.props.isLoading !== prevProps.isLoading
         ) {
-           this.setState({
-            isLoading:this.props.isLoading
-           })
+            this.setState({
+                isLoading: this.props.isLoading
+            })
         }
     }
 
@@ -165,7 +166,7 @@ class ChatBotSelect extends React.Component {
 
 
     render() {
-        // console.log(this.state.style)
+        console.log('config::::',this.state.config)
         return (
             <div style={{
                 display: 'flex',
@@ -179,11 +180,12 @@ class ChatBotSelect extends React.Component {
                     value={this.state.type}
                     onChange={(e) => this._onChange(e)}>
                     {
-                        Array.from(this.state.config, (t: any) => <Option value={t.type}>
-                            <img style={{
-                                width: '26px', height: '26px'
-                            }} src={t.icon} alt={`${t.name} logo`} />
-                        </Option>
+                        Array.from(this.state.config, (t: any) =>
+                            <Option value={t && t.type}>
+                                <img style={{
+                                    width: '26px', height: '26px'
+                                }} src={t.icon} alt={`${t.name} logo`} />
+                            </Option>
                         )
                     }
                 </Select>

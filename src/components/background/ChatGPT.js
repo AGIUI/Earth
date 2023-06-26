@@ -9,13 +9,22 @@ import { chromeStorageGet, chromeStorageSet } from '@src/components/Utils';
 //https://mixcopilot.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview
 //
 
-const createAPIUrl = (hostName) => {
+const createAPIUrlForCompletions = (hostName) => {
     let url = `${hostName}/v1/chat/completions`
     if (hostName.match('azure')) {
         url = `${hostName}/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview`
     }
     return url
 }
+
+const createAPIUrlForEmbeddings = (hostName) => {
+    let url = `${hostName}/v1/embeddings`
+        // if (hostName.match('azure')) {
+        //     url = `${hostName}/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-03-15-preview`
+        // }
+    return url
+}
+
 
 // const controller = new AbortController();
 //         const signal = controller.signal;
@@ -62,8 +71,8 @@ function fetchStream(stream, callback) {
         // done  - 当 stream 传完所有数据时则变成 true
         // value - 数据片段。当 done 为 true 时始终为 undefined
         if (done) {
-            console.log('Stream complete', value)
-                // para.textContent = value;
+            // console.log('Stream complete', value)
+            // para.textContent = value;
             return
         }
         // value for fetch streams is a Uint8Array
@@ -112,8 +121,8 @@ export default class ChatGPT {
     constructor() {
         this.type = 'ChatGPT'
         this.conversationContext = { messages: [] }
-        this.contextSize = 11
-        this.baseUrl = createAPIUrl('https://api.openai.com')
+        this.contextSize = 3
+        this.baseUrl = 'https://api.openai.com'
         this.models = ['gpt-3.5-turbo']
 
         // { en: 'Creative', zh: '创造力',value:'Creative',label:'Creative' },
@@ -128,16 +137,21 @@ export default class ChatGPT {
             if (data.myConfig) {
                 this.token = data.myConfig.token
                 this.model = data.myConfig.model
-                this.baseUrl = createAPIUrl(data.myConfig.api)
+                this.baseUrl = data.myConfig.api
             }
         })
     }
 
-    buildMessages() {
+    buildMessages(systemContent) {
         const date = new Date().toISOString().split('T')[0]
+        if (systemContent === "undefined") systemContent = null;
+        if (systemContent === "null") systemContent = null;
+        if (systemContent === "") systemContent = null;
+        systemContent = systemContent || `You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.\nKnowledge cutoff: 2021-09-01\nCurrent date: ${date}`;
+
         const systemMessage = {
             role: 'system',
-            content: `You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible.\nKnowledge cutoff: 2021-09-01\nCurrent date: ${date}`
+            content: systemContent
         }
         return [
             systemMessage,
@@ -147,16 +161,17 @@ export default class ChatGPT {
     clearAvailable() {
         this.available = null;
     }
-    async getAvailable() {
-        let res = {
-            success: false,
-            info: ''
-        }
+    getAvailable() {
 
-        if (!this.available) res = await this.init()
-        if (this.available && this.available.success == false) res = await this.init()
-        if (this.available && this.available.success) res = this.available
-        return res
+        // let res = {
+        //     success: false,
+        //     info: ''
+        // }
+
+        // if (!this.available) res = await this.init()
+        // if (this.available && this.available.success == false) res = await this.init()
+        // if (this.available && this.available.success) res = this.available
+        return this.available;
     }
 
     async init(token, baseUrl, model = 'gpt-3.5-turbo') {
@@ -166,7 +181,7 @@ export default class ChatGPT {
         }
 
 
-        baseUrl = baseUrl ? createAPIUrl(baseUrl) : this.baseUrl
+        baseUrl = baseUrl ? baseUrl : this.baseUrl
         token = token || this.token
         model = model || this.model
 
@@ -185,7 +200,7 @@ export default class ChatGPT {
         }
         // this.conversationContext = { messages: [{ role: 'user', content:'hi' }] }
 
-        const resp = await postData(baseUrl, token, {
+        const resp = await postData(createAPIUrlForCompletions(baseUrl), token, {
             model: model,
             messages: [{ role: 'user', content: 'hi' + (new Date()).getTime() }],
             temperature: 0.6,
@@ -195,20 +210,20 @@ export default class ChatGPT {
         console.log('init ', res, res.error && res.error.message ? false : true);
 
         let success = true;
-        if (res.error && res.error.message) success = false;
+        if (res.error && (res.error.message || res.error.code || res.error.type)) success = false;
         if (res.object == "error") success = false;
         if (res.statusCode == 401) success = false;
 
         let info = ''
         if (res.message) info = res.message;
-        if (res.error && res.error.message) info = res.error.message;
+        if (res.error && (res.error.message || res.error.code || res.error.type)) info = res.error.message || res.error.code || res.error.type;
 
 
         this.available = {
             success,
             info,
             data: res,
-            style: 0.6,
+            style: { label: 'temperature', value: 0.6 },
             temperature: 0.6
         }
 
@@ -260,20 +275,39 @@ export default class ChatGPT {
         }
     }
 
+    async embeddings(params) {
+        let token = params.token || this.token;
+
+        if (!token) {
+            return { type: 'ERROR', data: 'ChatGPT API key not set' }
+        }
+
+        const resp = await postData(
+            createAPIUrlForEmbeddings(params.url || this.baseUrl),
+            token, {
+                model: params.model || this.model,
+                input: params.input,
+            }
+        )
+        const res = await resp.json();
+        let embedding = res["data"][0]["embedding"]
+        return embedding
+    }
+
     async doSendMessage(params) {
-        let token = params.token || this.token
+        let token = params.token || this.token;
+        let temperature = params.temperature;
+        if (temperature === undefined || temperature === null) temperature = 0.6;
         if (!token) {
             params.onEvent({ type: 'ERROR', data: 'ChatGPT API key not set' })
                 // throw new Error('OpenAI API key not set')
             return
         }
         if (!this.conversationContext) {
-            this.conversationContext = { messages: [] }
+            this.conversationContext = { messages: [] };
         }
-        this.conversationContext.messages.push({
-            role: 'user',
-            content: params.prompt
-        })
+        this.conversationContext.messages = [...this.conversationContext.messages, ...params.prompt];
+
 
         const controller = new AbortController()
         const signal = controller.signal
@@ -281,11 +315,11 @@ export default class ChatGPT {
         this.controller = controller
 
         const resp = await postData(
-            params.url || this.baseUrl,
+            createAPIUrlForCompletions(params.url || this.baseUrl),
             token, {
                 model: params.model || this.model,
-                messages: this.buildMessages(),
-                temperature: params.temperature || 0.6,
+                messages: [...this.conversationContext.messages.slice(-this.contextSize)],
+                temperature: temperature,
                 stream: true
             },
             signal
@@ -294,7 +328,7 @@ export default class ChatGPT {
         const result = { role: 'assistant', content: '' }
             // console.log('params.stream', resp);
         await parseSSEResponse(resp, message => {
-            console.log('parseSSEResponse', message)
+            // console.log('parseSSEResponse', message)
             let isDone = false;
             if (message === '[DONE]') {
                 isDone = true;
@@ -316,6 +350,7 @@ export default class ChatGPT {
             };
 
             if (isDone) {
+                this.conversationContext.messages.push(result);
                 params.onEvent({ type: 'DONE' })
                 return
             }

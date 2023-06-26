@@ -58,7 +58,7 @@ class ChatBotPanel extends React.Component {
         this.state = {
             name: this.props.name || 'ChatBotPanel',
             fullscreen: this.props.fullscreen || false,
-            loading:false,
+            loading: false,
             disabled: this.props.disabled,
             tabList: this.props.tabList || [],
             activeIndex: this.props.activeIndex,
@@ -69,17 +69,17 @@ class ChatBotPanel extends React.Component {
 
     componentDidMount() {
         // this.setupConnection();
-        
+
     }
 
     componentDidUpdate(prevProps: {
-        disabled: boolean; 
-        datas: any; 
-        tabList: any; 
+        disabled: boolean;
+        datas: any;
+        tabList: any;
         config: any;
-        activeIndex:number
+        activeIndex: number
     }, prevState: any) {
-       
+
         if (
             this.props.disabled !== prevProps.disabled
         ) {
@@ -99,14 +99,19 @@ class ChatBotPanel extends React.Component {
             })
         }
 
-        if(this.props.activeIndex!=prevProps.activeIndex){
+        if (this.props.activeIndex != prevProps.activeIndex) {
             this.setState({
-                activeIndex:this.props.activeIndex
+                activeIndex: this.props.activeIndex
             })
         }
 
         if (this.props.config != prevProps.config) {
-            this.setState({ config: this.props.config })
+            const config:any={};
+            for (const c of this.props.config) {
+                config[c.id]=c
+            }
+            this.setState({ config: Object.values(config) })
+            console.log('chatbot-panel-config',Object.values(config))
         }
     }
 
@@ -146,21 +151,25 @@ class ChatBotPanel extends React.Component {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    paddingTop: '20px'
+                    paddingTop: '10px'
                 }}>
-                    
-                    <ChatBotTalks callback={(e: any) => this.props.callback(e)}
-                        items={datas[subject.index+1]} />
-                    
-                    <ChatBotInput
+
+                    <ChatBotTalks
+                        debug={this.props.debug}
+                        callback={(e: any) => this.props.callback(e)}
+                        items={datas[subject.index + 1]} />
+
+                    {this.state.config ? <ChatBotInput
                         callback={(e: any) => this.props.callback(e)}
                         isLoading={this.state.disabled}
                         config={this.state.config}
-                        leftButton={{ label: 'Combo' }} />
+                        leftButton={{ label: 'Combo' }}
+                        debug={this.props.debug}
+                    /> : ""}
                 </div>
 
             } else {
-                let nds = Array.from(datas[subject.index+1], (data: any, i) => {
+                let nds = Array.from(datas[subject.index + 1], (data: any, i) => {
                     if (data && data.html) return { html: data.html, i }
                 }).filter(n => n)
                 const listItem = nds.map((data: any) => <div key={data.i}
@@ -180,7 +189,7 @@ class ChatBotPanel extends React.Component {
         const { contentList, activeTabKey } = this._createContentList(this.state.activeIndex)
         // console.log('chatbot-pane-datas',contentList,activeTabKey)
 
-        const btns=[
+        const btns = [
             // <CopyButton
             //     disabled={this.state.disabled}
             //     data={this.props.datas}
@@ -197,14 +206,16 @@ class ChatBotPanel extends React.Component {
                 fullscreen={this.state.fullscreen}
                 disabled={false}
                 callback={() => this.setState({
-                    fullscreen:!this.state.fullscreen
-                })} />,
-            <CloseButton
-                disabled={false}
-                callback={() => this.props.callback({
-                    cmd: 'close-chatbot-panel'
+                    fullscreen: !this.state.fullscreen
                 })} />
-            ]
+        ];
+
+        // if (!this.props.debug) 
+        btns.push(<CloseButton
+            disabled={false}
+            callback={() => this.props.callback({
+                cmd: 'close-chatbot-panel'
+            })} />)
 
         return (
             <Card
@@ -213,20 +224,20 @@ class ChatBotPanel extends React.Component {
                 bordered={true}
                 headStyle={{
                     userSelect: 'none',
-                    height: '88px',
+                    height: '80px',
                     border: 'none',
-                    display: 'block',
+                    //display: 'block',
                     fontSize: 24,
                     fontWeight: "bold"
                 }}
                 bodyStyle={{
-                    padding: '18px 24px 10px 24px',
-                    display: 'flex',
-                    height: 'calc(100% - 88px)',
-                    flexDirection: 'column',
-                    justifyContent: 'space-around',
+                    //display: 'flex',
+                    height: 'calc(100% - 80px)',
+                    //flexDirection: 'column',
+                    //justifyContent: 'space-around',
                     cursor: 'auto',
-
+                    paddingTop: 0,
+                    paddingBottom: 20
                 }}
                 style={{
                     width: this.state.fullscreen ? '100vw' : '500px',
@@ -239,19 +250,15 @@ class ChatBotPanel extends React.Component {
                 }}
                 title={this.state.name}
                 extra={btns}
-
-                tabList={this.state.tabList}
-                activeTabKey={activeTabKey}
-                onTabChange={(key: string) => {
-                    this._switchSubject(this.state.tabList.filter((s: any) => s.key == key)[0].index)
-                }}
+            // tabList={this.state.tabList}
+            // activeTabKey={activeTabKey}
+            // onTabChange={(key: string) => {
+            //     this._switchSubject(this.state.tabList.filter((s: any) => s.key == key)[0].index)
+            // }}
             >
-
                 {this.state.loading ? <Spin tip="Loading" size="large">
                     <div className="content" />
                 </Spin> : contentList[activeTabKey]}
-
-
             </Card>
         );
     }

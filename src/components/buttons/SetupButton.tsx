@@ -1,13 +1,5 @@
 import * as React from "react";
-
-import {
-    Button
-} from 'antd';
-
-
-import {
-    SettingOutlined
-} from '@ant-design/icons';
+import { SettingOutlined } from '@ant-design/icons';
 
 type PropType = {
     disabled: boolean;
@@ -16,50 +8,52 @@ type PropType = {
 }
 
 type StateType = {
-    disabled: boolean
+    disabled: boolean;
+    isHovered: boolean; // 新增 isHovered 状态
 }
 
-interface SetupButton {
-    state: StateType;
-    props: PropType
-}
-
-class SetupButton extends React.Component {
-    constructor(props: any) {
+class SetupButton extends React.Component<PropType, StateType> {
+    constructor(props: PropType) {
         super(props);
         this.state = {
-            disabled: this.props.disabled
+            disabled: props.disabled,
+            isHovered: false, // 初始化 isHovered 为 false
         }
     }
 
-    componentDidMount() {
-        // this.setupConnection();
-    }
-
-    componentDidUpdate(prevProps: { disabled: boolean; }, prevState: any) {
-        if (
-            this.props.disabled !== prevProps.disabled
-        ) {
+    componentDidUpdate(prevProps: PropType) {
+        if (this.props.disabled !== prevProps.disabled) {
             this.setState({ disabled: this.props.disabled })
         }
     }
 
-    componentWillUnmount() {
-        // this.destroyConnection();
+    handleMouseEnter = () => {
+        this.setState({ isHovered: true });
+    }
+
+    handleMouseLeave = () => {
+        this.setState({ isHovered: false });
     }
 
     render() {
+        const { disabled, isHovered } = this.state;
+
         return (
-            <Button
+            <SettingOutlined
                 style={{
+                    color: isHovered ? 'rgb(22, 119, 255)' : 'black', // 根据 isHovered 设置颜色
                     outline: 'none',
                     border: 'none',
-                    margin: '0px 5px 0px 10px',
-                    boxShadow: 'none'
+                    margin: '0px 5px',
+                    boxShadow: 'none',
+                    cursor: 'pointer',
+                    fontSize: 24
                 }}
-                icon={<SettingOutlined style={{ fontSize: 20 }} />}
-                disabled={this.state.disabled}
-                onClick={() => this.props.callback({ cmd: 'open-setup' })} />
+                disabled={disabled}
+                onClick={() => this.props.callback({ cmd: 'open-setup' })}
+                onMouseEnter={this.handleMouseEnter} // 绑定 onMouseEnter 事件处理程序
+                onMouseLeave={this.handleMouseLeave} // 绑定 onMouseLeave 事件处理程序
+            />
         );
     }
 }

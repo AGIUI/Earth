@@ -3,11 +3,12 @@
 // 提供了初始化、结果回调、缓存机制
 
 
-import { md5 } from "@components/Utils"
+import { md5, hashJson } from "@components/Utils"
 
 import {
     chromeStorageGet,
     chromeStorageSet,
+    chromeStorageClear
 } from "@components/Utils"
 
 
@@ -25,6 +26,8 @@ class ChatBotBackground {
 
         this.currentType = ''
         this.talksRecord = []
+
+        this.localSaveKey = 'userPrompts'
     }
 
     getList() {
@@ -72,15 +75,13 @@ class ChatBotBackground {
             item.model = null;
             item.baseUrl = null;
         });
-        chrome.storage.sync.set({
-            chatBotAvailables: null
-        })
+        chrome.storage.sync.clear()
     }
     async getAvailables() {
         let res = []
         for (const n of this.getList()['list']) {
             let a = await this.getAvailable(n)
-                // console.log('getAvailables', a)
+            console.log('getAvailables', a)
             res.push(a)
         }
         res = res.filter(r => r && r.type)
@@ -116,11 +117,11 @@ class ChatBotBackground {
             let id = this.createKeyIdForInit(type, {})
             chrome.storage.sync.get(id).then(data => {
                 let chatBotAvailable = data[id]
-                    // 24h 缓存
+                    //7* 24h 缓存
                 if (
                     chatBotAvailable &&
                     chatBotAvailable.available && chatBotAvailable.available.success &&
-                    new Date().getTime() - chatBotAvailable.time < 24 * 60 * 60 * 1000
+                    new Date().getTime() - chatBotAvailable.time < 7 * 24 * 60 * 60 * 1000
                 ) {
                     res(chatBotAvailable)
                 }
@@ -141,12 +142,12 @@ class ChatBotBackground {
             return chatBotAvailable
         }
 
-        const available = await (async() => {
+        const available = (() => {
             // if (this.dev) return this.devInit();
             if (this.items) {
                 // console.log(this.items, type)
                 let item = this.items.filter(item => item.type == type)[0]
-                return await item.getAvailable()
+                return item.getAvailable()
             }
         })()
 
@@ -179,6 +180,16 @@ class ChatBotBackground {
         return this.talksRecord
     }
 
+    async embeddings(input, type) {
+        let item = this.items.filter(item => item.type == type)[0]
+        if (item.embeddings) {
+            return await item.embeddings({
+                input
+            })
+        }
+        return
+    }
+
     // style ：bing的，chatgpt的
     // 开始对话，需要给一个start的记录
     // this.talksRecord=[];
@@ -206,7 +217,7 @@ class ChatBotBackground {
             //     type: 'ws',
             //     data: res
             //   })
-            console.log('doSendMessageForBg', args)
+            // console.log('doSendMessageForBg', args)
             if (args[1].type == 'ws') {
                 // 缓存下来
                 let data = args[1].data
@@ -266,7 +277,9 @@ class ChatBotBackground {
                 }
             }
             callback(...args)
+
         })
+
         return this.getCurrentTalks()
     }
 
@@ -274,6 +287,14 @@ class ChatBotBackground {
     reset(type) {
             let item = this.items.filter(item => item.type == type)[0]
             if (item) item.resetConversation()
+
+            // 清空本地缓存的prompt
+            chromeStorageGet().then(res => {
+                chromeStorageClear().then(() => {
+                    delete res[this.localSaveKey];
+                    chromeStorageSet(res)
+                })
+            })
         }
         // 停止
     stop(type) {
@@ -282,7 +303,7 @@ class ChatBotBackground {
     }
 
     createKeyId(prompt, style, type) {
-            return 'prompt_' + md5(`${this.keyPrefix}_${type}_${prompt}_${style}`)
+            return 'prompt_' + md5(`${this.keyPrefix}_${type}_${hashJson(prompt)}_${style}`)
         }
         // 获取本地保存的prompt结果
         // type 聊天机器人名称
@@ -290,12 +311,13 @@ class ChatBotBackground {
 
     async getChatBotByPrompt(prompt, style, type) {
             let key = this.createKeyId(prompt, style, type)
-            let data = await chromeStorageGet(key)
+            let data = await chromeStorageGet(this.localSaveKey)
+            let userPrompts = data.userPrompts;
 
-            if (data && data[key]) {
+            if (userPrompts && userPrompts[key]) {
                 let items = []
-                for (const id in data[key]) {
-                    items.push(data[key][id])
+                for (const id in userPrompts[key]) {
+                    items.push(userPrompts[key][id])
                 }
                 items.sort((a, b) => b.createTime - a.createTime)
 
@@ -309,12 +331,15 @@ class ChatBotBackground {
         // 只有DONE才保留数据,保存prompt及结果到本地
     async saveChatBotByPrompt(prompt, style, type, result) {
         const id = result.id
-        let key = this.createKeyId(prompt, style, type)
-        let data = await chromeStorageGet(key)
+        let key = this.createKeyId(prompt, style, type);
+        let data = await chromeStorageGet(this.localSaveKey)
+        let userPrompts = data.userPrompts || {};
 
-        if (!data[key]) data[key] = {}
+        // let data = await chromeStorageGet(key)
+
+        if (!userPrompts[key]) userPrompts[key] = {}
             // 储存
-        data[key][id] = {
+        userPrompts[key][id] = {
             id,
             prompt,
             style,
@@ -323,9 +348,9 @@ class ChatBotBackground {
             createTime: result.createTime
         }
 
-        console.log('saveChatBotByPrompt', data, result)
+        // console.log('saveChatBotByPrompt', data, result)
         try {
-            await chromeStorageSet(data)
+            await chromeStorageSet({ userPrompts })
         } catch (error) {
             //TODO 提示： 存储容量超上限了
             console.log(error)
@@ -377,22 +402,22 @@ class ChatBotBackground {
 
     // 转化数据结构
     parseData(data) {
-        console.log('parseData', data)
-            // 对话数据
-            /**
-             *    tId,
-                  id: tId + 0,
-                  markdown: result,
-                  user:false,
-                  type: suggest 、markdown、urls 、 error、done ,+ start
-                  from:local、ws
-             */
+        // console.log('parseData', data)
+        // 对话数据
+        /**
+         *    tId,
+              id: tId + 0,
+              markdown: result,
+              user:false,
+              type: suggest 、markdown、urls 、 error、done ,+ start
+              from:local、ws
+         */
         let talks = [],
             morePrompts, moreLinks;
 
         if (data.data && data.data.type == 'DONE' && data.data.data && data.data.data.moreLinks) moreLinks = data.data.data.moreLinks;
         if (data.data && data.data.type == 'DONE' && data.data.data && data.data.data.morePrompts) morePrompts = data.data.data.morePrompts;
-        console.log('morePrompts, moreLinks', morePrompts, moreLinks)
+        // console.log('morePrompts, moreLinks', morePrompts, moreLinks)
 
         if (data.type == 'local') {
             // console.log('本地获取到了缓存,需要添加新建对话的建议', data)
