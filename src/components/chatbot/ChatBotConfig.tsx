@@ -8,16 +8,17 @@ let discord = json.discord
 
 // 从combo构造role选项数据
 function createRoleOpts(combo: any, index: number) {
+    let name = combo.tag || combo.role.name || `R${combo.id.toLocaleUpperCase()}`;
     return {
         id: combo.id,
-        type: combo.role.name || `R${index + 1}`,
-        name: combo.tag || `R${index + 1}`,
+        type: name,
+        name: name,
         image: combo.role.image || chrome.runtime.getURL(`public/avatars/Designer.png`),
         text: combo.role.text,
         merged: combo.role.merged,
-        checked: index == 0 || combo.interfaces.includes('role'),
+        checked: index == 0 || combo.interfaces && combo.interfaces.includes('role') || false,
         role: combo.role,
-        owner:combo.owner,
+        owner: combo.owner,
         _type: "role"
     }
 }
@@ -30,7 +31,7 @@ function getRoleOpts() {
             if (data.offical) combo = [...combo, ...data.offical];
             // combo=combo.filter((c:any)=>c.interfaces.includes('role'));
             combo = Array.from(combo, (c: any, index: number) => {
-                if (c.role && (c.role.text || c.role.merged)) {
+                if (c.role && (c.role.text || c.role.merged) && c.interfaces.includes('role')) {
                     return createRoleOpts(c, index)
                 }
             }).filter(f => f)
@@ -42,7 +43,7 @@ function getRoleOpts() {
 
 function get() {
     return [{
-        id:'ChatGPT',
+        id: 'ChatGPT',
         type: 'ChatGPT',
         name: 'ChatGPT',
         icon: chrome.runtime.getURL(`public/chatgpt.png`),
@@ -50,7 +51,7 @@ function get() {
         checked: true,
         _type: "model"
     }, {
-        id:'Bing',
+        id: 'Bing',
         type: 'Bing',
         name: 'New Bing',
         icon: chrome.runtime.getURL(`public/bing.svg`),

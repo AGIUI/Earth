@@ -327,6 +327,16 @@ class ChatBotInput extends React.Component {
                     roleContent: data.content,
                     merged: role.merged
                 })
+            } else {
+                this.setState({
+                    roleContent: '',
+                    merged: [
+                        {
+                            role: 'system',
+                            content: ''
+                        }
+                    ]
+                })
             }
         } else if (role && role.text && role.owner != 'offical') {
             // console.log(role.text)
@@ -359,15 +369,7 @@ class ChatBotInput extends React.Component {
 
     _changeRole(role: any) {
         // console.log(role)
-
         this._updateRoleContent(role);
-
-        // const roleOpts = Array.from(this.state.roleOpts, (r: any) => {
-        //     r.checked = r.id === role.id;
-        //     return r
-        // });
-
-        // this.setState({ roleOpts })
 
         this.props.callback({
             cmd: "change-role",
