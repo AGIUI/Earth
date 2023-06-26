@@ -159,6 +159,15 @@ function createTalkData(type: string, json: any) {
                 html: ''
             }
             break;
+        case 'ask-user-input':
+            data = {
+                type: 'suggest',
+                hi: `等待ing${''}`,
+                // buttons: json.buttons,
+                user: false,
+                html: json.html
+            }
+            break;
         case 'more-prompts':
             data = {
                 type: 'suggest',
