@@ -17,6 +17,7 @@ function createRoleOpts(combo: any, index: number) {
         merged: combo.role.merged,
         checked: index == 0 || combo.interfaces.includes('role'),
         role: combo.role,
+        owner:combo.owner,
         _type: "role"
     }
 }
@@ -41,6 +42,7 @@ function getRoleOpts() {
 
 function get() {
     return [{
+        id:'ChatGPT',
         type: 'ChatGPT',
         name: 'ChatGPT',
         icon: chrome.runtime.getURL(`public/chatgpt.png`),
@@ -48,6 +50,7 @@ function get() {
         checked: true,
         _type: "model"
     }, {
+        id:'Bing',
         type: 'Bing',
         name: 'New Bing',
         icon: chrome.runtime.getURL(`public/bing.svg`),

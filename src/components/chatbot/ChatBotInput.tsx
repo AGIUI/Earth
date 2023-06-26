@@ -295,8 +295,8 @@ class ChatBotInput extends React.Component {
             return {
                 value: r.type,
                 label: r.name,
-                role: { ...r.role, id: r.id || r.role.id, name: r.role.name ? r.role.name : r.name },
-                checked: isChecked == 1,
+                role: { ...r.role, id: r.id || r.role.id, name: r.role.name ? r.role.name : r.name, owner: r.owner },
+                checked: isChecked == 1
             }
         });
 
@@ -305,8 +305,9 @@ class ChatBotInput extends React.Component {
             label: 'Default',
             role: {
                 text: "",
-                name: ""
-            }
+                name: "",
+                owner: 'offical'
+            },
         }, ...opts]
 
         // this._updateRoleContent(roleOpts.filter((c: any) => c.checked)[0]?.role)
@@ -319,7 +320,7 @@ class ChatBotInput extends React.Component {
 
     _updateRoleContent(role: any) {
         console.log('_updateRoleContent', role, role && role.merged, role && role.text)
-        if (role && role.merged) {
+        if (role && role.merged && role.owner != 'offical') {
             let data = role.merged.filter((m: any) => m.role == 'system')[0]
             if (data) {
                 this.setState({
@@ -327,7 +328,7 @@ class ChatBotInput extends React.Component {
                     merged: role.merged
                 })
             }
-        } else if (role && role.text) {
+        } else if (role && role.text && role.owner != 'offical') {
             // console.log(role.text)
             this.setState({
                 roleContent: role.text,

@@ -648,9 +648,15 @@ class Main extends React.Component<{
                     cmd: 'open-chatbot-panel',
                 })
                 if (data.combo) {
-                    console.log('data.combo', data.combo);
+                    console.log('data.combo', data.combo)
+                    // 去重
+                    let ids: any = {};
+                    const config = [...this.state.chatBotConfig, ChatBotConfig.createRoleOpts(data.combo, 0)];
+                    for (const c of config) {
+                        ids[c.id] = c;
+                    }
                     this.setState({
-                        chatBotConfig: [...this.state.chatBotConfig, ChatBotConfig.createRoleOpts(data.combo, 0)]
+                        chatBotConfig: Object.values(ids)
                     })
                     const runComboData = parseCombo2ControlEvent(data.combo)
                     this._runCombo(runComboData)
