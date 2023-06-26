@@ -289,11 +289,14 @@ class ChatBotBackground {
             if (item) item.resetConversation()
 
             // 清空本地缓存的prompt
-            chromeStorageGet().then(res => {
-                chromeStorageClear().then(() => {
-                    delete res[this.localSaveKey];
-                    chromeStorageSet(res)
-                })
+            chromeStorageGet(this.localSaveKey).then(res => {
+                res[this.localSaveKey] = null;
+                chromeStorageSet(res)
+
+                // chromeStorageClear().then(() => {
+                //     delete res[this.localSaveKey];
+                //     chromeStorageSet(res)
+                // })
             })
         }
         // 停止
