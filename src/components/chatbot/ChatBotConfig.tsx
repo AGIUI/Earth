@@ -232,6 +232,6 @@ function createTalkData(type: string, json: any) {
     return data
 }
 
-export {
+export default {
     get, createTalkData, getOutput, getInput, getAgentOpts, getTranslate, getRoleOpts, createRoleOpts
 }
