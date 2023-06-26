@@ -145,7 +145,7 @@ const mergeRun = (id: string, prompt: any, onChange: any, callback: any) => {
 }
 
 
-const _VERVISON = '0.1.0',
+const _VERVISON = '0.3.0',
   _APP = 'brainwave';
 
 
@@ -246,7 +246,7 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
 
       for (let index = 0; index < items.length; index++) {
 
-        const prompt = {
+        let prompt: any = {
           id: items[index].id,
           nextId: items[index].nextId,
           nodeInputId: items[index].nodeInputId,
@@ -265,7 +265,8 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
           type: items[index].type,
           merged: items[index].merged,
           // 用来调试
-          _debugOutput: items[index].debugOutput
+          _debugOutput: items[index].debugOutput,
+          _debugInput: items[index].debugInput,
         }
 
         // 针对prompt的数据进行处理，只保留有用的
@@ -287,6 +288,15 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
           delete prompt.file;
         }
 
+        if ([
+          "userInputText"
+        ].includes(prompt.type)) {
+          prompt = {
+            id: prompt.id,
+            type: prompt.type
+          }
+        }
+
         if (prompt.type == "api") {
           delete prompt.queryObj;
           delete prompt.file;
@@ -305,6 +315,11 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
             combo[`prompt${combo.combo}`] = prompt;
           }
         }
+
+
+        delete prompt._debugOutput
+        delete prompt._debugInput
+
       }
 
       // interfaces
@@ -318,7 +333,7 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
         if (c.checked) return c.value;
 
       }).flat().filter(f => f)
-      // console.log(combo)
+      console.log(combo)
       res(combo)
     })
   })
