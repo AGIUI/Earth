@@ -314,6 +314,10 @@ const defaultNode = () => ({
         inputs: [],
         type: 'ppt'
     },
+    inputs: {
+        nodes: [],//输入的节点
+        output: ''//输出的格式 ${n0} ${n1}
+    },
     temperature: 0.6,
     model: 'ChatGPT',
     input: 'nodeInput',// nodeInput、userInput

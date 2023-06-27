@@ -9,7 +9,7 @@ import { createDebug, selectNodeInput, createText, createSelect, createOutput, c
 
 
 
-function BlankPromptNode({ id, data, selected }: any) {
+function Main({ id, data, selected }: any) {
     // i18nInit();
     const { debugMenu, contextMenus } = getI18n();
     const [statusInputForDebug, setStatusInputForDebug] = React.useState('');
@@ -57,15 +57,15 @@ function BlankPromptNode({ id, data, selected }: any) {
 
         if (e.key === 'debugInput') {
             setDebugInput(e.data);
-            data.onChange({ id, data: { debugInput: e.data } });
-
-            let json: any;
+            let json: any=[];
             try {
                 json = JSON.parse(e.data);
                 setStatusInputForDebug('')
             } catch (error) {
                 setStatusInputForDebug('error')
             }
+
+            data.onChange({ id, data: { debugInput: e.data, merged: json } });
 
         }
 
@@ -212,4 +212,4 @@ function BlankPromptNode({ id, data, selected }: any) {
     );
 }
 
-export default BlankPromptNode;
+export default Main;

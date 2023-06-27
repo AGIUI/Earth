@@ -6,8 +6,10 @@ import APINode from './APINode';
 import RoleNode from './RoleNode';
 import PromptNode from './PromptNode';
 import CustomPromptNode from './CustomPromptNode';
-import EmbeddingsNode from './EmbeddingsNode'
+import UserInputTextNode from './UserInputTextNode'
 import FilePPTCreateNode from './FilePPTCreateNode'
+import InputMergeNode from './InputMergeNode'
+
 
 import i18n from "i18next";
 
@@ -37,14 +39,30 @@ const getNodes = () => [{
         parent: 'llm',
         name: i18n.t('customPromptNodeTitle')
     }
-    // {
-    //     key: 'embeddings',
-    //     component: EmbeddingsNode,
-    //     parent: 'llm',
-    //     name: i18n.t('embeddingsNodeTitle')
-    // },
+        // {
+        //     key: 'embeddings',
+        //     component: EmbeddingsNode,
+        //     parent: 'llm',
+        //     name: i18n.t('embeddingsNodeTitle')
+        // },
     ],
     open: true
+},
+{
+    title: i18n.t('inputMenu'),
+    children: [{
+        key: 'userInputText',
+        component: UserInputTextNode,
+        parent: 'input',
+        name: i18n.t('userInputText')
+    },
+    {
+        key: 'inputMerge',
+        component: InputMergeNode,
+        parent: 'input',
+        name: i18n.t('inputMerge')
+    }
+    ],
 },
 {
     title: i18n.t('webAgent'),

@@ -96,6 +96,7 @@ const Talks = {
     filter: (talks: any) => {
         let countSuggest = talks.filter((t: any) => t.type == 'suggest').length;
         let newTalks = [];
+        console.log('filter talks', talks)
         for (const t of [...talks]) {
             if (t) {
                 if (t.type == "suggest") countSuggest--;
@@ -112,6 +113,7 @@ const Talks = {
                 }
             }
         }
+        console.log('filter newTalks', newTalks)
         // const nt = [...talks].filter((t: any) => t.type == 'suggest' || t.type == 'talk' || t.type == 'markdown' || t.type == 'done' || t.type == 'images');
         return newTalks
     },
@@ -369,7 +371,10 @@ class Main extends React.Component<{
 
     chatBotConfig: any,
 
-    role: any
+    role: any,
+
+    // 等待用户输入
+    waitUserInput: boolean
 
 }> {
 
@@ -435,7 +440,9 @@ class Main extends React.Component<{
 
             chatBotConfig: null,
 
-            role: null
+            role: null,
+
+            waitUserInput: false
         }
 
 
@@ -788,6 +795,65 @@ class Main extends React.Component<{
         })
     }
 
+    _waitUserInputRun(inputText: string) {
+        const PromptIndex = this.state.PromptIndex;
+
+        const prePrompt = this.state.currentCombo[`prompt${PromptIndex - 1 > 1 ? PromptIndex - 1 : ''}`]
+
+        const prompt = JSON.parse(JSON.stringify(this.state.currentCombo[`prompt${PromptIndex > 1 ? PromptIndex : ''}`]));
+        console.log('_waitUserInputRun', prePrompt, prompt, PromptIndex, this.state.currentCombo)
+        const id = md5(new Date() + inputText)
+
+        const talk = {
+            ...Talks.createTalkBubble(inputText),
+            markdown: inputText,
+            id,
+            promptId: prePrompt.id,
+            tId: id,
+            type: "markdown",
+            user: false
+        }
+
+        // 下一个节点
+        let data: any = {
+            prompt,
+            index: PromptIndex,
+            prePrompt,
+            newTalk: true,
+            from: 'combo',
+            '_combo': { ...this.state.currentCombo, PromptIndex }
+        }
+
+        this.setState(
+            {
+                PromptIndex,
+                disabledAll: true,
+                waitUserInput: false,
+                talks: [...this.state.talks, talk]
+            }
+        )
+
+        setTimeout(() => this._control({
+            cmd: 'send-talk',
+            data
+        }), 500)
+    }
+
+    _userInputTextRun() {
+
+        setTimeout(() => {
+            const id = md5(new Date() + '-')
+            const data = Talks.createTaskStatus(
+                '_userInputTextRun',
+                id,
+                '-'
+            )
+            this._updateChatBotTalksResult([data]);
+        }, 1000)
+
+
+    }
+
 
     _agentApiRun(prompt: any, combo: any) {
 
@@ -1022,7 +1088,6 @@ class Main extends React.Component<{
 
     _createPPTFile(inputs: any, nTalks: any) {
         if (inputs && nTalks) {
-            // console.log('_createPPTFile', nTalks, inputs)
             const items = []
             for (const nodeInputId of inputs) {
                 let data = Talks.getTalkByPromptId(nodeInputId, [...nTalks]);
@@ -1041,6 +1106,39 @@ class Main extends React.Component<{
                 )
                 this._updateChatBotTalksResult([data]);
             })
+
+        }
+    }
+
+    _createInputMerge(inputs: any, nTalks: any) {
+        if (inputs && nTalks) {
+            let { nodes, output } = inputs;
+            const items = []
+            for (const nodeInputId of nodes) {
+                let data = Talks.getTalkByPromptId(nodeInputId, [...nTalks]);
+                if (data) {
+                    items.push(Talks.getTalkInnerText(data));
+                }
+            }
+
+            output = output || ''
+
+            if (output && output.trim()) {
+                for (let index = 0; index < items.length; index++) {
+                    const n = items[index];
+                    output = output.replaceAll('${n' + index + '}', n);
+                }
+            }
+
+            const id = md5('_createInputMerge' + (new Date()) + output)
+            const data = {
+                markdown: output,
+                id,
+                export: true,
+                type: "done",
+            }
+
+            setTimeout(() => this._updateChatBotTalksResult([data]), 1000)
 
         }
     }
@@ -1223,6 +1321,32 @@ class Main extends React.Component<{
                     }
                     // console.log('1无限循环功能', isNextUse, PromptIndex)
 
+                    if (data.from == '_userInputTextRun') {
+
+                        // console.log('_userInputTextRun', this.state.currentCombo, PromptIndex)
+                        if (this.state.currentCombo.combo > PromptIndex) {
+                            PromptIndex = PromptIndex + 1;
+
+                            console.log('_userInputTextRun', {
+                                PromptIndex,
+                                disabledAll: false,
+                                waitUserInput: true
+                            })
+
+                            this.setState(
+                                {
+                                    PromptIndex,
+                                    disabledAll: false,
+                                    waitUserInput: true
+                                }
+                            )
+                        } else {
+                            // 等待用户输入
+                            setTimeout(() => this._control({ cmd: 'stop-talk' }), 500)
+                        }
+                        return
+                    }
+
                     if (this.state.currentCombo.combo > PromptIndex) {
 
                         PromptIndex = PromptIndex + 1;
@@ -1402,7 +1526,7 @@ class Main extends React.Component<{
             // 更新到这里
             let nTalks = [...talks].filter(t => t);
 
-            console.log('_control::::::::::::', nTalks, cmd, data)
+            console.log('_control::::::::::::', nTalks, cmd, data, this.state.waitUserInput, this.state.currentCombo)
 
             const sendTalk = async () => {
 
@@ -1414,6 +1538,7 @@ class Main extends React.Component<{
 
                 prompt = JSON.parse(JSON.stringify(prompt))
 
+                console.log('sendTalk::::::::::::', this.state.waitUserInput, this.state.currentCombo)
 
                 /**
                  * ::start 对话界面的信息处理
@@ -1437,6 +1562,10 @@ class Main extends React.Component<{
                     //     ));
                     // console.log(nTalks)
                 }
+
+                // 标记当前执行状态，以及下一条
+                const currentCombo = { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex };
+
 
                 console.log('from', from, tag)
 
@@ -1471,6 +1600,18 @@ class Main extends React.Component<{
                 // 把对话内容保存到本地
                 // Talks.save(nTalks)
 
+                // userInput类节点
+                if (['userInputText']
+                    .includes(prompt.type)) {
+                    // 清空type thinking 的状态
+                    nTalks = Talks.filter(nTalks)
+                    nTalks.push(ChatBotConfig.createTalkData('ask-user-input', {
+                        html: "请输入"
+                    }));
+                    this._userInputTextRun()
+                }
+
+
                 this.setState({
                     userInput: {
                         prompt: '', tag: ''
@@ -1501,7 +1642,7 @@ class Main extends React.Component<{
                     type: prompt.type,
                     model: prompt.model,
                     temperature: prompt.temperature,
-                    //input:prompt.input,
+                    inputs: prompt.inputs,
                     queryObj: prompt.queryObj,
                     api: prompt.api,
                     input: prompt.input,
@@ -1598,6 +1739,10 @@ class Main extends React.Component<{
                     }
                 }
 
+                // 输入合并 inputMerge
+                if (promptJson.type === "inputMerge") {
+                    this._createInputMerge(promptJson.inputs, nTalks)
+                }
 
                 // 如果是用户输入的，from==chatbot-input
                 if (from === "chatbot-input") {
@@ -1614,13 +1759,8 @@ class Main extends React.Component<{
                 ].includes(promptJson.type)) this._llmRun(promptJson, newTalk);
 
 
-                // 标记当前执行状态，以及下一条
-                const currentCombo = { ...data._combo, PromptIndex: cmd == 'combo' ? 1 : this.state.PromptIndex };
-
                 // queryInput 
                 if (promptJson.type == "queryInput" && promptJson.queryObj) {
-                    // {queryObj,input,nodeInputId,userInput}
-                    // promptJson.userInput = prompt.userInput;
                     this._queryInputRun(promptJson);
                 };
 
@@ -1640,14 +1780,6 @@ class Main extends React.Component<{
                 if (promptJson.type === 'highlight') {
                     // this._agentHighlightTextRun(lastTalk)
                 }
-
-
-                // 提取 <lastTalk> 里的传给api\send-to-zsxq\query
-                // let d = document.createElement('div');
-                // d.innerHTML = prompt.text;
-                // const t: any = d.querySelector('lastTalk');
-                // prompt.text = t?.innerText || '';
-                // if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, currentCombo)
 
             }
 
@@ -1741,11 +1873,18 @@ class Main extends React.Component<{
                     break;
                 // 用户发送对话
                 case "send-talk":
-                    if (data._combo) this._promptControl({
-                        cmd: 'update-prompt-for-combo',
-                        data: { prompt: data._combo, from: "fromFlow" }
-                    })
-                    sendTalk()
+                    if (this.state.waitUserInput) {
+                        console.log('waitUserInput', this.state)
+                        this._waitUserInputRun(data.tag);
+
+                    } else {
+                        if (data._combo) this._promptControl({
+                            cmd: 'update-prompt-for-combo',
+                            data: { prompt: data._combo, from: "fromFlow" }
+                        })
+                        sendTalk()
+                    }
+
                     break;
                 case "send-talk-refresh":
                     sendTalk()
