@@ -8,6 +8,8 @@ import PromptNode from './PromptNode';
 import CustomPromptNode from './CustomPromptNode';
 import UserInputTextNode from './UserInputTextNode'
 import FilePPTCreateNode from './FilePPTCreateNode'
+import InputMergeNode from './InputMergeNode'
+
 
 import i18n from "i18next";
 
@@ -53,6 +55,12 @@ const getNodes = () => [{
         component: UserInputTextNode,
         parent: 'input',
         name: i18n.t('userInputText')
+    },
+    {
+        key: 'inputMerge',
+        component: InputMergeNode,
+        parent: 'input',
+        name: i18n.t('inputMerge')
     }
     ],
 },

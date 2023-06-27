@@ -256,7 +256,10 @@
     "mergeRun": "Save",
     "inputMenu": "Input",
     "userInputNodeTitle": "User input",
-    "userInputText": "Input text"
+    "userInputText": "Input text",
+    "inputMerge": "Input merge",
+    "inputMergeNodeTitle": "Input merge",
+    "mergeReg": "Merging rules"
 
 
 

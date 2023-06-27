@@ -255,6 +255,7 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
           url: items[index].url,
           api: items[index].api,
           file: items[index].file,
+          inputs: items[index].inputs,
           queryObj: items[index].queryObj,
           temperature: items[index].temperature,
           model: items[index].model,
@@ -278,6 +279,7 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
         ].includes(prompt.type)) {
           delete prompt.api;
           delete prompt.file;
+          delete prompt.inputs;
         }
 
         if ([
@@ -286,25 +288,29 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
           delete prompt.api;
           delete prompt.queryObj;
           delete prompt.file;
+          delete prompt.inputs;
         }
 
         if ([
-          "userInputText"
+          "userInputText", "inputMerge"
         ].includes(prompt.type)) {
           prompt = {
             id: prompt.id,
-            type: prompt.type
+            type: prompt.type,
+            inputs: prompt.inputs
           }
         }
 
         if (prompt.type == "api") {
           delete prompt.queryObj;
           delete prompt.file;
+          delete prompt.inputs;
         }
 
         if (prompt.type == "file") {
           delete prompt.api;
           delete prompt.queryObj;
+          delete prompt.inputs;
         }
 
         if (prompt.type !== 'role') {

@@ -257,7 +257,10 @@
     "mergeRun": "保存",
     "inputMenu": "输入",
     "userInputNodeTitle": "用户输入",
-    "userInputText": "输入文本"
+    "userInputText": "输入文本",
+    "inputMerge": "合并",
+    "inputMergeNodeTitle": "输入合并",
+    "mergeReg": "合并规则"
 
 
 }

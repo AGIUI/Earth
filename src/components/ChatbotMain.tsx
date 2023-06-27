@@ -1088,7 +1088,6 @@ class Main extends React.Component<{
 
     _createPPTFile(inputs: any, nTalks: any) {
         if (inputs && nTalks) {
-            // console.log('_createPPTFile', nTalks, inputs)
             const items = []
             for (const nodeInputId of inputs) {
                 let data = Talks.getTalkByPromptId(nodeInputId, [...nTalks]);
@@ -1107,6 +1106,40 @@ class Main extends React.Component<{
                 )
                 this._updateChatBotTalksResult([data]);
             })
+
+        }
+    }
+
+    _createInputMerge(inputs: any, nTalks: any) {
+        if (inputs && nTalks) {
+            let { nodes, output } = inputs;
+            const items = []
+            for (const nodeInputId of nodes) {
+                let data = Talks.getTalkByPromptId(nodeInputId, [...nTalks]);
+                if (data) {
+                    items.push(Talks.getTalkInnerText(data));
+                }
+            }
+
+            output = output || ''
+
+            if (output && output.trim()) {
+                for (let index = 0; index < items.length; index++) {
+                    const n = items[index];
+                    output = output.replaceAll('${n' + index + '}', n);
+                }
+            }
+
+            const id = md5('_createInputMerge' + (new Date()) + output)
+            const data = {
+                markdown: output,
+                id,
+                export: true,
+                type: "done",
+            }
+
+            setTimeout(()=>this._updateChatBotTalksResult([data]),1000)
+
 
         }
     }
@@ -1610,7 +1643,7 @@ class Main extends React.Component<{
                     type: prompt.type,
                     model: prompt.model,
                     temperature: prompt.temperature,
-                    //input:prompt.input,
+                    inputs: prompt.inputs,
                     queryObj: prompt.queryObj,
                     api: prompt.api,
                     input: prompt.input,
@@ -1707,6 +1740,10 @@ class Main extends React.Component<{
                     }
                 }
 
+                // 输入合并 inputMerge
+                if (promptJson.type === "inputMerge") {
+                    this._createInputMerge(promptJson.inputs, nTalks)
+                }
 
                 // 如果是用户输入的，from==chatbot-input
                 if (from === "chatbot-input") {
@@ -1725,8 +1762,6 @@ class Main extends React.Component<{
 
                 // queryInput 
                 if (promptJson.type == "queryInput" && promptJson.queryObj) {
-                    // {queryObj,input,nodeInputId,userInput}
-                    // promptJson.userInput = prompt.userInput;
                     this._queryInputRun(promptJson);
                 };
 
@@ -1746,14 +1781,6 @@ class Main extends React.Component<{
                 if (promptJson.type === 'highlight') {
                     // this._agentHighlightTextRun(lastTalk)
                 }
-
-
-                // 提取 <lastTalk> 里的传给api\send-to-zsxq\query
-                // let d = document.createElement('div');
-                // d.innerHTML = prompt.text;
-                // const t: any = d.querySelector('lastTalk');
-                // prompt.text = t?.innerText || '';
-                // if (prompt.type == 'send-to-zsxq') this._agentSendToZsxqRun(prompt.queryObj.url, prompt.text, currentCombo)
 
             }
 
