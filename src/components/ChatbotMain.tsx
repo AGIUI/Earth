@@ -1138,7 +1138,7 @@ class Main extends React.Component<{
                 type: "done",
             }
 
-            setTimeout(()=>this._updateChatBotTalksResult([data]),1000)
+            setTimeout(() => this._updateChatBotTalksResult([data]), 1000)
 
 
         }
