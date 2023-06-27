@@ -1140,7 +1140,6 @@ class Main extends React.Component<{
 
             setTimeout(() => this._updateChatBotTalksResult([data]), 1000)
 
-
         }
     }
 
