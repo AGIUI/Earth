@@ -402,17 +402,26 @@ const extractArticle = (query = "") => {
 
     elements = elements.flat().filter((f: any) => f);
 
-    article.elements = Array.from(elements, (element: any, index) => {
+    elements = Array.from(elements, (element: any, index) => {
         const tagName = element.tagName.toLowerCase();
-        const text = element.innerText.trim();
-        element.id = md5(element.innerText.trim())
+        const text = element.innerText.replace(/\s{2,}/ig, '').trim();
+        const id = md5(text)
         return {
+            id,
             element,
             text,
-            html: `<${tagName} id='${element.id}'>${text}</${tagName}>`
+            html: `<${tagName} id='${id}'>${text}</${tagName}>`
         }
     }).flat().filter((d: any) => d.text);
-    // article.elements = Array.from(elements, (t: any) => t.element)
+
+    
+    // 根据文本去重
+    let newElements: any = {};
+    for (const element of elements) {
+        newElements[element.id] = element;
+    }
+    article.elements = Object.values(newElements);
+
 
     const textContent = Array.from(divs, (d: any) => d.innerText).join('\n');
     // 当精准定位的时候
@@ -471,14 +480,14 @@ const promptBindCurrentSite = (userInput: string, type = 'text', query: string) 
         const text = textContent.trim().replace(/\s+/ig, ' ');
         prompt.text = cropText(text)
     } else if (type == 'title') {
-        prompt.title = cropText(title)
+        prompt.title = title
     } else if (type == 'html') {
         const html = Array.from(elements, (t: any) => t.html)
-        prompt.title = cropText(title)
-        prompt.html = cropText(JSON.stringify(html))
+        prompt.title = title
+        prompt.html = cropText(JSON.stringify(html).replace(/\s{2,}/ig, '').trim())
     } else if (type == 'url') {
-        prompt.title = cropText(title)
-        prompt.url = cropText(href)
+        prompt.title = title
+        prompt.url = href
     } else if (type == 'images') {
         prompt.images = Array.from(images, im => `<img src="${im}"/>`).join("")
     }
