@@ -255,5 +255,8 @@ npm run build [browser]
 
 [mix-copilot](http://www.mix-copilot.com)
 
+
+ [![Star History Chart](https://api.star-history.com/svg?repos=AGIUI/Earth&type=Date)](https://star-history.com/#AGIUI/Earth&Date)
+ 
 ## Licence
 此代码在 MIT 许可证下分发。 请参阅此目录中的[许可证](https://github.com/AGIUI/Earth/blob/main/LICENSE)。
