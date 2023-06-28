@@ -1,14 +1,12 @@
 import React from 'react'
 import { Handle, NodeProps, Position, useUpdateNodeInternals } from 'reactflow';
 
-import { Input, Avatar, Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider, MenuProps } from 'antd';
-import { DownOutlined, UserOutlined } from '@ant-design/icons';
-
-import { createText, nodeStyle, selectNodeInputBase, getI18n } from './Base'
+import { Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider, MenuProps } from 'antd';
+ 
+import {createCardTitle, createText, nodeStyle, selectNodeInputBase, getI18n } from './Base'
 
 import i18n from "i18next";
-// import { i18nInit } from '../i18nConfig';
-
+ 
 
 function Main({ id, data, selected }: any) {
 
@@ -72,14 +70,7 @@ function Main({ id, data, selected }: any) {
     const createNode = (role: any) => {
         return <Card
             key={id}
-            title={
-                <>
-                    <p style={{ marginBottom: 0 }}>{i18n.t('inputMergeNodeTitle')}</p>
-                    <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0, fontWeight: "normal", marginBottom: 10 }}>
-                        ID: {id}
-                    </p>
-                </>
-            }
+            title={createCardTitle(i18n.t('inputMergeNodeTitle'),id, data) }
             bodyStyle={{ paddingTop: 0 }}
             style={{ width: 300 }}
         >

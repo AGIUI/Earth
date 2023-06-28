@@ -3,7 +3,7 @@ import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Avatar, Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider, MenuProps } from 'antd';
 import { DownOutlined, UserOutlined } from '@ant-design/icons';
 
-import { createDebug, createText, nodeStyle, getI18n } from './Base'
+import { createCardTitle, createDebug, createText, nodeStyle, getI18n } from './Base'
 
 import i18n from "i18next";
 // import { i18nInit } from '../i18nConfig';
@@ -68,12 +68,7 @@ function Main({ id, data, selected }: any) {
         return <Card
             key={id}
             title={
-                <>
-                    <p style={{ marginBottom: 0 }}>{i18n.t('roleNodeTitle')}</p>
-                    <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0, fontWeight: "normal", marginBottom: 10 }}>
-                        ID: {id}
-                    </p>
-                </>
+                createCardTitle(i18n.t('roleNodeTitle'), id, data)
             }
             bodyStyle={{ paddingTop: 0 }}
             // extra={}

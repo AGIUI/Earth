@@ -13,7 +13,7 @@ import { create } from 'zustand';
 import { nanoid } from 'nanoid/non-secure';
 
 import { defaultNode, comboOptions, _DEFAULTCOMBO, parsePrompt2ControlEvent } from './Workflow'
-
+import { parsePrompt } from './nodeComponents/Base'
 
 
 export type RFState = {
@@ -44,7 +44,7 @@ const createId = (type: string, id: string) => `${type}_${id}`.toLocaleUpperCase
 
 const getNodes = (currentId: string, nodes: any, edges: any) => {
   const edge = edges.filter((e: any) => e.target == currentId)[0];
-  console.log('getNodes edge::', edge)
+  // console.log('getNodes edge::', edge)
   const nodeOpts = Array.from(nodes, (node: any, i) => {
     return {
       value: node.id,
@@ -246,72 +246,8 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
 
       for (let index = 0; index < items.length; index++) {
 
-        let prompt: any = {
-          id: items[index].id,
-          nextId: items[index].nextId,
-          nodeInputId: items[index].nodeInputId,
-          role: { ...rolePrompt.role },
-          text: items[index].text,
-          url: items[index].url,
-          api: items[index].api,
-          file: items[index].file,
-          inputs: items[index].inputs,
-          queryObj: items[index].queryObj,
-          temperature: items[index].temperature,
-          model: items[index].model,
-          input: items[index].input,
-          userInput: items[index].userInput,
-          translate: items[index].translate,
-          output: items[index].output,
-          type: items[index].type,
-          merged: items[index].merged,
-          // 用来调试
-          _debugOutput: items[index].debugOutput,
-          _debugInput: items[index].debugInput,
-        }
-
-        // 针对prompt的数据进行处理，只保留有用的
-        if ([
-          "queryRead",
-          "queryDefault",
-          "queryClick",
-          "queryInput"
-        ].includes(prompt.type)) {
-          delete prompt.api;
-          delete prompt.file;
-          delete prompt.inputs;
-        }
-
-        if ([
-          "prompt", "promptCustom"
-        ].includes(prompt.type)) {
-          delete prompt.api;
-          delete prompt.queryObj;
-          delete prompt.file;
-          delete prompt.inputs;
-        }
-
-        if ([
-          "userInputText", "inputMerge"
-        ].includes(prompt.type)) {
-          prompt = {
-            id: prompt.id,
-            type: prompt.type,
-            inputs: prompt.inputs
-          }
-        }
-
-        if (prompt.type == "api") {
-          delete prompt.queryObj;
-          delete prompt.file;
-          delete prompt.inputs;
-        }
-
-        if (prompt.type == "file") {
-          delete prompt.api;
-          delete prompt.queryObj;
-          delete prompt.inputs;
-        }
+        let prompt: any = parsePrompt(items[index]);
+        prompt.role = { ...rolePrompt.role };
 
         if (prompt.type !== 'role') {
           combo.combo++;
@@ -321,10 +257,6 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
             combo[`prompt${combo.combo}`] = prompt;
           }
         }
-
-
-        delete prompt._debugOutput
-        delete prompt._debugInput
 
       }
 

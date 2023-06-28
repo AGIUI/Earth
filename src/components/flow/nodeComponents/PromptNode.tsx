@@ -4,9 +4,7 @@ import { Card, Dropdown } from 'antd';
 
 import i18n from "i18next";
 
-import { createDebug, selectNodeInput, createText, createSelect, createOutput, createModel, nodeStyle, getI18n } from './Base';
-// import { i18nInit } from '../i18nConfig';
-
+import {createCardTitle, createDebug, selectNodeInput, createText, createSelect, createOutput, createModel, nodeStyle, getI18n } from './Base';
 
 
 function Main({ id, data, selected }: any) {
@@ -37,7 +35,7 @@ function Main({ id, data, selected }: any) {
   const [output, setOutput] = React.useState(data.output)
 
   const updateData = (e: any) => {
-    console.log(e)
+    // console.log(e)
     if (e.key === 'model') {
       setModel(e.data);
       data.onChange({ id, data: { model: e.data } })
@@ -187,14 +185,7 @@ function Main({ id, data, selected }: any) {
 
     return <Card
       key={id}
-      title={
-        <>
-          <p style={{ marginBottom: 0 }}>{i18n.t('promptNodeTitle')}</p>
-          <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0, fontWeight: "normal", marginBottom: 10 }}>
-            ID: {id}
-          </p>
-        </>
-      }
+      title={createCardTitle(i18n.t('promptNodeTitle'),id, data) }
       bodyStyle={{ paddingTop: 0 }}
       // extra={createType(type, agents, updateType)}
       style={{ width: 300 }}>
