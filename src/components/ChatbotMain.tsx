@@ -39,31 +39,11 @@ import PPT from '@components/files/PPT'
 import { chromeStorageGet, chromeStorageSet, sendMessageCanRetry, checkImageUrl, md5 } from "@components/Utils"
 import { message } from 'antd';
 
-import { getConfig } from '@components/Utils';
-
 import { inputByQueryBase, clickByQueryBase } from "@components/agent/base"
 
-// console
-const config: any = getConfig();
-if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
-    return function () {
-        if (!dev) return
-        try {
-            let arr = []
-            arr.push(...arguments)
-            arr.forEach((item, index) => {
-                if (Object.prototype.toString.call(item) === '[object Object]' ||
-                    Object.prototype.toString.call(item) === '[object Array]') {
-                    arr[index] = JSON.parse(JSON.stringify(item))
-                }
-            })
-            logFunc.call(console, ...arr)
-            isLogStack ? console.trace() : null  // 是否打印堆栈
-        } catch (e) {
-            console.log(`a log error: ${e}`)
-        }
-    }
-})(console.log)
+import { consoleCheck } from '@components/Utils';
+
+consoleCheck()
 
 
 // checkClipboard()

@@ -320,6 +320,30 @@ function getNowDate() {
     return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
 }
 
+const consoleCheck=()=>{
+    const config: any = getConfig();
+
+    if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
+        return function () {
+            if (!dev) return
+            try {
+                let arr = []
+                arr.push(...arguments)
+                arr.forEach((item, index) => {
+                    if (Object.prototype.toString.call(item) === '[object Object]' ||
+                        Object.prototype.toString.call(item) === '[object Array]') {
+                        arr[index] = JSON.parse(JSON.stringify(item))
+                    }
+                })
+                logFunc.call(console, ...arr)
+                isLogStack ? console.trace() : null  // 是否打印堆栈
+            } catch (e) {
+                console.log(`a log error: ${e}`)
+            }
+        }
+    })(console.log)
+}
+
 
 export {
     chromeStorageGet,
@@ -327,7 +351,9 @@ export {
     chromeStorageClear,
     chromeStorageSyncGet,
     chromeStorageSyncSet,
-    md5, hashJson,
+    md5, 
+    consoleCheck,
+    hashJson,
     parseUrl,
     getConfig,
     getConfigFromUrl,
