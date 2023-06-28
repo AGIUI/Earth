@@ -638,10 +638,12 @@ class Main extends React.Component<{
                     console.log('data.combo', data.combo)
                     // 去重
                     let ids: any = {};
-                    const config = [...this.state.chatBotConfig, ChatBotConfig.createRoleOpts(data.combo, 0)];
-                    for (const c of config) {
+                    for (const c of [...this.state.chatBotConfig]) {
+                        c.checked = false;
                         ids[c.id] = c;
                     }
+                    const role = ChatBotConfig.createRoleOpts(data.combo, 0);
+                    ids[role.id] = role;
                     this.setState({
                         chatBotConfig: Object.values(ids)
                     })
