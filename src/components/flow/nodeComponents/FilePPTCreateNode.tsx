@@ -1,13 +1,11 @@
 import React from 'react'
-import { Handle, NodeProps, Position, useUpdateNodeInternals } from 'reactflow';
+import { Handle, Position } from 'reactflow';
 
-import { Input, Avatar, Card, Select, Radio, InputNumber, Dropdown, Space, Button, Divider, MenuProps } from 'antd';
-import { DownOutlined, UserOutlined } from '@ant-design/icons';
+import { Card, Dropdown, Button, } from 'antd';
 
-import { createDebug, nodeStyle, selectNodeInputBase, getI18n } from './Base'
+import { createCardTitle, createDebug, nodeStyle, selectNodeInputBase, getI18n } from './Base'
 
 import i18n from "i18next";
-// import { i18nInit } from '../i18nConfig';
 
 
 function Main({ id, data, selected }: any) {
@@ -78,13 +76,8 @@ function Main({ id, data, selected }: any) {
 
         return <Card
             key={id}
-            title={
-                <>
-                    <p style={{ marginBottom: 0 }}>{i18n.t('filePPTNodeTitle')}</p>
-                    <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0 ,fontWeight:"normal",marginBottom:10 }}>
-                        ID: {id}
-                    </p>
-                </>
+            title={createCardTitle(i18n.t('filePPTNodeTitle'), id, data)
+
             }
             bodyStyle={{ paddingTop: 0 }}
             style={{ width: 300 }}
@@ -139,52 +132,52 @@ function Main({ id, data, selected }: any) {
             </div>
             {
                 createDebug(debugMenu, id,
-                            debugInput,
-                            data.debugOutput,
-                            (event: any) => {
-                                if (event.key == 'input') {
-                                    const { data } = event;
-                                    setDebugInput(data)
-                                    let json: any;
-                                    try {
-                                        json = JSON.parse(data);
-                                        setStatusInputForDebug('')
-                                    } catch (error) {
-                                        setStatusInputForDebug('error')
-                                    }
-                                };
-                                if (event.key == 'draggable') updateData(event)
-                            },
-                            () => {
-                                console.log('debugFun debugInput', debugInput)
-                                if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
-                                    let merged;
-                                    try {
-                                        merged = JSON.parse(debugInput)
-                                    } catch (error) {
-        
-                                    }
-                                    console.log('debugFun merged', merged)
-                                    data.merged = merged;
-                                    data.debugInput = JSON.stringify(merged, null, 2);
-                                    if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
-                                    data.debug && data.debug(data);
-                                } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
-                                    data.merged = null;
-                                    data.debugInput = "";
-                                    if (data.role) data.role.merged = null;
-                                    console.log('debugFun no merged', data)
-                                    data.debug && data.debug(data)
-                                    setShouldRefresh(true);
-                                }else if (debugInput === undefined) {
-                                    data.debug && data.debug(data)
-                                  }
-                            },
-                            () => data.merge && data.merge(data),
-                            {
-                                statusInput: statusInputForDebug,
-                                statusOutput: ""
-                            })
+                    debugInput,
+                    data.debugOutput,
+                    (event: any) => {
+                        if (event.key == 'input') {
+                            const { data } = event;
+                            setDebugInput(data)
+                            let json: any;
+                            try {
+                                json = JSON.parse(data);
+                                setStatusInputForDebug('')
+                            } catch (error) {
+                                setStatusInputForDebug('error')
+                            }
+                        };
+                        if (event.key == 'draggable') updateData(event)
+                    },
+                    () => {
+                        console.log('debugFun debugInput', debugInput)
+                        if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+                            let merged;
+                            try {
+                                merged = JSON.parse(debugInput)
+                            } catch (error) {
+
+                            }
+                            console.log('debugFun merged', merged)
+                            data.merged = merged;
+                            data.debugInput = JSON.stringify(merged, null, 2);
+                            if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
+                            data.debug && data.debug(data);
+                        } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
+                            data.merged = null;
+                            data.debugInput = "";
+                            if (data.role) data.role.merged = null;
+                            console.log('debugFun no merged', data)
+                            data.debug && data.debug(data)
+                            setShouldRefresh(true);
+                        } else if (debugInput === undefined) {
+                            data.debug && data.debug(data)
+                        }
+                    },
+                    () => data.merge && data.merge(data),
+                    {
+                        statusInput: statusInputForDebug,
+                        statusOutput: ""
+                    })
             }
         </Card>
     }

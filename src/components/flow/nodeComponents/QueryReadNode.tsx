@@ -2,15 +2,14 @@ import React from 'react'
 import { Handle, Position } from 'reactflow';
 import { Card, Dropdown } from 'antd';
 
-import { createDebug, createSelect, createTextArea, nodeStyle, getI18n } from './Base'
+import { createCardTitle, createDebug, createSelect, createTextArea, nodeStyle, getI18n } from './Base'
 
 import i18n from "i18next";
-// import { i18nInit } from '../i18nConfig';
 
 
 const createUrl = (title1: string, title2: string, placeholder2: string, json: any, onChange: any) => {
   const { query, content } = json;
-  console.log("selection", content);
+  // console.log("selection", content);
   const key = 'query'
   return <div onMouseOver={() => {
     onChange({
@@ -53,23 +52,23 @@ const createUrl = (title1: string, title2: string, placeholder2: string, json: a
     }
 
     {
-      content === 'bindCurrentPageHTML' || content === 'bindCurrentPage' || content === 'bindCurrentPageImages'?
-      createTextArea(title2, query, placeholder2, "", (e: any) => {
-        const data = {
-          ...json,
-          query: e.data,
-          action: 'read'
-        }
+      content === 'bindCurrentPageHTML' || content === 'bindCurrentPage' || content === 'bindCurrentPageImages' ?
+        createTextArea(title2, query, placeholder2, "", (e: any) => {
+          const data = {
+            ...json,
+            query: e.data,
+            action: 'read'
+          }
 
-        onChange({
-          key: "query",
-          data
-        })
-      }):null
+          onChange({
+            key: "query",
+            data
+          })
+        }) : null
     }
     {
-      content === 'bindCurrentPageHTML' || content === 'bindCurrentPage' || content === 'bindCurrentPageImages'?
-      <p style={{marginTop:5,color:"red",fontSize:12}}>{i18n.t('queryReadPlaceholderTips')}</p>:null
+      content === 'bindCurrentPageHTML' || content === 'bindCurrentPage' || content === 'bindCurrentPageImages' ?
+        <p style={{ marginTop: 5, color: "red", fontSize: 12 }}>{i18n.t('queryReadPlaceholderTips')}</p> : null
     }
 
   </div>
@@ -159,14 +158,7 @@ function QueryReadNode({ id, data, selected }: any) {
 
     return <Card
       key={id}
-      title={
-        <>
-          <p style={{ marginBottom: 0 }}>{i18n.t('queryReadNodeTitle')}</p>
-          <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0, fontWeight: "normal", marginBottom: 10 }}>
-            ID: {id}
-          </p>
-        </>
-      }
+      title={createCardTitle(i18n.t('queryReadNodeTitle'), id, data)}
       bodyStyle={{ paddingTop: 0 }}
       style={{ width: 300 }}>
       {...node}

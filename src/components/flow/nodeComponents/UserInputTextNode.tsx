@@ -2,7 +2,7 @@ import React from 'react'
 import { Handle, Position } from 'reactflow';
 import { Card, Dropdown } from 'antd';
 import i18n from "i18next";
-import { selectNodeInput, createText, nodeStyle, getI18n } from './Base';
+import { createCardTitle, createText, nodeStyle, getI18n } from './Base';
 
 function Main({ id, data, selected }: any) {
   // i18nInit();
@@ -54,14 +54,7 @@ function Main({ id, data, selected }: any) {
 
     return <Card
       key={id}
-      title={
-        <>
-          <p style={{ marginBottom: 0 }}>{i18n.t('userInputNodeTitle')}</p>
-          <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0, fontWeight: "normal", marginBottom: 10 }}>
-            ID: {id}
-          </p>
-        </>
-      }
+      title={createCardTitle(i18n.t('userInputNodeTitle'), id, data)}
       bodyStyle={{ paddingTop: 0 }}
       // extra={createType(type, agents, updateType)}
       style={{ width: 300 }}>

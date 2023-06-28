@@ -2,7 +2,7 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Card, Dropdown, Button, Popconfirm } from 'antd';
 
-import { createDebug, selectNodeInput, createURL, createSelect, createTextArea, nodeStyle, getI18n } from './Base';
+import { createCardTitle, createDebug, selectNodeInput, createURL, createSelect, createTextArea, nodeStyle, getI18n } from './Base';
 
 import i18n from "i18next";
 // import { i18nInit } from '../../locales/i18nConfig';
@@ -116,12 +116,7 @@ function Main({ id, data, selected }: any) {
                 <Card
                     key={id}
                     title={
-                        <>
-                            <p style={{ marginBottom: 0 }}>{i18n.t('apiNodeTitle')}</p>
-                            <p style={{ textOverflow: 'ellipsis', overflow: 'hidden', padding: '0px', paddingTop: '10px', margin: 0, fontWeight: "normal", marginBottom: 10 }}>
-                                ID: {id}
-                            </p>
-                        </>
+                        createCardTitle(i18n.t('apiNodeTitle'), id, data)
                     }
                     bodyStyle={{ paddingTop: 0 }}
                     style={{ width: 300 }}>

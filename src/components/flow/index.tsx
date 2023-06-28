@@ -15,7 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 
-import { Button, Input, Checkbox, Card, Divider, Collapse, Popconfirm, Space, Spin } from 'antd';
+import { Button, Input, Checkbox, Card, Divider, Collapse, Popconfirm, Space, Spin,Tooltip } from 'antd';
 
 const { Panel: Panel0 } = Collapse;
 
@@ -321,7 +321,7 @@ function Flow(props: any) {
               label = nodes.filter((node: any) => node.id == source)[0].data.output;
               break
             case 'queryRead':
-              label=nodes.filter((node: any) => node.id == source)[0].data.queryObj.content;
+              label = nodes.filter((node: any) => node.id == source)[0].data.queryObj.content;
               break
             default:
               console.log("default");
@@ -439,7 +439,6 @@ function Flow(props: any) {
       setIsLoaded(true)
     }
 
-
   }, [loadData, isNew, debug, isLoaded])
 
 
@@ -512,12 +511,21 @@ function Flow(props: any) {
           >
             <Collapse ghost size="small" >
               <Panel0 header={i18n.t('menu')} key="1">
-                <Space direction="horizontal" style={{ width: '100%' }} size={"small"}>
-                  <span style={{ fontWeight: "bold" }}>{i18n.t("workflowName")}</span>
+                <Space
+                  direction="horizontal"
+                  style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}
+                  size={"small"}
+                >
+
+                    <Tooltip title={`ID: ${id}`} placement="rightBottom">
+                      <span style={{ fontWeight: "bold" }}>{i18n.t("workflowName")}</span>
+                    </Tooltip>
+
                   <Input placeholder={i18n.t("inputTextPlaceholder")?.toString()}
                     value={tag}
                     onChange={(e: any) => onTagChange(e.target.value)}
                   />
+
                 </Space>
                 <p style={{ fontWeight: "bold" }}>{i18n.t("comboSetup")}</p>
                 <div style={{ maxWidth: 300 }}>
@@ -556,7 +564,6 @@ function Flow(props: any) {
 
                   </Popconfirm> : ''}
 
-
                   {saveCallback ?
                     <Button type={"primary"} onClick={() => save()}
                       disabled={!tag.trim()}
@@ -587,8 +594,8 @@ export default (props: any) => {
       isNew={isNew}
       exportData={exportData}
       saveCallback={saveCallback}
-      deleteCallback={deleteCallback} />
-
+      deleteCallback={deleteCallback}
+    />
   </ReactFlowProvider>)
 };
 
