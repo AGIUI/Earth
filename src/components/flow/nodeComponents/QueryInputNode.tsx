@@ -36,7 +36,7 @@ const createUrl = (input: string, json: any, onChange: any) => {
     }}>
 
     {
-      createTextArea(i18n.t('selectQuery'), query, ".tag", "", (e: any) => {
+      createTextArea(i18n.t('selectQuery'), query, i18n.t('selectQuery'), "", (e: any) => {
         const data = {
           ...json,
           queryObj: {
