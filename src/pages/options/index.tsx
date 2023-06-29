@@ -24,6 +24,46 @@ declare const window: Window &
 const config = getConfig();
 
 
+
+// 
+import getNodes from '@components/flow/nodeComponents/index'
+
+const addNewNodes = (newNodes: any = []) => {
+  let nodes: any = getNodes();
+  // const newNode = {
+  //   key: 'queryScroll',
+  //   component: QueryScrollNode,
+  //   parent: 'query',
+  //   name: "i18n.t('queryScrollNodeTitle')"
+  // }
+  for (const newNode of newNodes) {
+    for (const node of nodes) {
+      if (node.key == newNode.parent) {
+        node.children.push(newNode)
+      }
+    }
+  }
+  return { nodes, nodeTypes: updateNodeTypes(nodes) };
+}
+
+const updateNodeTypes = (nodes: any) => {
+  const nodeTypes = []
+  for (const node of nodes) {
+    const children: any = node.children;
+    for (const n of children) {
+      nodeTypes[n.key] = n.component
+    }
+  }
+  return nodeTypes
+}
+
+const initNodes = () => {
+  let nodes = getNodes()
+  return { nodes, nodeTypes: updateNodeTypes(nodes) }
+}
+
+
+
 // 保存combo
 function saveCombos(combos: any = []) {
   console.log('saveCombos', combos)
@@ -67,7 +107,8 @@ function options() {
 
   const [loadData, setLoadData] = React.useState({});
   const [isNew, setIsNew] = React.useState(true);
-
+  const [newNodes, setNewNodes] = React.useState(initNodes())
+  
   let exportDataToEarth: any;
 
   chrome.storage.local.onChanged.addListener((changes) => {
@@ -179,6 +220,7 @@ function options() {
       width: flowWidth, height: '100%'
     }}>
     <Flow
+      newNodes={newNodes}
       loadData={loadData}
       debug={{
         callback: (event: any) => {

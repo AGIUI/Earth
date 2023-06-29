@@ -15,7 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 
-import { Button, Input, Checkbox, Card, Divider, Collapse, Popconfirm, Space, Spin,Tooltip } from 'antd';
+import { Button, Input, Checkbox, Card, Divider, Collapse, Popconfirm, Space, Spin, Tooltip } from 'antd';
 
 const { Panel: Panel0 } = Collapse;
 
@@ -35,19 +35,6 @@ import 'reactflow/dist/style.css';
 
 import { _DEFAULTCOMBO, defaultNode } from './Workflow';
 
-import getNodes from './nodeComponents/index';
-
-
-// 定义节点类型
-const nodeTypes: any = {};
-
-for (const node of getNodes()) {
-  const children: any = node.children;
-  for (const n of children) {
-    nodeTypes[n.key] = n.component
-  }
-
-}
 
 // 定义连线类型
 const edgeTypes = {
@@ -86,8 +73,8 @@ const defaultEdgeOptions = { style: connectionLineStyle, type: 'brainwave' };
 
 function Flow(props: any) {
 
-  const { debug, merge, loadData, isNew, saveCallback, deleteCallback, exportData } = props;
-  // console.log('Flow isNew', isNew)
+  const { debug, merge, loadData, isNew, saveCallback, deleteCallback, exportData, newNodes } = props;
+
 
   const reactFlowInstance = useReactFlow();
 
@@ -461,7 +448,6 @@ function Flow(props: any) {
   })
 
 
-
   return (
     <ReactFlow
       nodes={nodes}
@@ -471,7 +457,7 @@ function Flow(props: any) {
       onConnect={onConnect}
       onConnectStart={onConnectStart}
       onConnectEnd={onConnectEnd}
-      nodeTypes={nodeTypes}
+      nodeTypes={newNodes.nodeTypes}
       edgeTypes={edgeTypes}
       nodeOrigin={nodeOrigin}
       defaultEdgeOptions={defaultEdgeOptions}
@@ -501,7 +487,7 @@ function Flow(props: any) {
       <Background variant={variant} />
       {isLoaded ? <>
         <Panel position="top-left">
-          <Sidebar />
+          <Sidebar newNodes={newNodes.nodes} />
         </Panel>
         <Panel position="top-right">
           <Card
@@ -517,9 +503,9 @@ function Flow(props: any) {
                   size={"small"}
                 >
 
-                    <Tooltip title={`ID: ${id}`} placement="rightBottom">
-                      <span style={{ fontWeight: "bold" }}>{i18n.t("workflowName")}</span>
-                    </Tooltip>
+                  <Tooltip title={`ID: ${id}`} placement="rightBottom">
+                    <span style={{ fontWeight: "bold" }}>{i18n.t("workflowName")}</span>
+                  </Tooltip>
 
                   <Input placeholder={i18n.t("inputTextPlaceholder")?.toString()}
                     value={tag}
@@ -584,7 +570,7 @@ function Flow(props: any) {
 }
 
 export default (props: any) => {
-  const { debug, merge, loadData, isNew, saveCallback, deleteCallback, exportData } = props;
+  const { debug, merge, loadData, isNew, saveCallback, deleteCallback, exportData, newNodes } = props;
 
   return (<ReactFlowProvider >
     <Flow
@@ -595,6 +581,7 @@ export default (props: any) => {
       exportData={exportData}
       saveCallback={saveCallback}
       deleteCallback={deleteCallback}
+      newNodes={newNodes} //自定义节点的动态开关 
     />
   </ReactFlowProvider>)
 };

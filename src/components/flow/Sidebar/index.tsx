@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Collapse } from 'antd';
 const { Panel } = Collapse;
 import getNodes from '../nodeComponents/index'
 import i18n from "i18next";
 
-export default () => {
+export default (props: any) => {
     const onDragStart = (event: any, nodeType: string, dataType: string) => {
         event.dataTransfer.setData('application/reactflow', nodeType);
         event.dataTransfer.setData('application/dataType', dataType);
@@ -13,7 +13,16 @@ export default () => {
     const onChange: any = (key: string) => {
         console.log(key);
     };
-    const nodes = getNodes()
+
+    const { newNodes } = props;
+
+    const [nodes, setNodes] = React.useState(getNodes());
+
+    useEffect(() => {
+        console.log('sidebar newNodes:', newNodes)
+        if (newNodes && newNodes.length > 0) setNodes(newNodes)
+    }, [newNodes])
+
     // console.log(Array.from(nodes.filter((n: any) => n.open), n => n.title))
     return (
         <Collapse

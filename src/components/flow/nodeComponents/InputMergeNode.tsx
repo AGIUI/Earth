@@ -124,6 +124,7 @@ function Main({ id, data, selected }: any) {
 
 
                 {createText('output', i18n.t('mergeReg'), '', output, '', updateData)}
+                <p style={{marginTop:5,color:"red",fontSize:12}}>{i18n.t('inputMergePlaceholderTips')}</p>
 
             </div>
 

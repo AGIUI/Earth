@@ -2,6 +2,7 @@ import QueryDefaultNode from './QueryDefaultNode';
 import QueryClickNode from './QueryClickNode'
 import QueryReadNode from './QueryReadNode';
 import QueryInputNode from './QueryInputNode';
+import QueryScrollNode from "./QueryScrollNode";
 import APINode from './APINode';
 import RoleNode from './RoleNode';
 import PromptNode from './PromptNode';
@@ -10,11 +11,11 @@ import UserInputTextNode from './UserInputTextNode'
 import FilePPTCreateNode from './FilePPTCreateNode'
 import InputMergeNode from './InputMergeNode'
 
-
 import i18n from "i18next";
 
 
 const getNodes = () => [{
+    key: 'role',
     title: i18n.t('roleNodeTitle'),
     children: [
         {
@@ -27,6 +28,7 @@ const getNodes = () => [{
     ]
 },
 {
+    key: 'llm',
     title: i18n.t('llm'),
     children: [{
         key: 'prompt',
@@ -49,6 +51,7 @@ const getNodes = () => [{
     open: true
 },
 {
+    key: 'input',
     title: i18n.t('inputMenu'),
     children: [{
         key: 'userInputText',
@@ -65,6 +68,7 @@ const getNodes = () => [{
     ],
 },
 {
+    key: 'query',
     title: i18n.t('webAgent'),
     children: [
         {
@@ -79,6 +83,12 @@ const getNodes = () => [{
             parent: 'query',
             name: i18n.t('queryClickNodeTitle')
         },
+        // {
+        //     key: 'queryScroll',
+        //     component: QueryScrollNode,
+        //     parent: 'query',
+        //     name: i18n.t('queryScrollNodeTitle')
+        // },
         {
             key: 'queryRead',
             component: QueryReadNode,
@@ -95,6 +105,7 @@ const getNodes = () => [{
 
 },
 {
+    key: 'api',
     title: 'API',
     children: [
         {
@@ -106,6 +117,7 @@ const getNodes = () => [{
     ]
 },
 {
+    key: 'file',
     title: 'File',
     children: [
         {
@@ -115,24 +127,8 @@ const getNodes = () => [{
             name: i18n.t('filePPTNodeTitle')
         }
     ]
-},
-    // {
-    //     title: '翻译',
-    //     children: [
-    //         {
-    //             key: 'translate',
-    //             component: TranslateNode,
-    //             parent: 'translate',
-
-    //             name: '翻译'
-    //         }
-    //     ]
-    // }
+}
 ]
-
-
-
-
 
 
 export default getNodes;
