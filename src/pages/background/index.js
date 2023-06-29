@@ -19,7 +19,6 @@ const _CONFIG_JSON = getConfig()
 consoleCheck()
 
 async function loadContextMenuData() {
-
     let Menu = [];
     let pdfConfig = [];
     let linkConfig = [];
@@ -347,10 +346,8 @@ async function loadContextMenuData() {
     //   return true
     // });
 
-    chrome.runtime.onMessage.addListener(async(request, sender, sendResponse) => {
-        if (request.cmd === 'update-chromeStorage-data') {
-            Menu = await loadContextMenuData();
-        }
+    chrome.storage.local.onChanged.addListener(async(changes) => {
+        Menu = await loadContextMenuData();
     })
 
     chrome.contextMenus.onClicked.addListener(async(item, tab) => {
