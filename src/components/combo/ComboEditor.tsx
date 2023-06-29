@@ -4,7 +4,7 @@ import {
     Button,
     Typography,
     Tag,
-    List, Empty, message
+    List, Empty, Popconfirm, message, Popover
 } from 'antd';
 
 const { Text } = Typography;
@@ -22,6 +22,7 @@ import config from "src/config/app.json";
 
 import styled from 'styled-components';
 import CloseButton from "@components/buttons/CloseButton";
+
 
 const Base: any = styled.div`
     & .ant-card-body::-webkit-scrollbar{
@@ -62,6 +63,8 @@ type StateType = {
     showImportModal: boolean;
     version: string;
     app: string;
+    open: boolean;
+    importJson: any
 }
 
 interface ComboEditor {
@@ -78,12 +81,14 @@ class ComboEditor extends React.Component {
             myPrompts: this.props.myPrompts,
             showImportModal: false,
             version: '',
-            app: ''
+            app: '',
+            open: false,
+            importJson: null
         }
         const json: any = getConfig()
         this.setState({
             app: json.app,
-            version: json.version
+            version: json.version,
         })
     }
 
@@ -179,6 +184,7 @@ class ComboEditor extends React.Component {
         document.body.removeChild(link);
     }
 
+    // 是否强制导入
     _importMyCombo() {
         console.log(this.state.myPrompts)
         const input = document.createElement('input');
@@ -193,11 +199,11 @@ class ComboEditor extends React.Component {
                 let file = files[0];
                 var fileReader = new FileReader();
                 fileReader.readAsText(file);
-                fileReader.onload = function () {
+                fileReader.onload = () => {
                     // 获取得到的结果
-                    const data: any = this.result;
+                    const data: any = fileReader.result;
                     const json = JSON.parse(data);
-                    // console.log(json)
+                    console.log(json)
 
                     chromeStorageGet(['user']).then((items: any) => {
                         let myPrompts = [...that.state.myPrompts];
@@ -207,17 +213,24 @@ class ComboEditor extends React.Component {
                             newUser = [...items.user]
                         }
 
+                        const oldCombos = []
                         for (const n of json) {
                             let isNew = true;
                             if (newUser.filter((u: any) => u.id == n.id).length > 0) isNew = false;
                             if (isNew) {
                                 newUser.push(n);
                                 myPrompts.push(n)
-                            }else{
-                                message.info('已存在')
+                            } else {
+                                n.id = md5(new Date() + '')
+                                oldCombos.push(n)
                             }
-                            ;
-                        }
+                        };
+
+                        this.setState({
+                            importJson: oldCombos,
+                            open: oldCombos.length > 0
+                        })
+
 
                         chromeStorageSet({ 'user': newUser });
 
@@ -231,6 +244,26 @@ class ComboEditor extends React.Component {
             input.remove();
         }, false)
         input.click();
+    }
+
+    importCombo(json: any) {
+        chromeStorageGet(['user']).then((items: any) => {
+            let myPrompts = [...this.state.myPrompts];
+            let newUser: any = []
+
+            if (items && items.user) {
+                newUser = [...items.user]
+            }
+            for (const n of json) {
+                newUser.push(n);
+                myPrompts.push(n);
+            }
+
+            chromeStorageSet({ 'user': newUser });
+
+            this.setState({ myPrompts })
+
+        });
     }
 
     render() {
@@ -285,9 +318,31 @@ class ComboEditor extends React.Component {
                                 disabled={false}
                                 style={{ marginRight: 10 }}
                                 callback={() => this._downloadMyCombo(this.state.myPrompts.filter((p: any) => p.owner != 'official'))} />
-                            <OpenFileButton
-                                disabled={false}
-                                callback={() => this._importMyCombo()} />
+                            <Popover
+                                content={<><Button
+                                    type="dashed"
+                                    style={{ marginRight: '20px' }}
+                                    onClick={() => {
+                                        this.setState({
+                                            open: false
+                                        })
+                                        this.importCombo(this.state.importJson)
+                                    }}>导入</Button><Button type="text" onClick={() => this.setState({
+                                        open: false
+                                    })}>Close</Button></>}
+                                title="已存在重复ID，是否继续导入？"
+                                trigger="click"
+                                open={this.state.open}
+                                onOpenChange={(newOpen) => this.setState({
+                                    open: newOpen
+                                })}
+                            >
+                                <OpenFileButton
+                                    disabled={false}
+                                    callback={() => this._importMyCombo()} />
+                            </Popover>
+
+
 
                         </div>
 
@@ -344,6 +399,7 @@ class ComboEditor extends React.Component {
                                     >
                                         <Text style={{ fontWeight: 'bold', color: "black" }}>
                                             {p.tag}
+
                                             {
                                                 p.combo > 1 ? (
                                                     <Tag style={{ marginLeft: 10 }}>Combo</Tag>) : null
