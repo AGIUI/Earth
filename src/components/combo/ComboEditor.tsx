@@ -293,7 +293,7 @@ class ComboEditor extends React.Component {
 
                     {this.state.myPrompts.filter((p: any) => p.owner !== 'official').length > 0 ? (
                         <List
-                            style={{paddingBottom:40}}
+                            style={{ paddingBottom: 40 }}
                         >
                             {this.state.myPrompts.filter((p: any) => p.owner !== 'official').map((p: any, i: number) => {
                                 return (
