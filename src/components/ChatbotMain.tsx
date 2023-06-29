@@ -35,17 +35,18 @@ import PDF from '@components/files/PDF'
 
 import PPT from '@components/files/PPT'
 
+import { consoleCheck } from '@components/Utils';
 
 import { chromeStorageGet, chromeStorageSet, sendMessageCanRetry, checkImageUrl, md5 } from "@components/Utils"
 import { message } from 'antd';
 
-import { inputByQueryBase, clickByQueryBase } from "@components/agent/base"
+// 运行时
+import { QueryDefaultRun, QueryInputRun, QueryClickRun, QueryReadRun } from "@components/runtime/webAgent"
+import { ApiRun } from '@components/runtime/api'
+import { LLMRun } from '@components/runtime/llm'
 
-import { consoleCheck } from '@components/Utils';
 
 consoleCheck()
-
-
 // checkClipboard()
 
 declare const window: Window &
@@ -53,9 +54,6 @@ declare const window: Window &
         _brainwave_import: any,
 
     }
-
-
-
 
 //['user']
 const getPromptsData = async (keys = ['user']) => {
@@ -833,46 +831,24 @@ class Main extends React.Component<{
             this._updateChatBotTalksResult([data]);
         }, 1000)
 
-
     }
 
 
     _agentApiRun(prompt: any, combo: any) {
 
-        let { url, init, protocol } = prompt.api;
-
-        if (url && !url.match('//')) url = `${protocol}${url}`;
-        // console.log(api, init.body)
-
-        if (init.body && typeof (init.body) == 'object') init.body = JSON.stringify(init.body);
-
-        let prePromptText: any = "";
-        if (prompt.input == "nodeInput") {
-            prePromptText = prompt.context;
-        }
-
-
-        if (init.body && typeof (init.body) == 'string' && prePromptText) {
-            // 替换${context} 表示从上一个节点传递来的text
-            prePromptText = prePromptText.replaceAll('"', '')
-            prePromptText = prePromptText.replaceAll("'", '')
-            prePromptText = prePromptText.replace(/\n/ig, '')
-            init.body = init.body.replaceAll('${context}', prePromptText)
-        }
+        const res = ApiRun(prompt, combo);
 
         sendMessageToBackground['api-run']({
-            url, init, combo, promptId: prompt.id
+            ...res
         })
 
-        console.log("sendMessageToBackground['api-run']", {
-            url, init, combo, promptId: prompt.id, prePromptText
-        })
+        console.log("sendMessageToBackground['api-run']", res)
 
         // 传递给父级
         setTimeout(() => this.props.callback({
             cmd: 'send-talk',
             data: {
-                url, init
+                url: res.url, init: res.init
             },
             type: "api"
         }), 500)
@@ -880,185 +856,94 @@ class Main extends React.Component<{
     }
 
     _queryClickRun(prompt: any, delay = 1000) {
-        let query = prompt.queryObj.query;
-        // 当前页面
-        setTimeout(() => {
-            clickByQueryBase(query)
-            const id = md5(query + (new Date()))
+        QueryClickRun(prompt, delay).then((res: any) => {
             const data = Talks.createTaskStatus(
-                '_queryClickRun',
-                id,
-                '模拟点击'
+                res.from,
+                res.id,
+                res.text
             )
             this._updateChatBotTalksResult([data]);
-        }, delay)
+        })
     }
 
     _queryInputRun(prompt: any, delay = 1000) {
-
-        let text: any = prompt.context || '',
-            query = prompt.queryObj.query;
-
-        setTimeout(() => {
-            // 当前页面
-            inputByQueryBase(query, text)
-            const id = md5(query + text + (new Date()))
+        QueryInputRun(prompt, delay).then((res: any) => {
             const data = Talks.createTaskStatus(
-                '_queryInputRun',
-                id,
-                '文本输入:' + text
+                res.from,
+                res.id,
+                res.text
             )
             this._updateChatBotTalksResult([data]);
-
             setTimeout(() => this.props.callback({
                 cmd: 'stop-talk',
-                data: text
+                data: res.text
             }), 1000)
-
-        }, delay)
-
+        })
     }
 
     _queryDefaultRun(queryObj: any, combo: any) {
-        // console.log('_queryDefaultRun',queryObj && !this.props.agents,queryObj)
-        if (queryObj) {
-            // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
-            let {
-                url, protocol, delay
-            } = queryObj;
 
-            if (delay === 0) delay = 1;
+        QueryDefaultRun(queryObj, combo).then((res: any) => {
 
             this.updateChatBotStatus(false);
 
-            if (url) {
-                // 对url进行处理
-                if (url && !url.match('//')) url = `${protocol}${url}`;
-
-                const data = JSON.parse(JSON.stringify({
-                    type: 'queryDefault',
-                    url,
-                    delay: delay || 2000,
-                    combo: { ...combo } //用来传递combo数据
-                }));
-                console.log('_queryDefaultRun', data)
-
+            if (res.url) {
                 // 需要把当前面板的状态停止
                 this._promptControl({ cmd: 'stop-combo' });
 
-                sendMessageToBackground['run-agents'](data)
+                sendMessageToBackground['run-agents'](res.data)
             } else {
-                // url没有填写
-                let id = md5("_queryDefaultRun" + (new Date()))
-                setTimeout(() => {
-                    this._updateChatBotTalksResult([
-                        Talks.createTaskStatus(
-                            '_queryDefaultRun',
-                            id + 'r',
-                            '延时' + delay + '毫秒'
-                        )
-                    ])
-                    this.props.callback({
-                        cmd: 'stop-talk',
-                        data: '延时' + delay + '毫秒'
-                    })
-                }, delay);
+                this._updateChatBotTalksResult([
+                    Talks.createTaskStatus(
+                        res.from,
+                        res.id,
+                        res.text
+                    )
+                ])
+                this.props.callback({
+                    cmd: 'stop-talk',
+                    data: '延时' + res.delay + '毫秒'
+                })
             }
 
-        }
+        })
+
     }
 
     _queryReadRun(queryObj: any) {
-        const { content, query, url, protocol } = queryObj;
-        // console.log('_queryReadRun', queryObj)
-        let prompt = {};
-        if (content == 'bindCurrentPage') {
-            // 绑定全文
-            prompt = promptBindCurrentSite('', 'text', query)
-        } else if (content == 'bindCurrentPageHTML') {
-            // 绑定网页
-            prompt = promptBindCurrentSite('', 'html', query)
-        } else if (content == 'bindCurrentPageURL') {
-            // 绑定url
-            prompt = promptBindCurrentSite('', 'url', query)
-        } else if (content == 'bindCurrentPageImages') {
-            prompt = promptBindCurrentSite('', 'images', query)
-        } else if (content == "bindCurrentPageTitle") {
-            prompt = promptBindCurrentSite('', 'title', query)
-        }
+        QueryReadRun(queryObj).then((res: any) => {
 
-        const { id, system, user } = promptParse(prompt);
+            // 需要被下一节点使用到，需要设置成done类型
+            this._updateChatBotTalksResult([{
+                ...Talks.createTaskStatus(
+                    res.from,
+                    res.id,
+                    res.markdown
+                ),
+                markdown: res.markdown,
+                html: res.markdown,
+                export: true,
+                type: 'done'
+            }])
 
-        const markdown = `<details>
-        <summary>${i18n.t("queryReadRunResult")}</summary>
-        <p>${user.content}</p>
-    </details>`;
-        // 折叠的样式实现 
+            // 传递给父级
+            this.props.callback({
+                cmd: 'send-talk',
+                data: res.data,
+                type: "query"
+            })
 
+            setTimeout(() => this.props.callback({
+                cmd: 'stop-talk',
+                data: res.markdown || 'debug'
+            }), 500)
 
-        // 需要被下一节点使用到，需要设置成done类型
-        setTimeout(() => this._updateChatBotTalksResult([{
-            ...Talks.createTaskStatus(
-                '_queryReadRun',
-                id + 'r',
-                markdown
-            ),
-            markdown,
-            html: markdown,
-            export: true,
-            type: 'done'
-        }]), 500);
-
-
-        // 传递给父级
-        setTimeout(() => this.props.callback({
-            cmd: 'send-talk',
-            data: {
-                content,
-                query,
-                protocol,
-                url
-            },
-            type: "query"
-        }), 500)
-
-        setTimeout(() => this.props.callback({
-            cmd: 'stop-talk',
-            data: markdown || 'debug'
-        }), 1200)
+        })
 
 
         return
     }
 
-    _agentSendToZsxqRun(url: string, text: string, combo: any) {
-
-        if (url && !this.props.agents) {
-            // 如果是query，则开始调用网页代理 ,&& 避免代理页面也发起了新的agent
-
-            this.updateChatBotStatus(false);
-
-
-            // 对url进行处理
-            if (url && !url.match('//')) url = `https://${url}${url.match(/\?/) ? '&ref=mix' : (url.endsWith('/') ? '?ref=mix' : '/?ref=mix')}`
-
-            // text = text.replaceAll('<br><br>', '\n\n')
-            // console.log(text)
-            const agentsJson = JSON.parse(JSON.stringify({
-                type: 'send-to-zsxq',
-                url,
-                text,
-                combo: { ...combo } //用来传递combo数据
-            }));
-
-
-            // 需要把当前面板的状态停止
-            this._promptControl({ cmd: 'stop-combo' });
-
-            sendMessageToBackground['run-agents'](agentsJson)
-
-        }
-    }
 
     _agentHighlightTextRun(text: string) {
         // let success: any = false;
@@ -1133,58 +1018,9 @@ class Main extends React.Component<{
 
     _llmRun(prompt: any, newTalk: boolean) {
         // console.log('this.state.chatBotStyle', this.state.chatBotStyle)
-        const { temperature, model, text, type, merged, role } = prompt;
 
-        let promptData;
+        const data = LLMRun(prompt, newTalk)
 
-        if (merged && merged.length > 0) {
-            // 使用合成好的prompt
-            promptData = merged;
-            promptData = Array.from(promptData, (p: any) => {
-                if (p.role == 'user' && prompt['context']) {
-                    p.content = p.content.replaceAll("${context}", prompt['context'])
-                }
-                if (p.role == 'system' && prompt['context']) {
-                    p.content = p.content.replaceAll("${context}", prompt['context'])
-                }
-                return p
-            })
-        } else {
-            const { system, user, assistant } = promptParse(prompt);
-            promptData = [system, user];
-        }
-
-
-        // role 合成好的处理
-        if (role && role.merged && role.merged[0]) {
-            promptData = Array.from(promptData, (p: any) => {
-                if (p.role == 'system') {
-                    p = role.merged[0]
-                }
-                return p
-            })
-        }
-
-
-        let chatBotType = model,
-            style: any = temperature;
-
-        // if (this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
-        if (!chatBotType) chatBotType = this.state.chatBotType;
-        if (!style && this.state.chatBotStyle && this.state.chatBotStyle.value) style = this.state.chatBotStyle.value;
-
-        // 增加一个Bing的转化
-        if (model == "Bing" && typeof (temperature) == 'number' && temperature > -1) style = this._temperature2BingStyle(temperature);
-
-
-        console.log(`sendMessageToBackground['chat-bot-talk']`, style, chatBotType, promptData)
-
-        const data = {
-            prompt: promptData,
-            type: chatBotType,
-            style,
-            newTalk: !!newTalk
-        }
         sendMessageToBackground['chat-bot-talk'](data);
 
         // 传递给父级
@@ -1487,11 +1323,7 @@ class Main extends React.Component<{
         }
     }
 
-    _temperature2BingStyle(temperature = 0.6) {
-        let style = 'Balanced';
-        if (temperature < 0.3) style = 'Creative'
-        if (temperature > 0.7) style = 'Precise'
-    }
+
 
     /*
    
@@ -1738,7 +1570,14 @@ class Main extends React.Component<{
                     'prompt',
                     'promptCustom',
                     'role',
-                ].includes(promptJson.type)) this._llmRun(promptJson, newTalk);
+                ].includes(promptJson.type)) {
+
+                    if (!promptJson.prompt.model) promptJson.prompt.model = this.state.chatBotType;
+                    if (!promptJson.prompt.temperature && this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.prompt.temperature = this.state.chatBotStyle.value;
+
+                    this._llmRun(promptJson, newTalk);
+
+                };
 
 
                 // queryInput 
