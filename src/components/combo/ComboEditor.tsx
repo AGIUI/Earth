@@ -4,7 +4,7 @@ import {
     Button,
     Typography,
     Tag,
-    List, Empty, Popconfirm
+    List, Empty, message
 } from 'antd';
 
 const { Text } = Typography;
@@ -213,6 +213,8 @@ class ComboEditor extends React.Component {
                             if (isNew) {
                                 newUser.push(n);
                                 myPrompts.push(n)
+                            }else{
+                                message.info('已存在')
                             }
                             ;
                         }
