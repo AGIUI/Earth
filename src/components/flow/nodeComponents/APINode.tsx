@@ -23,7 +23,7 @@ function Main({ id, data, selected }: any) {
 
     const [statusInput, setStatusInput] = React.useState('')
 
-    const [body, setBody] = React.useState(typeof (api.init.body) == 'object' ? JSON.stringify(api.init.body, null, 2) : '{}')
+    const [body, setBody] = React.useState(typeof (api.init.body) == 'object' ? JSON.stringify(api.init.body, null, 2) : (typeof (api.init.body) == 'string' ? api.init.body : '{}'))
 
     const [bodyStatus, setBodyStatus] = React.useState('');
 
