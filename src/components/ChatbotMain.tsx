@@ -993,7 +993,7 @@ class Main extends React.Component<{
             if (output && output.trim()) {
                 for (let index = 0; index < items.length; index++) {
                     const n = items[index];
-                    output = output.replaceAll('${n' + index + '}', n);
+                    output = output.replaceAll('${n' + index + '}', n?.trim());
                 }
             }
 

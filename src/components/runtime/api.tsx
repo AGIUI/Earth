@@ -14,9 +14,9 @@ export function ApiRun(prompt: any, combo: any) {
 
     if (init.body && typeof (init.body) == 'string' && prePromptText) {
         // 替换${context} 表示从上一个节点传递来的text
-        prePromptText = prePromptText.replaceAll('"', '')
-        prePromptText = prePromptText.replaceAll("'", '')
-        prePromptText = prePromptText.replace(/\n/ig, '')
+        // prePromptText = prePromptText.replaceAll('"', '')
+        // prePromptText = prePromptText.replaceAll("'", '')
+        // prePromptText = prePromptText.replace(/\n/ig, '')
         init.body = init.body.replaceAll('${context}', prePromptText)
     }
 
