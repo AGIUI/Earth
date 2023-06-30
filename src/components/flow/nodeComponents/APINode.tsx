@@ -47,7 +47,16 @@ function Main({ id, data, selected }: any) {
         if (e.key === 'body') {
             setBody(e.data);
             try {
-                let b = JSON.parse(e.data);
+
+                let b;
+
+                if (e.data == "${context}") {
+                    // 兼容从合并里面传参过来
+                    b = e.data
+                } else {
+                    b = JSON.parse(e.data);
+                }
+
                 const init = {
                     ...api.init,
                     body: b
@@ -66,7 +75,7 @@ function Main({ id, data, selected }: any) {
                 setBodyStatus('')
                 setShouldRefresh(true);
             } catch (error) {
-                setBodyStatus('error')
+                setBodyStatus('error');
             }
         }
 
