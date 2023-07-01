@@ -189,18 +189,28 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
     const sourceNode: any = nodes.filter((node: any) => (node.id.match('root_') ? 'root' : node.id) === source)[0];
     const targetNode: any = nodes.filter((node: any) => (node.id.match('root_') ? 'root' : node.id) === target)[0];
     if (sourceNode && targetNode) {
+
+      let targetNextId = ""
+      if (workflow[target]) {
+        targetNextId = workflow[target].nextId;
+      }
+
       workflow[source] = {
         ...sourceNode.data,
         type: sourceNode.type,
         id: sourceNode.id,
         nextId: target
       };
+
       workflow[target] = {
         ...targetNode.data,
         type: targetNode.type,
-        id: targetNode.id
+        id: targetNode.id,
+        nextId: targetNextId
       };
+
     }
+    console.log('exportData source,target', source, target)
   }
   const items: any = [];
   // console.log(workflow)
@@ -208,6 +218,7 @@ const exportData: any = (comboId: string, tag: string, comboOptions: any, edges:
   const getItems = (id: string, callback: any) => {
     if (workflow[id]) {
       items.push(workflow[id]);
+      // bug 有些并没有nextId
       let nextId = workflow[id].nextId;
       if (nextId) {
         getItems(nextId, callback)
@@ -408,13 +419,13 @@ const useStore = create<RFState>((set, get) => ({
   },
   onNodesChange: (changes: any) => {
     const nodes = get().nodes;
-    // console.log('onNodesChange', changes,nodes)
+    console.log('onNodesChange', changes, get())
     set({
       nodes: applyNodeChanges(changes, nodes),
     });
   },
   onEdgesChange: (changes: EdgeChange[]) => {
-    // console.log('onEdgesChange')
+    console.log('onEdgesChange', changes, get())
     set({
       edges: applyEdgeChanges(changes, get().edges),
     });
@@ -575,6 +586,7 @@ const useStore = create<RFState>((set, get) => ({
       comboOptions = get().comboOptions,
       edges = get().edges,
       nodes = get().nodes;
+    console.log('exportData get()', get())
     return exportData(comboId, tag, comboOptions, edges, nodes)
   }
 }));
