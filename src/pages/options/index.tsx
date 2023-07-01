@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { message, FloatButton } from 'antd';
 import { RobotOutlined } from '@ant-design/icons';
-import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry, addCss } from "@components/Utils"
+import { getConfig, chromeStorageGet, chromeStorageSet, sendMessageCanRetry, addCss,consoleCheck } from "@components/Utils"
 import Flow from '@components/flow/index'
 import Chatbot from "@src/components/ChatbotMain";
 
@@ -23,7 +23,7 @@ declare const window: Window &
 
 const config = getConfig();
 
-
+consoleCheck()
 
 // 
 import getNodes from '@components/flow/nodeComponents/index'
