@@ -16,8 +16,6 @@ import '@src/locales/i18nConfig'
 
 const _CONFIG_JSON = getConfig()
 
-consoleCheck()
-
 async function loadContextMenuData() {
     let Menu = [];
     let pdfConfig = [];
@@ -309,6 +307,8 @@ async function loadContextMenuData() {
 
 (async() => {
 
+    consoleCheck()
+
     let Menu = await loadContextMenuData();
 
     // chrome.commands.getAll().then(commands => {
@@ -347,7 +347,11 @@ async function loadContextMenuData() {
     // });
 
     chrome.storage.local.onChanged.addListener(async(changes) => {
-        Menu = await loadContextMenuData();
+        // 修复重复新建的bug
+        if (changes['user'] || changes['official']) {
+            console.log('chrome.storage.local.onChanged:loadContextMenuData', changes)
+            Menu = await loadContextMenuData();
+        }
     })
 
     chrome.contextMenus.onClicked.addListener(async(item, tab) => {
