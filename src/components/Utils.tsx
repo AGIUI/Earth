@@ -322,7 +322,7 @@ function getNowDate() {
 
 const consoleCheck=()=>{
     const config: any = getConfig();
-
+    console.log('config.dev',config.dev)
     if (!config.dev) console.log = (function (logFunc, dev = config.dev, isLogStack = false) {
         return function () {
             if (!dev) return
