@@ -1565,15 +1565,26 @@ class Main extends React.Component<{
                     if (this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.temperature = this.state.chatBotStyle.value;
                 }
 
-                // role 给调试用
+
                 if ([
                     'prompt',
-                    'promptCustom',
+                    'promptCustom'
+                ].includes(promptJson.type)) {
+
+                    if (!promptJson.model) promptJson.model = this.state.chatBotType;
+                    if (!promptJson.temperature && this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.temperature = this.state.chatBotStyle.value;
+
+                    this._llmRun(promptJson, newTalk);
+
+                };
+
+                // role 给调试用
+                if ([
                     'role',
                 ].includes(promptJson.type)) {
 
-                    if (!promptJson.prompt.model) promptJson.prompt.model = this.state.chatBotType;
-                    if (!promptJson.prompt.temperature && this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.prompt.temperature = this.state.chatBotStyle.value;
+                    promptJson.model = this.state.chatBotType;
+                    if (this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.temperature = this.state.chatBotStyle.value;
 
                     this._llmRun(promptJson, newTalk);
 
