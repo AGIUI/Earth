@@ -881,9 +881,9 @@ class Main extends React.Component<{
         })
     }
 
-    _queryDefaultRun(queryObj: any, combo: any) {
-
-        QueryDefaultRun(queryObj, combo).then((res: any) => {
+    _queryDefaultRun(prompt: any, combo: any) {
+        const { queryObj, context } = prompt;
+        QueryDefaultRun(queryObj, context, combo).then((res: any) => {
 
             this.updateChatBotStatus(false);
 
@@ -1602,7 +1602,7 @@ class Main extends React.Component<{
                 };
 
                 // queryDefault 跳转页面
-                if (promptJson.type === 'queryDefault') this._queryDefaultRun(promptJson.queryObj, currentCombo);
+                if (promptJson.type === 'queryDefault') this._queryDefaultRun(promptJson, currentCombo);
 
                 // queryRead 读取
                 if (promptJson.type == "queryRead") this._queryReadRun(promptJson.queryObj);
