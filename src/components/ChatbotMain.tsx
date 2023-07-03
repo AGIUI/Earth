@@ -1420,7 +1420,7 @@ class Main extends React.Component<{
                     // 清空type thinking 的状态
                     nTalks = Talks.filter(nTalks)
                     nTalks.push(ChatBotConfig.createTalkData('ask-user-input', {
-                        html: "请输入"
+                        html: prompt.userInput || i18n.t('inputTitle')
                     }));
                     this._userInputTextRun()
                 }
