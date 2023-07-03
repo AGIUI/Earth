@@ -130,7 +130,7 @@ function Main({ id, data, selected }: any) {
                         ) : ''
                 }
             </div>
-            {
+            {/* {
                 createDebug(debugMenu, id,
                     debugInput,
                     data.debugOutput,
@@ -178,7 +178,7 @@ function Main({ id, data, selected }: any) {
                         statusInput: statusInputForDebug,
                         statusOutput: ""
                     })
-            }
+            } */}
         </Card>
     }
 

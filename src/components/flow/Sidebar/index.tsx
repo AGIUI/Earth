@@ -30,7 +30,7 @@ export default (props: any) => {
             onChange={onChange}
             style={{
                 width: 180, userSelect: 'none',
-                background: 'white'
+                background: 'white', 
             }}>
             <p style={{ paddingLeft: '24px' }}>{i18n.t('component')}</p>
             {
@@ -39,8 +39,9 @@ export default (props: any) => {
                         <aside>
                             {
                                 Array.from(node.children,
-                                    (child: any) => {
+                                    (child: any,i) => {
                                         return <div
+                                            key={i}
                                             style={{
                                                 outline: '1px solid #ddd',
                                                 borderRadius: '5px',

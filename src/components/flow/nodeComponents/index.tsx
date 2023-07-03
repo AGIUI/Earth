@@ -2,7 +2,6 @@ import QueryDefaultNode from './QueryDefaultNode';
 import QueryClickNode from './QueryClickNode'
 import QueryReadNode from './QueryReadNode';
 import QueryInputNode from './QueryInputNode';
-import QueryScrollNode from "./QueryScrollNode";
 import APINode from './APINode';
 import RoleNode from './RoleNode';
 import PromptNode from './PromptNode';

@@ -174,7 +174,7 @@
     "urlPlaceholder": "请输入www.xxxx.com",
     "method": "方法",
     "paramaBody": "参数(字符串) Body",
-    "getFromBefore": "从前面节点获取文本 ${context} ",
+    "getFromBefore": "从上一节点获取文本 ${context} ",
     "getFromBeforeTips": "*可以在指令任意位置里插入\"${context}\"",
     "responseType": "返回的数据类型",
     "output": "输出",
@@ -218,6 +218,10 @@
     "selectQuery": "SelectQuery",
     "queryClickPlaceholder": "#<idName>或者.<className>",
 
+    "queryScrollNodeTitle": "模拟滚动事件",
+    "queryScrollPlaceholder": "输入正数向下滚动，负数向上滚动",
+    "queryScroll": "页面滚动",
+
     "queryReadNodeTitle": "内容读取",
     "queryReadRunResult": "读取结果",
     "content": "获取网页内容",
@@ -227,7 +231,7 @@
     "queryInputNodeTitle": "文本输入",
     "queryInputText": "文本来源",
     "nodeInputLabel": "从节点",
-    "userInputLabel": "从用户输入",
+    "userInputLabel": "输入",
 
     "copyText": "拷贝纯文本",
     "exportPPT": "导出PPT",
@@ -258,9 +262,11 @@
     "inputMenu": "输入",
     "userInputNodeTitle": "用户输入",
     "userInputText": "输入文本",
+    "userInputTextTip": "提示文案",
     "inputMerge": "合并",
     "inputMergeNodeTitle": "输入合并",
-    "mergeReg": "合并规则"
+    "mergeReg": "合并规则",
+    "inputMergePlaceholderTips": "请输入${n0},${n1},${n2}..."
 
 
 }

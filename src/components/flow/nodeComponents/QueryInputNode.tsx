@@ -2,7 +2,7 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Input, Card, Dropdown, Divider } from 'antd';
 
-import { createCardTitle, selectInput, createDebug, createTextArea, nodeStyle, getI18n } from "./Base"
+import { createCardTitle, SelectInput, createDebug, createTextArea, nodeStyle, getI18n } from "./Base"
 
 import i18n from "i18next";
 
@@ -15,7 +15,7 @@ const createUrl = (input: string, json: any, onChange: any) => {
   let nodeOpts: any[] = [];
   if (json.getNodes) nodeOpts = [...json.getNodes(json.id)]
   let selectNodeValue = input === "nodeInput" ? (nodeInputId || nodeOpts[0].value) : null
-  // console.log(input, selectNodeValue)
+  // console.log('createUrl',input, selectNodeValue,nodeOpts)
   return <div onMouseOver={() => {
     onChange({
       key: 'draggable',
@@ -49,9 +49,15 @@ const createUrl = (input: string, json: any, onChange: any) => {
 
     <Divider dashed />
     <p>{i18n.t('queryInputText')}</p>
-    {
-      selectInput(i18n.t('nodeInputLabel'), i18n.t('userInputLabel'), selectNodeValue, userInput, nodeOpts, onChange)
-    }
+    <SelectInput 
+       nodeInputLabel={i18n.t('nodeInputLabel')}
+       userInputLabel={i18n.t('userInputLabel')}
+       nodeInputId={selectNodeValue}
+       userInput={userInput}
+       nodeOpts={nodeOpts}
+       onChange={onChange} 
+    />
+  
 
   </div>
 }
@@ -135,55 +141,55 @@ function Main({ id, data, selected }: any) {
     ];
 
 
-    node.push(
-      createDebug(debugMenu, id,
-        debugInput,
-        data.debugOutput,
-        (event: any) => {
-          if (event.key == 'input') {
-            const { data } = event;
-            setDebugInput(data)
-            let json: any;
-            try {
-              json = JSON.parse(data);
-              setStatusInputForDebug('')
-            } catch (error) {
-              setStatusInputForDebug('error')
-            }
-          };
-          if (event.key == 'draggable') updateData(event)
-        },
-        () => {
-          console.log('debugFun debugInput', debugInput)
-          if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
-            let merged;
-            try {
-              merged = JSON.parse(debugInput)
-            } catch (error) {
+    // node.push(
+    //   createDebug(debugMenu, id,
+    //     debugInput,
+    //     data.debugOutput,
+    //     (event: any) => {
+    //       if (event.key == 'input') {
+    //         const { data } = event;
+    //         setDebugInput(data)
+    //         let json: any;
+    //         try {
+    //           json = JSON.parse(data);
+    //           setStatusInputForDebug('')
+    //         } catch (error) {
+    //           setStatusInputForDebug('error')
+    //         }
+    //       };
+    //       if (event.key == 'draggable') updateData(event)
+    //     },
+    //     () => {
+    //       console.log('debugFun debugInput', debugInput)
+    //       if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+    //         let merged;
+    //         try {
+    //           merged = JSON.parse(debugInput)
+    //         } catch (error) {
 
-            }
-            console.log('debugFun merged', merged)
-            data.merged = merged;
-            data.debugInput = JSON.stringify(merged, null, 2);
-            if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
-            data.debug && data.debug(data);
-          } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
-            data.merged = null;
-            data.debugInput = "";
-            if (data.role) data.role.merged = null;
-            console.log('debugFun no merged', data)
-            data.debug && data.debug(data)
-            setShouldRefresh(true);
-          } else if (debugInput === undefined) {
-            data.debug && data.debug(data)
-          }
-        },
-        () => data.merge && data.merge(data),
-        {
-          statusInput: statusInputForDebug,
-          statusOutput: ""
-        })
-    )
+    //         }
+    //         console.log('debugFun merged', merged)
+    //         data.merged = merged;
+    //         data.debugInput = JSON.stringify(merged, null, 2);
+    //         if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
+    //         data.debug && data.debug(data);
+    //       } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
+    //         data.merged = null;
+    //         data.debugInput = "";
+    //         if (data.role) data.role.merged = null;
+    //         console.log('debugFun no merged', data)
+    //         data.debug && data.debug(data)
+    //         setShouldRefresh(true);
+    //       } else if (debugInput === undefined) {
+    //         data.debug && data.debug(data)
+    //       }
+    //     },
+    //     () => data.merge && data.merge(data),
+    //     {
+    //       statusInput: statusInputForDebug,
+    //       statusOutput: ""
+    //     })
+    // )
 
     return <Card
       key={id}

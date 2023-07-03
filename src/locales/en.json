@@ -209,8 +209,13 @@
     "ms": "ms",
     "s": "s",
 
-    "queryClickNodeTitle": "Simulate click event",
+    "queryClickNodeTitle": "Simulate Click Event",
     "selectQuery": "SelectQuery",
+    "queryClickPlaceholder": "#<idName> or.<className>",
+
+    "queryScrollNodeTitle": "Web Scroll Event",
+    "queryScrollPlaceholder": "A positive number to scroll down, a negative number to scroll up",
+    "queryScroll": "Web Scroll",
 
     "queryReadNodeTitle": "Content Reading",
     "queryReadRunResult": "Read result",
@@ -220,7 +225,7 @@
     "queryInputNodeTitle": "Text Input",
     "queryInputText": "Text Source",
     "nodeInputLabel": "From Node",
-    "userInputLabel": "From User Input",
+    "userInputLabel": "Input Text",
 
     "copyText": "Copy plain text",
     "exportPPT": "Export PPT",
@@ -257,9 +262,11 @@
     "inputMenu": "Input",
     "userInputNodeTitle": "User input",
     "userInputText": "Input text",
+    "userInputTextTip": "Prompt Text",
     "inputMerge": "Input merge",
     "inputMergeNodeTitle": "Input merge",
-    "mergeReg": "Merging rules"
+    "mergeReg": "Merging rules",
+    "inputMergePlaceholderTips": "Please enter ${n0},${n1},${n2}..."
 
 
 

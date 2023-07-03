@@ -105,56 +105,56 @@ function QueryReadNode({ id, data, selected }: any) {
       createUrl(i18n.t('content'), i18n.t('selectQuery'), i18n.t('queryReadPlaceholder'), queryObj, updateData)
     ];
 
-    node.push(
-      createDebug(debugMenu, id,
-        debugInput,
-        data.debugOutput,
-        (event: any) => {
-          if (event.key == 'input') {
-            const { data } = event;
-            setDebugInput(data)
-            let json: any;
-            try {
-              json = JSON.parse(data);
-              setStatusInputForDebug('')
-            } catch (error) {
-              setStatusInputForDebug('error')
-            }
-          };
-          if (event.key == 'draggable') updateData(event)
-        },
-        () => {
-          console.log('debugFun debugInput', debugInput)
-          if (debugInput != "" && debugInput && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
-            let merged;
-            try {
-              merged = JSON.parse(debugInput)
-            } catch (error) {
+    // node.push(
+    //   createDebug(debugMenu, id,
+    //     debugInput,
+    //     data.debugOutput,
+    //     (event: any) => {
+    //       if (event.key == 'input') {
+    //         const { data } = event;
+    //         setDebugInput(data)
+    //         let json: any;
+    //         try {
+    //           json = JSON.parse(data);
+    //           setStatusInputForDebug('')
+    //         } catch (error) {
+    //           setStatusInputForDebug('error')
+    //         }
+    //       };
+    //       if (event.key == 'draggable') updateData(event)
+    //     },
+    //     () => {
+    //       console.log('debugFun debugInput', debugInput)
+    //       if (debugInput != "" && debugInput && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+    //         let merged;
+    //         try {
+    //           merged = JSON.parse(debugInput)
+    //         } catch (error) {
 
-            }
-            console.log('debugFun merged', merged)
-            data.merged = merged;
-            data.debugInput = JSON.stringify(merged, null, 2);
-            if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
-            data.debug && data.debug(data);
-          } else if (debugInput == "" || debugInput && debugInput.replace(/\s/ig, "") == "[]") {
-            data.merged = null;
-            data.debugInput = "";
-            if (data.role) data.role.merged = null;
-            console.log('debugFun no merged', data)
-            data.debug && data.debug(data)
-            setShouldRefresh(true);
-          } else if (debugInput === undefined) {
-            data.debug && data.debug(data);
-            setShouldRefresh(true);
-          }
-        },
-        () => data.merge && data.merge(data),
-        {
-          statusInput: statusInputForDebug,
-          statusOutput: ""
-        })
-    )
+    //         }
+    //         console.log('debugFun merged', merged)
+    //         data.merged = merged;
+    //         data.debugInput = JSON.stringify(merged, null, 2);
+    //         if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
+    //         data.debug && data.debug(data);
+    //       } else if (debugInput == "" || debugInput && debugInput.replace(/\s/ig, "") == "[]") {
+    //         data.merged = null;
+    //         data.debugInput = "";
+    //         if (data.role) data.role.merged = null;
+    //         console.log('debugFun no merged', data)
+    //         data.debug && data.debug(data)
+    //         setShouldRefresh(true);
+    //       } else if (debugInput === undefined) {
+    //         data.debug && data.debug(data);
+    //         setShouldRefresh(true);
+    //       }
+    //     },
+    //     () => data.merge && data.merge(data),
+    //     {
+    //       statusInput: statusInputForDebug,
+    //       statusOutput: ""
+    //     })
+    // )
 
     return <Card
       key={id}
