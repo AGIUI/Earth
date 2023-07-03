@@ -22,16 +22,16 @@ export const createCardTitle = (title: string, id: string, data: any) => {
             alignItems: 'center'
         }}>
             <p style={{ marginBottom: 0 }}>{title}</p>
-            <Tooltip title={<TextArea 
-            style={{
-                color:'white',
-                background:'none',
-                width:'480px',
-                fontSize:'12px'
-            }}
-            autoSize
-            value={JSON.stringify(parsePrompt({ ...data, id }), null, 2)} />} placement="rightBottom">
-                <InfoCircleOutlined style={{ marginBottom: 0 }} />
+            <Tooltip title={<TextArea
+                style={{
+                    color: 'white',
+                    background: 'none',
+                    width: '480px',
+                    fontSize: '12px'
+                }}
+                autoSize
+                value={JSON.stringify(parsePrompt({ ...data, id }), null, 2)} />} placement="rightBottom">
+                <InfoCircleOutlined style={{ marginBottom: 0 }} rev={undefined} />
             </Tooltip>
         </div>
         <p style={{
@@ -95,7 +95,7 @@ export const createURL = (urlTitle: string, urlPlaceholder: string, protocol: st
                     </Select>
                 }
                 placeholder={urlPlaceholder}
-                value={displayedUrl}
+                defaultValue={displayedUrl}
                 onChange={handleUrlChange}
             />
         </>
@@ -157,7 +157,7 @@ export const createTextArea = (title: string, value: string, placeholder: string
                 })}
             onOpenChange={() => console.log('open change')}
         >
-            <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f', marginLeft: '8px' }} />
+            <QuestionCircleOutlined style={{ fontSize: 20, color: '#cd201f', marginLeft: '8px' }} rev={undefined} />
         </Popconfirm> : ""}
 
     </div>
@@ -237,12 +237,18 @@ export const selectNodeInputBase = (nodeInputId: string, nodeOpts: any, onChange
 
 
 // 从上一节点获取文本
-export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: any, onChange: any) => {
-    // console.log(nodeInputId,nodeOpts)
+export const SelectNodeInput: any = (props: any) => {
 
-    const [checked, setChecked] = React.useState(nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0)
+    let { title,
+        nodeInputId,
+        nodeOpts,
+        onChange } = props;
 
-    // console.log('selectNodeInput:', nodeOpts, nodeInputId, checked)
+    // console.log('selectNodeInput:', nodeOpts)
+    const [checked, setChecked] = React.useState(nodeOpts && nodeOpts[0] ?
+        nodeOpts.filter((n: any) => n.value === nodeInputId).length > 0 : false)
+
+
     return <div
         onMouseOver={() => {
             onChange({
@@ -264,7 +270,7 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
             // checked={input == "nodeInput"}
             onChange={(e) => {
                 setChecked(e.target.checked)
-                if (!nodeInputId && nodeOpts[0] && nodeOpts[0].index === 1) nodeInputId = nodeOpts[0].value;
+                if (!nodeInputId && nodeOpts && nodeOpts[0] && nodeOpts[0].index === 1) nodeInputId = nodeOpts[0].value;
                 console.log("Checkbox ", nodeInputId, nodeOpts)
                 onChange({
                     key: 'nodeInput',
@@ -285,7 +291,7 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
                                 data: e
                             })
                         }}
-                        options={nodeOpts}
+                        options={nodeOpts || []}
                     />
                     <p style={{ marginTop: 0, color: "red", fontSize: 12 }}>{i18n.t('getFromBeforeTips')}</p>
                 </>
@@ -295,17 +301,17 @@ export const selectNodeInput = (title: string, nodeInputId: string, nodeOpts: an
 }
 
 // 选择输入，从用户输入 or 从节点
-export const selectInput = (
-    nodeInputLabel: string,
-    userInputLabel: string,
-    nodeInputId: string,
-    userInput: string,
-    nodeOpts: any,
-    onChange: any) => {
 
-    // const [inp, setInp] = React.useState(nodeInputId ? 'nodeInput' : "userInput");
-    // console.log(inp)
-    const [uinp, setUserInput] = React.useState(userInput);
+export const SelectInput: any = (props: any) => {
+
+    let { nodeInputLabel,
+        userInputLabel,
+        nodeInputId,
+        userInput,
+        nodeOpts,
+        onChange } = props;
+
+    const [uinp, setUserInput] = React.useState(userInput || '');
     return <>
         <Select
             defaultValue={nodeInputId ? 'nodeInput' : "userInput"}
@@ -438,7 +444,7 @@ export const createDebug = (
 
         <Collapse bordered={false}
             size="small"
-            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} rev={undefined} />}
             style={{ background: '#eee', marginTop: '14px' }}
         >
             <Panel header={header} key="1">
@@ -555,7 +561,7 @@ export const createDelay = (title: string, delayFormat: string, delay: string, o
             })
         }}>
             {
-                Array.from(opts, (o: any) => <Option value={o.value}>{o.label}</Option>)
+                Array.from(opts, (o: any, i) => <Option key={i} value={o.value}>{o.label}</Option>)
             }
         </Select>
     }
@@ -644,20 +650,21 @@ export const parsePrompt = (data: any) => {
     }
 
     // 针对prompt的数据进行处理，只保留有用的
-    if ([
-        "queryRead",
-        "queryDefault",
-        "queryClick",
-        "queryInput"
-    ].includes(prompt.type)) {
+    if (prompt.type.match('query') &&
+        prompt.type.startsWith('query')) {
         delete prompt.api;
         delete prompt.file;
         delete prompt.inputs;
+        delete prompt.model;
+        delete prompt.temperature;
+        delete prompt.translate;
+        delete prompt.merged;
+        delete prompt.output;
+        delete prompt.text;
     }
 
-    if ([
-        "prompt", "promptCustom"
-    ].includes(prompt.type)) {
+    if (prompt.type.match('prompt') &&
+        prompt.type.startsWith('prompt')) {
         delete prompt.api;
         delete prompt.queryObj;
         delete prompt.file;
@@ -670,7 +677,8 @@ export const parsePrompt = (data: any) => {
         prompt = {
             id: prompt.id,
             type: prompt.type,
-            inputs: prompt.inputs
+            inputs: prompt.inputs,
+            userInput:prompt.userInput //提示文案
         }
     }
 
@@ -678,12 +686,26 @@ export const parsePrompt = (data: any) => {
         delete prompt.queryObj;
         delete prompt.file;
         delete prompt.inputs;
+        delete prompt.model;
+        delete prompt.temperature;
+        delete prompt.translate;
+        delete prompt.merged;
+        delete prompt.output;
+        delete prompt.text;
     }
 
-    if (prompt.type == "file") {
+
+    if (prompt.type.match('file') &&
+        prompt.type.startsWith('file')) {
         delete prompt.api;
         delete prompt.queryObj;
         delete prompt.inputs;
+        delete prompt.model;
+        delete prompt.temperature;
+        delete prompt.translate;
+        delete prompt.merged;
+        delete prompt.output;
+        delete prompt.text;
     }
 
     if (prompt.type == 'role') {

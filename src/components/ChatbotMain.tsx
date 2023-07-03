@@ -881,9 +881,9 @@ class Main extends React.Component<{
         })
     }
 
-    _queryDefaultRun(queryObj: any, combo: any) {
-
-        QueryDefaultRun(queryObj, combo).then((res: any) => {
+    _queryDefaultRun(prompt: any, combo: any) {
+        const { queryObj, context } = prompt;
+        QueryDefaultRun(queryObj, context, combo).then((res: any) => {
 
             this.updateChatBotStatus(false);
 
@@ -1420,7 +1420,7 @@ class Main extends React.Component<{
                     // 清空type thinking 的状态
                     nTalks = Talks.filter(nTalks)
                     nTalks.push(ChatBotConfig.createTalkData('ask-user-input', {
-                        html: "请输入"
+                        html: prompt.userInput || i18n.t('inputTitle')
                     }));
                     this._userInputTextRun()
                 }
@@ -1565,15 +1565,26 @@ class Main extends React.Component<{
                     if (this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.temperature = this.state.chatBotStyle.value;
                 }
 
-                // role 给调试用
+
                 if ([
                     'prompt',
-                    'promptCustom',
+                    'promptCustom'
+                ].includes(promptJson.type)) {
+
+                    if (!promptJson.model) promptJson.model = this.state.chatBotType;
+                    if (!promptJson.temperature && this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.temperature = this.state.chatBotStyle.value;
+
+                    this._llmRun(promptJson, newTalk);
+
+                };
+
+                // role 给调试用
+                if ([
                     'role',
                 ].includes(promptJson.type)) {
 
-                    if (!promptJson.prompt.model) promptJson.prompt.model = this.state.chatBotType;
-                    if (!promptJson.prompt.temperature && this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.prompt.temperature = this.state.chatBotStyle.value;
+                    promptJson.model = this.state.chatBotType;
+                    if (this.state.chatBotStyle && this.state.chatBotStyle.value) promptJson.temperature = this.state.chatBotStyle.value;
 
                     this._llmRun(promptJson, newTalk);
 
@@ -1591,7 +1602,7 @@ class Main extends React.Component<{
                 };
 
                 // queryDefault 跳转页面
-                if (promptJson.type === 'queryDefault') this._queryDefaultRun(promptJson.queryObj, currentCombo);
+                if (promptJson.type === 'queryDefault') this._queryDefaultRun(promptJson, currentCombo);
 
                 // queryRead 读取
                 if (promptJson.type == "queryRead") this._queryReadRun(promptJson.queryObj);

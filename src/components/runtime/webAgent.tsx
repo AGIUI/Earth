@@ -43,7 +43,7 @@ function clickByQueryBase(query: string) {
     }
 }
 
-export function QueryDefaultRun(queryObj: any, combo: any) {
+export function QueryDefaultRun(queryObj: any, prePromptText: string, combo: any) {
     return new Promise((res, rej) => {
         let result = {}
 
@@ -57,6 +57,10 @@ export function QueryDefaultRun(queryObj: any, combo: any) {
 
 
             if (url) {
+                // ${context}
+                if (url.match(/\${context}/) && prePromptText) {
+                    url = url.replaceAll('${context}', prePromptText)
+                }
                 // 对url进行处理
                 if (url && !url.match('//')) url = `${protocol}${url}`;
 
@@ -155,7 +159,7 @@ export function QueryReadRun(queryObj: any) {
         <summary>${i18n.t("queryReadRunResult")}</summary>
         <p>${user.content}</p>
     </details>`;
-        
+
         setTimeout(() => res({
             from: '_queryReadRun',
             id: id + 'r',

@@ -321,7 +321,7 @@ const defaultNode = () => ({
     temperature: 0.6,
     model: 'ChatGPT',
     input: 'nodeInput',// nodeInput、userInput
-    userInput: '',
+    userInput: '', // 用户输入节点-提示文案
     translate: 'default',
     output: 'default',
     type: 'prompt',//运行时使用

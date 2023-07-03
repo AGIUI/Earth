@@ -4,7 +4,7 @@ import { Card, Dropdown } from 'antd';
 
 import i18n from "i18next";
 
-import {createCardTitle, createDebug, selectNodeInput, createText, createSelect, createOutput, createModel, nodeStyle, getI18n } from './Base';
+import {createCardTitle, createDebug, SelectNodeInput, createText, createSelect, createOutput, createModel, nodeStyle, getI18n } from './Base';
 // import { i18nInit } from '../i18nConfig';
 
 
@@ -120,8 +120,16 @@ function Main({ id, data, selected }: any) {
             createText('debugInput', i18n.t('custom'), '', debugInput, statusInputForDebug, updateData)
         )
         node.push(
-            selectNodeInput(i18n.t('getFromBefore'), selectNodeValue, nodeOpts, updateData)
+            <SelectNodeInput 
+            title={i18n.t('getFromBefore')} 
+            nodeInputId={selectNodeValue}
+            nodeOpts={nodeOpts}
+            onChange={updateData}
+            />
         )
+
+       
+
 
         node.push(createModel(model, temperature, models, updateData))
 

@@ -232,7 +232,8 @@ class Common {
                     Agent.executeScript(data.url, {
                         query: data.query,
                         text: data.text,
-                        type: data.type
+                        type: data.type,
+                        delay: data.delay, //修复delay漏传的bug
                     }, data.combo)
                 } else if (cmd == "api-run") {
                     const { url, init, combo, promptId } = data;

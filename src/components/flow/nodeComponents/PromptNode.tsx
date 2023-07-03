@@ -4,7 +4,10 @@ import { Card, Dropdown } from 'antd';
 
 import i18n from "i18next";
 
-import {createCardTitle, createDebug, selectNodeInput, createText, createSelect, createOutput, createModel, nodeStyle, getI18n } from './Base';
+import {
+  createCardTitle, createDebug, SelectNodeInput,
+  createText, createSelect, createOutput, createModel, nodeStyle, getI18n
+} from './Base';
 
 
 function Main({ id, data, selected }: any) {
@@ -52,7 +55,7 @@ function Main({ id, data, selected }: any) {
       // console.log('updateData:',e,shouldRefresh)
     }
 
-    if(e.key=='debugInput'){
+    if (e.key == 'debugInput') {
       data.onChange({
         id, data: {
           debugInput: e.data
@@ -109,14 +112,19 @@ function Main({ id, data, selected }: any) {
     let nodeOpts: any[] = [];
     if (data.getNodes) nodeOpts = [...data.getNodes(id)]
     let selectNodeValue = input === "nodeInput" ? (nodeInputId) : null
-    // console.log('selectNodeValue',selectNodeValue,nodeInputId,nodeOpts[0],data)
+    // console.log('nodeOpts', nodeOpts, data)
     // setNodeInputId(selectNodeValue)
 
     node.push(
       createText('text', i18n.t('userInput'), '', text, '', updateData)
     )
-    node.push(
-      selectNodeInput(i18n.t('getFromBefore'), selectNodeValue, nodeOpts, updateData)
+
+    node.push(<SelectNodeInput
+      title={i18n.t('getFromBefore')}
+      nodeInputId={selectNodeValue}
+      nodeOpts={nodeOpts}
+      onChange={updateData}
+    />
     )
 
     node.push(createModel(model, temperature, models, updateData))
@@ -140,8 +148,8 @@ function Main({ id, data, selected }: any) {
               json = JSON.parse(data);
               setStatusInputForDebug('')
               updateData({
-                key:'debugInput',
-                data:data
+                key: 'debugInput',
+                data: data
               })
             } catch (error) {
               setStatusInputForDebug('error')
@@ -185,7 +193,7 @@ function Main({ id, data, selected }: any) {
 
     return <Card
       key={id}
-      title={createCardTitle(i18n.t('promptNodeTitle'),id, data) }
+      title={createCardTitle(i18n.t('promptNodeTitle'), id, data)}
       bodyStyle={{ paddingTop: 0 }}
       // extra={createType(type, agents, updateType)}
       style={{ width: 300 }}>

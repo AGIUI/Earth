@@ -4,11 +4,11 @@ import { Card, Dropdown } from 'antd';
 
 import i18n from "i18next";
 
-import { createCardTitle, createDebug, createURL, createDelay, getI18n, nodeStyle } from './Base'
+import { createCardTitle, SelectNodeInput, createURL, createDelay, getI18n, nodeStyle } from './Base'
 // import { i18nInit } from '../i18nConfig';
 
 
-const createUI = (json: any, delay: number, delayFormat: string, onChange: any) => {
+const createUI = (json: any, delay: number, delayFormat: string, selectNodeValue: string, nodeOpts: any, onChange: any) => {
   const { protocol, url } = json;
 
   return <div onMouseOver={() => {
@@ -44,6 +44,13 @@ const createUI = (json: any, delay: number, delayFormat: string, onChange: any) 
       })
     }
 
+    <SelectNodeInput
+      title={i18n.t('getFromBefore')}
+      nodeInputId={selectNodeValue}
+      nodeOpts={nodeOpts}
+      onChange={onChange}
+    />
+
     {
       createDelay(i18n.t('delay'), delayFormat, delay.toString(), [
         { value: 'ms', label: i18n.t('ms') },
@@ -77,12 +84,28 @@ function Main({ id, data, selected }: any) {
   const [delay, setDelay] = React.useState(queryObj.delay || 1000)
 
 
+  const [input, setInput] = React.useState(data.input)
+  const [nodeInputId, setNodeInputId] = React.useState(data.nodeInputId)
+
+
   const updateData = (e: any) => {
     // console.log(e)
     if (e.key === 'query') {
       setQueryObj(e.data);
       data.onChange({ id, data: { queryObj: e.data } })
     }
+
+    if (e.key == "nodeInput") {
+      setNodeInputId(e.data);
+      data.onChange({
+        id,
+        data: {
+          nodeInputId: e.data,
+          input: e.data ? 'nodeInput' : 'default'
+        }
+      })
+    }
+
 
     if (e.key == "debug") data.onChange({ id, data: e.data })
     if (e.key == 'draggable') data.onChange({ id, data: { draggable: e.data } })
@@ -118,58 +141,65 @@ function Main({ id, data, selected }: any) {
       setShouldRefresh(false)
     }
 
+
+    let nodeOpts: any[] = [];
+    if (data.getNodes) nodeOpts = [...data.getNodes(id)]
+    let selectNodeValue = input === "nodeInput" ? (nodeInputId) : null
+
     // console.log(delay, delayFormat)
-    const node = [createUI(queryObj, delay, delayFormat, updateData)];
+    const node = [
+      createUI(queryObj, delay, delayFormat, selectNodeValue, nodeOpts, updateData)
+    ];
 
-    node.push(
-      createDebug(debugMenu, id,
-        debugInput,
-        data.debugOutput,
-        (event: any) => {
-          if (event.key == 'input') {
-            const { data } = event;
-            setDebugInput(data)
-            let json: any;
-            try {
-              json = JSON.parse(data);
-              setStatusInputForDebug('')
-            } catch (error) {
-              setStatusInputForDebug('error')
-            }
-          };
-          if (event.key == 'draggable') updateData(event)
-        },
-        () => {
-          console.log('debugFun debugInput', debugInput)
-          if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
-            let merged;
-            try {
-              merged = JSON.parse(debugInput)
-            } catch (error) {
+    // node.push(
+    //   createDebug(debugMenu, id,
+    //     debugInput,
+    //     data.debugOutput,
+    //     (event: any) => {
+    //       if (event.key == 'input') {
+    //         const { data } = event;
+    //         setDebugInput(data)
+    //         let json: any;
+    //         try {
+    //           json = JSON.parse(data);
+    //           setStatusInputForDebug('')
+    //         } catch (error) {
+    //           setStatusInputForDebug('error')
+    //         }
+    //       };
+    //       if (event.key == 'draggable') updateData(event)
+    //     },
+    //     () => {
+    //       console.log('debugFun debugInput', debugInput)
+    //       if (debugInput != "" && debugInput.replace(/\s/ig, "") != "[]" && statusInputForDebug != 'error') {
+    //         let merged;
+    //         try {
+    //           merged = JSON.parse(debugInput)
+    //         } catch (error) {
 
-            }
-            console.log('debugFun merged', merged)
-            data.merged = merged;
-            data.debugInput = JSON.stringify(merged, null, 2);
-            if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
-            data.debug && data.debug(data);
-          } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
-            data.merged = null;
-            data.debugInput = "";
-            if (data.role) data.role.merged = null;
-            console.log('debugFun no merged', data)
-            data.debug && data.debug(data)
-            setShouldRefresh(true);
-          } else if (debugInput === undefined) {
-            data.debug && data.debug(data)
-          }
-        },
-        () => data.merge && data.merge(data),
-        {
-          statusInput: statusInputForDebug,
-          statusOutput: ""
-        })
-    )
+    //         }
+    //         console.log('debugFun merged', merged)
+    //         data.merged = merged;
+    //         data.debugInput = JSON.stringify(merged, null, 2);
+    //         if (data.role) data.role.merged = merged.filter((f: any) => f.role == 'system');
+    //         data.debug && data.debug(data);
+    //       } else if (debugInput == "" || debugInput.replace(/\s/ig, "") == "[]") {
+    //         data.merged = null;
+    //         data.debugInput = "";
+    //         if (data.role) data.role.merged = null;
+    //         console.log('debugFun no merged', data)
+    //         data.debug && data.debug(data)
+    //         setShouldRefresh(true);
+    //       } else if (debugInput === undefined) {
+    //         data.debug && data.debug(data)
+    //       }
+    //     },
+    //     () => data.merge && data.merge(data),
+    //     {
+    //       statusInput: statusInputForDebug,
+    //       statusOutput: ""
+    //     })
+    // )
 
     return <Card
       key={id}

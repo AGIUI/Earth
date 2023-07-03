@@ -2,7 +2,7 @@ import React from 'react'
 import { Handle, NodeProps, Position } from 'reactflow';
 import { Card, Dropdown, Button, Popconfirm } from 'antd';
 
-import { createCardTitle, createDebug, selectNodeInput, createURL, createSelect, createTextArea, nodeStyle, getI18n } from './Base';
+import { createCardTitle, createDebug, SelectNodeInput, createURL, createSelect, createTextArea, nodeStyle, getI18n } from './Base';
 
 import i18n from "i18next";
 // import { i18nInit } from '../../locales/i18nConfig';
@@ -198,10 +198,13 @@ function Main({ id, data, selected }: any) {
                         }
 
 
-                        {
-                            selectNodeInput(i18n.t('getFromBefore'), nodeInputId, nodeOpts, updateData)
-                        }
-
+                        <SelectNodeInput 
+                        title={i18n.t('getFromBefore')} 
+                        nodeInputId={nodeInputId}
+                        nodeOpts={nodeOpts}
+                        onChange={updateData}
+                        />
+                      
                         {
                             createSelect(i18n.t('responseType'), responseType, [
                                 { value: 'text', label: i18n.t('text') },
@@ -282,7 +285,7 @@ function Main({ id, data, selected }: any) {
                         }
 
 
-                        {
+                        {/* {
                             createDebug(debugMenu, id,
                                 debugInput,
                                 data.debugOutput,
@@ -331,7 +334,7 @@ function Main({ id, data, selected }: any) {
                                     statusInput: statusInputForDebug,
                                     statusOutput: ""
                                 })
-                        }
+                        } */}
 
                     </div>
                 </Card>
