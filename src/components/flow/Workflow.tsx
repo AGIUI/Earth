@@ -234,12 +234,12 @@ const comboOptions = (show=['showInChat','contextMenus','role']) => {
         {
             label: i18n.t('showInChatOption'),
             value:'showInChat' ,
-            disabled:show.includes('showInChat')
+            disabled:!show.includes('showInChat')
         },
         {
             label: i18n.t('contextMenusOption'),
             value: 'contextMenus',
-            disabled:show.includes('contextMenus'),
+            disabled:!show.includes('contextMenus'),
             children:
                 // contexts 上下文
                 Array.from([
@@ -259,17 +259,17 @@ const comboOptions = (show=['showInChat','contextMenus','role']) => {
         {
             label: i18n.t('roleOption'),
             value: 'role',
-            disabled:show.includes('role') 
+            disabled:!show.includes('role') 
         },
         {
             label: i18n.t('homeOption'),
             value: 'home',
-            disabled:show.includes('home') 
+            disabled:!show.includes('home') 
         },
         {
             label: i18n.t('infiniteLoopOption'),
             value: 'infinite',
-            disabled:show.includes('infinite') 
+            disabled:!show.includes('infinite') 
         }
     ]
 };
