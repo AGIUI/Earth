@@ -152,7 +152,7 @@ async function buildJSPage(name: string, entry: string, outdir: string, dev: boo
     plugins: [
       stylePlugin()
     ],
-   
+
   });
 
   console.timeEnd(prompt);
@@ -256,7 +256,7 @@ async function BuildPages(version: 2 | 3, pageDirMap: { [x: string]: any }, dev:
 
 async function BuildVersionedExt(versions: (2 | 3)[], dev: boolean = false) {
   const pageDirMap = getPageDirMap();
-  console.log('-------BuildVersionedExt',JSON.stringify(pageDirMap,null,2))
+  console.log('-------BuildVersionedExt', JSON.stringify(pageDirMap, null, 2))
   if (versions.length === 0) {
     return;
   }
@@ -381,7 +381,7 @@ async function DevVersionedExt(versions: (2 | 3)[]) {
 
       version = versions[0];
 
-     
+
 
     }
   });
@@ -475,7 +475,7 @@ async function BuildBrowserExt(browsers: string[]) {
 
   const versions = MatchExtVersions(matchedBrowsers);
 
- await BuildVersionedExt(versions);
+  await BuildVersionedExt(versions);
 
   for (const matchedBrowser of matchedBrowsers) {
     const version = manifestVersion(matchedBrowser);
@@ -602,21 +602,39 @@ async function DevBrowserExt(browsers: string[]) {
       for (const { command, exitCode } of err) {
         if (exitCode !== 0) {
           console.error(`${command.command}:\n exited with code ${exitCode}\n`);
-        
+
           throw new Error(command.error);
         }
       }
     });
 }
 
+function deleteFolderRecursive(path: string) {
+  if (fs.existsSync(path)) {
+    fs.readdirSync(path).forEach(function (file) {
+      const curPath = path + '/' + file;
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // 递归删除子文件夹
+        deleteFolderRecursive(curPath);
+      } else {
+        // 删除文件
+        fs.unlinkSync(curPath);
+      }
+    });
+    // 删除文件夹
+    fs.rmdirSync(path);
+    console.log(`Successfully deleted folder ${path}`);
+  }
+}
 
 async function Init() {
   const { browsers, dev } = GetArgs();
   await writeJsonAsync();
   if (dev) {
-   await DevBrowserExt(browsers);
+    await DevBrowserExt(browsers);
   } else {
-   await BuildBrowserExt(browsers);
+    deleteFolderRecursive(OutDir);
+    await BuildBrowserExt(browsers);
   }
 
 
@@ -644,7 +662,7 @@ async function Init() {
       console.error(err)
     }
   }
-  
+
 
 
 }
