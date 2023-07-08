@@ -350,6 +350,9 @@ export default class ChatGPT {
             };
 
             if (isDone) {
+                if (!this.conversationContext) {
+                    this.conversationContext = { messages: [] };
+                }
                 this.conversationContext.messages.push(result);
                 params.onEvent({ type: 'DONE' })
                 return
